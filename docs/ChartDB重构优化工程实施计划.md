@@ -1146,13 +1146,15 @@ export type SupportLevel = 'full' | 'partial' | 'experimental' | 'unsupported';
 
 **实施步骤：**
 
-- [ ] 每个 dialect 先建立 wrapper。
+- [x] 每个 dialect 先建立 wrapper。
 
-- [ ] 每个 dialect 输出 capabilities。
+- [x] 每个 dialect 输出 capabilities。
 
-- [ ] 每个 dialect 保留现有 fixture tests。
+- [x] 每个 dialect 保留现有 fixture tests。
 
-- [ ] 新增 unsupported statement warnings。
+- [x] 新增 unsupported statement warnings。
+
+本轮结果：已新增 MySQL、MariaDB、SQLite、SQL Server 和 Oracle dialect wrapper，并通过 `src/dialects/common/legacy-sql-importer.ts` 复用旧 SQL parser 到 `Diagram` 的转换、排序和 primary key index normalize。五个方言均输出 capability metadata；MariaDB 明确通过 MySQL fallback 进入统一 `ImportResult`，并标注 experimental 支持等级。MySQL ENGINE/charset、MariaDB sequence/engine、SQLite virtual table、SQL Server procedure、Oracle sequence/package 等语义会进入结构化 `warnings` / `unsupportedObjects`。新增 wrapper 测试和旧 importer regression 均通过。下一项进入 `CHARTDB-P4-004`，DBML import/export 统一走 dialect contract。
 
 ### Task 4.4：DBML 进入 dialect pipeline
 
