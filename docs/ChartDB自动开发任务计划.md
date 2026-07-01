@@ -539,7 +539,7 @@ phase: Phase 1
 type: REVIEW
 priority: P0
 title: 完成密钥、Markdown、Docker 安全审查
-status: queued
+status: done
 depends_on:
   - CHARTDB-P1-002
   - CHARTDB-P1-003
@@ -554,6 +554,10 @@ verification:
 acceptance:
   - 所有命中项都有安全解释或已移除
   - Phase 1 剩余风险按 high、medium、low 分类记录
+completion:
+  - 已新增 `docs/安全风险登记.md`，记录 High、Medium、Low 风险分级、缓解措施和后续处理路径。
+  - 已确认生产依赖 high/critical advisory 为 0，剩余 5 个 low 和 1 个 moderate 不阻断 Phase 2。
+  - 已确认安全扫描仅剩 `default.conf.template` 的非敏感 `window.env` runtime object。
 ```
 
 ## 8. Phase 2：Schema Core 与 Command 架构
@@ -1614,7 +1618,7 @@ npm install
 npm run test:ci
 ```
 
-`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003` 和 `CHARTDB-P1-004` 已完成，Phase 0 通过验收且 Phase 1 已关闭构建期和运行时 API key 暴露、建立 AI Disabled / BYOK Session / Self-hosted Gateway mode gate、完成 Note Markdown 安全渲染，并为 Docker/Nginx 静态部署增加基础安全响应头。下一轮自动任务应从 `CHARTDB-P1-005` 开始，完成密钥、Markdown、Docker 安全审查。不要跳过 Phase 1 直接做 `schema-core`、storage 或 UI 改造。
+`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004` 和 `CHARTDB-P1-005` 已完成，Phase 0 和 Phase 1 均通过验收。下一轮自动任务应从 `CHARTDB-P2-000` 开始，编写 Phase 2 Schema Core 与 Command 架构执行清单。不要跳过 Phase 2 直接做 storage、dialect 或 UI 改造。
 
 ## 19. 计划边界确认
 

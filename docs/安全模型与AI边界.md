@@ -113,9 +113,9 @@ Docker smoke 应至少确认：
 | --- | --- | --- |
 | `CHARTDB-P1-001` | 移除 Dockerfile 和 `/config.js` 中的 API key 暴露 | 已完成：构建产物和运行时配置不输出 `OPENAI_API_KEY` |
 | `CHARTDB-P1-002` | 增加 Disabled、BYOK Session、Gateway 三种 AI mode | 已完成：默认 Disabled，BYOK 不持久化密钥，BYOK/Gateway 请求前必须确认 schema transfer |
-| `CHARTDB-P1-003` | Note Markdown 安全渲染 | 恶意 Markdown fixture 不执行 raw HTML 或危险链接 |
-| `CHARTDB-P1-004` | Docker 和 Nginx 安全头 | 自托管镜像包含基础安全头，CSP 策略有文档说明 |
-| `CHARTDB-P1-005` | Phase 1 安全审查 | 剩余风险按 high、medium、low 分类记录 |
+| `CHARTDB-P1-003` | Note Markdown 安全渲染 | 已完成：恶意 Markdown fixture 不执行 raw HTML 或危险链接 |
+| `CHARTDB-P1-004` | Docker 和 Nginx 安全头 | 已完成：自托管镜像包含基础安全头，CSP 策略有文档说明 |
+| `CHARTDB-P1-005` | Phase 1 安全审查 | 已完成：剩余风险按 High、Medium、Low 分类记录在 `docs/安全风险登记.md` |
 
 ## 8. 验证命令
 

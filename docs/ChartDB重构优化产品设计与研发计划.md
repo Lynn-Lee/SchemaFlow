@@ -1172,7 +1172,8 @@ Capability Matrix：
 - 新增 AI Disabled / BYOK Session / Self-hosted Gateway 模式。（已完成 mode gate；完整设置 UI 后续进入设置中心任务）
 - Note Markdown sanitize。（已完成，raw HTML 不再渲染为真实 DOM，链接仅允许 `http`、`https`、`mailto`）
 - Nginx 增加 CSP 和安全响应头。（已完成，静态页面和 `/config.js` 均返回基础安全头）
-- CLA workflow 权限收敛。
+- 完成 Phase 1 安全审查。（已完成，见 `docs/安全风险登记.md`；无开放 high/critical 风险）
+- CLA workflow 权限收敛。（延后到发布治理阶段）
 - Docker runtime config 不输出 secret。（已完成，`/config.js` 仅输出非敏感 endpoint、model 和开关，并设置 no-store）
 
 验收：
@@ -1499,11 +1500,11 @@ Capability Matrix：
 
 第一优先级：
 
-1. Markdown sanitize。
-2. 完成 Docker/Nginx 安全头。（已完成）
-3. 完成 Phase 1 安全审查。
-4. 建立 schema-core。
-5. 抽离 storage / repository 边界。
+1. 建立 schema-core。
+2. 抽离 storage / repository 边界。
+3. 拆分 importer/exporter 方言能力。
+4. 改善首次进入和设置中心体验。
+5. 处理 Monaco、模板和 worker chunk 性能问题。
 
 第二优先级：
 
@@ -1543,6 +1544,7 @@ Capability Matrix：
 - 无 high 生产依赖 advisory。
 - Markdown sanitize。
 - Docker 可启动。
+- Phase 1 安全风险完成 High、Medium、Low 分级登记。
 
 ### M2：架构可维护版
 

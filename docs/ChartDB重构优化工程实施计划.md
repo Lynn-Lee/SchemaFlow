@@ -419,7 +419,7 @@ CI 目标顺序：
 6. build。
 7. test。
 
-- [ ] 新增 `docs/安全风险登记.md`，记录暂时无法修复的 advisory、影响范围和处置计划。该项转入后续安全文档任务，不阻塞 `CHARTDB-P0-003` 的 CI gate 验收。
+- [x] 新增 `docs/安全风险登记.md`，记录暂时无法修复的 advisory、影响范围和处置计划。该项已在 `CHARTDB-P1-005` 完成。
 
 风险登记字段：
 
@@ -480,7 +480,7 @@ git commit -m "chore: establish baseline checks"
 
 **目标：** 关闭 API key 暴露、Markdown XSS 和运行时配置风险。
 
-**当前状态：** `CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003` 和 `CHARTDB-P1-004` 已完成。Phase 1 安全实施清单已记录在 `docs/安全模型与AI边界.md`；Docker 构建和 Nginx `/config.js` 已移除浏览器端 API key 暴露；非 deterministic 的 AI-assisted SQL export 已接入 mode gate，默认 Disabled，BYOK 密钥只允许保存在当前浏览器会话内，Self-hosted Gateway 只接受非敏感 endpoint/model；Note Markdown 预览已禁用 raw HTML 并限制链接协议；Docker/Nginx 静态部署已增加基础 CSP 和安全响应头。真实模型调用和完整设置 UI 暂不恢复，避免把 OpenAI SDK 和 key fallback 重新打入浏览器产物。后续任务应完成 Phase 1 安全审查后再进入 Phase 2。
+**当前状态：** `CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004` 和 `CHARTDB-P1-005` 已完成。Phase 1 安全实施清单已记录在 `docs/安全模型与AI边界.md`；Docker 构建和 Nginx `/config.js` 已移除浏览器端 API key 暴露；非 deterministic 的 AI-assisted SQL export 已接入 mode gate，默认 Disabled，BYOK 密钥只允许保存在当前浏览器会话内，Self-hosted Gateway 只接受非敏感 endpoint/model；Note Markdown 预览已禁用 raw HTML 并限制链接协议；Docker/Nginx 静态部署已增加基础 CSP 和安全响应头。Phase 1 安全审查已记录在 `docs/安全风险登记.md`，当前无开放 high/critical 风险，允许进入 Phase 2。
 
 **推荐分支：**
 
