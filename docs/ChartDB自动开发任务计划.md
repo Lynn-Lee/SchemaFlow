@@ -818,7 +818,7 @@ phase: Phase 3
 type: CODE
 priority: P1
 title: 创建 storage/db 并集中 Dexie schema
-status: queued
+status: done
 depends_on:
     - CHARTDB-P3-000
 owner_lane: storage
@@ -834,6 +834,11 @@ acceptance:
     - StorageProvider 不再直接定义完整 Dexie schema
     - migration 版本集中可读
     - 不破坏现有本地 diagram 读取
+completion:
+    - 已新增 `src/storage/db/chartdb-dexie.ts` 和 `src/storage/db/schema-versions.ts`，集中 `ChartDB` Dexie 名称、当前版本 `13`、stores 和既有 upgrade migration。
+    - `StorageProvider` 已改为通过 `createChartDBDexie()` 获取已声明 schema 的 typed db instance，CRUD 逻辑仍保留在 Provider，repository 抽离留给 `CHARTDB-P3-002`。
+    - 已新增 `src/storage/db/__tests__/chartdb-dexie.test.ts`，覆盖数据库名、当前版本和全部当前 store 名称。
+    - 下一项进入 `CHARTDB-P3-002`，抽 Repository API。
 ```
 
 ### CHARTDB-P3-002：抽 Repository API
@@ -1654,7 +1659,7 @@ npm install
 npm run test:ci
 ```
 
-`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005` 和 `CHARTDB-P2-006` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口、command 基础 contract、table command 纯函数、field/index/relationship command 纯函数、area/note/custom type command 纯函数，以及 command history metadata 接入。下一轮自动任务应从 `CHARTDB-P3-000` 开始，定义 storage repository 和 migration 计划。不要跳过 Phase 3 直接做 dialect、UI 或性能改造。
+`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005`、`CHARTDB-P2-006`、`CHARTDB-P3-000` 和 `CHARTDB-P3-001` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口、command 基础 contract、table command 纯函数、field/index/relationship command 纯函数、area/note/custom type command 纯函数，以及 command history metadata 接入。Phase 3 已完成 storage 执行清单和 Dexie schema 集中化。下一轮自动任务应从 `CHARTDB-P3-002` 开始，抽 Repository API。不要跳过 Phase 3 直接做 dialect、UI 或性能改造。
 
 ## 19. 计划边界确认
 
