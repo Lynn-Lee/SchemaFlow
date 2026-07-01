@@ -15,3 +15,4 @@ export * from './note-commands';
 export * from './apply-note-command';
 export * from './custom-type-commands';
 export * from './apply-custom-type-command';
+export * from './command-history';

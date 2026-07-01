@@ -42,6 +42,8 @@ import {
     applyNoteCommand,
     applyRelationshipCommand,
     applyTableCommand,
+    createCommandHistoryBatch,
+    createCommandHistoryEntry,
     createAddAreaCommand,
     createAddCustomTypeCommand,
     createAddFieldCommand,
@@ -66,6 +68,10 @@ import {
     type DiagramFieldIndexRelationshipCommandState,
     type DiagramTableCommandState,
     type DiagramVisualCustomTypeCommandState,
+    type CommandHistoryBatch,
+    type CommandHistoryEntry,
+    type CommandResult,
+    type DiagramCommand,
     type RestoreFieldCommand,
     type RestoreTableCommand,
     type UpdateTableCommand,
@@ -355,16 +361,24 @@ export const ChartDBProvider: React.FC<
 
     const addTables: ChartDBContext['addTables'] = useCallback(
         async (tablesToAdd: DBTable[], options = { updateHistory: true }) => {
+            const commandHistoryEntries: Array<CommandHistoryEntry | null> = [];
             const nextCommandState = tablesToAdd.reduce(
                 (state, table) => {
+                    const command = createAddTableCommand({
+                        context: commandContext,
+                        table,
+                    });
                     const result = applyTableCommand({
                         context: commandContext,
                         state,
-                        command: createAddTableCommand({
-                            context: commandContext,
-                            table,
-                        }),
+                        command,
                     });
+                    commandHistoryEntries.push(
+                        createCommandHistoryEntry({
+                            redoCommand: command,
+                            result,
+                        })
+                    );
                     return result.status === 'success' ? result.state : state;
                 },
                 {
@@ -395,6 +409,9 @@ export const ChartDBProvider: React.FC<
                     action: 'addTables',
                     redoData: { tables: tablesToAdd },
                     undoData: { tableIds: tablesToAdd.map((t) => t.id) },
+                    commandHistory: createBatchedCommandHistory(
+                        commandHistoryEntries
+                    ),
                 });
                 resetRedoStack();
             }
@@ -476,35 +493,37 @@ export const ChartDBProvider: React.FC<
                 dependencies,
                 notes,
             } satisfies DiagramTableCommandState;
-            const commandResults = ids.map((id) =>
-                applyTableCommand({
+            const commandResults = ids.map((id) => {
+                const command = createDeleteTableCommand({
+                    context: commandContext,
+                    tableId: id,
+                });
+                const result = applyTableCommand({
                     context: commandContext,
                     state: initialCommandState,
-                    command: createDeleteTableCommand({
-                        context: commandContext,
-                        tableId: id,
-                    }),
-                })
-            );
+                    command,
+                });
+                return { command, result };
+            });
             const tablesToRemove = commandResults.flatMap((result) =>
-                result.status === 'success' &&
-                isRestoreTableCommand(result.undoCommand)
-                    ? [result.undoCommand.payload.table]
+                result.result.status === 'success' &&
+                isRestoreTableCommand(result.result.undoCommand)
+                    ? [result.result.undoCommand.payload.table]
                     : []
             );
             const relationshipsToRemove = uniqueById(
                 commandResults.flatMap((result) =>
-                    result.status === 'success' &&
-                    isRestoreTableCommand(result.undoCommand)
-                        ? result.undoCommand.payload.relationships
+                    result.result.status === 'success' &&
+                    isRestoreTableCommand(result.result.undoCommand)
+                        ? result.result.undoCommand.payload.relationships
                         : []
                 )
             );
             const dependenciesToRemove = uniqueById(
                 commandResults.flatMap((result) =>
-                    result.status === 'success' &&
-                    isRestoreTableCommand(result.undoCommand)
-                        ? result.undoCommand.payload.dependencies
+                    result.result.status === 'success' &&
+                    isRestoreTableCommand(result.result.undoCommand)
+                        ? result.result.undoCommand.payload.dependencies
                         : []
                 )
             );
@@ -550,6 +569,14 @@ export const ChartDBProvider: React.FC<
                         relationships: relationshipsToRemove,
                         dependencies: dependenciesToRemove,
                     },
+                    commandHistory: createBatchedCommandHistory(
+                        commandResults.map(({ command, result }) =>
+                            createCommandHistoryEntry({
+                                redoCommand: command,
+                                result,
+                            })
+                        )
+                    ),
                 });
                 resetRedoStack();
             }
@@ -582,6 +609,11 @@ export const ChartDBProvider: React.FC<
             table: Partial<DBTable>,
             options = { updateHistory: true }
         ) => {
+            const command = createUpdateTableCommand({
+                context: commandContext,
+                tableId: id,
+                table,
+            });
             const commandResult = applyTableCommand({
                 context: commandContext,
                 state: {
@@ -590,11 +622,7 @@ export const ChartDBProvider: React.FC<
                     dependencies,
                     notes,
                 },
-                command: createUpdateTableCommand({
-                    context: commandContext,
-                    tableId: id,
-                    table,
-                }),
+                command,
             });
             const prevTable =
                 commandResult.status === 'success' &&
@@ -625,6 +653,10 @@ export const ChartDBProvider: React.FC<
                     action: 'updateTable',
                     redoData: { tableId: id, table },
                     undoData: { tableId: id, table: prevTable },
+                    commandHistory: createSingleCommandHistory(
+                        command,
+                        commandResult
+                    ),
                 });
                 resetRedoStack();
             }
@@ -793,6 +825,12 @@ export const ChartDBProvider: React.FC<
             options = { updateHistory: true }
         ) => {
             const prevField = getField(tableId, fieldId);
+            const command = createUpdateFieldCommand({
+                context: commandContext,
+                tableId,
+                fieldId,
+                field,
+            });
             const result = applyFieldCommand({
                 context: commandContext,
                 state: {
@@ -800,12 +838,7 @@ export const ChartDBProvider: React.FC<
                     tables,
                     relationships,
                 } satisfies DiagramFieldIndexRelationshipCommandState,
-                command: createUpdateFieldCommand({
-                    context: commandContext,
-                    tableId,
-                    fieldId,
-                    field,
-                }),
+                command,
             });
             if (result.status !== 'success') {
                 return;
@@ -843,6 +876,7 @@ export const ChartDBProvider: React.FC<
                         field: { ...prevField, ...field },
                     },
                     undoData: { tableId, fieldId, field: prevField },
+                    commandHistory: createSingleCommandHistory(command, result),
                 });
                 resetRedoStack();
             }
@@ -869,6 +903,11 @@ export const ChartDBProvider: React.FC<
         ) => {
             const fields = getTable(tableId)?.fields ?? [];
             const prevField = getField(tableId, fieldId);
+            const command = createDeleteFieldCommand({
+                context: commandContext,
+                tableId,
+                fieldId,
+            });
             const result = applyFieldCommand({
                 context: commandContext,
                 state: {
@@ -876,11 +915,7 @@ export const ChartDBProvider: React.FC<
                     tables,
                     relationships,
                 } satisfies DiagramFieldIndexRelationshipCommandState,
-                command: createDeleteFieldCommand({
-                    context: commandContext,
-                    tableId,
-                    fieldId,
-                }),
+                command,
             });
             if (result.status !== 'success') {
                 return;
@@ -936,6 +971,7 @@ export const ChartDBProvider: React.FC<
                         field: prevField,
                         relationships: relationshipsToRemove,
                     },
+                    commandHistory: createSingleCommandHistory(command, result),
                 });
                 resetRedoStack();
             }
@@ -963,6 +999,11 @@ export const ChartDBProvider: React.FC<
             options = { updateHistory: true }
         ) => {
             const fields = getTable(tableId)?.fields ?? [];
+            const command = createAddFieldCommand({
+                context: commandContext,
+                tableId,
+                field,
+            });
             const result = applyFieldCommand({
                 context: commandContext,
                 state: {
@@ -970,11 +1011,7 @@ export const ChartDBProvider: React.FC<
                     tables,
                     relationships,
                 } satisfies DiagramFieldIndexRelationshipCommandState,
-                command: createAddFieldCommand({
-                    context: commandContext,
-                    tableId,
-                    field,
-                }),
+                command,
             });
             if (result.status !== 'success') {
                 return;
@@ -1018,6 +1055,7 @@ export const ChartDBProvider: React.FC<
                     action: 'addField',
                     redoData: { tableId, field },
                     undoData: { tableId, fieldId: field.id },
+                    commandHistory: createSingleCommandHistory(command, result),
                 });
                 resetRedoStack();
             }
@@ -1071,6 +1109,11 @@ export const ChartDBProvider: React.FC<
             index: DBIndex,
             options = { updateHistory: true }
         ) => {
+            const command = createAddIndexCommand({
+                context: commandContext,
+                tableId,
+                index,
+            });
             const result = applyIndexCommand({
                 context: commandContext,
                 state: {
@@ -1078,11 +1121,7 @@ export const ChartDBProvider: React.FC<
                     tables,
                     relationships,
                 } satisfies DiagramFieldIndexRelationshipCommandState,
-                command: createAddIndexCommand({
-                    context: commandContext,
-                    tableId,
-                    index,
-                }),
+                command,
             });
             if (result.status !== 'success') {
                 return;
@@ -1116,6 +1155,7 @@ export const ChartDBProvider: React.FC<
                     action: 'addIndex',
                     redoData: { tableId, index },
                     undoData: { tableId, indexId: index.id },
+                    commandHistory: createSingleCommandHistory(command, result),
                 });
                 resetRedoStack();
             }
@@ -1140,6 +1180,11 @@ export const ChartDBProvider: React.FC<
             options = { updateHistory: true }
         ) => {
             const prevIndex = getIndex(tableId, indexId);
+            const command = createDeleteIndexCommand({
+                context: commandContext,
+                tableId,
+                indexId,
+            });
             const result = applyIndexCommand({
                 context: commandContext,
                 state: {
@@ -1147,11 +1192,7 @@ export const ChartDBProvider: React.FC<
                     tables,
                     relationships,
                 } satisfies DiagramFieldIndexRelationshipCommandState,
-                command: createDeleteIndexCommand({
-                    context: commandContext,
-                    tableId,
-                    indexId,
-                }),
+                command,
             });
             if (result.status !== 'success') {
                 return;
@@ -1189,6 +1230,7 @@ export const ChartDBProvider: React.FC<
                     action: 'removeIndex',
                     redoData: { indexId, tableId },
                     undoData: { tableId, index: prevIndex },
+                    commandHistory: createSingleCommandHistory(command, result),
                 });
                 resetRedoStack();
             }
@@ -1233,6 +1275,12 @@ export const ChartDBProvider: React.FC<
             options = { updateHistory: true }
         ) => {
             const prevIndex = getIndex(tableId, indexId);
+            const command = createUpdateIndexCommand({
+                context: commandContext,
+                tableId,
+                indexId,
+                index,
+            });
             const result = applyIndexCommand({
                 context: commandContext,
                 state: {
@@ -1240,12 +1288,7 @@ export const ChartDBProvider: React.FC<
                     tables,
                     relationships,
                 } satisfies DiagramFieldIndexRelationshipCommandState,
-                command: createUpdateIndexCommand({
-                    context: commandContext,
-                    tableId,
-                    indexId,
-                    index,
-                }),
+                command,
             });
             if (result.status !== 'success') {
                 return;
@@ -1280,6 +1323,7 @@ export const ChartDBProvider: React.FC<
                     action: 'updateIndex',
                     redoData: { tableId, indexId, index },
                     undoData: { tableId, indexId, index: prevIndex },
+                    commandHistory: createSingleCommandHistory(command, result),
                 });
                 resetRedoStack();
             }
@@ -1515,17 +1559,25 @@ export const ChartDBProvider: React.FC<
                     tables,
                     relationships,
                 };
+            const commandHistoryEntries: Array<CommandHistoryEntry | null> = [];
             const nextCommandState =
                 relationshipsToAdd.reduce<DiagramFieldIndexRelationshipCommandState>(
                     (state, relationship) => {
+                        const command = createAddRelationshipCommand({
+                            context: commandContext,
+                            relationship,
+                        });
                         const result = applyRelationshipCommand({
                             context: commandContext,
                             state,
-                            command: createAddRelationshipCommand({
-                                context: commandContext,
-                                relationship,
-                            }),
+                            command,
                         });
+                        commandHistoryEntries.push(
+                            createCommandHistoryEntry({
+                                redoCommand: command,
+                                result,
+                            })
+                        );
                         return result.status === 'success'
                             ? result.state
                             : state;
@@ -1566,6 +1618,9 @@ export const ChartDBProvider: React.FC<
                     undoData: {
                         relationshipIds: acceptedRelationships.map((r) => r.id),
                     },
+                    commandHistory: createBatchedCommandHistory(
+                        commandHistoryEntries
+                    ),
                 });
                 resetRedoStack();
             }
@@ -1655,17 +1710,26 @@ export const ChartDBProvider: React.FC<
                         tables,
                         relationships,
                     };
+                const commandHistoryEntries: Array<CommandHistoryEntry | null> =
+                    [];
                 const nextCommandState =
                     ids.reduce<DiagramFieldIndexRelationshipCommandState>(
                         (state, id) => {
+                            const command = createDeleteRelationshipCommand({
+                                context: commandContext,
+                                relationshipId: id,
+                            });
                             const result = applyRelationshipCommand({
                                 context: commandContext,
                                 state,
-                                command: createDeleteRelationshipCommand({
-                                    context: commandContext,
-                                    relationshipId: id,
-                                }),
+                                command,
                             });
+                            commandHistoryEntries.push(
+                                createCommandHistoryEntry({
+                                    redoCommand: command,
+                                    result,
+                                })
+                            );
                             return result.status === 'success'
                                 ? result.state
                                 : state;
@@ -1692,6 +1756,9 @@ export const ChartDBProvider: React.FC<
                         action: 'removeRelationships',
                         redoData: { relationshipsIds: ids },
                         undoData: { relationships: prevRelationships },
+                        commandHistory: createBatchedCommandHistory(
+                            commandHistoryEntries
+                        ),
                     });
                     resetRedoStack();
                 }
@@ -1725,6 +1792,11 @@ export const ChartDBProvider: React.FC<
                 options = { updateHistory: true }
             ) => {
                 const prevRelationship = getRelationship(id);
+                const command = createUpdateRelationshipCommand({
+                    context: commandContext,
+                    relationshipId: id,
+                    relationship,
+                });
                 const result = applyRelationshipCommand({
                     context: commandContext,
                     state: {
@@ -1732,11 +1804,7 @@ export const ChartDBProvider: React.FC<
                         tables,
                         relationships,
                     } satisfies DiagramFieldIndexRelationshipCommandState,
-                    command: createUpdateRelationshipCommand({
-                        context: commandContext,
-                        relationshipId: id,
-                        relationship,
-                    }),
+                    command,
                 });
                 if (result.status !== 'success') {
                     return;
@@ -1762,6 +1830,10 @@ export const ChartDBProvider: React.FC<
                             relationshipId: id,
                             relationship: prevRelationship,
                         },
+                        commandHistory: createSingleCommandHistory(
+                            command,
+                            result
+                        ),
                     });
                     resetRedoStack();
                 }
@@ -1943,15 +2015,20 @@ export const ChartDBProvider: React.FC<
         async (areas: Area[], options = { updateHistory: true }) => {
             let commandState = createVisualCustomTypeCommandState();
             const acceptedAreas: Area[] = [];
+            const commandHistoryEntries: Array<CommandHistoryEntry | null> = [];
             for (const area of areas) {
+                const command = createAddAreaCommand({
+                    context: commandContext,
+                    area,
+                });
                 const result = applyAreaCommand({
-                    command: createAddAreaCommand({
-                        context: commandContext,
-                        area,
-                    }),
+                    command,
                     context: commandContext,
                     state: commandState,
                 });
+                commandHistoryEntries.push(
+                    createCommandHistoryEntry({ redoCommand: command, result })
+                );
                 commandState = result.state;
                 if (result.status === 'success') {
                     acceptedAreas.push(area);
@@ -1975,6 +2052,9 @@ export const ChartDBProvider: React.FC<
                     action: 'addAreas',
                     redoData: { areas: acceptedAreas },
                     undoData: { areaIds: acceptedAreas.map((a) => a.id) },
+                    commandHistory: createBatchedCommandHistory(
+                        commandHistoryEntries
+                    ),
                 });
                 resetRedoStack();
             }
@@ -2026,15 +2106,20 @@ export const ChartDBProvider: React.FC<
         async (ids: string[], options = { updateHistory: true }) => {
             let commandState = createVisualCustomTypeCommandState();
             const prevAreas = areas.filter((area) => ids.includes(area.id));
+            const commandHistoryEntries: Array<CommandHistoryEntry | null> = [];
             for (const id of ids) {
+                const command = createDeleteAreaCommand({
+                    context: commandContext,
+                    areaId: id,
+                });
                 const result = applyAreaCommand({
-                    command: createDeleteAreaCommand({
-                        context: commandContext,
-                        areaId: id,
-                    }),
+                    command,
                     context: commandContext,
                     state: commandState,
                 });
+                commandHistoryEntries.push(
+                    createCommandHistoryEntry({ redoCommand: command, result })
+                );
                 commandState = result.state;
             }
 
@@ -2057,6 +2142,9 @@ export const ChartDBProvider: React.FC<
                     action: 'removeAreas',
                     redoData: { areaIds: ids },
                     undoData: { areas: prevAreas },
+                    commandHistory: createBatchedCommandHistory(
+                        commandHistoryEntries
+                    ),
                 });
                 resetRedoStack();
             }
@@ -2087,12 +2175,13 @@ export const ChartDBProvider: React.FC<
             options = { updateHistory: true }
         ) => {
             const prevArea = getArea(id);
+            const command = createUpdateAreaCommand({
+                context: commandContext,
+                areaId: id,
+                area,
+            });
             const result = applyAreaCommand({
-                command: createUpdateAreaCommand({
-                    context: commandContext,
-                    areaId: id,
-                    area,
-                }),
+                command,
                 context: commandContext,
                 state: createVisualCustomTypeCommandState(),
             });
@@ -2114,6 +2203,7 @@ export const ChartDBProvider: React.FC<
                     action: 'updateArea',
                     redoData: { areaId: id, area },
                     undoData: { areaId: id, area: prevArea },
+                    commandHistory: createSingleCommandHistory(command, result),
                 });
                 resetRedoStack();
             }
@@ -2135,15 +2225,20 @@ export const ChartDBProvider: React.FC<
         async (notes: Note[], options = { updateHistory: true }) => {
             let commandState = createVisualCustomTypeCommandState();
             const acceptedNotes: Note[] = [];
+            const commandHistoryEntries: Array<CommandHistoryEntry | null> = [];
             for (const note of notes) {
+                const command = createAddNoteCommand({
+                    context: commandContext,
+                    note,
+                });
                 const result = applyNoteCommand({
-                    command: createAddNoteCommand({
-                        context: commandContext,
-                        note,
-                    }),
+                    command,
                     context: commandContext,
                     state: commandState,
                 });
+                commandHistoryEntries.push(
+                    createCommandHistoryEntry({ redoCommand: command, result })
+                );
                 commandState = result.state;
                 if (result.status === 'success') {
                     acceptedNotes.push(note);
@@ -2167,6 +2262,9 @@ export const ChartDBProvider: React.FC<
                     action: 'addNotes',
                     redoData: { notes: acceptedNotes },
                     undoData: { noteIds: acceptedNotes.map((n) => n.id) },
+                    commandHistory: createBatchedCommandHistory(
+                        commandHistoryEntries
+                    ),
                 });
                 resetRedoStack();
             }
@@ -2218,15 +2316,20 @@ export const ChartDBProvider: React.FC<
         async (ids: string[], options = { updateHistory: true }) => {
             let commandState = createVisualCustomTypeCommandState();
             const prevNotes = notes.filter((note) => ids.includes(note.id));
+            const commandHistoryEntries: Array<CommandHistoryEntry | null> = [];
             for (const id of ids) {
+                const command = createDeleteNoteCommand({
+                    context: commandContext,
+                    noteId: id,
+                });
                 const result = applyNoteCommand({
-                    command: createDeleteNoteCommand({
-                        context: commandContext,
-                        noteId: id,
-                    }),
+                    command,
                     context: commandContext,
                     state: commandState,
                 });
+                commandHistoryEntries.push(
+                    createCommandHistoryEntry({ redoCommand: command, result })
+                );
                 commandState = result.state;
             }
 
@@ -2249,6 +2352,9 @@ export const ChartDBProvider: React.FC<
                     action: 'removeNotes',
                     redoData: { noteIds: ids },
                     undoData: { notes: prevNotes },
+                    commandHistory: createBatchedCommandHistory(
+                        commandHistoryEntries
+                    ),
                 });
                 resetRedoStack();
             }
@@ -2279,12 +2385,13 @@ export const ChartDBProvider: React.FC<
             options = { updateHistory: true }
         ) => {
             const prevNote = getNote(id);
+            const command = createUpdateNoteCommand({
+                context: commandContext,
+                noteId: id,
+                note,
+            });
             const result = applyNoteCommand({
-                command: createUpdateNoteCommand({
-                    context: commandContext,
-                    noteId: id,
-                    note,
-                }),
+                command,
                 context: commandContext,
                 state: createVisualCustomTypeCommandState(),
             });
@@ -2306,6 +2413,7 @@ export const ChartDBProvider: React.FC<
                     action: 'updateNote',
                     redoData: { noteId: id, note },
                     undoData: { noteId: id, note: prevNote },
+                    commandHistory: createSingleCommandHistory(command, result),
                 });
                 resetRedoStack();
             }
@@ -2418,15 +2526,20 @@ export const ChartDBProvider: React.FC<
         ) => {
             let commandState = createVisualCustomTypeCommandState();
             const acceptedCustomTypes: DBCustomType[] = [];
+            const commandHistoryEntries: Array<CommandHistoryEntry | null> = [];
             for (const customType of customTypes) {
+                const command = createAddCustomTypeCommand({
+                    context: commandContext,
+                    customType,
+                });
                 const result = applyCustomTypeCommand({
-                    command: createAddCustomTypeCommand({
-                        context: commandContext,
-                        customType,
-                    }),
+                    command,
                     context: commandContext,
                     state: commandState,
                 });
+                commandHistoryEntries.push(
+                    createCommandHistoryEntry({ redoCommand: command, result })
+                );
                 commandState = result.state;
                 if (result.status === 'success') {
                     acceptedCustomTypes.push(customType);
@@ -2453,6 +2566,9 @@ export const ChartDBProvider: React.FC<
                     undoData: {
                         customTypeIds: acceptedCustomTypes.map((t) => t.id),
                     },
+                    commandHistory: createBatchedCommandHistory(
+                        commandHistoryEntries
+                    ),
                 });
                 resetRedoStack();
             }
@@ -2496,18 +2612,23 @@ export const ChartDBProvider: React.FC<
         async (ids, options = { updateHistory: true }) => {
             let commandState = createVisualCustomTypeCommandState();
             const typesToRemove: DBCustomType[] = [];
+            const commandHistoryEntries: Array<CommandHistoryEntry | null> = [];
             for (const id of ids) {
                 const previousType = commandState.customTypes.find(
                     (type) => type.id === id
                 );
+                const command = createDeleteCustomTypeCommand({
+                    context: commandContext,
+                    customTypeId: id,
+                });
                 const result = applyCustomTypeCommand({
-                    command: createDeleteCustomTypeCommand({
-                        context: commandContext,
-                        customTypeId: id,
-                    }),
+                    command,
                     context: commandContext,
                     state: commandState,
                 });
+                commandHistoryEntries.push(
+                    createCommandHistoryEntry({ redoCommand: command, result })
+                );
                 commandState = result.state;
                 if (result.status === 'success' && previousType) {
                     typesToRemove.push(previousType);
@@ -2537,6 +2658,9 @@ export const ChartDBProvider: React.FC<
                     undoData: {
                         customTypes: typesToRemove,
                     },
+                    commandHistory: createBatchedCommandHistory(
+                        commandHistoryEntries
+                    ),
                 });
                 resetRedoStack();
             }
@@ -2566,12 +2690,13 @@ export const ChartDBProvider: React.FC<
             options = { updateHistory: true }
         ) => {
             const prevCustomType = getCustomType(id);
+            const command = createUpdateCustomTypeCommand({
+                context: commandContext,
+                customTypeId: id,
+                customType,
+            });
             const result = applyCustomTypeCommand({
-                command: createUpdateCustomTypeCommand({
-                    context: commandContext,
-                    customTypeId: id,
-                    customType,
-                }),
+                command,
                 context: commandContext,
                 state: createVisualCustomTypeCommandState(),
             });
@@ -2593,6 +2718,7 @@ export const ChartDBProvider: React.FC<
                     action: 'updateCustomType',
                     redoData: { customTypeId: id, customType },
                     undoData: { customTypeId: id, customType: prevCustomType },
+                    commandHistory: createSingleCommandHistory(command, result),
                 });
                 resetRedoStack();
             }
@@ -2703,6 +2829,21 @@ export const ChartDBProvider: React.FC<
 
 function uniqueById<T extends { id: string }>(items: T[]): T[] {
     return [...new Map(items.map((item) => [item.id, item])).values()];
+}
+
+function createSingleCommandHistory<TState>(
+    redoCommand: DiagramCommand,
+    result: CommandResult<TState>
+): CommandHistoryBatch | undefined {
+    return createCommandHistoryBatch([
+        createCommandHistoryEntry({ redoCommand, result }),
+    ]);
+}
+
+function createBatchedCommandHistory(
+    entries: Array<CommandHistoryEntry | null>
+): CommandHistoryBatch | undefined {
+    return createCommandHistoryBatch(entries);
 }
 
 function isRestoreTableCommand(

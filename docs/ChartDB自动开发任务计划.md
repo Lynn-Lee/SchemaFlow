@@ -757,7 +757,7 @@ phase: Phase 2
 type: CODE
 priority: P1
 title: 用 command history 收敛 undo/redo
-status: queued
+status: done
 depends_on:
     - CHARTDB-P2-005
 owner_lane: core
@@ -773,6 +773,11 @@ acceptance:
     - undo/redo 不依赖散落的 action 字符串
     - 每个 command 都能生成 redoData 和 undoData
     - 大对象历史记录不明显放大内存占用
+completion:
+    - 已新增 `src/schema-core/commands/command-history.ts`，将成功 command result 收敛为包含 redo command、undo command、affected entity ids 和 risk snapshot 的 history entry。
+    - 已新增 `src/schema-core/commands/__tests__/command-history.test.ts`，覆盖成功结果生成 history entry，以及 validation error 不写入 command history。
+    - `RedoUndoAction` 已支持可选 `commandHistory` batch；`ChartDBProvider` 中已迁移的 table、field、index、relationship、area、note 和 custom type 操作会在保留旧 undo/redo 行为的同时写入 command metadata。
+    - 下一项进入 `CHARTDB-P3-000`，定义 storage repository 和 migration 计划。
 ```
 
 ## 9. Phase 3：Storage 与备份恢复
@@ -1645,7 +1650,7 @@ npm install
 npm run test:ci
 ```
 
-`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004` 和 `CHARTDB-P2-005` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口、command 基础 contract、table command 纯函数、field/index/relationship command 纯函数，以及 area/note/custom type command 纯函数和 Provider 接入。下一轮自动任务应从 `CHARTDB-P2-006` 开始，接入统一 undo/redo command history。不要跳过 Phase 2 直接做 storage、dialect 或 UI 改造。
+`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005` 和 `CHARTDB-P2-006` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口、command 基础 contract、table command 纯函数、field/index/relationship command 纯函数、area/note/custom type command 纯函数，以及 command history metadata 接入。下一轮自动任务应从 `CHARTDB-P3-000` 开始，定义 storage repository 和 migration 计划。不要跳过 Phase 3 直接做 dialect、UI 或性能改造。
 
 ## 19. 计划边界确认
 

@@ -8,6 +8,7 @@ import type { DBDependency } from '@/lib/domain/db-dependency';
 import type { Area } from '@/lib/domain/area';
 import type { DBCustomType } from '@/lib/domain/db-custom-type';
 import type { Note } from '@/lib/domain/note';
+import type { CommandHistoryBatch } from '@/schema-core/commands';
 
 type Action = keyof ChartDBContext;
 
@@ -15,6 +16,7 @@ type RedoUndoActionBase<T extends Action, RD, UD> = {
     action: T;
     redoData: RD;
     undoData: UD;
+    commandHistory?: CommandHistoryBatch;
 };
 
 type RedoUndoActionUpdateDiagramName = RedoUndoActionBase<

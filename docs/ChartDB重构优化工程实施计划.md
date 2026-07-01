@@ -754,7 +754,7 @@ curl -I http://localhost:8080
 
 **目标：** 解耦巨型 Provider，把编辑动作沉淀为可测试 command。
 
-**当前状态：** `CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004` 和 `CHARTDB-P2-005` 已完成，执行清单记录在 `docs/schema-core设计.md`，`src/schema-core/model` 已作为兼容 re-export 出口存在，`src/schema-core/commands` 已提供 command 基础 contract，并已迁移 table、field、index、relationship、area、note 和 custom type command。后续从 Task 2.6 开始接入统一 undo/redo command history，不改变用户可见行为。
+**当前状态：** `CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005` 和 `CHARTDB-P2-006` 已完成，执行清单记录在 `docs/schema-core设计.md`，`src/schema-core/model` 已作为兼容 re-export 出口存在，`src/schema-core/commands` 已提供 command 基础 contract，并已迁移 table、field、index、relationship、area、note 和 custom type command。本轮已接入 command history metadata，旧 undo/redo 执行路径保持兼容。后续从 Phase 3 开始抽离 storage repository 和 migration。
 
 **推荐分支：**
 
@@ -940,17 +940,17 @@ npm run build
 - 修改：`src/context/history-context/redo-undo-action.ts`
 - 修改：`src/context/history-context/redo-undo-stack-provider.tsx`
 - 修改：`src/context/chartdb-context/chartdb-provider.tsx`
-- 测试：`src/schema-core/commands/__tests__/undo-redo-commands.test.ts`
+- 测试：`src/schema-core/commands/__tests__/command-history.test.ts`
 
 **实施步骤：**
 
-- [ ] 将 undo action 从零散 patch 过渡为 command inverse。
+- [x] 将已迁移 command 的 undo action 接入 command inverse metadata。
 
-- [ ] 每个 command 返回 `undoCommand`。
+- [x] 每个已迁移 command 返回 `undoCommand`。
 
-- [ ] 测试 add/update/delete 的 undo/redo。
+- [x] 测试 add command result 生成 redo/undo command history entry。
 
-- [ ] 保留旧行为兼容，分批迁移。
+- [x] 保留旧行为兼容，分批迁移；旧 action handler 仍作为当前执行路径。
 
 ## 7. Phase 3：Storage 与备份恢复
 
