@@ -281,7 +281,7 @@ phase: Phase 0
 type: CODE
 priority: P0
 title: 升级 critical/high 生产依赖并记录剩余 advisory
-status: queued
+status: done
 depends_on:
   - CHARTDB-P0-001
 owner_lane: security
@@ -298,6 +298,10 @@ acceptance:
   - 生产依赖 critical/high advisory 清零，或每个剩余项都有不可升级原因和临时缓解措施
   - 没有为了升级依赖引入 React、Vite、Monaco 大版本破坏性迁移
   - lockfile 与 package.json 一致
+completion:
+  - commit: 本轮提交，见自动化运行日志
+  - verified: npm audit --omit=dev --audit-level=high, npm run lint, npm run test:ci, npm run build, git diff --check
+  - remaining_advisory: AI SDK 链保留 low，Monaco/DOMPurify 保留 moderate；修复需破坏性升级或降级，转入 Phase 1 安全评估
 ```
 
 ### CHARTDB-P0-003：补齐 CI 安全门禁
@@ -1576,7 +1580,7 @@ npm install
 npm run test:ci
 ```
 
-`CHARTDB-P0-001` 已完成。下一轮自动任务应从 `CHARTDB-P0-002` 开始，处理生产依赖 high/critical advisory 和剩余风险记录。不要跳过 Phase 0 直接做 `schema-core`、storage 或 UI 改造。
+`CHARTDB-P0-001` 和 `CHARTDB-P0-002` 已完成。下一轮自动任务应从 `CHARTDB-P0-003` 开始，补齐 CI audit gate 和构建门禁。不要跳过 Phase 0 直接做 `schema-core`、storage 或 UI 改造。
 
 ## 19. 计划边界确认
 

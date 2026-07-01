@@ -121,7 +121,7 @@ src/lib/utils/utils.ts:18
 npm audit --omit=dev
 ```
 
-当前结果：存在生产依赖 advisory，其中包含 high 风险。
+当前结果：`CHARTDB-P0-002` 已将生产依赖 high/critical advisory 清零；仍有 AI SDK 链 low 风险和 `monaco-editor` / `dompurify` moderate 风险，破坏性修复转入 Phase 1 安全评估。
 
 ### 2.3 当前关键风险文件
 
@@ -325,7 +325,7 @@ npm run test:ci
 
 **实施步骤：**
 
-- [ ] 查看当前安全风险。
+- [x] 查看当前安全风险。
 
 ```bash
 npm audit --omit=dev
@@ -333,7 +333,7 @@ npm audit --omit=dev
 
 预期：输出当前生产依赖 advisory。
 
-- [ ] 优先升级 patch/minor 可修复项。
+- [x] 优先升级 patch/minor 可修复项。
 
 建议优先处理：
 
@@ -346,7 +346,7 @@ npm audit --omit=dev
 - `lodash` / `lodash-es`。
 - `ai` / `@ai-sdk/openai`。
 
-- [ ] 对 semver major 升级单独开小 commit，并逐项运行测试。
+- [x] 评估 semver major 升级是否需要单独任务。
 
 ```bash
 npm install react-router-dom@latest
@@ -354,7 +354,7 @@ npm run test:ci
 npm run build
 ```
 
-预期：测试和构建通过，若不通过则记录 API 破坏点并修复。
+结果：本轮没有执行 semver major 生产依赖升级，避免引入 `ai`、`@ai-sdk/openai` 或 `monaco-editor` 破坏性迁移。
 
 - [ ] 加入 Dependabot 配置。
 
@@ -377,13 +377,15 @@ updates:
           - "*"
 ```
 
-- [ ] 验证生产依赖安全基线。
+- [x] 验证生产依赖安全基线。
 
 ```bash
 npm audit --omit=dev
 ```
 
 预期：无 high 或 critical；若有不可升级项，必须在 `docs/安全风险登记.md` 记录原因。
+
+当前结果：`npm audit --omit=dev --audit-level=high` 通过；剩余 low/moderate advisory 记录在 `docs/阶段验收记录.md`。
 
 ### Task 0.3：补充 CI 安全门禁
 
