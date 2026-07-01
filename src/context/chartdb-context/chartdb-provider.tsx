@@ -34,6 +34,15 @@ import {
     type DBCustomType,
 } from '@/lib/domain/db-custom-type';
 import { getDefaultPrimaryKeyType } from '@/lib/data/data-types/data-types';
+import {
+    applyTableCommand,
+    createAddTableCommand,
+    createDeleteTableCommand,
+    createUpdateTableCommand,
+    type DiagramTableCommandState,
+    type RestoreTableCommand,
+    type UpdateTableCommand,
+} from '@/schema-core/commands';
 
 export interface ChartDBProviderProps {
     diagram?: Diagram;
@@ -138,6 +147,13 @@ export const ChartDBProvider: React.FC<
     const db = useMemo(
         () => (readonly ? storageInitialValue : storageDB),
         [storageDB, readonly]
+    );
+    const commandContext = useMemo(
+        () => ({
+            now: () => new Date(),
+            generateId,
+        }),
+        []
     );
 
     const currentDiagram: Diagram = useMemo(
@@ -301,7 +317,27 @@ export const ChartDBProvider: React.FC<
 
     const addTables: ChartDBContext['addTables'] = useCallback(
         async (tablesToAdd: DBTable[], options = { updateHistory: true }) => {
-            setTables((currentTables) => [...currentTables, ...tablesToAdd]);
+            const nextCommandState = tablesToAdd.reduce(
+                (state, table) => {
+                    const result = applyTableCommand({
+                        context: commandContext,
+                        state,
+                        command: createAddTableCommand({
+                            context: commandContext,
+                            table,
+                        }),
+                    });
+                    return result.status === 'success' ? result.state : state;
+                },
+                {
+                    tables,
+                    relationships,
+                    dependencies,
+                    notes,
+                } satisfies DiagramTableCommandState
+            );
+
+            setTables(nextCommandState.tables);
             const updatedAt = new Date();
             setDiagramUpdatedAt(updatedAt);
             await Promise.all([
@@ -325,7 +361,19 @@ export const ChartDBProvider: React.FC<
                 resetRedoStack();
             }
         },
-        [db, diagramId, setTables, addUndoAction, resetRedoStack, events]
+        [
+            db,
+            diagramId,
+            setTables,
+            addUndoAction,
+            resetRedoStack,
+            events,
+            tables,
+            relationships,
+            dependencies,
+            notes,
+            commandContext,
+        ]
     );
 
     const addTable: ChartDBContext['addTable'] = useCallback(
@@ -384,40 +432,59 @@ export const ChartDBProvider: React.FC<
 
     const removeTables: ChartDBContext['removeTables'] = useCallback(
         async (ids, options) => {
-            const tables = ids.map((id) => getTable(id)).filter((t) => !!t);
-            const relationshipsToRemove = relationships.filter(
-                (relationship) =>
-                    ids.includes(relationship.sourceTableId) ||
-                    ids.includes(relationship.targetTableId)
+            const initialCommandState = {
+                tables,
+                relationships,
+                dependencies,
+                notes,
+            } satisfies DiagramTableCommandState;
+            const commandResults = ids.map((id) =>
+                applyTableCommand({
+                    context: commandContext,
+                    state: initialCommandState,
+                    command: createDeleteTableCommand({
+                        context: commandContext,
+                        tableId: id,
+                    }),
+                })
             );
-
-            const dependenciesToRemove = dependencies.filter(
-                (dependency) =>
-                    ids.includes(dependency.tableId) ||
-                    ids.includes(dependency.dependentTableId)
+            const tablesToRemove = commandResults.flatMap((result) =>
+                result.status === 'success' &&
+                isRestoreTableCommand(result.undoCommand)
+                    ? [result.undoCommand.payload.table]
+                    : []
             );
-
-            setRelationships((relationships) =>
-                relationships.filter(
-                    (relationship) =>
-                        !relationshipsToRemove.some(
-                            (r) => r.id === relationship.id
-                        )
+            const relationshipsToRemove = uniqueById(
+                commandResults.flatMap((result) =>
+                    result.status === 'success' &&
+                    isRestoreTableCommand(result.undoCommand)
+                        ? result.undoCommand.payload.relationships
+                        : []
                 )
             );
-
-            setDependencies((dependencies) =>
-                dependencies.filter(
-                    (dependency) =>
-                        !dependenciesToRemove.some(
-                            (d) => d.id === dependency.id
-                        )
+            const dependenciesToRemove = uniqueById(
+                commandResults.flatMap((result) =>
+                    result.status === 'success' &&
+                    isRestoreTableCommand(result.undoCommand)
+                        ? result.undoCommand.payload.dependencies
+                        : []
                 )
             );
+            const nextCommandState = ids.reduce((state, id) => {
+                const result = applyTableCommand({
+                    context: commandContext,
+                    state,
+                    command: createDeleteTableCommand({
+                        context: commandContext,
+                        tableId: id,
+                    }),
+                });
+                return result.status === 'success' ? result.state : state;
+            }, initialCommandState);
 
-            setTables((tables) =>
-                tables.filter((table) => !ids.includes(table.id))
-            );
+            setRelationships(nextCommandState.relationships);
+            setDependencies(nextCommandState.dependencies);
+            setTables(nextCommandState.tables);
 
             events.emit({ action: 'remove_tables', data: { tableIds: ids } });
 
@@ -434,14 +501,14 @@ export const ChartDBProvider: React.FC<
                 ...ids.map((id) => db.deleteTable({ diagramId, id })),
             ]);
 
-            if (tables.length > 0 && options?.updateHistory) {
+            if (tablesToRemove.length > 0 && options?.updateHistory) {
                 addUndoAction({
                     action: 'removeTables',
                     redoData: {
                         tableIds: ids,
                     },
                     undoData: {
-                        tables,
+                        tables: tablesToRemove,
                         relationships: relationshipsToRemove,
                         dependencies: dependenciesToRemove,
                     },
@@ -455,10 +522,12 @@ export const ChartDBProvider: React.FC<
             setTables,
             addUndoAction,
             resetRedoStack,
-            getTable,
             relationships,
             events,
             dependencies,
+            tables,
+            notes,
+            commandContext,
         ]
     );
 
@@ -475,10 +544,31 @@ export const ChartDBProvider: React.FC<
             table: Partial<DBTable>,
             options = { updateHistory: true }
         ) => {
-            const prevTable = getTable(id);
-            setTables((tables) =>
-                tables.map((t) => (t.id === id ? { ...t, ...table } : t))
-            );
+            const commandResult = applyTableCommand({
+                context: commandContext,
+                state: {
+                    tables,
+                    relationships,
+                    dependencies,
+                    notes,
+                },
+                command: createUpdateTableCommand({
+                    context: commandContext,
+                    tableId: id,
+                    table,
+                }),
+            });
+            const prevTable =
+                commandResult.status === 'success' &&
+                isUpdateTableCommand(commandResult.undoCommand)
+                    ? commandResult.undoCommand.payload.table
+                    : null;
+
+            if (commandResult.status !== 'success') {
+                return;
+            }
+
+            setTables(commandResult.state.tables);
 
             events.emit({
                 action: 'update_table',
@@ -506,9 +596,13 @@ export const ChartDBProvider: React.FC<
             setTables,
             addUndoAction,
             resetRedoStack,
-            getTable,
             diagramId,
             events,
+            tables,
+            relationships,
+            dependencies,
+            notes,
+            commandContext,
         ]
     );
 
@@ -2186,3 +2280,17 @@ export const ChartDBProvider: React.FC<
         </chartDBContext.Provider>
     );
 };
+
+function uniqueById<T extends { id: string }>(items: T[]): T[] {
+    return [...new Map(items.map((item) => [item.id, item])).values()];
+}
+
+function isRestoreTableCommand(
+    command: unknown
+): command is RestoreTableCommand {
+    return (command as { type?: string } | undefined)?.type === 'table.restore';
+}
+
+function isUpdateTableCommand(command: unknown): command is UpdateTableCommand {
+    return (command as { type?: string } | undefined)?.type === 'table.update';
+}

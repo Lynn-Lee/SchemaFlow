@@ -24,49 +24,49 @@
 
 SchemaPilot 的 roadmap dispatcher 思路不依赖某个单独脚本，而是依赖一组强执行规则。ChartDB 自动开发队列采用以下映射：
 
-| SchemaPilot 规则 | ChartDB 任务计划中的落地方式 |
-| --- | --- |
-| 每个 Phase 开始前先写更细的 implementation plan | 每个 Phase 的第一个任务都是 `PLAN` 类型，更新本 Phase 的执行清单和验收记录 |
-| 每个功能先写测试或验收脚本 | 每个 `CODE` 类型任务必须先补测试、fixture、smoke 脚本或人工验收步骤 |
-| 共享 SchemaModel 是权威状态 | ChartDB 对应为 `schema-core` 是 diagram/domain 的权威模型，UI state 不能绕过 command 写入 |
-| 后端 API、共享模型、前端 UI 必须同时更新 | ChartDB 首轮没有后端；涉及模型的任务必须同时更新 domain type、storage 映射、UI 调用和 import/export 适配 |
-| 所有关键状态变更必须写 AuditLog | ChartDB OSS Core 对应为 local operation history、backup metadata、migration log；Cloud/Team 预研再定义服务端 AuditLog |
-| 高风险变更必须能被 Risk Analyzer 识别 | ChartDB 对应为 destructive schema command、SQL export、AI-assisted export 必须返回 warning/risk 标记 |
-| 权限相关功能必须有 negative tests | Phase 0 到 Phase 7 不做权限；Phase 8 预研文档必须列出 negative test 目录 |
-| 不允许为了 UI 快速推进绕过服务端权威模型 | ChartDB 对应为不允许 UI 直接改多个状态源；所有 diagram 变更走 command 或 repository API |
-| 不允许在前端保存密钥 | ChartDB Phase 1 硬门禁：前端不得持久化 API key，不得把构建期密钥写入 bundle 或 `/config.js` |
+| SchemaPilot 规则                                | ChartDB 任务计划中的落地方式                                                                                          |
+| ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| 每个 Phase 开始前先写更细的 implementation plan | 每个 Phase 的第一个任务都是 `PLAN` 类型，更新本 Phase 的执行清单和验收记录                                            |
+| 每个功能先写测试或验收脚本                      | 每个 `CODE` 类型任务必须先补测试、fixture、smoke 脚本或人工验收步骤                                                   |
+| 共享 SchemaModel 是权威状态                     | ChartDB 对应为 `schema-core` 是 diagram/domain 的权威模型，UI state 不能绕过 command 写入                             |
+| 后端 API、共享模型、前端 UI 必须同时更新        | ChartDB 首轮没有后端；涉及模型的任务必须同时更新 domain type、storage 映射、UI 调用和 import/export 适配              |
+| 所有关键状态变更必须写 AuditLog                 | ChartDB OSS Core 对应为 local operation history、backup metadata、migration log；Cloud/Team 预研再定义服务端 AuditLog |
+| 高风险变更必须能被 Risk Analyzer 识别           | ChartDB 对应为 destructive schema command、SQL export、AI-assisted export 必须返回 warning/risk 标记                  |
+| 权限相关功能必须有 negative tests               | Phase 0 到 Phase 7 不做权限；Phase 8 预研文档必须列出 negative test 目录                                              |
+| 不允许为了 UI 快速推进绕过服务端权威模型        | ChartDB 对应为不允许 UI 直接改多个状态源；所有 diagram 变更走 command 或 repository API                               |
+| 不允许在前端保存密钥                            | ChartDB Phase 1 硬门禁：前端不得持久化 API key，不得把构建期密钥写入 bundle 或 `/config.js`                           |
 
 ## 3. Dispatcher 状态协议
 
 ### 3.1 任务状态
 
-| 状态 | 含义 | 允许转移 |
-| --- | --- | --- |
-| `queued` | 已进入任务池，依赖未全部完成或尚未领取 | `in_progress`、`blocked` |
-| `in_progress` | 已有 agent 领取并开始执行 | `review`、`blocked` |
-| `blocked` | 当前任务无法继续，必须记录阻塞证据 | `queued`、`in_progress` |
-| `review` | 代码或文档已完成，等待验证和审查 | `done`、`in_progress` |
-| `done` | 验收命令和审查通过 | 不再转移 |
+| 状态          | 含义                                   | 允许转移                 |
+| ------------- | -------------------------------------- | ------------------------ |
+| `queued`      | 已进入任务池，依赖未全部完成或尚未领取 | `in_progress`、`blocked` |
+| `in_progress` | 已有 agent 领取并开始执行              | `review`、`blocked`      |
+| `blocked`     | 当前任务无法继续，必须记录阻塞证据     | `queued`、`in_progress`  |
+| `review`      | 代码或文档已完成，等待验证和审查       | `done`、`in_progress`    |
+| `done`        | 验收命令和审查通过                     | 不再转移                 |
 
 ### 3.2 任务类型
 
-| 类型 | 用途 | 必须产物 |
-| --- | --- | --- |
-| `PLAN` | 细化 Phase 内执行步骤 | Phase 执行清单、验收记录模板 |
-| `CODE` | 修改源码或配置 | 代码、测试、验证结果 |
-| `TEST` | 增补测试、fixture、smoke | 可重复执行的测试资产 |
-| `DOC` | 更新工程文档或用户文档 | 中文文档、命令说明、边界说明 |
+| 类型     | 用途                       | 必须产物                     |
+| -------- | -------------------------- | ---------------------------- |
+| `PLAN`   | 细化 Phase 内执行步骤      | Phase 执行清单、验收记录模板 |
+| `CODE`   | 修改源码或配置             | 代码、测试、验证结果         |
+| `TEST`   | 增补测试、fixture、smoke   | 可重复执行的测试资产         |
+| `DOC`    | 更新工程文档或用户文档     | 中文文档、命令说明、边界说明 |
 | `REVIEW` | 做安全、性能、可维护性审查 | findings、风险等级、修复建议 |
-| `SPIKE` | 选型或预研 | 结论、证据、取舍说明 |
+| `SPIKE`  | 选型或预研                 | 结论、证据、取舍说明         |
 
 ### 3.3 优先级
 
-| 优先级 | 处理原则 |
-| --- | --- |
-| `P0` | 阻断后续开发或存在高安全风险，必须优先处理 |
-| `P1` | 影响核心架构、主要流程或发布可信度 |
-| `P2` | 改善体验、性能和可维护性 |
-| `P3` | 可规划但不阻断首轮重构 |
+| 优先级 | 处理原则                                   |
+| ------ | ------------------------------------------ |
+| `P0`   | 阻断后续开发或存在高安全风险，必须优先处理 |
+| `P1`   | 影响核心架构、主要流程或发布可信度         |
+| `P2`   | 改善体验、性能和可维护性                   |
+| `P3`   | 可规划但不阻断首轮重构                     |
 
 ### 3.4 任务卡字段
 
@@ -83,25 +83,25 @@ depends_on: []
 owner_lane: baseline
 branch: codex/chartdb-p0-localstorage-test
 allowed_files:
-  - src/lib/utils/utils.ts
-  - src/**/*.test.ts
-  - vitest.config.ts
-  - src/test/**
+    - src/lib/utils/utils.ts
+    - src/**/*.test.ts
+    - vitest.config.ts
+    - src/test/**
 forbidden_scope:
-  - 账号登录
-  - 云端存储
-  - 团队权限
+    - 账号登录
+    - 云端存储
+    - 团队权限
 entry_context:
-  - npm run test:ci 当前失败在 src/lib/utils/utils.ts:18
+    - npm run test:ci 当前失败在 src/lib/utils/utils.ts:18
 implementation_contract:
-  - 先补复现测试或测试环境 shim
-  - 修复后不改变浏览器运行时 localStorage 行为
+    - 先补复现测试或测试环境 shim
+    - 修复后不改变浏览器运行时 localStorage 行为
 verification:
-  - npm run test:ci
-  - npm run build
+    - npm run test:ci
+    - npm run build
 acceptance:
-  - test:ci 不再因 localStorage.getItem 报错
-  - build 通过
+    - test:ci 不再因 localStorage.getItem 报错
+    - build 通过
 ```
 
 ## 4. 全局执行门禁
@@ -192,13 +192,13 @@ Phase 0 到 Phase 7 禁止：
 
 满足依赖后可以并行：
 
-| 并发 lane | 可并发范围 | 不可同时修改 |
-| --- | --- | --- |
-| `dialect` | PostgreSQL、MySQL、SQLite、SQL Server、Oracle 方言迁移 | 同一个方言目录 |
-| `ux` | 首次进入、设置中心、可访问性修复 | 同一个页面组件 |
-| `performance` | Monaco lazy、模板 lazy、worker spike | Vite 配置和路由入口需协调 |
-| `docs` | 发布清单、贡献说明、issue template | README 同一段落 |
-| `test` | fixture、regression、smoke | 共享 test setup |
+| 并发 lane     | 可并发范围                                             | 不可同时修改              |
+| ------------- | ------------------------------------------------------ | ------------------------- |
+| `dialect`     | PostgreSQL、MySQL、SQLite、SQL Server、Oracle 方言迁移 | 同一个方言目录            |
+| `ux`          | 首次进入、设置中心、可访问性修复                       | 同一个页面组件            |
+| `performance` | Monaco lazy、模板 lazy、worker spike                   | Vite 配置和路由入口需协调 |
+| `docs`        | 发布清单、贡献说明、issue template                     | README 同一段落           |
+| `test`        | fixture、regression、smoke                             | 共享 test setup           |
 
 ### 5.3 合并顺序
 
@@ -234,13 +234,13 @@ depends_on: []
 owner_lane: baseline
 branch: codex/chartdb-p0-plan
 allowed_files:
-  - docs/阶段验收记录.md
-  - docs/ChartDB自动开发任务计划.md
+    - docs/阶段验收记录.md
+    - docs/ChartDB自动开发任务计划.md
 verification:
-  - rg -n "Phase 0|CHARTDB-P0" docs
+    - rg -n "Phase 0|CHARTDB-P0" docs
 acceptance:
-  - Phase 0 每个任务都有责任范围、验收命令和退出标准
-  - 阶段验收记录包含 test、build、audit、CI 四类结果
+    - Phase 0 每个任务都有责任范围、验收命令和退出标准
+    - 阶段验收记录包含 test、build、audit、CI 四类结果
 ```
 
 ### CHARTDB-P0-001：修复测试环境 localStorage 失败
@@ -253,24 +253,24 @@ priority: P0
 title: 修复 npm run test:ci 中 localStorage.getItem 失败
 status: done
 depends_on:
-  - CHARTDB-P0-000
+    - CHARTDB-P0-000
 owner_lane: baseline
 branch: codex/chartdb-p0-localstorage-test
 allowed_files:
-  - src/lib/utils/utils.ts
-  - src/**/*.test.ts
-  - src/test/**
-  - vitest.config.ts
+    - src/lib/utils/utils.ts
+    - src/**/*.test.ts
+    - src/test/**
+    - vitest.config.ts
 verification:
-  - npm run test:ci
-  - npm run build
+    - npm run test:ci
+    - npm run build
 acceptance:
-  - test:ci 不再因 localStorage.getItem 报错
-  - 修复不会改变浏览器正常 localStorage 读取逻辑
-  - 如果增加 test setup，必须只影响测试环境
+    - test:ci 不再因 localStorage.getItem 报错
+    - 修复不会改变浏览器正常 localStorage 读取逻辑
+    - 如果增加 test setup，必须只影响测试环境
 completion:
-  - commit: 8a2f788
-  - verified: npm run lint, npm run test:ci, npm run build, git diff --check
+    - commit: 8a2f788
+    - verified: npm run lint, npm run test:ci, npm run build, git diff --check
 ```
 
 ### CHARTDB-P0-002：建立安全依赖基线
@@ -283,25 +283,25 @@ priority: P0
 title: 升级 critical/high 生产依赖并记录剩余 advisory
 status: done
 depends_on:
-  - CHARTDB-P0-001
+    - CHARTDB-P0-001
 owner_lane: security
 branch: codex/chartdb-p0-dependency-audit
 allowed_files:
-  - package.json
-  - package-lock.json
-  - docs/阶段验收记录.md
+    - package.json
+    - package-lock.json
+    - docs/阶段验收记录.md
 verification:
-  - npm audit --omit=dev --audit-level=high
-  - npm run test:ci
-  - npm run build
+    - npm audit --omit=dev --audit-level=high
+    - npm run test:ci
+    - npm run build
 acceptance:
-  - 生产依赖 critical/high advisory 清零，或每个剩余项都有不可升级原因和临时缓解措施
-  - 没有为了升级依赖引入 React、Vite、Monaco 大版本破坏性迁移
-  - lockfile 与 package.json 一致
+    - 生产依赖 critical/high advisory 清零，或每个剩余项都有不可升级原因和临时缓解措施
+    - 没有为了升级依赖引入 React、Vite、Monaco 大版本破坏性迁移
+    - lockfile 与 package.json 一致
 completion:
-  - commit: 本轮提交，见自动化运行日志
-  - verified: npm audit --omit=dev --audit-level=high, npm run lint, npm run test:ci, npm run build, git diff --check
-  - remaining_advisory: AI SDK 链保留 low，Monaco/DOMPurify 保留 moderate；修复需破坏性升级或降级，转入 Phase 1 安全评估
+    - commit: 本轮提交，见自动化运行日志
+    - verified: npm audit --omit=dev --audit-level=high, npm run lint, npm run test:ci, npm run build, git diff --check
+    - remaining_advisory: AI SDK 链保留 low，Monaco/DOMPurify 保留 moderate；修复需破坏性升级或降级，转入 Phase 1 安全评估
 ```
 
 ### CHARTDB-P0-003：补齐 CI 安全门禁
@@ -314,28 +314,28 @@ priority: P0
 title: 在 CI 中加入 audit gate 和构建门禁
 status: done
 depends_on:
-  - CHARTDB-P0-001
-  - CHARTDB-P0-002
+    - CHARTDB-P0-001
+    - CHARTDB-P0-002
 owner_lane: release
 branch: codex/chartdb-p0-ci-gates
 allowed_files:
-  - .github/workflows/ci.yaml
-  - .github/workflows/publish.yaml
-  - docs/阶段验收记录.md
+    - .github/workflows/ci.yaml
+    - .github/workflows/publish.yaml
+    - docs/阶段验收记录.md
 verification:
-  - npm run lint
-  - npm run test:ci
-  - npm run build
-  - npm audit --omit=dev --audit-level=high
+    - npm run lint
+    - npm run test:ci
+    - npm run build
+    - npm audit --omit=dev --audit-level=high
 acceptance:
-  - PR CI 至少包含 lint、test、build、prod audit
-  - publish 前必须跑 test 和 build
-  - workflow 不依赖本机私有路径或私有凭据
+    - PR CI 至少包含 lint、test、build、prod audit
+    - publish 前必须跑 test 和 build
+    - workflow 不依赖本机私有路径或私有凭据
 completion:
-  - commit: 本轮提交，见自动化运行日志
-  - verified: npm run lint, npm run test:ci, npm run build, git diff --check, npm audit --omit=dev --audit-level=high
-  - ci: PR workflow 在 npm ci 后运行生产依赖 high audit，再执行 lint、build、test
-  - publish: tag publish 在 Docker 构建前运行生产依赖 high audit、lint、test、build
+    - commit: 本轮提交，见自动化运行日志
+    - verified: npm run lint, npm run test:ci, npm run build, git diff --check, npm audit --omit=dev --audit-level=high
+    - ci: PR workflow 在 npm ci 后运行生产依赖 high audit，再执行 lint、build、test
+    - publish: tag publish 在 Docker 构建前运行生产依赖 high audit、lint、test、build
 ```
 
 ### CHARTDB-P0-004：Phase 0 验收记录
@@ -348,22 +348,22 @@ priority: P0
 title: 完成 Phase 0 验收记录
 status: done
 depends_on:
-  - CHARTDB-P0-001
-  - CHARTDB-P0-002
-  - CHARTDB-P0-003
+    - CHARTDB-P0-001
+    - CHARTDB-P0-002
+    - CHARTDB-P0-003
 owner_lane: baseline
 branch: codex/chartdb-p0-acceptance
 allowed_files:
-  - docs/阶段验收记录.md
+    - docs/阶段验收记录.md
 verification:
-  - rg -n "Phase 0|npm run test:ci|npm audit|npm run build" docs/阶段验收记录.md
+    - rg -n "Phase 0|npm run test:ci|npm audit|npm run build" docs/阶段验收记录.md
 acceptance:
-  - 记录实际命令、结果、失败证据和剩余风险
-  - 没有未填写内容
+    - 记录实际命令、结果、失败证据和剩余风险
+    - 没有未填写内容
 completion:
-  - commit: 本轮提交，见自动化运行日志
-  - verified: rg -n "Phase 0|npm run test:ci|npm audit|npm run build" docs/阶段验收记录.md, npm run lint, npm run test:ci, npm run build, git diff --check, npm audit --omit=dev --audit-level=high
-  - exit_gate: Phase 0 已通过，允许进入 CHARTDB-P1-000
+    - commit: 本轮提交，见自动化运行日志
+    - verified: rg -n "Phase 0|npm run test:ci|npm audit|npm run build" docs/阶段验收记录.md, npm run lint, npm run test:ci, npm run build, git diff --check, npm audit --omit=dev --audit-level=high
+    - exit_gate: Phase 0 已通过，允许进入 CHARTDB-P1-000
 ```
 
 ## 7. Phase 1：安全重构
@@ -380,20 +380,20 @@ priority: P0
 title: 编写 Phase 1 安全实施清单
 status: done
 depends_on:
-  - CHARTDB-P0-004
+    - CHARTDB-P0-004
 owner_lane: security
 branch: codex/chartdb-p1-plan
 allowed_files:
-  - docs/安全模型与AI边界.md
-  - docs/阶段验收记录.md
+    - docs/安全模型与AI边界.md
+    - docs/阶段验收记录.md
 verification:
-  - rg -n "AI|BYOK|Gateway|Markdown|CSP|密钥" docs/安全模型与AI边界.md
+    - rg -n "AI|BYOK|Gateway|Markdown|CSP|密钥" docs/安全模型与AI边界.md
 acceptance:
-  - 明确 Disabled、BYOK Session、Self-hosted Gateway 三种 AI mode
-  - 明确本地数据默认不出浏览器
+    - 明确 Disabled、BYOK Session、Self-hosted Gateway 三种 AI mode
+    - 明确本地数据默认不出浏览器
 result:
-  - 已新增 `docs/安全模型与AI边界.md`
-  - 已定义密钥、BYOK Session、Self-hosted Gateway、Markdown、CSP 和剩余 advisory 的 Phase 1 实施边界
+    - 已新增 `docs/安全模型与AI边界.md`
+    - 已定义密钥、BYOK Session、Self-hosted Gateway、Markdown、CSP 和剩余 advisory 的 Phase 1 实施边界
 ```
 
 ### CHARTDB-P1-001：移除构建期和运行时 API key 暴露
@@ -441,29 +441,29 @@ priority: P0
 title: 增加 Disabled、BYOK Session、Gateway 三种 AI mode
 status: done
 depends_on:
-  - CHARTDB-P1-001
+    - CHARTDB-P1-001
 owner_lane: ai
 branch: codex/chartdb-p1-ai-mode-gating
 allowed_files:
-  - src/lib/ai/**
-  - src/lib/env.ts
-  - src/lib/data/sql-export/**
-  - src/pages/**
-  - src/components/**
+    - src/lib/ai/**
+    - src/lib/env.ts
+    - src/lib/data/sql-export/**
+    - src/pages/**
+    - src/components/**
 verification:
-  - npm run test:ci
-  - npm run build
-  - rg -n "localStorage.*OPENAI|indexedDB.*OPENAI|OPENAI_API_KEY" src
+    - npm run test:ci
+    - npm run build
+    - rg -n "localStorage.*OPENAI|indexedDB.*OPENAI|OPENAI_API_KEY" src
 acceptance:
-  - 默认 AI mode 为 Disabled
-  - BYOK key 仅保存在内存 session，不写 localStorage、IndexedDB 或 URL
-  - Gateway mode 只接受 endpoint，不接受浏览器端长期密钥
-  - AI-assisted export 前展示数据发送提示
+    - 默认 AI mode 为 Disabled
+    - BYOK key 仅保存在内存 session，不写 localStorage、IndexedDB 或 URL
+    - Gateway mode 只接受 endpoint，不接受浏览器端长期密钥
+    - AI-assisted export 前展示数据发送提示
 completion:
-  - 已新增 `src/lib/ai/ai-mode.ts`，集中定义 Disabled、BYOK Session、Self-hosted Gateway gate。
-  - 已新增 `src/lib/ai/__tests__/ai-mode.test.ts`，覆盖默认禁用、BYOK 内存 key、schema transfer 确认和 Gateway 非敏感配置。
-  - 已将 `exportSQL()` 接入 AI mode gate；非 deterministic export 默认 Disabled，BYOK/Gateway 在确认 schema transfer 前拒绝继续。
-  - 本轮不恢复真实模型调用，不新增设置页或账号能力；完整 AI 设置 UI 仍归入后续设置中心任务。
+    - 已新增 `src/lib/ai/ai-mode.ts`，集中定义 Disabled、BYOK Session、Self-hosted Gateway gate。
+    - 已新增 `src/lib/ai/__tests__/ai-mode.test.ts`，覆盖默认禁用、BYOK 内存 key、schema transfer 确认和 Gateway 非敏感配置。
+    - 已将 `exportSQL()` 接入 AI mode gate；非 deterministic export 默认 Disabled，BYOK/Gateway 在确认 schema transfer 前拒绝继续。
+    - 本轮不恢复真实模型调用，不新增设置页或账号能力；完整 AI 设置 UI 仍归入后续设置中心任务。
 ```
 
 ### CHARTDB-P1-003：Note Markdown 安全渲染
@@ -476,27 +476,27 @@ priority: P0
 title: 移除 raw HTML Markdown 渲染风险
 status: done
 depends_on:
-  - CHARTDB-P1-000
+    - CHARTDB-P1-000
 owner_lane: security
 branch: codex/chartdb-p1-safe-markdown
 allowed_files:
-  - src/pages/editor-page/canvas/note-node/note-node.tsx
-  - src/pages/editor-page/**
-  - src/lib/security/**
-  - src/**/*.test.tsx
+    - src/pages/editor-page/canvas/note-node/note-node.tsx
+    - src/pages/editor-page/**
+    - src/lib/security/**
+    - src/**/*.test.tsx
 verification:
-  - npm run test:ci
-  - npm run build
-  - rg -n "rehype-raw|dangerouslySetInnerHTML" src
+    - npm run test:ci
+    - npm run build
+    - rg -n "rehype-raw|dangerouslySetInnerHTML" src
 acceptance:
-  - note 不执行 raw HTML
-  - 链接协议限制为 http、https、mailto
-  - 恶意 markdown fixture 渲染为安全文本或被过滤
+    - note 不执行 raw HTML
+    - 链接协议限制为 http、https、mailto
+    - 恶意 markdown fixture 渲染为安全文本或被过滤
 completion:
-  - 已移除 `note-node.tsx` 对 `rehype-raw` 的使用，Note Markdown 预览不再把 raw HTML 转为真实 DOM 元素。
-  - 已卸载 `rehype-raw` 生产依赖，减少 Markdown 渲染供应面。
-  - 已新增 `note-markdown-safety.test.tsx`，覆盖 `<script>`、`iframe`、`img onerror` 和 `javascript:` 链接 fixture。
-  - 已为 Note 链接增加协议 gate，仅允许 `http`、`https`、`mailto`；危险链接降级为不可点击文本。
+    - 已移除 `note-node.tsx` 对 `rehype-raw` 的使用，Note Markdown 预览不再把 raw HTML 转为真实 DOM 元素。
+    - 已卸载 `rehype-raw` 生产依赖，减少 Markdown 渲染供应面。
+    - 已新增 `note-markdown-safety.test.tsx`，覆盖 `<script>`、`iframe`、`img onerror` 和 `javascript:` 链接 fixture。
+    - 已为 Note 链接增加协议 gate，仅允许 `http`、`https`、`mailto`；危险链接降级为不可点击文本。
 ```
 
 ### CHARTDB-P1-004：Docker 和 Nginx 安全头
@@ -509,26 +509,26 @@ priority: P1
 title: 增加基础 CSP、X-Content-Type-Options、Referrer-Policy
 status: done
 depends_on:
-  - CHARTDB-P1-001
+    - CHARTDB-P1-001
 owner_lane: security
 branch: codex/chartdb-p1-nginx-security-headers
 allowed_files:
-  - default.conf.template
-  - Dockerfile
-  - docs/部署与安全配置.md
+    - default.conf.template
+    - Dockerfile
+    - docs/部署与安全配置.md
 verification:
-  - npm run build
-  - docker build -t chartdb-security-smoke .
+    - npm run build
+    - docker build -t chartdb-security-smoke .
 acceptance:
-  - Nginx 配置包含基础安全头
-  - CSP 不破坏 Vite 构建后的静态资源加载
-  - 文档说明 self-hosted 需要如何配置 AI gateway endpoint
+    - Nginx 配置包含基础安全头
+    - CSP 不破坏 Vite 构建后的静态资源加载
+    - 文档说明 self-hosted 需要如何配置 AI gateway endpoint
 completion:
-  - 已在 `default.conf.template` 为静态页面和 `/config.js` 增加 CSP、nosniff、Referrer-Policy、X-Frame-Options 和 Permissions-Policy。
-  - 已为 `/config.js` 增加 `Cache-Control: no-store`，避免 runtime config 跨部署缓存。
-  - 已在 `Dockerfile` builder 阶段设置 `NODE_OPTIONS=--max-old-space-size=4096`，避免 Docker 内生产构建在 Vite transform 阶段触发 Node heap OOM。
-  - 已新增 `docs/部署与安全配置.md`，说明 self-hosted gateway endpoint 和 CSP 调整边界。
-  - 已新增 Nginx 安全头回归测试，覆盖 Vite 静态资源、worker、gateway connect-src 和 runtime config 缓存策略。
+    - 已在 `default.conf.template` 为静态页面和 `/config.js` 增加 CSP、nosniff、Referrer-Policy、X-Frame-Options 和 Permissions-Policy。
+    - 已为 `/config.js` 增加 `Cache-Control: no-store`，避免 runtime config 跨部署缓存。
+    - 已在 `Dockerfile` builder 阶段设置 `NODE_OPTIONS=--max-old-space-size=4096`，避免 Docker 内生产构建在 Vite transform 阶段触发 Node heap OOM。
+    - 已新增 `docs/部署与安全配置.md`，说明 self-hosted gateway endpoint 和 CSP 调整边界。
+    - 已新增 Nginx 安全头回归测试，覆盖 Vite 静态资源、worker、gateway connect-src 和 runtime config 缓存策略。
 ```
 
 ### CHARTDB-P1-005：Phase 1 安全审查
@@ -541,23 +541,23 @@ priority: P0
 title: 完成密钥、Markdown、Docker 安全审查
 status: done
 depends_on:
-  - CHARTDB-P1-002
-  - CHARTDB-P1-003
-  - CHARTDB-P1-004
+    - CHARTDB-P1-002
+    - CHARTDB-P1-003
+    - CHARTDB-P1-004
 owner_lane: security
 branch: codex/chartdb-p1-security-review
 allowed_files:
-  - docs/阶段验收记录.md
+    - docs/阶段验收记录.md
 verification:
-  - rg -n "VITE_OPENAI_API_KEY|OPENAI_API_KEY|rehype-raw|dangerouslySetInnerHTML" src Dockerfile default.conf.template
-  - npm audit --omit=dev --audit-level=high
+    - rg -n "VITE_OPENAI_API_KEY|OPENAI_API_KEY|rehype-raw|dangerouslySetInnerHTML" src Dockerfile default.conf.template
+    - npm audit --omit=dev --audit-level=high
 acceptance:
-  - 所有命中项都有安全解释或已移除
-  - Phase 1 剩余风险按 high、medium、low 分类记录
+    - 所有命中项都有安全解释或已移除
+    - Phase 1 剩余风险按 high、medium、low 分类记录
 completion:
-  - 已新增 `docs/安全风险登记.md`，记录 High、Medium、Low 风险分级、缓解措施和后续处理路径。
-  - 已确认生产依赖 high/critical advisory 为 0，剩余 5 个 low 和 1 个 moderate 不阻断 Phase 2。
-  - 已确认安全扫描仅剩 `default.conf.template` 的非敏感 `window.env` runtime object。
+    - 已新增 `docs/安全风险登记.md`，记录 High、Medium、Low 风险分级、缓解措施和后续处理路径。
+    - 已确认生产依赖 high/critical advisory 为 0，剩余 5 个 low 和 1 个 moderate 不阻断 Phase 2。
+    - 已确认安全扫描仅剩 `default.conf.template` 的非敏感 `window.env` runtime object。
 ```
 
 ## 8. Phase 2：Schema Core 与 Command 架构
@@ -574,20 +574,20 @@ priority: P1
 title: 定义 schema-core 拆分顺序和兼容层
 status: done
 depends_on:
-  - CHARTDB-P1-005
+    - CHARTDB-P1-005
 owner_lane: core
 branch: codex/chartdb-p2-plan
 allowed_files:
-  - docs/schema-core设计.md
-  - docs/阶段验收记录.md
+    - docs/schema-core设计.md
+    - docs/阶段验收记录.md
 verification:
-  - rg -n "schema-core|command|validator|diff|undo|redo" docs/schema-core设计.md
+    - rg -n "schema-core|command|validator|diff|undo|redo" docs/schema-core设计.md
 acceptance:
-  - 明确旧类型到新 domain type 的映射
-  - 明确兼容层保留周期
+    - 明确旧类型到新 domain type 的映射
+    - 明确兼容层保留周期
 completion:
-  - 已新增 `docs/schema-core设计.md`，明确 schema-core 边界、目录、旧类型映射、command contract、validator、diff、undo/redo 兼容层和 P2-001 到 P2-006 的自动开发顺序。
-  - 下一项进入 `CHARTDB-P2-001`，只建立 `src/schema-core/model` 与旧路径 re-export，不修改业务行为。
+    - 已新增 `docs/schema-core设计.md`，明确 schema-core 边界、目录、旧类型映射、command contract、validator、diff、undo/redo 兼容层和 P2-001 到 P2-006 的自动开发顺序。
+    - 下一项进入 `CHARTDB-P2-001`，只建立 `src/schema-core/model` 与旧路径 re-export，不修改业务行为。
 ```
 
 ### CHARTDB-P2-001：建立 schema-core 目录和领域模型出口
@@ -600,27 +600,27 @@ priority: P1
 title: 创建 src/schema-core 并迁移纯类型出口
 status: done
 depends_on:
-  - CHARTDB-P2-000
+    - CHARTDB-P2-000
 owner_lane: core
 branch: codex/chartdb-p2-schema-core-model
 allowed_files:
-  - src/schema-core/**
-  - src/lib/domain/**
-  - src/types/**
-  - tsconfig.json
+    - src/schema-core/**
+    - src/lib/domain/**
+    - src/types/**
+    - tsconfig.json
 verification:
-  - npm run lint
-  - npm run test:ci
-  - npm run build
+    - npm run lint
+    - npm run test:ci
+    - npm run build
 acceptance:
-  - schema-core 不依赖 React、Dexie、Monaco、DOM
-  - 旧 import 路径通过 re-export 兼容
-  - 没有业务行为变化
+    - schema-core 不依赖 React、Dexie、Monaco、DOM
+    - 旧 import 路径通过 re-export 兼容
+    - 没有业务行为变化
 completion:
-  - 已新增 `src/schema-core/model`，按 Diagram、Table、Field、Index、Relationship、Area、Note、CustomType 等领域对象提供 re-export 出口。
-  - 已新增 `src/schema-core/model/__tests__/model-exports.test.ts`，覆盖新入口可解析既有 domain schema，且 `schema-core` 文件不直接依赖 React、Dexie、Monaco、DOM 或浏览器 storage。
-  - 旧 `src/lib/domain` import path 保持不变，本轮未迁移业务逻辑。
-  - 下一项进入 `CHARTDB-P2-002`，定义 DiagramCommand、CommandResult、CommandContext 和 risk metadata。
+    - 已新增 `src/schema-core/model`，按 Diagram、Table、Field、Index、Relationship、Area、Note、CustomType 等领域对象提供 re-export 出口。
+    - 已新增 `src/schema-core/model/__tests__/model-exports.test.ts`，覆盖新入口可解析既有 domain schema，且 `schema-core` 文件不直接依赖 React、Dexie、Monaco、DOM 或浏览器 storage。
+    - 旧 `src/lib/domain` import path 保持不变，本轮未迁移业务逻辑。
+    - 下一项进入 `CHARTDB-P2-002`，定义 DiagramCommand、CommandResult、CommandContext 和 risk metadata。
 ```
 
 ### CHARTDB-P2-002：定义 DiagramCommand 基础类型
@@ -633,25 +633,25 @@ priority: P1
 title: 增加 command contract、command result 和 risk metadata
 status: done
 depends_on:
-  - CHARTDB-P2-001
+    - CHARTDB-P2-001
 owner_lane: core
 branch: codex/chartdb-p2-command-contract
 allowed_files:
-  - src/schema-core/commands/**
-  - src/schema-core/validation/**
-  - src/schema-core/model/**
-  - src/schema-core/**/*.test.ts
+    - src/schema-core/commands/**
+    - src/schema-core/validation/**
+    - src/schema-core/model/**
+    - src/schema-core/**/*.test.ts
 verification:
-  - npm run test:ci
-  - npm run build
+    - npm run test:ci
+    - npm run build
 acceptance:
-  - command 输入和输出类型稳定
-  - command result 可表达 success、validation error、risk warning
-  - destructive command 有 risk metadata
+    - command 输入和输出类型稳定
+    - command result 可表达 success、validation error、risk warning
+    - destructive command 有 risk metadata
 completion:
-  - 已新增 `src/schema-core/commands` 基础 contract，包含 `DiagramCommand`、`CommandContext`、`CommandResult`、`CommandRisk`、`ValidationIssue` 和创建 helper。
-  - 已新增 `src/schema-core/commands/__tests__/diagram-command.test.ts`，覆盖 command 创建、success result、validation error result 和 destructive risk metadata。
-  - 本轮不接入 Provider、不迁移业务行为，下一项进入 `CHARTDB-P2-003`。
+    - 已新增 `src/schema-core/commands` 基础 contract，包含 `DiagramCommand`、`CommandContext`、`CommandResult`、`CommandRisk`、`ValidationIssue` 和创建 helper。
+    - 已新增 `src/schema-core/commands/__tests__/diagram-command.test.ts`，覆盖 command 创建、success result、validation error result 和 destructive risk metadata。
+    - 本轮不接入 Provider、不迁移业务行为，下一项进入 `CHARTDB-P2-003`。
 ```
 
 ### CHARTDB-P2-003：迁移 Table command
@@ -662,7 +662,7 @@ phase: Phase 2
 type: CODE
 priority: P1
 title: 迁移 AddTable、UpdateTable、DeleteTable
-status: queued
+status: done
 depends_on:
   - CHARTDB-P2-002
 owner_lane: core
@@ -677,8 +677,13 @@ verification:
   - npm run build
 acceptance:
   - 新增、编辑、删除表走 command
-  - 删除表能返回关系、字段、索引影响
+  - 删除表能返回关系和 dependency 影响；字段、索引仍随 table payload 保留，细粒度 field/index 影响进入 P2-004
   - undo/redo 旧行为保持可用
+completion:
+  - 已新增 `src/schema-core/commands/table-commands.ts` 和 `src/schema-core/commands/apply-table-command.ts`，支持 `table.add`、`table.update`、`table.delete` 与 `table.restore`。
+  - 已新增 `src/schema-core/commands/__tests__/table-commands.test.ts`，覆盖 Add table、Update table name、missing table validation 和 Delete table cascade risk。
+  - `ChartDBProvider` 的 `addTables`、`updateTable`、`removeTables` 已通过 table command 计算下一状态，同时保留既有 Dexie 写入、事件和旧 undo/redo 数据结构。
+  - 下一项进入 `CHARTDB-P2-004`，迁移 Field、Index、Relationship command。
 ```
 
 ### CHARTDB-P2-004：迁移 Field、Index、Relationship command
@@ -691,21 +696,21 @@ priority: P1
 title: 迁移字段、索引和关系变更命令
 status: queued
 depends_on:
-  - CHARTDB-P2-003
+    - CHARTDB-P2-003
 owner_lane: core
 branch: codex/chartdb-p2-field-index-relation-commands
 allowed_files:
-  - src/schema-core/commands/**
-  - src/context/chartdb-context/**
-  - src/hooks/**
-  - src/pages/editor-page/**
+    - src/schema-core/commands/**
+    - src/context/chartdb-context/**
+    - src/hooks/**
+    - src/pages/editor-page/**
 verification:
-  - npm run test:ci
-  - npm run build
+    - npm run test:ci
+    - npm run build
 acceptance:
-  - 字段删除能识别索引、关系和 custom type 引用影响
-  - 外键创建前校验 source、target、column 引用
-  - index command 保留唯一索引、主键索引、普通索引语义
+    - 字段删除能识别索引、关系和 custom type 引用影响
+    - 外键创建前校验 source、target、column 引用
+    - index command 保留唯一索引、主键索引、普通索引语义
 ```
 
 ### CHARTDB-P2-005：迁移 Area、Note、CustomType command
@@ -718,20 +723,20 @@ priority: P1
 title: 迁移画布辅助对象和自定义类型命令
 status: queued
 depends_on:
-  - CHARTDB-P2-004
+    - CHARTDB-P2-004
 owner_lane: core
 branch: codex/chartdb-p2-visual-customtype-commands
 allowed_files:
-  - src/schema-core/commands/**
-  - src/context/chartdb-context/**
-  - src/pages/editor-page/**
+    - src/schema-core/commands/**
+    - src/context/chartdb-context/**
+    - src/pages/editor-page/**
 verification:
-  - npm run test:ci
-  - npm run build
+    - npm run test:ci
+    - npm run build
 acceptance:
-  - Area、Note 操作可撤销
-  - CustomType 删除前检查字段引用
-  - Note 内容仍经过安全 markdown 渲染
+    - Area、Note 操作可撤销
+    - CustomType 删除前检查字段引用
+    - Note 内容仍经过安全 markdown 渲染
 ```
 
 ### CHARTDB-P2-006：接入统一 undo/redo command history
@@ -744,20 +749,20 @@ priority: P1
 title: 用 command history 收敛 undo/redo
 status: queued
 depends_on:
-  - CHARTDB-P2-005
+    - CHARTDB-P2-005
 owner_lane: core
 branch: codex/chartdb-p2-command-history
 allowed_files:
-  - src/schema-core/commands/**
-  - src/context/chartdb-context/**
-  - src/pages/editor-page/**
+    - src/schema-core/commands/**
+    - src/context/chartdb-context/**
+    - src/pages/editor-page/**
 verification:
-  - npm run test:ci
-  - npm run build
+    - npm run test:ci
+    - npm run build
 acceptance:
-  - undo/redo 不依赖散落的 action 字符串
-  - 每个 command 都能生成 redoData 和 undoData
-  - 大对象历史记录不明显放大内存占用
+    - undo/redo 不依赖散落的 action 字符串
+    - 每个 command 都能生成 redoData 和 undoData
+    - 大对象历史记录不明显放大内存占用
 ```
 
 ## 9. Phase 3：Storage 与备份恢复
@@ -774,16 +779,16 @@ priority: P1
 title: 定义 storage repository 和 migration 计划
 status: queued
 depends_on:
-  - CHARTDB-P2-006
+    - CHARTDB-P2-006
 owner_lane: storage
 branch: codex/chartdb-p3-plan
 allowed_files:
-  - docs/storage设计.md
-  - docs/阶段验收记录.md
+    - docs/storage设计.md
+    - docs/阶段验收记录.md
 verification:
-  - rg -n "Dexie|repository|transaction|backup|restore|migration" docs/storage设计.md
+    - rg -n "Dexie|repository|transaction|backup|restore|migration" docs/storage设计.md
 acceptance:
-  - 明确 IndexedDB 表结构、迁移顺序和备份格式版本
+    - 明确 IndexedDB 表结构、迁移顺序和备份格式版本
 ```
 
 ### CHARTDB-P3-001：抽离 Dexie 数据库定义
@@ -796,20 +801,20 @@ priority: P1
 title: 创建 storage/db 并集中 Dexie schema
 status: queued
 depends_on:
-  - CHARTDB-P3-000
+    - CHARTDB-P3-000
 owner_lane: storage
 branch: codex/chartdb-p3-dexie-db
 allowed_files:
-  - src/storage/db/**
-  - src/context/storage-context/**
-  - src/**/*.test.ts
+    - src/storage/db/**
+    - src/context/storage-context/**
+    - src/**/*.test.ts
 verification:
-  - npm run test:ci
-  - npm run build
+    - npm run test:ci
+    - npm run build
 acceptance:
-  - StorageProvider 不再直接定义完整 Dexie schema
-  - migration 版本集中可读
-  - 不破坏现有本地 diagram 读取
+    - StorageProvider 不再直接定义完整 Dexie schema
+    - migration 版本集中可读
+    - 不破坏现有本地 diagram 读取
 ```
 
 ### CHARTDB-P3-002：抽 Repository API
@@ -822,19 +827,19 @@ priority: P1
 title: 增加 diagram、dependency、area、note repository
 status: queued
 depends_on:
-  - CHARTDB-P3-001
+    - CHARTDB-P3-001
 owner_lane: storage
 branch: codex/chartdb-p3-repositories
 allowed_files:
-  - src/storage/repositories/**
-  - src/context/storage-context/**
-  - src/context/chartdb-context/**
+    - src/storage/repositories/**
+    - src/context/storage-context/**
+    - src/context/chartdb-context/**
 verification:
-  - npm run test:ci
-  - npm run build
+    - npm run test:ci
+    - npm run build
 acceptance:
-  - Provider 只消费 repository API
-  - repository 有单元测试覆盖读写和错误路径
+    - Provider 只消费 repository API
+    - repository 有单元测试覆盖读写和错误路径
 ```
 
 ### CHARTDB-P3-003：实现 diagram transaction service
@@ -847,19 +852,19 @@ priority: P1
 title: 为 diagram 级写操作增加事务封装
 status: queued
 depends_on:
-  - CHARTDB-P3-002
+    - CHARTDB-P3-002
 owner_lane: storage
 branch: codex/chartdb-p3-diagram-transaction
 allowed_files:
-  - src/storage/transactions/**
-  - src/storage/repositories/**
-  - src/context/chartdb-context/**
+    - src/storage/transactions/**
+    - src/storage/repositories/**
+    - src/context/chartdb-context/**
 verification:
-  - npm run test:ci
-  - npm run build
+    - npm run test:ci
+    - npm run build
 acceptance:
-  - 创建、删除、导入 diagram 时相关对象保持一致
-  - 失败时不留下半成品 diagram
+    - 创建、删除、导入 diagram 时相关对象保持一致
+    - 失败时不留下半成品 diagram
 ```
 
 ### CHARTDB-P3-004：备份恢复版本化
@@ -872,21 +877,21 @@ priority: P1
 title: 增加 backup schema version、校验和迁移
 status: queued
 depends_on:
-  - CHARTDB-P3-003
+    - CHARTDB-P3-003
 owner_lane: storage
 branch: codex/chartdb-p3-backup-restore
 allowed_files:
-  - src/storage/backup/**
-  - src/features/**
-  - src/pages/**
-  - docs/备份恢复格式.md
+    - src/storage/backup/**
+    - src/features/**
+    - src/pages/**
+    - docs/备份恢复格式.md
 verification:
-  - npm run test:ci
-  - npm run build
+    - npm run test:ci
+    - npm run build
 acceptance:
-  - backup 文件包含 schemaVersion、createdAt、diagram count
-  - restore 前校验格式和版本
-  - 不兼容文件给出可理解错误
+    - backup 文件包含 schemaVersion、createdAt、diagram count
+    - restore 前校验格式和版本
+    - 不兼容文件给出可理解错误
 ```
 
 ## 10. Phase 4：Importer / Exporter 插件化
@@ -903,16 +908,16 @@ priority: P1
 title: 定义 dialect contract 和迁移顺序
 status: queued
 depends_on:
-  - CHARTDB-P3-004
+    - CHARTDB-P3-004
 owner_lane: dialect
 branch: codex/chartdb-p4-plan
 allowed_files:
-  - docs/方言能力矩阵.md
-  - docs/阶段验收记录.md
+    - docs/方言能力矩阵.md
+    - docs/阶段验收记录.md
 verification:
-  - rg -n "PostgreSQL|MySQL|SQLite|SQL Server|Oracle|DBML|capability|warning" docs/方言能力矩阵.md
+    - rg -n "PostgreSQL|MySQL|SQLite|SQL Server|Oracle|DBML|capability|warning" docs/方言能力矩阵.md
 acceptance:
-  - 每个方言都有 import、export、unsupported syntax、warning 规则
+    - 每个方言都有 import、export、unsupported syntax、warning 规则
 ```
 
 ### CHARTDB-P4-001：定义 importer/exporter contract
@@ -925,21 +930,21 @@ priority: P1
 title: 创建 dialect contract 和 result type
 status: queued
 depends_on:
-  - CHARTDB-P4-000
+    - CHARTDB-P4-000
 owner_lane: dialect
 branch: codex/chartdb-p4-dialect-contract
 allowed_files:
-  - src/dialects/**
-  - src/schema-core/**
-  - src/lib/data/sql-import/**
-  - src/lib/data/sql-export/**
+    - src/dialects/**
+    - src/schema-core/**
+    - src/lib/data/sql-import/**
+    - src/lib/data/sql-export/**
 verification:
-  - npm run test:ci
-  - npm run build
+    - npm run test:ci
+    - npm run build
 acceptance:
-  - import result 包含 diagram、warnings、unsupportedObjects、sourceMap
-  - export result 包含 output、warnings、riskLevel
-  - 旧 import/export 调用通过 adapter 兼容
+    - import result 包含 diagram、warnings、unsupportedObjects、sourceMap
+    - export result 包含 output、warnings、riskLevel
+    - 旧 import/export 调用通过 adapter 兼容
 ```
 
 ### CHARTDB-P4-002：迁移 PostgreSQL importer
@@ -952,19 +957,19 @@ priority: P1
 title: 将 PostgreSQL importer 拆进 dialect pipeline
 status: queued
 depends_on:
-  - CHARTDB-P4-001
+    - CHARTDB-P4-001
 owner_lane: dialect
 branch: codex/chartdb-p4-postgresql-importer
 allowed_files:
-  - src/dialects/postgresql/**
-  - src/lib/data/sql-import/dialect-importers/postgresql/**
+    - src/dialects/postgresql/**
+    - src/lib/data/sql-import/dialect-importers/postgresql/**
 verification:
-  - npm run test:ci -- --runInBand
-  - npm run build
+    - npm run test:ci -- --runInBand
+    - npm run build
 acceptance:
-  - 现有 PostgreSQL regression tests 通过
-  - importer 文件职责拆分为 parser、mapper、warnings、fixtures
-  - RLS、policy、extension 等 unsupported 对象进入 warning
+    - 现有 PostgreSQL regression tests 通过
+    - importer 文件职责拆分为 parser、mapper、warnings、fixtures
+    - RLS、policy、extension 等 unsupported 对象进入 warning
 ```
 
 ### CHARTDB-P4-003：迁移 MySQL、MariaDB、SQLite、SQL Server、Oracle
@@ -977,23 +982,23 @@ priority: P1
 title: 迁移剩余 SQL dialect importer/exporter
 status: queued
 depends_on:
-  - CHARTDB-P4-002
+    - CHARTDB-P4-002
 owner_lane: dialect
 branch: codex/chartdb-p4-sql-dialects
 allowed_files:
-  - src/dialects/mysql/**
-  - src/dialects/mariadb/**
-  - src/dialects/sqlite/**
-  - src/dialects/sqlserver/**
-  - src/dialects/oracle/**
-  - src/lib/data/sql-import/dialect-importers/**
+    - src/dialects/mysql/**
+    - src/dialects/mariadb/**
+    - src/dialects/sqlite/**
+    - src/dialects/sqlserver/**
+    - src/dialects/oracle/**
+    - src/lib/data/sql-import/dialect-importers/**
 verification:
-  - npm run test:ci
-  - npm run build
+    - npm run test:ci
+    - npm run build
 acceptance:
-  - 每个方言至少保留现有 regression 覆盖
-  - 每个方言输出 capability metadata
-  - 不支持语法不静默丢失
+    - 每个方言至少保留现有 regression 覆盖
+    - 每个方言输出 capability metadata
+    - 不支持语法不静默丢失
 ```
 
 ### CHARTDB-P4-004：DBML 进入 dialect pipeline
@@ -1006,19 +1011,19 @@ priority: P1
 title: DBML import/export 统一走 dialect contract
 status: queued
 depends_on:
-  - CHARTDB-P4-001
+    - CHARTDB-P4-001
 owner_lane: dialect
 branch: codex/chartdb-p4-dbml-pipeline
 allowed_files:
-  - src/dialects/dbml/**
-  - src/lib/data/dbml-import/**
-  - src/lib/data/dbml-export/**
+    - src/dialects/dbml/**
+    - src/lib/data/dbml-import/**
+    - src/lib/data/dbml-export/**
 verification:
-  - npm run test:ci
-  - npm run build
+    - npm run test:ci
+    - npm run build
 acceptance:
-  - DBML round-trip fixture 通过
-  - DBML warning 与 SQL warning 使用同一结构
+    - DBML round-trip fixture 通过
+    - DBML warning 与 SQL warning 使用同一结构
 ```
 
 ### CHARTDB-P4-005：导入 Preview Flow
@@ -1031,21 +1036,21 @@ priority: P1
 title: 导入前展示 preview、warnings 和 object counts
 status: queued
 depends_on:
-  - CHARTDB-P4-002
-  - CHARTDB-P4-004
+    - CHARTDB-P4-002
+    - CHARTDB-P4-004
 owner_lane: ux
 branch: codex/chartdb-p4-import-preview
 allowed_files:
-  - src/features/import/**
-  - src/pages/**
-  - src/components/**
+    - src/features/import/**
+    - src/pages/**
+    - src/components/**
 verification:
-  - npm run test:ci
-  - npm run build
+    - npm run test:ci
+    - npm run build
 acceptance:
-  - 用户确认前不写入 IndexedDB
-  - preview 显示 tables、relationships、customTypes、warnings
-  - import error 可定位到输入片段或方言规则
+    - 用户确认前不写入 IndexedDB
+    - preview 显示 tables、relationships、customTypes、warnings
+    - import error 可定位到输入片段或方言规则
 ```
 
 ## 11. Phase 5：产品体验与可访问性
@@ -1062,15 +1067,15 @@ priority: P2
 title: 定义 UX 和可访问性验收矩阵
 status: queued
 depends_on:
-  - CHARTDB-P4-005
+    - CHARTDB-P4-005
 owner_lane: ux
 branch: codex/chartdb-p5-plan
 allowed_files:
-  - docs/可访问性与核心流程验收.md
+    - docs/可访问性与核心流程验收.md
 verification:
-  - rg -n "首次进入|Smart Query|aria|键盘|设置" docs/可访问性与核心流程验收.md
+    - rg -n "首次进入|Smart Query|aria|键盘|设置" docs/可访问性与核心流程验收.md
 acceptance:
-  - 核心流程有桌面和移动验收步骤
+    - 核心流程有桌面和移动验收步骤
 ```
 
 ### CHARTDB-P5-001：重做首次进入入口
@@ -1083,20 +1088,20 @@ priority: P2
 title: 首屏提供导入、新建空白图、模板示例三入口
 status: queued
 depends_on:
-  - CHARTDB-P5-000
+    - CHARTDB-P5-000
 owner_lane: ux
 branch: codex/chartdb-p5-onboarding
 allowed_files:
-  - src/features/onboarding/**
-  - src/pages/**
-  - src/components/**
+    - src/features/onboarding/**
+    - src/pages/**
+    - src/components/**
 verification:
-  - npm run test:ci
-  - npm run build
+    - npm run test:ci
+    - npm run build
 acceptance:
-  - 未选择数据库时继续按钮有可理解提示
-  - 移动端第一屏可看到主要动作
-  - 创建失败不留下半成品 diagram
+    - 未选择数据库时继续按钮有可理解提示
+    - 移动端第一屏可看到主要动作
+    - 创建失败不留下半成品 diagram
 ```
 
 ### CHARTDB-P5-002：Smart Query Wizard
@@ -1109,20 +1114,20 @@ priority: P2
 title: 把 Smart Query 拆成结构化向导
 status: queued
 depends_on:
-  - CHARTDB-P4-005
+    - CHARTDB-P4-005
 owner_lane: ux
 branch: codex/chartdb-p5-smart-query-wizard
 allowed_files:
-  - src/features/import/**
-  - src/pages/**
-  - src/components/**
+    - src/features/import/**
+    - src/pages/**
+    - src/components/**
 verification:
-  - npm run test:ci
-  - npm run build
+    - npm run test:ci
+    - npm run build
 acceptance:
-  - 用户明确看到不输入数据库密码的原则
-  - 复制 SQL、粘贴结果、解析 preview 分步清晰
-  - 错误信息能指向 SQL 或方言限制
+    - 用户明确看到不输入数据库密码的原则
+    - 复制 SQL、粘贴结果、解析 preview 分步清晰
+    - 错误信息能指向 SQL 或方言限制
 ```
 
 ### CHARTDB-P5-003：全局 aria-label 和键盘路径修复
@@ -1135,21 +1140,21 @@ priority: P2
 title: 修复核心按钮、radio、dialog 的可访问名称
 status: queued
 depends_on:
-  - CHARTDB-P5-000
+    - CHARTDB-P5-000
 owner_lane: ux
 branch: codex/chartdb-p5-a11y
 allowed_files:
-  - src/components/**
-  - src/pages/**
-  - src/features/**
+    - src/components/**
+    - src/pages/**
+    - src/features/**
 verification:
-  - npm run lint
-  - npm run test:ci
-  - npm run build
+    - npm run lint
+    - npm run test:ci
+    - npm run build
 acceptance:
-  - 数据库选择控件名称唯一
-  - Dialog 可键盘关闭和确认
-  - Icon button 有 aria-label 或 tooltip
+    - 数据库选择控件名称唯一
+    - Dialog 可键盘关闭和确认
+    - Icon button 有 aria-label 或 tooltip
 ```
 
 ### CHARTDB-P5-004：设置中心
@@ -1162,21 +1167,21 @@ priority: P2
 title: 集中管理本地隐私、AI mode、导出默认项和数据管理
 status: queued
 depends_on:
-  - CHARTDB-P1-002
-  - CHARTDB-P3-004
+    - CHARTDB-P1-002
+    - CHARTDB-P3-004
 owner_lane: ux
 branch: codex/chartdb-p5-settings-center
 allowed_files:
-  - src/features/settings/**
-  - src/pages/**
-  - src/components/**
+    - src/features/settings/**
+    - src/pages/**
+    - src/components/**
 verification:
-  - npm run test:ci
-  - npm run build
+    - npm run test:ci
+    - npm run build
 acceptance:
-  - 设置页说明本地数据存储位置
-  - AI mode 可查看和切换
-  - 数据导出、清理、恢复入口集中
+    - 设置页说明本地数据存储位置
+    - AI mode 可查看和切换
+    - 数据导出、清理、恢复入口集中
 ```
 
 ## 12. Phase 6：性能优化
@@ -1193,15 +1198,15 @@ priority: P2
 title: 定义 bundle、worker 和大 schema 性能指标
 status: queued
 depends_on:
-  - CHARTDB-P5-004
+    - CHARTDB-P5-004
 owner_lane: performance
 branch: codex/chartdb-p6-plan
 allowed_files:
-  - docs/性能基线与优化计划.md
+    - docs/性能基线与优化计划.md
 verification:
-  - rg -n "bundle|Monaco|worker|large schema|首屏" docs/性能基线与优化计划.md
+    - rg -n "bundle|Monaco|worker|large schema|首屏" docs/性能基线与优化计划.md
 acceptance:
-  - 指标包含首屏 JS、Monaco chunk、大 schema import 时间
+    - 指标包含首屏 JS、Monaco chunk、大 schema import 时间
 ```
 
 ### CHARTDB-P6-001：Monaco 懒加载
@@ -1214,19 +1219,19 @@ priority: P2
 title: 仅在代码编辑器路径加载 Monaco
 status: queued
 depends_on:
-  - CHARTDB-P6-000
+    - CHARTDB-P6-000
 owner_lane: performance
 branch: codex/chartdb-p6-monaco-lazy
 allowed_files:
-  - src/features/**
-  - src/pages/**
-  - vite.config.ts
+    - src/features/**
+    - src/pages/**
+    - vite.config.ts
 verification:
-  - npm run build
+    - npm run build
 acceptance:
-  - 首屏入口不主动加载 Monaco
-  - code editor route 仍正常工作
-  - build 输出记录 chunk 变化
+    - 首屏入口不主动加载 Monaco
+    - code editor route 仍正常工作
+    - build 输出记录 chunk 变化
 ```
 
 ### CHARTDB-P6-002：模板 lazy registry
@@ -1239,19 +1244,19 @@ priority: P2
 title: 大模板数据按需加载
 status: queued
 depends_on:
-  - CHARTDB-P6-000
+    - CHARTDB-P6-000
 owner_lane: performance
 branch: codex/chartdb-p6-template-lazy
 allowed_files:
-  - src/templates-data/**
-  - src/pages/templates-page/**
-  - src/pages/examples-page/**
+    - src/templates-data/**
+    - src/pages/templates-page/**
+    - src/pages/examples-page/**
 verification:
-  - npm run test:ci
-  - npm run build
+    - npm run test:ci
+    - npm run build
 acceptance:
-  - 模板列表不一次性加载全部大型 schema
-  - 打开单个模板时按需加载详情
+    - 模板列表不一次性加载全部大型 schema
+    - 打开单个模板时按需加载详情
 ```
 
 ### CHARTDB-P6-003：Parser 和 layout worker 化
@@ -1264,22 +1269,22 @@ priority: P2
 title: 将大 schema import 和布局计算迁移到 worker
 status: queued
 depends_on:
-  - CHARTDB-P4-005
-  - CHARTDB-P6-000
+    - CHARTDB-P4-005
+    - CHARTDB-P6-000
 owner_lane: performance
 branch: codex/chartdb-p6-workers
 allowed_files:
-  - src/workers/**
-  - src/features/import/**
-  - src/pages/editor-page/**
-  - vite.config.ts
+    - src/workers/**
+    - src/features/import/**
+    - src/pages/editor-page/**
+    - vite.config.ts
 verification:
-  - npm run test:ci
-  - npm run build
+    - npm run test:ci
+    - npm run build
 acceptance:
-  - 大 SQL import 不长时间阻塞主线程
-  - worker error 能回传结构化错误
-  - 不支持 worker 的环境有降级路径
+    - 大 SQL import 不长时间阻塞主线程
+    - worker error 能回传结构化错误
+    - 不支持 worker 的环境有降级路径
 ```
 
 ## 13. Phase 7：发布治理与文档
@@ -1296,16 +1301,16 @@ priority: P2
 title: 定义发布门禁和文档补齐范围
 status: queued
 depends_on:
-  - CHARTDB-P6-003
+    - CHARTDB-P6-003
 owner_lane: release
 branch: codex/chartdb-p7-plan
 allowed_files:
-  - docs/发布检查清单.md
-  - docs/阶段验收记录.md
+    - docs/发布检查清单.md
+    - docs/阶段验收记录.md
 verification:
-  - rg -n "release|Docker|audit|test|build|smoke" docs/发布检查清单.md
+    - rg -n "release|Docker|audit|test|build|smoke" docs/发布检查清单.md
 acceptance:
-  - 发布前检查覆盖 test、build、audit、Docker smoke
+    - 发布前检查覆盖 test、build、audit、Docker smoke
 ```
 
 ### CHARTDB-P7-001：发布 workflow gate
@@ -1318,20 +1323,20 @@ priority: P2
 title: 发布前强制 test、build、audit、Docker smoke
 status: queued
 depends_on:
-  - CHARTDB-P7-000
+    - CHARTDB-P7-000
 owner_lane: release
 branch: codex/chartdb-p7-publish-gate
 allowed_files:
-  - .github/workflows/publish.yaml
-  - .github/workflows/ci.yaml
+    - .github/workflows/publish.yaml
+    - .github/workflows/ci.yaml
 verification:
-  - npm run lint
-  - npm run test:ci
-  - npm run build
-  - npm audit --omit=dev --audit-level=high
+    - npm run lint
+    - npm run test:ci
+    - npm run build
+    - npm audit --omit=dev --audit-level=high
 acceptance:
-  - publish workflow 失败时不会继续发布镜像
-  - workflow 日志能明确定位失败门禁
+    - publish workflow 失败时不会继续发布镜像
+    - workflow 日志能明确定位失败门禁
 ```
 
 ### CHARTDB-P7-002：补齐工程文档
@@ -1344,18 +1349,18 @@ priority: P2
 title: 补齐开发、部署、安全、备份恢复和方言文档
 status: queued
 depends_on:
-  - CHARTDB-P7-000
+    - CHARTDB-P7-000
 owner_lane: docs
 branch: codex/chartdb-p7-docs
 allowed_files:
-  - README.md
-  - docs/**
+    - README.md
+    - docs/**
 verification:
-  - rg -n "本地优先|安全|部署|备份|恢复|方言|AI" README.md docs
+    - rg -n "本地优先|安全|部署|备份|恢复|方言|AI" README.md docs
 acceptance:
-  - README 清楚说明默认无账号、无数据库密码
-  - 自托管部署不要求 AI key
-  - 备份恢复格式和方言能力有独立文档
+    - README 清楚说明默认无账号、无数据库密码
+    - 自托管部署不要求 AI key
+    - 备份恢复格式和方言能力有独立文档
 ```
 
 ### CHARTDB-P7-003：Issue template 和贡献规则
@@ -1368,18 +1373,18 @@ priority: P3
 title: 增加 bug、security、dialect regression、feature issue template
 status: queued
 depends_on:
-  - CHARTDB-P7-000
+    - CHARTDB-P7-000
 owner_lane: docs
 branch: codex/chartdb-p7-issue-templates
 allowed_files:
-  - .github/ISSUE_TEMPLATE/**
-  - CONTRIBUTING.md
+    - .github/ISSUE_TEMPLATE/**
+    - CONTRIBUTING.md
 verification:
-  - rg -n "security|dialect|regression|reproduction|fixture" .github CONTRIBUTING.md
+    - rg -n "security|dialect|regression|reproduction|fixture" .github CONTRIBUTING.md
 acceptance:
-  - 方言 bug 要求附 SQL/DBML fixture
-  - security issue 引导私下报告
-  - feature request 要求说明本地模式影响
+    - 方言 bug 要求附 SQL/DBML fixture
+    - security issue 引导私下报告
+    - feature request 要求说明本地模式影响
 ```
 
 ## 14. Phase 8：可选 Cloud/Team 预研
@@ -1396,18 +1401,18 @@ priority: P3
 title: 定义可选账号登录和团队协作边界
 status: queued
 depends_on:
-  - CHARTDB-P7-003
+    - CHARTDB-P7-003
 owner_lane: research
 branch: codex/chartdb-p8-cloud-team-research
 allowed_files:
-  - docs/可选账号登录与团队协作预研.md
+    - docs/可选账号登录与团队协作预研.md
 verification:
-  - rg -n "账号|登录|Workspace|Team|权限|审计|本地模式|云同步" docs/可选账号登录与团队协作预研.md
+    - rg -n "账号|登录|Workspace|Team|权限|审计|本地模式|云同步" docs/可选账号登录与团队协作预研.md
 acceptance:
-  - 明确不登录仍可完整使用 OSS Core
-  - 明确本地 diagram 不自动上传
-  - 明确服务端 AuditLog、租户隔离、数据导出删除、权限 negative tests
-  - 不新增登录代码
+    - 明确不登录仍可完整使用 OSS Core
+    - 明确本地 diagram 不自动上传
+    - 明确服务端 AuditLog、租户隔离、数据导出删除、权限 negative tests
+    - 不新增登录代码
 ```
 
 ### CHARTDB-P8-001：Cloud/Team 技术栈选型记录
@@ -1420,17 +1425,17 @@ priority: P3
 title: 评估可选后端 API、认证、数据库和同步策略
 status: queued
 depends_on:
-  - CHARTDB-P8-000
+    - CHARTDB-P8-000
 owner_lane: research
 branch: codex/chartdb-p8-tech-spike
 allowed_files:
-  - docs/可选账号登录与团队协作预研.md
+    - docs/可选账号登录与团队协作预研.md
 verification:
-  - rg -n "NestJS|Fastify|PostgreSQL|Auth|OAuth|SSO|sync|conflict" docs/可选账号登录与团队协作预研.md
+    - rg -n "NestJS|Fastify|PostgreSQL|Auth|OAuth|SSO|sync|conflict" docs/可选账号登录与团队协作预研.md
 acceptance:
-  - 给出至少两种技术方案取舍
-  - 说明和 OSS Core 的隔离方式
-  - 不把 Cloud/Team 设为默认依赖
+    - 给出至少两种技术方案取舍
+    - 说明和 OSS Core 的隔离方式
+    - 不把 Cloud/Team 设为默认依赖
 ```
 
 ## 15. 任务依赖图
@@ -1630,7 +1635,7 @@ npm install
 npm run test:ci
 ```
 
-`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001` 和 `CHARTDB-P2-002` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口和 command 基础 contract。下一轮自动任务应从 `CHARTDB-P2-003` 开始，迁移 AddTable、UpdateTable、DeleteTable command。不要跳过 Phase 2 直接做 storage、dialect 或 UI 改造。
+`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002` 和 `CHARTDB-P2-003` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口、command 基础 contract 和 table command 纯函数。下一轮自动任务应从 `CHARTDB-P2-004` 开始，迁移 Field、Index、Relationship command。不要跳过 Phase 2 直接做 storage、dialect 或 UI 改造。
 
 ## 19. 计划边界确认
 

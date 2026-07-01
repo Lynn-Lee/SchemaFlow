@@ -367,16 +367,16 @@ npm run build
 ```yaml
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
-    groups:
-      security-patches:
-        applies-to: security-updates
-        patterns:
-          - "*"
+    - package-ecosystem: 'npm'
+      directory: '/'
+      schedule:
+          interval: 'weekly'
+      open-pull-requests-limit: 10
+      groups:
+          security-patches:
+              applies-to: security-updates
+              patterns:
+                  - '*'
 ```
 
 - [x] 验证生产依赖安全基线。
@@ -634,12 +634,11 @@ POST /api/ai/export-sql
 - requestId。
 
 - [ ] 文档说明 gateway 必须实现：
-
-  - rate limit。
-  - timeout。
-  - request size limit。
-  - secret server-side only。
-  - log redaction。
+    - rate limit。
+    - timeout。
+    - request size limit。
+    - secret server-side only。
+    - log redaction。
 
 - [ ] Phase 1 只定义 contract，不实现完整后端。
 
@@ -661,23 +660,21 @@ POST /api/ai/export-sql
 推荐首轮：禁用 raw HTML。
 
 - [x] 允许 Markdown：
-
-  - heading。
-  - paragraph。
-  - list。
-  - bold。
-  - italic。
-  - inline code。
-  - fenced code。
-  - safe links。
+    - heading。
+    - paragraph。
+    - list。
+    - bold。
+    - italic。
+    - inline code。
+    - fenced code。
+    - safe links。
 
 - [x] 禁止：
-
-  - script。
-  - iframe。
-  - style。
-  - event handler attribute。
-  - `javascript:` URL。
+    - script。
+    - iframe。
+    - style。
+    - event handler attribute。
+    - `javascript:` URL。
 
 - [x] 增加测试。
 
@@ -685,7 +682,8 @@ POST /api/ai/export-sql
 
 ```md
 <script>alert(1)</script>
-[bad](javascript:alert(1))
+
+[bad](<javascript:alert(1)>)
 <img src=x onerror=alert(1)>
 ```
 
@@ -812,7 +810,10 @@ npm run build
 建议：
 
 ```ts
-export interface DiagramCommand<TType extends string = string, TPayload = unknown> {
+export interface DiagramCommand<
+    TType extends string = string,
+    TPayload = unknown,
+> {
     id: string;
     type: TType;
     payload: TPayload;
@@ -854,7 +855,7 @@ export interface CommandContext {
 
 **实施步骤：**
 
-- [ ] 先写 command 单元测试。
+- [x] 先写 command 单元测试。
 
 测试覆盖：
 
@@ -863,7 +864,7 @@ export interface CommandContext {
 - Delete table。
 - Delete table 同时移除 relationships。
 
-- [ ] 实现纯函数 apply。
+- [x] 实现纯函数 apply。
 
 原则：
 
@@ -872,14 +873,16 @@ export interface CommandContext {
 - 不直接写 Dexie。
 - 不直接操作 React state。
 
-- [ ] Provider 中 table 操作改为调用 command。
+- [x] Provider 中 table 操作改为调用 command。
 
-- [ ] 运行测试。
+- [x] 运行测试。
 
 ```bash
 npm run test:ci -- src/schema-core/commands/__tests__/table-commands.test.ts
 npm run build
 ```
+
+本轮结果：已新增 `table.add`、`table.update`、`table.delete` 和 `table.restore` command，`applyTableCommand()` 作为纯函数返回下一状态、undo command、affected entity ids、validation error 与 cascade risk。`ChartDBProvider` 的 `addTables`、`updateTable` 和 `removeTables` 已改为先调用 command，再沿用现有 Dexie 写入、事件和旧 undo/redo 数据结构；未同时迁移 field/index/relationship command。删除 table 会报告并移除关联 relationship/dependency，字段和索引仍随 table payload 保留，细粒度 field/index 影响进入 Task 2.4。
 
 ### Task 2.4：迁移 Field / Index / Relationship command
 
@@ -1036,12 +1039,11 @@ git switch -c codex/chartdb-phase-3-storage
 - [ ] 定义 backup 格式。
 
 - [ ] 导出时写入：
-
-  - format。
-  - formatVersion。
-  - appVersion。
-  - createdAt。
-  - diagram。
+    - format。
+    - formatVersion。
+    - appVersion。
+    - createdAt。
+    - diagram。
 
 - [ ] 恢复前校验格式。
 
@@ -1100,12 +1102,11 @@ export type SupportLevel = 'full' | 'partial' | 'experimental' | 'unsupported';
 - [ ] 输出结构化 warnings。
 
 - [ ] 分批拆 parser：
-
-  - table parser。
-  - enum parser。
-  - relationship parser。
-  - index parser。
-  - comment parser。
+    - table parser。
+    - enum parser。
+    - relationship parser。
+    - index parser。
+    - comment parser。
 
 - [ ] 保持现有 PostgreSQL 测试全部通过。
 
@@ -1161,13 +1162,12 @@ export type SupportLevel = 'full' | 'partial' | 'experimental' | 'unsupported';
 - [ ] 所有导入先进入 preview。
 
 - [ ] Preview 显示：
-
-  - tables。
-  - views。
-  - fields。
-  - indexes。
-  - relationships。
-  - warnings。
+    - tables。
+    - views。
+    - fields。
+    - indexes。
+    - relationships。
+    - warnings。
 
 - [ ] 用户确认后才写入当前 diagram。
 
@@ -1195,10 +1195,9 @@ git switch -c codex/chartdb-phase-5-ux-a11y
 - [ ] 拆分数据库选择和启动方式选择。
 
 - [ ] 三个入口：
-
-  - 导入现有数据库。
-  - 创建空白图。
-  - 查看模板。
+    - 导入现有数据库。
+    - 创建空白图。
+    - 查看模板。
 
 - [ ] 修复 radio accessible name。
 
@@ -1215,12 +1214,11 @@ git switch -c codex/chartdb-phase-5-ux-a11y
 **实施步骤：**
 
 - [ ] 五步向导：
-
-  1. 选择数据库。
-  2. 复制 query。
-  3. 粘贴结果。
-  4. 校验摘要。
-  5. 预览导入。
+    1. 选择数据库。
+    2. 复制 query。
+    3. 粘贴结果。
+    4. 校验摘要。
+    5. 预览导入。
 
 - [ ] 输入为空时显示原因。
 
@@ -1248,11 +1246,10 @@ rg -n "<Button|<button" src/pages src/dialogs src/components
 - [ ] 为图标按钮补 `aria-label`。
 
 - [ ] Monaco editor 按用途命名：
-
-  - SQL query editor。
-  - Smart Query output editor。
-  - DBML editor。
-  - SQL export result editor。
+    - SQL query editor。
+    - Smart Query output editor。
+    - DBML editor。
+    - SQL export result editor。
 
 - [ ] 跑无障碍 smoke。
 
@@ -1344,9 +1341,8 @@ npm run build
 - [ ] 主线程显示 progress 和 cancel。
 
 - [ ] 大 schema smoke：
-
-  - 100 tables。
-  - 500 tables。
+    - 100 tables。
+    - 500 tables。
 
 ## 11. Phase 7：发布治理与文档
 
@@ -1368,13 +1364,12 @@ git switch -c codex/chartdb-phase-7-release-docs
 **实施步骤：**
 
 - [ ] publish 中加入：
-
-  - `npm ci`。
-  - `npm audit --omit=dev --audit-level=high`。
-  - `npm run lint`。
-  - `npm run test:ci`。
-  - `npm run build`。
-  - Docker build smoke。
+    - `npm ci`。
+    - `npm audit --omit=dev --audit-level=high`。
+    - `npm run lint`。
+    - `npm run test:ci`。
+    - `npm run build`。
+    - Docker build smoke。
 
 - [ ] tag 发布必须阻断 failing tests。
 
@@ -1410,12 +1405,11 @@ git switch -c codex/chartdb-phase-7-release-docs
 **实施步骤：**
 
 - [ ] Dialect bug 模板要求用户提供：
-
-  - 数据库类型。
-  - 数据库版本。
-  - 输入 DDL 或 Smart Query 输出脱敏样例。
-  - 预期对象数量。
-  - 实际结果。
+    - 数据库类型。
+    - 数据库版本。
+    - 输入 DDL 或 Smart Query 输出脱敏样例。
+    - 预期对象数量。
+    - 实际结果。
 
 ## 12. Phase 8：可选 Cloud/Team 规划
 

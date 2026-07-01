@@ -64,18 +64,21 @@ src/schema-core/
 
 ## 4. 旧类型到新 domain type 的映射
 
-| 现有位置 | Phase 2 目标位置 | 迁移方式 |
-| --- | --- | --- |
-| `src/lib/domain` 的 diagram/table/field 类型 | `src/schema-core/model` | 先在新目录建立 re-export，再逐个迁移定义 |
-| `src/context/chartdb-context` 中的 table 编辑逻辑 | `src/schema-core/commands/table-commands.ts` | Provider 保留 orchestration，业务规则进纯 command |
-| field、index、relationship 的散落更新逻辑 | `src/schema-core/commands/*-commands.ts` | 先写 command tests，再接入 Provider |
-| area、note、custom type 的画布辅助对象更新 | `src/schema-core/commands/visual-commands.ts` | 保持 UI 行为不变，只迁移状态变更规则 |
-| history context 的 action 字符串和 patch 数据 | `src/schema-core/commands/command-history.ts` | 先兼容旧 history，再逐步改为 inverse command |
+| 现有位置                                          | Phase 2 目标位置                              | 迁移方式                                          |
+| ------------------------------------------------- | --------------------------------------------- | ------------------------------------------------- |
+| `src/lib/domain` 的 diagram/table/field 类型      | `src/schema-core/model`                       | 先在新目录建立 re-export，再逐个迁移定义          |
+| `src/context/chartdb-context` 中的 table 编辑逻辑 | `src/schema-core/commands/table-commands.ts`  | Provider 保留 orchestration，业务规则进纯 command |
+| field、index、relationship 的散落更新逻辑         | `src/schema-core/commands/*-commands.ts`      | 先写 command tests，再接入 Provider               |
+| area、note、custom type 的画布辅助对象更新        | `src/schema-core/commands/visual-commands.ts` | 保持 UI 行为不变，只迁移状态变更规则              |
+| history context 的 action 字符串和 patch 数据     | `src/schema-core/commands/command-history.ts` | 先兼容旧 history，再逐步改为 inverse command      |
 
 ## 5. Command contract
 
 ```ts
-export interface DiagramCommand<TType extends string = string, TPayload = unknown> {
+export interface DiagramCommand<
+    TType extends string = string,
+    TPayload = unknown,
+> {
     id: string;
     type: TType;
     payload: TPayload;
@@ -157,6 +160,7 @@ Phase 2 不一次性替换现有 undo/redo。兼容策略：
 - 迁移 AddTable、UpdateTable、DeleteTable。
 - 删除 table 必须报告 relationship、dependency、note anchor 等影响。
 - Provider 只接入 table command，不同时迁移 field/index/relationship。
+- 状态：已完成。已新增 table command 纯函数和单元测试，Provider 的新增、编辑、删除表已接入 command；当前 Note 模型没有 table anchor 字段，删除 table 不会改变 notes，后续若引入 anchor 字段需在 command 中补充影响报告。
 
 ### CHARTDB-P2-004：迁移 Field、Index、Relationship command
 
