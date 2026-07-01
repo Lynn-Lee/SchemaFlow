@@ -995,11 +995,13 @@ git switch -c codex/chartdb-phase-3-storage
 
 **实施步骤：**
 
-- [ ] 每个 repository 只负责单一实体 CRUD。
+- [x] 每个 repository 只负责单一实体 CRUD。
 
-- [ ] Provider 改为组合 repository，而不是直接写 Dexie 查询。
+- [x] Provider 改为组合 repository，而不是直接写 Dexie 查询。
 
-- [ ] 每迁移一个 repository 运行对应测试。
+- [x] repository 聚合测试覆盖读写、组合读取、排序、缺失实体和 Provider 边界。
+
+本轮结果：已新增 `src/storage/repositories/chartdb-repositories.ts`，集中 config、diagram filter、diagram、table、relationship、dependency、area、custom type 和 note repository API；`StorageProvider` 从直接 Dexie CRUD 收敛为 repository 组合适配层；新增 `src/storage/repositories/__tests__/chartdb-repositories.test.ts` 覆盖 diagram 组合读取、relationship/custom type 排序、diagram id 级联更新、缺失实体和 Provider repository 边界。下一项进入 Task 3.3。
 
 ### Task 3.3：实现 diagram transaction service
 

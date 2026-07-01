@@ -1,6 +1,6 @@
 # ChartDB Storage 设计
 
-> 状态：Phase 3 执行清单。本文约束 `CHARTDB-P3-001` 到 `CHARTDB-P3-004` 的自动开发顺序。
+> 状态：Phase 3 执行清单。`CHARTDB-P3-001` 已完成 Dexie schema 集中化，`CHARTDB-P3-002` 已完成 repository API 抽离；后续从 `CHARTDB-P3-003` 的 diagram transaction service 继续。
 
 ## 1. 目标
 
@@ -10,13 +10,13 @@ Phase 3 的目标是把 IndexedDB 访问从 React Provider 中抽离，形成可
 
 ## 2. 当前基线
 
-当前 Dexie 初始化、表结构、migration 和 CRUD 仍集中在 `src/context/storage-context/storage-provider.tsx`：
+当前 Dexie 初始化、表结构和 migration 已集中到 `src/storage/db`，CRUD repository 已集中到 `src/storage/repositories/chartdb-repositories.ts`：
 
 - 数据库名：`ChartDB`。
 - 当前 Dexie 版本：`13`。
 - 当前表：`diagrams`、`db_tables`、`db_relationships`、`db_dependencies`、`areas`、`db_custom_types`、`notes`、`config`、`diagram_filters`。
 - 既有 migration：字段 type 字符串迁移、relationship cardinality 迁移、field nullable 字符串迁移、config 重置。
-- 当前风险：Provider 同时承担 Dexie schema、migration、repository 查询和 React context 适配，难以单独测试 migration、transaction 和 backup/restore。
+- 当前风险：diagram 级创建、删除、导入和恢复尚未进入 transaction service，失败时的一致性仍需在 `CHARTDB-P3-003` 收敛；backup/restore versioning 仍在 `CHARTDB-P3-004`。
 
 ## 3. 目标目录
 
@@ -112,7 +112,7 @@ type ChartDBBackupV1 = {
 ## 8. 自动开发顺序
 
 1. `CHARTDB-P3-001`：抽离 Dexie 数据库定义，新增 `src/storage/db` 和 schema version 测试。
-2. `CHARTDB-P3-002`：抽 repository API，让 `StorageProvider` 组合 repository。
+2. `CHARTDB-P3-002`：抽 repository API，让 `StorageProvider` 组合 repository。（已完成）
 3. `CHARTDB-P3-003`：实现 diagram transaction service，覆盖删除和替换一致性。
 4. `CHARTDB-P3-004`：实现 backup schema version、校验和 restore migration。
 

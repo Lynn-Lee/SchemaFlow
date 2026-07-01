@@ -849,7 +849,7 @@ phase: Phase 3
 type: CODE
 priority: P1
 title: 增加 diagram、dependency、area、note repository
-status: queued
+status: done
 depends_on:
     - CHARTDB-P3-001
 owner_lane: storage
@@ -864,6 +864,11 @@ verification:
 acceptance:
     - Provider 只消费 repository API
     - repository 有单元测试覆盖读写和错误路径
+completion:
+    - 新增 `src/storage/repositories/chartdb-repositories.ts`，集中当前 StorageContext 所需的 config、diagram filter、diagram、table、relationship、dependency、area、custom type 和 note repository API。
+    - `StorageProvider` 已收敛为 repository 组合适配层，不再直接访问 Dexie table。
+    - 新增 `src/storage/repositories/__tests__/chartdb-repositories.test.ts`，覆盖 diagram 组合读取、relationship/custom type 排序、diagram id 级联更新、缺失实体返回 undefined，以及 Provider repository 边界。
+    - 下一项进入 `CHARTDB-P3-003`，实现 diagram transaction service。
 ```
 
 ### CHARTDB-P3-003：实现 diagram transaction service
