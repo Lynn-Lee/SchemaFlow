@@ -792,7 +792,7 @@ phase: Phase 3
 type: PLAN
 priority: P1
 title: 定义 storage repository 和 migration 计划
-status: queued
+status: done
 depends_on:
     - CHARTDB-P2-006
 owner_lane: storage
