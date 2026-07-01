@@ -1091,7 +1091,7 @@ git switch -c codex/chartdb-phase-4-dialects
 
 - [x] 定义 `SchemaExporter`。
 
-- [ ] 定义 capability support level：
+- [x] 定义 capability support level：
 
 ```ts
 export type SupportLevel = 'full' | 'partial' | 'experimental' | 'unsupported';
@@ -1112,18 +1112,27 @@ export type SupportLevel = 'full' | 'partial' | 'experimental' | 'unsupported';
 
 **实施步骤：**
 
-- [ ] 先以 wrapper 方式接入旧 parser。
+- [x] 输出结构化 warnings。
 
-- [ ] 输出结构化 warnings。
+- [x] 先以 wrapper 方式接入旧 parser。
 
-- [ ] 分批拆 parser：
+- [x] 拆出当前 wrapper 职责：
+    - `src/dialects/postgresql/importer.ts`：统一 importer contract。
+    - `src/dialects/postgresql/capabilities.ts`：PostgreSQL capability 声明。
+    - `src/dialects/postgresql/parser/legacy-parser.ts`：旧 parser adapter 和 diagram normalize。
+    - `src/dialects/postgresql/warnings.ts`：RLS、policy、extension、trigger、function unsupported warning。
+    - `src/dialects/postgresql/__tests__/importer.test.ts`：wrapper fixture 和 capability regression。
+
+- [ ] 后续分批拆 parser：
     - table parser。
     - enum parser。
     - relationship parser。
     - index parser。
     - comment parser。
 
-- [ ] 保持现有 PostgreSQL 测试全部通过。
+- [x] 保持现有 PostgreSQL 测试全部通过。
+
+本轮结果：已新增 PostgreSQL dialect wrapper 和 capability 声明，`postgresqlSchemaImporter.importSchema()` 复用旧 `fromPostgres` parser 并返回统一 `ImportResult`。RLS、policy、extension、trigger 和 function 会作为 `unsupportedObjects` 与结构化 `warnings` 输出；现有 PostgreSQL regression tests 和新 wrapper tests 均通过。下一项进入 `CHARTDB-P4-003`，迁移 MySQL、MariaDB、SQLite、SQL Server 和 Oracle wrapper。
 
 ### Task 4.3：迁移 MySQL、MariaDB、SQLite、SQL Server、Oracle
 

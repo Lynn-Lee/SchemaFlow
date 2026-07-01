@@ -1010,7 +1010,7 @@ phase: Phase 4
 type: CODE
 priority: P1
 title: 将 PostgreSQL importer 拆进 dialect pipeline
-status: queued
+status: done
 depends_on:
     - CHARTDB-P4-001
 owner_lane: dialect
@@ -1026,6 +1026,14 @@ acceptance:
     - importer 文件职责拆分为 parser、mapper、warnings、fixtures
     - RLS、policy、extension 等 unsupported 对象进入 warning
 ```
+
+完成记录：
+
+- 新增 `src/dialects/postgresql/importer.ts`、`src/dialects/postgresql/capabilities.ts`、`src/dialects/postgresql/parser/legacy-parser.ts`、`src/dialects/postgresql/warnings.ts` 和统一出口 `src/dialects/postgresql/index.ts`。
+- `postgresqlSchemaImporter.importSchema()` 复用旧 PostgreSQL parser，输出统一 `ImportResult`，并保持旧 diagram normalize、排序和 primary key index 行为。
+- RLS、policy、extension、trigger 和 function 已进入 `unsupportedObjects` 与结构化 `warnings`，包含 code、severity、statementType 和 sourceRange。
+- 新增 `src/dialects/postgresql/__tests__/importer.test.ts`，覆盖 wrapper fixture、capability levels 和 unsupported warning。
+- 下一项进入 `CHARTDB-P4-003`，迁移 MySQL、MariaDB、SQLite、SQL Server 和 Oracle。
 
 ### CHARTDB-P4-003：迁移 MySQL、MariaDB、SQLite、SQL Server、Oracle
 
@@ -1690,7 +1698,7 @@ npm install
 npm run test:ci
 ```
 
-`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005`、`CHARTDB-P2-006`、`CHARTDB-P3-000`、`CHARTDB-P3-001`、`CHARTDB-P3-002`、`CHARTDB-P3-003`、`CHARTDB-P3-004` 和 `CHARTDB-P4-000` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口、command 基础 contract、table command 纯函数、field/index/relationship command 纯函数、area/note/custom type command 纯函数，以及 command history metadata 接入。Phase 3 已完成 storage 执行清单、Dexie schema 集中化、repository API、diagram transaction service 和 backup/restore 版本化。Phase 4 已新增 `docs/方言能力矩阵.md`，明确 dialect import/export capability、unsupported syntax 和 warning 规则。下一轮自动任务应从 `CHARTDB-P4-001` 开始，创建 dialect contract 和 result type。
+`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005`、`CHARTDB-P2-006`、`CHARTDB-P3-000`、`CHARTDB-P3-001`、`CHARTDB-P3-002`、`CHARTDB-P3-003`、`CHARTDB-P3-004`、`CHARTDB-P4-000`、`CHARTDB-P4-001` 和 `CHARTDB-P4-002` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口、command 基础 contract、table command 纯函数、field/index/relationship command 纯函数、area/note/custom type command 纯函数，以及 command history metadata 接入。Phase 3 已完成 storage 执行清单、Dexie schema 集中化、repository API、diagram transaction service 和 backup/restore 版本化。Phase 4 已新增 common dialect contract 和 PostgreSQL wrapper，RLS、policy、extension 等 PostgreSQL unsupported 对象会进入统一 warning/unsupportedObjects。下一轮自动任务应从 `CHARTDB-P4-003` 开始，迁移 MySQL、MariaDB、SQLite、SQL Server 和 Oracle wrapper。
 
 ## 19. 计划边界确认
 
