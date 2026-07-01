@@ -474,7 +474,7 @@ phase: Phase 1
 type: CODE
 priority: P0
 title: 移除 raw HTML Markdown 渲染风险
-status: queued
+status: done
 depends_on:
   - CHARTDB-P1-000
 owner_lane: security
@@ -492,6 +492,11 @@ acceptance:
   - note 不执行 raw HTML
   - 链接协议限制为 http、https、mailto
   - 恶意 markdown fixture 渲染为安全文本或被过滤
+completion:
+  - 已移除 `note-node.tsx` 对 `rehype-raw` 的使用，Note Markdown 预览不再把 raw HTML 转为真实 DOM 元素。
+  - 已卸载 `rehype-raw` 生产依赖，减少 Markdown 渲染供应面。
+  - 已新增 `note-markdown-safety.test.tsx`，覆盖 `<script>`、`iframe`、`img onerror` 和 `javascript:` 链接 fixture。
+  - 已为 Note 链接增加协议 gate，仅允许 `http`、`https`、`mailto`；危险链接降级为不可点击文本。
 ```
 
 ### CHARTDB-P1-004：Docker 和 Nginx 安全头
@@ -1603,7 +1608,7 @@ npm install
 npm run test:ci
 ```
 
-`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001` 和 `CHARTDB-P1-002` 已完成，Phase 0 通过验收且 Phase 1 已关闭构建期和运行时 API key 暴露，并建立 AI Disabled / BYOK Session / Self-hosted Gateway mode gate。下一轮自动任务应从 `CHARTDB-P1-003` 开始，处理 Note Markdown 安全渲染。不要跳过 Phase 1 直接做 `schema-core`、storage 或 UI 改造。
+`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002` 和 `CHARTDB-P1-003` 已完成，Phase 0 通过验收且 Phase 1 已关闭构建期和运行时 API key 暴露、建立 AI Disabled / BYOK Session / Self-hosted Gateway mode gate，并完成 Note Markdown 安全渲染。下一轮自动任务应从 `CHARTDB-P1-004` 开始，处理 Docker 和 Nginx 安全头。不要跳过 Phase 1 直接做 `schema-core`、storage 或 UI 改造。
 
 ## 19. 计划边界确认
 

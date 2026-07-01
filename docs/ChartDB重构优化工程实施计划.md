@@ -131,7 +131,7 @@ npm audit --omit=dev
 - `default.conf.template`：`/config.js` 暴露 `OPENAI_API_KEY`。
 - `src/lib/env.ts`：前端读取 `window.env` 和 `import.meta.env`。
 - `src/lib/data/sql-export/export-sql-script.ts`：浏览器内直接调用 AI SDK。
-- `src/pages/editor-page/canvas/note-node/note-node.tsx`：使用 `rehype-raw` 渲染 note。
+- `src/pages/editor-page/canvas/note-node/note-node.tsx`：`CHARTDB-P1-003` 已移除 `rehype-raw`，后续需保持 Markdown 安全回归测试。
 - `src/context/chartdb-context/chartdb-provider.tsx`：状态、业务命令、持久化高度耦合。
 - `src/context/storage-context/storage-provider.tsx`：Dexie schema、migration、CRUD 混在 Provider。
 - `src/lib/data/sql-import/dialect-importers/postgresql/postgresql.ts`：方言 importer 文件过大。
@@ -480,7 +480,7 @@ git commit -m "chore: establish baseline checks"
 
 **目标：** 关闭 API key 暴露、Markdown XSS 和运行时配置风险。
 
-**当前状态：** `CHARTDB-P1-000`、`CHARTDB-P1-001` 和 `CHARTDB-P1-002` 已完成。Phase 1 安全实施清单已记录在 `docs/安全模型与AI边界.md`；Docker 构建和 Nginx `/config.js` 已移除浏览器端 API key 暴露；非 deterministic 的 AI-assisted SQL export 已接入 mode gate，默认 Disabled，BYOK 密钥只允许保存在当前浏览器会话内，Self-hosted Gateway 只接受非敏感 endpoint/model。真实模型调用和完整设置 UI 暂不恢复，避免把 OpenAI SDK 和 key fallback 重新打入浏览器产物。后续代码任务必须继续以该文档约束为准：Note Markdown 首轮禁用 raw HTML，Docker/Nginx 安全头和 CSP 以不破坏静态部署为前提逐步落地。
+**当前状态：** `CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002` 和 `CHARTDB-P1-003` 已完成。Phase 1 安全实施清单已记录在 `docs/安全模型与AI边界.md`；Docker 构建和 Nginx `/config.js` 已移除浏览器端 API key 暴露；非 deterministic 的 AI-assisted SQL export 已接入 mode gate，默认 Disabled，BYOK 密钥只允许保存在当前浏览器会话内，Self-hosted Gateway 只接受非敏感 endpoint/model；Note Markdown 预览已禁用 raw HTML 并限制链接协议。真实模型调用和完整设置 UI 暂不恢复，避免把 OpenAI SDK 和 key fallback 重新打入浏览器产物。后续代码任务必须继续以该文档约束为准：Docker/Nginx 安全头和 CSP 以不破坏静态部署为前提逐步落地。
 
 **推荐分支：**
 
@@ -656,11 +656,11 @@ POST /api/ai/export-sql
 
 **实施步骤：**
 
-- [ ] 移除 `rehype-raw`，或改为 `rehype-sanitize` 严格 allowlist。
+- [x] 移除 `rehype-raw`，或改为 `rehype-sanitize` 严格 allowlist。
 
 推荐首轮：禁用 raw HTML。
 
-- [ ] 允许 Markdown：
+- [x] 允许 Markdown：
 
   - heading。
   - paragraph。
@@ -671,7 +671,7 @@ POST /api/ai/export-sql
   - fenced code。
   - safe links。
 
-- [ ] 禁止：
+- [x] 禁止：
 
   - script。
   - iframe。
@@ -679,7 +679,7 @@ POST /api/ai/export-sql
   - event handler attribute。
   - `javascript:` URL。
 
-- [ ] 增加测试。
+- [x] 增加测试。
 
 测试输入：
 
@@ -695,11 +695,13 @@ POST /api/ai/export-sql
 - 不渲染危险属性。
 - 安全文本仍可展示。
 
-- [ ] 运行测试。
+- [x] 运行测试。
 
 ```bash
 npm run test:ci -- src/pages/editor-page/canvas/note-node/__tests__/note-markdown-safety.test.tsx
 ```
+
+结果：通过，`2` 个安全渲染测试覆盖 raw HTML 元素过滤、安全链接保留和危险链接不可点击。
 
 ### Task 1.5：Nginx 和 Docker 安全头
 

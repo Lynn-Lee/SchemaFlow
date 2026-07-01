@@ -12,7 +12,6 @@ import type { CanvasEvent } from '@/context/canvas-context/canvas-context';
 import { useTheme } from '@/hooks/use-theme';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
 import { getIsOldSafari } from '@/safari-compat';
 
 export interface NoteNodeProps extends NodeProps {
@@ -22,6 +21,17 @@ export interface NoteNodeProps extends NodeProps {
 }
 
 export type NoteNodeType = Node<{ note: Note }, 'note'>;
+
+const allowedLinkProtocols = new Set(['http:', 'https:', 'mailto:']);
+
+const safeMarkdownUrlTransform = (url: string): string => {
+    try {
+        const parsedUrl = new URL(url);
+        return allowedLinkProtocols.has(parsedUrl.protocol) ? url : '';
+    } catch {
+        return '';
+    }
+};
 
 export const NoteNode: React.FC<NoteNodeProps> = ({
     data,
@@ -197,7 +207,7 @@ export const NoteNode: React.FC<NoteNodeProps> = ({
                                 remarkPlugins={
                                     getIsOldSafari() ? [] : [remarkGfm]
                                 }
-                                rehypePlugins={[rehypeRaw]}
+                                urlTransform={safeMarkdownUrlTransform}
                                 components={{
                                     h1: (props) => (
                                         <h1
@@ -256,12 +266,18 @@ export const NoteNode: React.FC<NoteNodeProps> = ({
                                             />
                                         );
                                     },
-                                    a: (props) => (
-                                        <a
-                                            className="font-medium text-blue-600 underline decoration-blue-600/50 hover:decoration-blue-600 dark:text-blue-400 dark:decoration-blue-400/50 dark:hover:decoration-blue-400"
-                                            {...props}
-                                        />
-                                    ),
+                                    a: ({ href, children, ...props }) =>
+                                        href ? (
+                                            <a
+                                                className="font-medium text-blue-600 underline decoration-blue-600/50 hover:decoration-blue-600 dark:text-blue-400 dark:decoration-blue-400/50 dark:hover:decoration-blue-400"
+                                                href={href}
+                                                {...props}
+                                            >
+                                                {children}
+                                            </a>
+                                        ) : (
+                                            <span {...props}>{children}</span>
+                                        ),
                                     ul: (props) => (
                                         <ul
                                             className="my-1 list-disc space-y-0.5 pl-5 first:mt-0"

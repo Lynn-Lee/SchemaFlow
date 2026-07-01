@@ -674,7 +674,7 @@ Custom Type 类型：
 
 #### 当前问题
 
-- Note Markdown raw HTML 渲染风险。
+- Note Markdown raw HTML 渲染风险已在 `CHARTDB-P1-003` 关闭，后续仍需保持回归测试。
 - Area 和 Note 与 schema 对象的语义关系不够明确。
 
 #### 目标体验
@@ -1170,7 +1170,7 @@ Capability Matrix：
 - 编写 Phase 1 安全实施清单。（已完成，见 `docs/安全模型与AI边界.md`）
 - 移除浏览器暴露 OpenAI key。（已完成，Docker 构建和 `/config.js` 不再输出 API key）
 - 新增 AI Disabled / BYOK Session / Self-hosted Gateway 模式。（已完成 mode gate；完整设置 UI 后续进入设置中心任务）
-- Note Markdown sanitize。
+- Note Markdown sanitize。（已完成，raw HTML 不再渲染为真实 DOM，链接仅允许 `http`、`https`、`mailto`）
 - Nginx 增加 CSP 和安全响应头。
 - CLA workflow 权限收敛。
 - Docker runtime config 不输出 secret。
