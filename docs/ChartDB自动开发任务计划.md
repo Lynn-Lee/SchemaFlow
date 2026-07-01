@@ -598,7 +598,7 @@ phase: Phase 2
 type: CODE
 priority: P1
 title: 创建 src/schema-core 并迁移纯类型出口
-status: queued
+status: done
 depends_on:
   - CHARTDB-P2-000
 owner_lane: core
@@ -616,6 +616,11 @@ acceptance:
   - schema-core 不依赖 React、Dexie、Monaco、DOM
   - 旧 import 路径通过 re-export 兼容
   - 没有业务行为变化
+completion:
+  - 已新增 `src/schema-core/model`，按 Diagram、Table、Field、Index、Relationship、Area、Note、CustomType 等领域对象提供 re-export 出口。
+  - 已新增 `src/schema-core/model/__tests__/model-exports.test.ts`，覆盖新入口可解析既有 domain schema，且 `schema-core` 文件不直接依赖 React、Dexie、Monaco、DOM 或浏览器 storage。
+  - 旧 `src/lib/domain` import path 保持不变，本轮未迁移业务逻辑。
+  - 下一项进入 `CHARTDB-P2-002`，定义 DiagramCommand、CommandResult、CommandContext 和 risk metadata。
 ```
 
 ### CHARTDB-P2-002：定义 DiagramCommand 基础类型
@@ -1621,7 +1626,7 @@ npm install
 npm run test:ci
 ```
 
-`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005` 和 `CHARTDB-P2-000` 已完成，Phase 0 和 Phase 1 均通过验收。下一轮自动任务应从 `CHARTDB-P2-001` 开始，建立 `src/schema-core/model` 与旧路径兼容 re-export。不要跳过 Phase 2 直接做 storage、dialect 或 UI 改造。
+`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000` 和 `CHARTDB-P2-001` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口。下一轮自动任务应从 `CHARTDB-P2-002` 开始，定义 DiagramCommand 基础类型、CommandResult、CommandContext 和 risk metadata。不要跳过 Phase 2 直接做 storage、dialect 或 UI 改造。
 
 ## 19. 计划边界确认
 

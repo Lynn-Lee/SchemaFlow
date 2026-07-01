@@ -756,7 +756,7 @@ curl -I http://localhost:8080
 
 **目标：** 解耦巨型 Provider，把编辑动作沉淀为可测试 command。
 
-**当前状态：** `CHARTDB-P2-000` 已完成，执行清单记录在 `docs/schema-core设计.md`。后续从 Task 2.1 开始，只建立 `src/schema-core/model` 与旧路径 re-export，不改变业务行为。
+**当前状态：** `CHARTDB-P2-000` 和 `CHARTDB-P2-001` 已完成，执行清单记录在 `docs/schema-core设计.md`，`src/schema-core/model` 已作为兼容 re-export 出口存在。后续从 Task 2.2 开始定义 command contract，不改变用户可见行为。
 
 **推荐分支：**
 
@@ -777,14 +777,14 @@ git switch -c codex/chartdb-phase-2-schema-core
 
 **实施步骤：**
 
-- [ ] 先创建 re-export 层，不立即搬迁全部类型。
+- [x] 先创建 re-export 层，不立即搬迁全部类型。
 
 目标：
 
 - 新代码从 `src/schema-core/model` 引入。
 - 旧代码继续从 `src/lib/domain` 工作。
 
-- [ ] 每迁移一个类型，先加编译检查。
+- [x] 每迁移一个类型，先加编译检查。
 
 ```bash
 npm run build
@@ -792,7 +792,9 @@ npm run build
 
 预期：TypeScript 编译通过。
 
-- [ ] 不在本 Task 修改业务逻辑。
+本轮结果：已新增 `src/schema-core/model` 的 re-export 层和 `model-exports` contract test；旧 `src/lib/domain` 路径保持不变，没有业务行为变化。
+
+- [x] 不在本 Task 修改业务逻辑。
 
 ### Task 2.2：定义 DiagramCommand 基础类型
 
