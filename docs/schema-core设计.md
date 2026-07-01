@@ -174,6 +174,7 @@ Phase 2 不一次性替换现有 undo/redo。兼容策略：
 - Area、Note 操作可撤销。
 - CustomType 删除前检查字段引用。
 - Note 内容仍只经过安全 Markdown 渲染，不重新引入 raw HTML。
+- 状态：已完成。已新增 area、note、custom type command 纯函数和单元测试，Provider 的 area/note/custom type 操作已接入 command；删除 custom type 会在字段仍引用该类型时返回 validation error，不写入 Dexie 或 history。
 
 ### CHARTDB-P2-006：接入统一 undo/redo command history
 

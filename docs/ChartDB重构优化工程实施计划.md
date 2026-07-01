@@ -754,7 +754,7 @@ curl -I http://localhost:8080
 
 **目标：** 解耦巨型 Provider，把编辑动作沉淀为可测试 command。
 
-**当前状态：** `CHARTDB-P2-000`、`CHARTDB-P2-001` 和 `CHARTDB-P2-002` 已完成，执行清单记录在 `docs/schema-core设计.md`，`src/schema-core/model` 已作为兼容 re-export 出口存在，`src/schema-core/commands` 已提供 command 基础 contract。后续从 Task 2.3 开始迁移 table command，不改变用户可见行为。
+**当前状态：** `CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004` 和 `CHARTDB-P2-005` 已完成，执行清单记录在 `docs/schema-core设计.md`，`src/schema-core/model` 已作为兼容 re-export 出口存在，`src/schema-core/commands` 已提供 command 基础 contract，并已迁移 table、field、index、relationship、area、note 和 custom type command。后续从 Task 2.6 开始接入统一 undo/redo command history，不改变用户可见行为。
 
 **推荐分支：**
 
