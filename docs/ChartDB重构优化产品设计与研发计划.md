@@ -1187,7 +1187,7 @@ Capability Matrix：
 
 周期：2 到 3 周。
 
-当前状态：`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002` 和 `CHARTDB-P2-003` 已完成，`docs/schema-core设计.md` 已定义旧类型映射、command contract、validator、diff 和 undo/redo 兼容层，`src/schema-core/model` 已建立兼容 re-export 出口，`src/schema-core/commands` 已建立 command 基础 contract 和 table command 纯函数。`ChartDBProvider` 的新增、编辑、删除表已接入 table command，同时保留既有 Dexie 写入和旧 undo/redo 数据结构。下一步从 `CHARTDB-P2-004` 开始迁移 field、index 和 relationship command，不改变用户可见行为。
+当前状态：`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003` 和 `CHARTDB-P2-004` 已完成，`docs/schema-core设计.md` 已定义旧类型映射、command contract、validator、diff 和 undo/redo 兼容层，`src/schema-core/model` 已建立兼容 re-export 出口，`src/schema-core/commands` 已建立 command 基础 contract、table command 纯函数，以及 field/index/relationship command 纯函数。`ChartDBProvider` 的新增、编辑、删除表、字段、索引和关系入口已接入 command，同时保留既有 Dexie 写入和 undo/redo 数据结构。下一步从 `CHARTDB-P2-005` 开始迁移 area、note 和 custom type command，不改变用户可见行为。
 
 目标：
 

@@ -896,7 +896,7 @@ npm run build
 
 **实施步骤：**
 
-- [ ] 测试删除 field 时处理 index 和 relationship 引用。
+- [x] 测试删除 field 时处理 index 和 relationship 引用。
 
 预期：
 
@@ -904,13 +904,15 @@ npm run build
 - 包含该 field 的 index 收缩。
 - 空 index 被删除。
 
-- [ ] 测试 relationship cardinality 更新。
+- [x] 测试 relationship cardinality 更新。
 
-- [ ] 实现 command。
+- [x] 实现 command。
 
-- [ ] Provider 接入。
+- [x] Provider 接入。
 
-- [ ] 运行完整 command 测试。
+- [x] 运行完整 command 测试。
+
+本轮结果：已新增 field、index、relationship command 创建 helper 和 apply 纯函数；删除 field 会报告级联风险、移除引用 relationship、收缩包含该 field 的 index，并删除空 index。创建/更新 relationship 前会校验 source/target table 与 field 引用；index command 保留 unique、isPrimaryKey、type 和 fieldIds 语义。`ChartDBProvider` 的 field、index、relationship 操作已接入 command，同时保留既有 Dexie 写入和 undo/redo；删除 field 的 undo 会恢复被级联移除的 relationship。下一项进入 Task 2.5。
 
 ### Task 2.5：迁移 Area / Note / CustomType command
 

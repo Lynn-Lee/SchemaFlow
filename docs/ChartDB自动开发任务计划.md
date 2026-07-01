@@ -694,7 +694,7 @@ phase: Phase 2
 type: CODE
 priority: P1
 title: 迁移字段、索引和关系变更命令
-status: queued
+status: done
 depends_on:
     - CHARTDB-P2-003
 owner_lane: core
@@ -711,6 +711,11 @@ acceptance:
     - 字段删除能识别索引、关系和 custom type 引用影响
     - 外键创建前校验 source、target、column 引用
     - index command 保留唯一索引、主键索引、普通索引语义
+completion:
+    - 已新增 `field-commands`、`index-commands`、`relationship-commands` 和对应 apply 纯函数，覆盖 add/update/delete/restore 或 undo command 语义。
+    - 已新增 `src/schema-core/commands/__tests__/field-index-relationship-commands.test.ts`，覆盖删除 field 时清理 relationship、收缩/删除 index、relationship 引用校验、cardinality 更新和 index 语义保留。
+    - `ChartDBProvider` 的 field、index、relationship 入口已接入 command 计算下一状态，并继续沿用既有 Dexie 写入、事件和 undo/redo action；删除 field 的 undo 会恢复被级联移除的 relationship。
+    - 下一项进入 `CHARTDB-P2-005`，迁移 Area、Note、CustomType command。
 ```
 
 ### CHARTDB-P2-005：迁移 Area、Note、CustomType command
@@ -1635,7 +1640,7 @@ npm install
 npm run test:ci
 ```
 
-`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002` 和 `CHARTDB-P2-003` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口、command 基础 contract 和 table command 纯函数。下一轮自动任务应从 `CHARTDB-P2-004` 开始，迁移 Field、Index、Relationship command。不要跳过 Phase 2 直接做 storage、dialect 或 UI 改造。
+`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003` 和 `CHARTDB-P2-004` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口、command 基础 contract、table command 纯函数，以及 field/index/relationship command 纯函数和 Provider 接入。下一轮自动任务应从 `CHARTDB-P2-005` 开始，迁移 Area、Note、CustomType command。不要跳过 Phase 2 直接做 storage、dialect 或 UI 改造。
 
 ## 19. 计划边界确认
 

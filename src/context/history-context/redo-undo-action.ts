@@ -64,7 +64,7 @@ type RedoUndoActionAddField = RedoUndoActionBase<
 type RedoUndoActionRemoveField = RedoUndoActionBase<
     'removeField',
     { tableId: string; fieldId: string },
-    { tableId: string; field: DBField }
+    { tableId: string; field: DBField; relationships?: DBRelationship[] }
 >;
 
 type RedoUndoActionUpdateField = RedoUndoActionBase<

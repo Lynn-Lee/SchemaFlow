@@ -231,8 +231,15 @@ export const HistoryProvider: React.FC<React.PropsWithChildren> = ({
             addField: ({ undoData: { fieldId, tableId } }) => {
                 return removeField(tableId, fieldId, { updateHistory: false });
             },
-            removeField: ({ undoData: { tableId, field } }) => {
-                return addField(tableId, field, { updateHistory: false });
+            removeField: async ({
+                undoData: { tableId, field, relationships = [] },
+            }) => {
+                await addField(tableId, field, { updateHistory: false });
+                if (relationships.length > 0) {
+                    await addRelationships(relationships, {
+                        updateHistory: false,
+                    });
+                }
             },
             updateField: ({ undoData: { tableId, fieldId, field } }) => {
                 return updateField(tableId, fieldId, field, {

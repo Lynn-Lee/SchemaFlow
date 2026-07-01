@@ -167,6 +167,7 @@ Phase 2 不一次性替换现有 undo/redo。兼容策略：
 - 删除 field 必须处理 index 和 relationship 引用。
 - 创建 relationship 前必须校验 source、target、column 引用。
 - index command 保留唯一索引、主键索引、普通索引语义。
+- 状态：已完成。已新增 field、index、relationship command 纯函数和单元测试，Provider 的 field/index/relationship 操作已接入 command；删除 field 会移除引用 relationship、收缩或删除相关 index，并在 undo 时恢复被级联移除的 relationship。
 
 ### CHARTDB-P2-005：迁移 Area、Note、CustomType command
 

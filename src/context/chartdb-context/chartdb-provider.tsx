@@ -35,11 +35,25 @@ import {
 } from '@/lib/domain/db-custom-type';
 import { getDefaultPrimaryKeyType } from '@/lib/data/data-types/data-types';
 import {
+    applyFieldCommand,
+    applyIndexCommand,
+    applyRelationshipCommand,
     applyTableCommand,
+    createAddFieldCommand,
+    createAddIndexCommand,
+    createAddRelationshipCommand,
     createAddTableCommand,
+    createDeleteFieldCommand,
+    createDeleteIndexCommand,
+    createDeleteRelationshipCommand,
     createDeleteTableCommand,
+    createUpdateFieldCommand,
+    createUpdateIndexCommand,
+    createUpdateRelationshipCommand,
     createUpdateTableCommand,
+    type DiagramFieldIndexRelationshipCommandState,
     type DiagramTableCommandState,
+    type RestoreFieldCommand,
     type RestoreTableCommand,
     type UpdateTableCommand,
 } from '@/schema-core/commands';
@@ -755,34 +769,34 @@ export const ChartDBProvider: React.FC<
             options = { updateHistory: true }
         ) => {
             const prevField = getField(tableId, fieldId);
+            const result = applyFieldCommand({
+                context: commandContext,
+                state: {
+                    databaseType,
+                    tables,
+                    relationships,
+                } satisfies DiagramFieldIndexRelationshipCommandState,
+                command: createUpdateFieldCommand({
+                    context: commandContext,
+                    tableId,
+                    fieldId,
+                    field,
+                }),
+            });
+            if (result.status !== 'success') {
+                return;
+            }
 
-            const updateTableFn = (table: DBTable) => {
-                const updatedTable: DBTable = {
-                    ...table,
-                    fields: table.fields.map((f) =>
-                        f.id === fieldId ? { ...f, ...field } : f
-                    ),
-                } satisfies DBTable;
-
-                updatedTable.indexes = getTableIndexesWithPrimaryKey({
-                    table: updatedTable,
-                });
-
-                return updatedTable;
-            };
-
-            setTables((tables) =>
-                tables.map((table) => {
-                    if (table.id === tableId) {
-                        return updateTableFn(table);
-                    }
-
-                    return table;
-                })
-            );
+            setTables(result.state.tables);
 
             const table = await db.getTable({ diagramId, id: tableId });
             if (!table) {
+                return;
+            }
+            const updatedTable = result.state.tables.find(
+                (table) => table.id === tableId
+            );
+            if (!updatedTable) {
                 return;
             }
 
@@ -792,9 +806,7 @@ export const ChartDBProvider: React.FC<
                 db.updateDiagram({ id: diagramId, attributes: { updatedAt } }),
                 db.updateTable({
                     id: tableId,
-                    attributes: {
-                        ...updateTableFn(table),
-                    },
+                    attributes: updatedTable,
                 }),
             ]);
 
@@ -811,7 +823,18 @@ export const ChartDBProvider: React.FC<
                 resetRedoStack();
             }
         },
-        [db, diagramId, setTables, addUndoAction, resetRedoStack, getField]
+        [
+            db,
+            diagramId,
+            setTables,
+            addUndoAction,
+            resetRedoStack,
+            getField,
+            tables,
+            relationships,
+            databaseType,
+            commandContext,
+        ]
     );
 
     const removeField: ChartDBContext['removeField'] = useCallback(
@@ -820,30 +843,32 @@ export const ChartDBProvider: React.FC<
             fieldId: string,
             options = { updateHistory: true }
         ) => {
-            const updateTableFn = (table: DBTable) => {
-                const updatedTable: DBTable = {
-                    ...table,
-                    fields: table.fields.filter((f) => f.id !== fieldId),
-                } satisfies DBTable;
-
-                updatedTable.indexes = getTableIndexesWithPrimaryKey({
-                    table: updatedTable,
-                });
-
-                return updatedTable;
-            };
-
             const fields = getTable(tableId)?.fields ?? [];
             const prevField = getField(tableId, fieldId);
-            setTables((tables) =>
-                tables.map((table) => {
-                    if (table.id === tableId) {
-                        return updateTableFn(table);
-                    }
+            const result = applyFieldCommand({
+                context: commandContext,
+                state: {
+                    databaseType,
+                    tables,
+                    relationships,
+                } satisfies DiagramFieldIndexRelationshipCommandState,
+                command: createDeleteFieldCommand({
+                    context: commandContext,
+                    tableId,
+                    fieldId,
+                }),
+            });
+            if (result.status !== 'success') {
+                return;
+            }
+            const relationshipsToRemove = isRestoreFieldCommand(
+                result.undoCommand
+            )
+                ? result.undoCommand.payload.relationships
+                : [];
 
-                    return table;
-                })
-            );
+            setTables(result.state.tables);
+            setRelationships(result.state.relationships);
 
             events.emit({
                 action: 'remove_field',
@@ -858,6 +883,12 @@ export const ChartDBProvider: React.FC<
             if (!table) {
                 return;
             }
+            const updatedTable = result.state.tables.find(
+                (table) => table.id === tableId
+            );
+            if (!updatedTable) {
+                return;
+            }
 
             const updatedAt = new Date();
             setDiagramUpdatedAt(updatedAt);
@@ -865,17 +896,22 @@ export const ChartDBProvider: React.FC<
                 db.updateDiagram({ id: diagramId, attributes: { updatedAt } }),
                 db.updateTable({
                     id: tableId,
-                    attributes: {
-                        ...updateTableFn(table),
-                    },
+                    attributes: updatedTable,
                 }),
+                ...relationshipsToRemove.map((relationship) =>
+                    db.deleteRelationship({ diagramId, id: relationship.id })
+                ),
             ]);
 
             if (!!prevField && options.updateHistory) {
                 addUndoAction({
                     action: 'removeField',
                     redoData: { tableId, fieldId },
-                    undoData: { tableId, field: prevField },
+                    undoData: {
+                        tableId,
+                        field: prevField,
+                        relationships: relationshipsToRemove,
+                    },
                 });
                 resetRedoStack();
             }
@@ -889,6 +925,10 @@ export const ChartDBProvider: React.FC<
             getField,
             getTable,
             events,
+            tables,
+            relationships,
+            databaseType,
+            commandContext,
         ]
     );
 
@@ -899,23 +939,24 @@ export const ChartDBProvider: React.FC<
             options = { updateHistory: true }
         ) => {
             const fields = getTable(tableId)?.fields ?? [];
-            setTables((tables) => {
-                return tables.map((table) => {
-                    if (table.id === tableId) {
-                        db.updateTable({
-                            id: tableId,
-                            attributes: {
-                                ...table,
-                                fields: [...table.fields, field],
-                            },
-                        });
-
-                        return { ...table, fields: [...table.fields, field] };
-                    }
-
-                    return table;
-                });
+            const result = applyFieldCommand({
+                context: commandContext,
+                state: {
+                    databaseType,
+                    tables,
+                    relationships,
+                } satisfies DiagramFieldIndexRelationshipCommandState,
+                command: createAddFieldCommand({
+                    context: commandContext,
+                    tableId,
+                    field,
+                }),
             });
+            if (result.status !== 'success') {
+                return;
+            }
+
+            setTables(result.state.tables);
 
             events.emit({
                 action: 'add_field',
@@ -931,11 +972,21 @@ export const ChartDBProvider: React.FC<
             if (!table) {
                 return;
             }
+            const updatedTable = result.state.tables.find(
+                (table) => table.id === tableId
+            );
+            if (!updatedTable) {
+                return;
+            }
 
             const updatedAt = new Date();
             setDiagramUpdatedAt(updatedAt);
             await Promise.all([
                 db.updateDiagram({ id: diagramId, attributes: { updatedAt } }),
+                db.updateTable({
+                    id: tableId,
+                    attributes: updatedTable,
+                }),
             ]);
 
             if (options.updateHistory) {
@@ -955,6 +1006,10 @@ export const ChartDBProvider: React.FC<
             resetRedoStack,
             events,
             getTable,
+            tables,
+            relationships,
+            databaseType,
+            commandContext,
         ]
     );
 
@@ -992,16 +1047,33 @@ export const ChartDBProvider: React.FC<
             index: DBIndex,
             options = { updateHistory: true }
         ) => {
-            setTables((tables) =>
-                tables.map((table) =>
-                    table.id === tableId
-                        ? { ...table, indexes: [...table.indexes, index] }
-                        : table
-                )
-            );
+            const result = applyIndexCommand({
+                context: commandContext,
+                state: {
+                    databaseType,
+                    tables,
+                    relationships,
+                } satisfies DiagramFieldIndexRelationshipCommandState,
+                command: createAddIndexCommand({
+                    context: commandContext,
+                    tableId,
+                    index,
+                }),
+            });
+            if (result.status !== 'success') {
+                return;
+            }
+
+            setTables(result.state.tables);
 
             const dbTable = await db.getTable({ diagramId, id: tableId });
             if (!dbTable) {
+                return;
+            }
+            const updatedTable = result.state.tables.find(
+                (table) => table.id === tableId
+            );
+            if (!updatedTable) {
                 return;
             }
 
@@ -1011,10 +1083,7 @@ export const ChartDBProvider: React.FC<
                 db.updateDiagram({ id: diagramId, attributes: { updatedAt } }),
                 db.updateTable({
                     id: tableId,
-                    attributes: {
-                        ...dbTable,
-                        indexes: [...dbTable.indexes, index],
-                    },
+                    attributes: updatedTable,
                 }),
             ]);
 
@@ -1027,7 +1096,17 @@ export const ChartDBProvider: React.FC<
                 resetRedoStack();
             }
         },
-        [db, diagramId, setTables, addUndoAction, resetRedoStack]
+        [
+            db,
+            diagramId,
+            setTables,
+            addUndoAction,
+            resetRedoStack,
+            tables,
+            relationships,
+            databaseType,
+            commandContext,
+        ]
     );
 
     const removeIndex: ChartDBContext['removeIndex'] = useCallback(
@@ -1037,18 +1116,24 @@ export const ChartDBProvider: React.FC<
             options = { updateHistory: true }
         ) => {
             const prevIndex = getIndex(tableId, indexId);
-            setTables((tables) =>
-                tables.map((table) =>
-                    table.id === tableId
-                        ? {
-                              ...table,
-                              indexes: table.indexes.filter(
-                                  (i) => i.id !== indexId
-                              ),
-                          }
-                        : table
-                )
-            );
+            const result = applyIndexCommand({
+                context: commandContext,
+                state: {
+                    databaseType,
+                    tables,
+                    relationships,
+                } satisfies DiagramFieldIndexRelationshipCommandState,
+                command: createDeleteIndexCommand({
+                    context: commandContext,
+                    tableId,
+                    indexId,
+                }),
+            });
+            if (result.status !== 'success') {
+                return;
+            }
+
+            setTables(result.state.tables);
 
             const dbTable = await db.getTable({
                 diagramId,
@@ -1058,6 +1143,12 @@ export const ChartDBProvider: React.FC<
             if (!dbTable) {
                 return;
             }
+            const updatedTable = result.state.tables.find(
+                (table) => table.id === tableId
+            );
+            if (!updatedTable) {
+                return;
+            }
 
             const updatedAt = new Date();
             setDiagramUpdatedAt(updatedAt);
@@ -1065,12 +1156,7 @@ export const ChartDBProvider: React.FC<
                 db.updateDiagram({ id: diagramId, attributes: { updatedAt } }),
                 db.updateTable({
                     id: tableId,
-                    attributes: {
-                        ...dbTable,
-                        indexes: dbTable.indexes.filter(
-                            (i) => i.id !== indexId
-                        ),
-                    },
+                    attributes: updatedTable,
                 }),
             ]);
 
@@ -1083,7 +1169,18 @@ export const ChartDBProvider: React.FC<
                 resetRedoStack();
             }
         },
-        [db, diagramId, setTables, addUndoAction, resetRedoStack, getIndex]
+        [
+            db,
+            diagramId,
+            setTables,
+            addUndoAction,
+            resetRedoStack,
+            getIndex,
+            tables,
+            relationships,
+            databaseType,
+            commandContext,
+        ]
     );
 
     const createIndex: ChartDBContext['createIndex'] = useCallback(
@@ -1112,22 +1209,35 @@ export const ChartDBProvider: React.FC<
             options = { updateHistory: true }
         ) => {
             const prevIndex = getIndex(tableId, indexId);
-            setTables((tables) =>
-                tables.map((table) =>
-                    table.id === tableId
-                        ? {
-                              ...table,
-                              indexes: table.indexes.map((i) =>
-                                  i.id === indexId ? { ...i, ...index } : i
-                              ),
-                          }
-                        : table
-                )
-            );
+            const result = applyIndexCommand({
+                context: commandContext,
+                state: {
+                    databaseType,
+                    tables,
+                    relationships,
+                } satisfies DiagramFieldIndexRelationshipCommandState,
+                command: createUpdateIndexCommand({
+                    context: commandContext,
+                    tableId,
+                    indexId,
+                    index,
+                }),
+            });
+            if (result.status !== 'success') {
+                return;
+            }
+
+            setTables(result.state.tables);
 
             const dbTable = await db.getTable({ diagramId, id: tableId });
 
             if (!dbTable) {
+                return;
+            }
+            const updatedTable = result.state.tables.find(
+                (table) => table.id === tableId
+            );
+            if (!updatedTable) {
                 return;
             }
 
@@ -1137,12 +1247,7 @@ export const ChartDBProvider: React.FC<
                 db.updateDiagram({ id: diagramId, attributes: { updatedAt } }),
                 db.updateTable({
                     id: tableId,
-                    attributes: {
-                        ...dbTable,
-                        indexes: dbTable.indexes.map((i) =>
-                            i.id === indexId ? { ...i, ...index } : i
-                        ),
-                    },
+                    attributes: updatedTable,
                 }),
             ]);
 
@@ -1155,7 +1260,18 @@ export const ChartDBProvider: React.FC<
                 resetRedoStack();
             }
         },
-        [db, diagramId, setTables, addUndoAction, resetRedoStack, getIndex]
+        [
+            db,
+            diagramId,
+            setTables,
+            addUndoAction,
+            resetRedoStack,
+            getIndex,
+            tables,
+            relationships,
+            databaseType,
+            commandContext,
+        ]
     );
 
     const addCheckConstraint: ChartDBContext['addCheckConstraint'] =
@@ -1366,19 +1482,54 @@ export const ChartDBProvider: React.FC<
 
     const addRelationships: ChartDBContext['addRelationships'] = useCallback(
         async (
-            relationships: DBRelationship[],
+            relationshipsToAdd: DBRelationship[],
             options = { updateHistory: true }
         ) => {
-            setRelationships((currentRelationships) => [
-                ...currentRelationships,
-                ...relationships,
-            ]);
+            const initialCommandState: DiagramFieldIndexRelationshipCommandState =
+                {
+                    databaseType,
+                    tables,
+                    relationships,
+                };
+            const nextCommandState =
+                relationshipsToAdd.reduce<DiagramFieldIndexRelationshipCommandState>(
+                    (state, relationship) => {
+                        const result = applyRelationshipCommand({
+                            context: commandContext,
+                            state,
+                            command: createAddRelationshipCommand({
+                                context: commandContext,
+                                relationship,
+                            }),
+                        });
+                        return result.status === 'success'
+                            ? result.state
+                            : state;
+                    },
+                    initialCommandState
+                );
+            const existingRelationshipIds = new Set(
+                relationships.map((relationship) => relationship.id)
+            );
+            const acceptedRelationships = relationshipsToAdd.filter(
+                (relationship) =>
+                    !existingRelationshipIds.has(relationship.id) &&
+                    nextCommandState.relationships.some(
+                        (acceptedRelationship) =>
+                            acceptedRelationship.id === relationship.id
+                    )
+            );
+            if (acceptedRelationships.length === 0) {
+                return;
+            }
+
+            setRelationships(nextCommandState.relationships);
 
             const updatedAt = new Date();
             setDiagramUpdatedAt(updatedAt);
 
             await Promise.all([
-                ...relationships.map((relationship) =>
+                ...acceptedRelationships.map((relationship) =>
                     db.addRelationship({ diagramId, relationship })
                 ),
                 db.updateDiagram({ id: diagramId, attributes: { updatedAt } }),
@@ -1387,15 +1538,25 @@ export const ChartDBProvider: React.FC<
             if (options.updateHistory) {
                 addUndoAction({
                     action: 'addRelationships',
-                    redoData: { relationships },
+                    redoData: { relationships: acceptedRelationships },
                     undoData: {
-                        relationshipIds: relationships.map((r) => r.id),
+                        relationshipIds: acceptedRelationships.map((r) => r.id),
                     },
                 });
                 resetRedoStack();
             }
         },
-        [db, diagramId, setRelationships, addUndoAction, resetRedoStack]
+        [
+            db,
+            diagramId,
+            setRelationships,
+            addUndoAction,
+            resetRedoStack,
+            tables,
+            relationships,
+            databaseType,
+            commandContext,
+        ]
     );
 
     const addRelationship: ChartDBContext['addRelationship'] = useCallback(
@@ -1464,12 +1625,31 @@ export const ChartDBProvider: React.FC<
                         ids.includes(relationship.id)
                     ),
                 ];
+                const initialCommandState: DiagramFieldIndexRelationshipCommandState =
+                    {
+                        databaseType,
+                        tables,
+                        relationships,
+                    };
+                const nextCommandState =
+                    ids.reduce<DiagramFieldIndexRelationshipCommandState>(
+                        (state, id) => {
+                            const result = applyRelationshipCommand({
+                                context: commandContext,
+                                state,
+                                command: createDeleteRelationshipCommand({
+                                    context: commandContext,
+                                    relationshipId: id,
+                                }),
+                            });
+                            return result.status === 'success'
+                                ? result.state
+                                : state;
+                        },
+                        initialCommandState
+                    );
 
-                setRelationships((relationships) =>
-                    relationships.filter(
-                        (relationship) => !ids.includes(relationship.id)
-                    )
-                );
+                setRelationships(nextCommandState.relationships);
 
                 const updatedAt = new Date();
                 setDiagramUpdatedAt(updatedAt);
@@ -1499,6 +1679,9 @@ export const ChartDBProvider: React.FC<
                 relationships,
                 addUndoAction,
                 resetRedoStack,
+                tables,
+                databaseType,
+                commandContext,
             ]
         );
 
@@ -1518,11 +1701,24 @@ export const ChartDBProvider: React.FC<
                 options = { updateHistory: true }
             ) => {
                 const prevRelationship = getRelationship(id);
-                setRelationships((relationships) =>
-                    relationships.map((r) =>
-                        r.id === id ? { ...r, ...relationship } : r
-                    )
-                );
+                const result = applyRelationshipCommand({
+                    context: commandContext,
+                    state: {
+                        databaseType,
+                        tables,
+                        relationships,
+                    } satisfies DiagramFieldIndexRelationshipCommandState,
+                    command: createUpdateRelationshipCommand({
+                        context: commandContext,
+                        relationshipId: id,
+                        relationship,
+                    }),
+                });
+                if (result.status !== 'success') {
+                    return;
+                }
+
+                setRelationships(result.state.relationships);
 
                 const updatedAt = new Date();
                 setDiagramUpdatedAt(updatedAt);
@@ -1553,6 +1749,10 @@ export const ChartDBProvider: React.FC<
                 getRelationship,
                 resetRedoStack,
                 diagramId,
+                tables,
+                relationships,
+                databaseType,
+                commandContext,
             ]
         );
 
@@ -2289,6 +2489,12 @@ function isRestoreTableCommand(
     command: unknown
 ): command is RestoreTableCommand {
     return (command as { type?: string } | undefined)?.type === 'table.restore';
+}
+
+function isRestoreFieldCommand(
+    command: unknown
+): command is RestoreFieldCommand {
+    return (command as { type?: string } | undefined)?.type === 'field.restore';
 }
 
 function isUpdateTableCommand(command: unknown): command is UpdateTableCommand {
