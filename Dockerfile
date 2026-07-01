@@ -5,6 +5,8 @@ ARG VITE_LLM_MODEL_NAME
 ARG VITE_HIDE_CHARTDB_CLOUD
 ARG VITE_DISABLE_ANALYTICS
 
+ENV NODE_OPTIONS=--max-old-space-size=4096
+
 WORKDIR /usr/src/app
 
 COPY package.json package-lock.json ./

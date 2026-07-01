@@ -1171,9 +1171,9 @@ Capability Matrix：
 - 移除浏览器暴露 OpenAI key。（已完成，Docker 构建和 `/config.js` 不再输出 API key）
 - 新增 AI Disabled / BYOK Session / Self-hosted Gateway 模式。（已完成 mode gate；完整设置 UI 后续进入设置中心任务）
 - Note Markdown sanitize。（已完成，raw HTML 不再渲染为真实 DOM，链接仅允许 `http`、`https`、`mailto`）
-- Nginx 增加 CSP 和安全响应头。
+- Nginx 增加 CSP 和安全响应头。（已完成，静态页面和 `/config.js` 均返回基础安全头）
 - CLA workflow 权限收敛。
-- Docker runtime config 不输出 secret。
+- Docker runtime config 不输出 secret。（已完成，`/config.js` 仅输出非敏感 endpoint、model 和开关，并设置 no-store）
 
 验收：
 
@@ -1500,7 +1500,7 @@ Capability Matrix：
 第一优先级：
 
 1. Markdown sanitize。
-2. 完成 Docker/Nginx 安全头。
+2. 完成 Docker/Nginx 安全头。（已完成）
 3. 完成 Phase 1 安全审查。
 4. 建立 schema-core。
 5. 抽离 storage / repository 边界。

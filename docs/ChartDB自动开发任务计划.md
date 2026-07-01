@@ -507,7 +507,7 @@ phase: Phase 1
 type: CODE
 priority: P1
 title: 增加基础 CSP、X-Content-Type-Options、Referrer-Policy
-status: queued
+status: done
 depends_on:
   - CHARTDB-P1-001
 owner_lane: security
@@ -523,6 +523,12 @@ acceptance:
   - Nginx 配置包含基础安全头
   - CSP 不破坏 Vite 构建后的静态资源加载
   - 文档说明 self-hosted 需要如何配置 AI gateway endpoint
+completion:
+  - 已在 `default.conf.template` 为静态页面和 `/config.js` 增加 CSP、nosniff、Referrer-Policy、X-Frame-Options 和 Permissions-Policy。
+  - 已为 `/config.js` 增加 `Cache-Control: no-store`，避免 runtime config 跨部署缓存。
+  - 已在 `Dockerfile` builder 阶段设置 `NODE_OPTIONS=--max-old-space-size=4096`，避免 Docker 内生产构建在 Vite transform 阶段触发 Node heap OOM。
+  - 已新增 `docs/部署与安全配置.md`，说明 self-hosted gateway endpoint 和 CSP 调整边界。
+  - 已新增 Nginx 安全头回归测试，覆盖 Vite 静态资源、worker、gateway connect-src 和 runtime config 缓存策略。
 ```
 
 ### CHARTDB-P1-005：Phase 1 安全审查
@@ -1608,7 +1614,7 @@ npm install
 npm run test:ci
 ```
 
-`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002` 和 `CHARTDB-P1-003` 已完成，Phase 0 通过验收且 Phase 1 已关闭构建期和运行时 API key 暴露、建立 AI Disabled / BYOK Session / Self-hosted Gateway mode gate，并完成 Note Markdown 安全渲染。下一轮自动任务应从 `CHARTDB-P1-004` 开始，处理 Docker 和 Nginx 安全头。不要跳过 Phase 1 直接做 `schema-core`、storage 或 UI 改造。
+`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003` 和 `CHARTDB-P1-004` 已完成，Phase 0 通过验收且 Phase 1 已关闭构建期和运行时 API key 暴露、建立 AI Disabled / BYOK Session / Self-hosted Gateway mode gate、完成 Note Markdown 安全渲染，并为 Docker/Nginx 静态部署增加基础安全响应头。下一轮自动任务应从 `CHARTDB-P1-005` 开始，完成密钥、Markdown、Docker 安全审查。不要跳过 Phase 1 直接做 `schema-core`、storage 或 UI 改造。
 
 ## 19. 计划边界确认
 

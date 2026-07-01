@@ -480,7 +480,7 @@ git commit -m "chore: establish baseline checks"
 
 **目标：** 关闭 API key 暴露、Markdown XSS 和运行时配置风险。
 
-**当前状态：** `CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002` 和 `CHARTDB-P1-003` 已完成。Phase 1 安全实施清单已记录在 `docs/安全模型与AI边界.md`；Docker 构建和 Nginx `/config.js` 已移除浏览器端 API key 暴露；非 deterministic 的 AI-assisted SQL export 已接入 mode gate，默认 Disabled，BYOK 密钥只允许保存在当前浏览器会话内，Self-hosted Gateway 只接受非敏感 endpoint/model；Note Markdown 预览已禁用 raw HTML 并限制链接协议。真实模型调用和完整设置 UI 暂不恢复，避免把 OpenAI SDK 和 key fallback 重新打入浏览器产物。后续代码任务必须继续以该文档约束为准：Docker/Nginx 安全头和 CSP 以不破坏静态部署为前提逐步落地。
+**当前状态：** `CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003` 和 `CHARTDB-P1-004` 已完成。Phase 1 安全实施清单已记录在 `docs/安全模型与AI边界.md`；Docker 构建和 Nginx `/config.js` 已移除浏览器端 API key 暴露；非 deterministic 的 AI-assisted SQL export 已接入 mode gate，默认 Disabled，BYOK 密钥只允许保存在当前浏览器会话内，Self-hosted Gateway 只接受非敏感 endpoint/model；Note Markdown 预览已禁用 raw HTML 并限制链接协议；Docker/Nginx 静态部署已增加基础 CSP 和安全响应头。真实模型调用和完整设置 UI 暂不恢复，避免把 OpenAI SDK 和 key fallback 重新打入浏览器产物。后续任务应完成 Phase 1 安全审查后再进入 Phase 2。
 
 **推荐分支：**
 
@@ -709,11 +709,11 @@ npm run test:ci -- src/pages/editor-page/canvas/note-node/__tests__/note-markdow
 
 - 修改：`default.conf.template`
 - 修改：`Dockerfile`
-- 新增：`docs/Docker自托管部署说明.md`
+- 新增：`docs/部署与安全配置.md`
 
 **实施步骤：**
 
-- [ ] 增加基础安全头。
+- [x] 增加基础安全头。
 
 建议：
 
@@ -724,29 +724,33 @@ add_header X-Frame-Options "SAMEORIGIN" always;
 add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
 ```
 
-- [ ] 根据 AI endpoint 和 Fathom 分析域名设计 CSP。
+- [x] 根据 AI endpoint 和 Fathom 分析域名设计 CSP。
 
-首轮可以使用保守 CSP，并在文档说明如何调整。
+首轮使用保守 CSP：静态资源默认同源，`connect-src` 允许 `self`、`http:` 和 `https:`，以兼容本地开发、内网 gateway 和 HTTPS 自托管 gateway；调整边界见 `docs/部署与安全配置.md`。
 
-- [ ] 构建 Docker 镜像。
+- [x] 构建 Docker 镜像。
 
 ```bash
 docker build -t chartdb-security-smoke .
 ```
 
-- [ ] 运行 Docker 容器。
+- [x] 运行 Docker 容器。
 
 ```bash
 docker run --rm -p 8080:80 chartdb-security-smoke
 ```
 
-- [ ] 访问页面并检查响应头。
+- [x] 访问页面并检查响应头。
 
 ```bash
 curl -I http://localhost:8080
 ```
 
 预期：包含安全头。
+
+本轮结果：已新增 `src/lib/security/__tests__/nginx-security-headers.test.ts` 覆盖响应头、CSP 和 `/config.js` no-store；Docker smoke 和响应头 curl 结果记录在 `docs/阶段验收记录.md`。
+
+补充：Docker 镜像内首次生产构建曾在 Vite transform 阶段触发 Node heap OOM；本轮已在 builder 阶段设置 `NODE_OPTIONS=--max-old-space-size=4096`，并通过 `docker build -t chartdb-security-smoke .` 复验。
 
 ## 6. Phase 2：Schema Core 与 Command 架构
 
