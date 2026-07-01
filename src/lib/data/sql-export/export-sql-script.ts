@@ -16,6 +16,7 @@ import {
     supportsCustomTypes,
     supportsCheckConstraints,
 } from '@/lib/domain/database-capabilities';
+import { buildAIExportRequest, type AIExportMode } from '@/lib/ai/ai-mode';
 
 // Function to normalize over-escaped default values
 // Handles cases like '''value'' which should be 'value'
@@ -736,10 +737,10 @@ export const exportSQL = async (
         stream: boolean;
         onResultStream: (text: string) => void;
         signal?: AbortSignal;
+        aiMode?: AIExportMode;
+        confirmedSchemaTransfer?: boolean;
     }
 ): Promise<string> => {
-    void options;
-
     const sqlScript = exportBaseSQL({
         diagram,
         targetDatabaseType: databaseType,
@@ -752,9 +753,21 @@ export const exportSQL = async (
         return sqlScript;
     }
 
-    throw new Error(
-        'AI-assisted SQL export is disabled until AI mode gating is implemented.'
-    );
+    buildAIExportRequest({
+        mode: options?.aiMode ?? 'disabled',
+        confirmedSchemaTransfer: options?.confirmedSchemaTransfer ?? false,
+        schemaSummary: {
+            tableCount: diagram.tables?.length ?? 0,
+            fieldCount:
+                diagram.tables?.reduce(
+                    (count, table) => count + (table.fields?.length ?? 0),
+                    0
+                ) ?? 0,
+            relationshipCount: diagram.relationships?.length ?? 0,
+        },
+    });
+
+    throw new Error('AI-assisted SQL generation client is not enabled.');
 };
 
 function getMySQLDataTypeSize(type: DataType) {

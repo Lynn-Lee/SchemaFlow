@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { exportBaseSQL } from '../export-sql-script';
+import { exportBaseSQL, exportSQL } from '../export-sql-script';
 import { exportPostgreSQL } from '../export-per-type/postgresql';
 import { exportMySQL } from '../export-per-type/mysql';
 import { exportMSSQL } from '../export-per-type/mssql';
@@ -8,6 +8,7 @@ import { DatabaseType } from '@/lib/domain/database-type';
 import type { Diagram } from '@/lib/domain/diagram';
 import type { DBTable } from '@/lib/domain/db-table';
 import type { DBField } from '@/lib/domain/db-field';
+import { setBYOKSessionKey } from '@/lib/ai/ai-mode';
 
 describe('SQL Export Tests', () => {
     let idCounter = 0;
@@ -51,6 +52,24 @@ describe('SQL Export Tests', () => {
             ...overrides,
         }) as Diagram;
 
+    const createRemoteOnlyExportDiagram = () =>
+        createDiagram({
+            databaseType: DatabaseType.MYSQL,
+            tables: [
+                createTable({
+                    name: 'users',
+                    fields: [
+                        createField({
+                            name: 'id',
+                            type: { id: 'int', name: 'int' },
+                            primaryKey: true,
+                            nullable: false,
+                        }),
+                    ],
+                }),
+            ],
+        });
+
     const createTestDiagramWithPKIndex = (
         databaseType: DatabaseType
     ): { diagram: Diagram; fieldId: string } => {
@@ -92,6 +111,57 @@ describe('SQL Export Tests', () => {
     };
 
     describe('Primary Key Index Export', () => {
+        describe('AI-assisted SQL export gating', () => {
+            it('keeps non-deterministic exports disabled by default', async () => {
+                await expect(
+                    exportSQL(
+                        createRemoteOnlyExportDiagram(),
+                        DatabaseType.SQLITE
+                    )
+                ).rejects.toThrow('AI-assisted SQL export is disabled');
+            });
+
+            it('requires schema transfer confirmation for BYOK export', async () => {
+                setBYOKSessionKey('sk-session-only');
+
+                await expect(
+                    exportSQL(
+                        createRemoteOnlyExportDiagram(),
+                        DatabaseType.SQLITE,
+                        {
+                            stream: false,
+                            onResultStream: () => undefined,
+                            aiMode: 'byok-session',
+                            confirmedSchemaTransfer: false,
+                        }
+                    )
+                ).rejects.toThrow(
+                    'Confirm schema transfer before AI-assisted export'
+                );
+            });
+
+            it('requires schema transfer confirmation for gateway export', async () => {
+                await expect(
+                    exportSQL(
+                        createRemoteOnlyExportDiagram(),
+                        DatabaseType.SQLITE,
+                        {
+                            stream: false,
+                            onResultStream: () => undefined,
+                            aiMode: {
+                                type: 'self-hosted-gateway',
+                                endpoint: 'https://llm.internal.example/v1',
+                                modelName: 'qwen-local',
+                            },
+                            confirmedSchemaTransfer: false,
+                        }
+                    )
+                ).rejects.toThrow(
+                    'Confirm schema transfer before AI-assisted export'
+                );
+            });
+        });
+
         describe('exportBaseSQL', () => {
             it('should export PRIMARY KEY without CONSTRAINT for PostgreSQL', () => {
                 const { diagram } = createTestDiagramWithPKIndex(

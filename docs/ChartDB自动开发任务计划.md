@@ -439,13 +439,13 @@ phase: Phase 1
 type: CODE
 priority: P0
 title: 增加 Disabled、BYOK Session、Gateway 三种 AI mode
-status: queued
+status: done
 depends_on:
   - CHARTDB-P1-001
 owner_lane: ai
 branch: codex/chartdb-p1-ai-mode-gating
 allowed_files:
-  - src/ai/**
+  - src/lib/ai/**
   - src/lib/env.ts
   - src/lib/data/sql-export/**
   - src/pages/**
@@ -459,6 +459,11 @@ acceptance:
   - BYOK key 仅保存在内存 session，不写 localStorage、IndexedDB 或 URL
   - Gateway mode 只接受 endpoint，不接受浏览器端长期密钥
   - AI-assisted export 前展示数据发送提示
+completion:
+  - 已新增 `src/lib/ai/ai-mode.ts`，集中定义 Disabled、BYOK Session、Self-hosted Gateway gate。
+  - 已新增 `src/lib/ai/__tests__/ai-mode.test.ts`，覆盖默认禁用、BYOK 内存 key、schema transfer 确认和 Gateway 非敏感配置。
+  - 已将 `exportSQL()` 接入 AI mode gate；非 deterministic export 默认 Disabled，BYOK/Gateway 在确认 schema transfer 前拒绝继续。
+  - 本轮不恢复真实模型调用，不新增设置页或账号能力；完整 AI 设置 UI 仍归入后续设置中心任务。
 ```
 
 ### CHARTDB-P1-003：Note Markdown 安全渲染
@@ -1598,7 +1603,7 @@ npm install
 npm run test:ci
 ```
 
-`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000` 和 `CHARTDB-P1-001` 已完成，Phase 0 通过验收且 Phase 1 已关闭构建期和运行时 API key 暴露。下一轮自动任务应从 `CHARTDB-P1-002` 开始，实现 AI Disabled / BYOK Session / Self-hosted Gateway mode gating。不要跳过 Phase 1 直接做 `schema-core`、storage 或 UI 改造。
+`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001` 和 `CHARTDB-P1-002` 已完成，Phase 0 通过验收且 Phase 1 已关闭构建期和运行时 API key 暴露，并建立 AI Disabled / BYOK Session / Self-hosted Gateway mode gate。下一轮自动任务应从 `CHARTDB-P1-003` 开始，处理 Note Markdown 安全渲染。不要跳过 Phase 1 直接做 `schema-core`、storage 或 UI 改造。
 
 ## 19. 计划边界确认
 

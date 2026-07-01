@@ -89,24 +89,21 @@ npm install
 npm run build
 ```
 
-Or like this if you want to have AI capabilities:
-
-```bash
-npm install
-VITE_OPENAI_API_KEY=<YOUR_OPEN_AI_KEY> npm run build
-```
+AI-assisted export is disabled by default in the browser build. Do not pass
+model provider secrets into `npm run build`; use deterministic SQL export unless
+you have configured a session-only BYOK flow or a self-hosted gateway.
 
 ### Run the Docker Container
 
 ```bash
-docker run -e OPENAI_API_KEY=<YOUR_OPEN_AI_KEY> -p 8080:80 ghcr.io/chartdb/chartdb:latest
+docker run -p 8080:80 ghcr.io/chartdb/chartdb:latest
 ```
 
 #### Build and Run locally
 
 ```bash
 docker build -t chartdb .
-docker run -e OPENAI_API_KEY=<YOUR_OPEN_AI_KEY> -p 8080:80 chartdb
+docker run -p 8080:80 chartdb
 ```
 
 #### Using Custom Inference Server
@@ -127,7 +124,9 @@ docker run \
 
 > **Privacy Note:** ChartDB includes privacy-focused analytics via Fathom Analytics. You can disable this by adding `-e DISABLE_ANALYTICS=true` to the run command or `--build-arg VITE_DISABLE_ANALYTICS=true` when building.
 
-> **Note:** You must configure either Option 1 (OpenAI API key) OR Option 2 (Custom endpoint and model name) for AI capabilities to work. Do not mix the two options.
+> **Note:** `OPENAI_API_ENDPOINT` and `LLM_MODEL_NAME` are non-sensitive runtime
+> hints for self-hosted gateway deployments. Browser builds must not receive or
+> persist long-lived model provider API keys.
 
 Open your browser and navigate to `http://localhost:8080`.
 

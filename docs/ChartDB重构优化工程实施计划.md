@@ -480,7 +480,7 @@ git commit -m "chore: establish baseline checks"
 
 **目标：** 关闭 API key 暴露、Markdown XSS 和运行时配置风险。
 
-**当前状态：** `CHARTDB-P1-000` 和 `CHARTDB-P1-001` 已完成。Phase 1 安全实施清单已记录在 `docs/安全模型与AI边界.md`；Docker 构建和 Nginx `/config.js` 已移除浏览器端 API key 暴露；AI mode gating 完成前，非 deterministic 的 AI-assisted SQL export 暂停，避免把 OpenAI SDK 和 key fallback 打入浏览器产物。后续代码任务必须以该文档约束为准：默认 AI mode 为 Disabled，BYOK 密钥只允许保存在当前浏览器会话内，Self-hosted Gateway 不把服务端 secret 下发到浏览器，Note Markdown 首轮禁用 raw HTML，Docker/Nginx 安全头和 CSP 以不破坏静态部署为前提逐步落地。
+**当前状态：** `CHARTDB-P1-000`、`CHARTDB-P1-001` 和 `CHARTDB-P1-002` 已完成。Phase 1 安全实施清单已记录在 `docs/安全模型与AI边界.md`；Docker 构建和 Nginx `/config.js` 已移除浏览器端 API key 暴露；非 deterministic 的 AI-assisted SQL export 已接入 mode gate，默认 Disabled，BYOK 密钥只允许保存在当前浏览器会话内，Self-hosted Gateway 只接受非敏感 endpoint/model。真实模型调用和完整设置 UI 暂不恢复，避免把 OpenAI SDK 和 key fallback 重新打入浏览器产物。后续代码任务必须继续以该文档约束为准：Note Markdown 首轮禁用 raw HTML，Docker/Nginx 安全头和 CSP 以不破坏静态部署为前提逐步落地。
 
 **推荐分支：**
 
@@ -524,7 +524,7 @@ ARG VITE_OPENAI_API_KEY
 echo "VITE_OPENAI_API_KEY=${VITE_OPENAI_API_KEY}" > .env
 ```
 
-- [ ] 新增 AI 配置模式。
+- [x] 新增 AI 配置模式。
 
 建议类型：
 
@@ -538,7 +538,7 @@ export interface AIConfig {
 }
 ```
 
-- [ ] 修改 `exportSQL()`，默认 deterministic export 不触发 AI。
+- [x] 修改 `exportSQL()`，默认 deterministic export 不触发 AI。
 
 规则：
 
@@ -547,7 +547,7 @@ export interface AIConfig {
 - 其他 AI-assisted export 先检查 AI mode。
 - `disabled` 模式抛出可展示错误。
 
-- [ ] 更新文档，说明 AI 默认关闭，任何 schema 发送到模型前必须用户确认。
+- [x] 更新文档，说明 AI 默认关闭，任何 schema 发送到模型前必须用户确认。
 
 - [ ] 验证浏览器产物不包含 key。
 
@@ -569,7 +569,7 @@ rg -n "OPENAI_API_KEY|sk-" dist || true
 
 **实施步骤：**
 
-- [ ] 实现内存级 session key store。
+- [x] 实现内存级 session key store。
 
 规则：
 
@@ -578,14 +578,14 @@ rg -n "OPENAI_API_KEY|sk-" dist || true
 - 不写入 localStorage。
 - 刷新页面后丢失。
 
-- [ ] 设置页允许用户输入临时 key。
+- [ ] 设置页允许用户输入临时 key。（延后到设置中心任务，P1-002 只落地安全 contract 和 export gate）
 
 UI 文案：
 
 - “Key 仅保存在当前浏览器会话内，刷新后失效。”
 - “启用 AI 会把当前 schema 摘要发送给所选模型。”
 
-- [ ] AI 请求前弹出确认。
+- [x] AI 请求前必须通过 schema transfer 确认 gate。
 
 确认内容：
 
@@ -593,13 +593,13 @@ UI 文案：
 - 目标 endpoint。
 - 将发送的 table/field/relationship 数量。
 
-- [ ] 测试 session store。
+- [x] 测试 session store。
 
 ```bash
-npm run test:ci -- src/ai/client/__tests__/session-key-store.test.ts
+npm run test:ci -- src/lib/ai/__tests__/ai-mode.test.ts
 ```
 
-预期：key 可设置、读取、清除，且不会写入 localStorage。
+预期：key 可设置、读取、清除，且不会写入 localStorage 或 sessionStorage。
 
 ### Task 1.3：规划 Self-hosted Gateway contract
 
@@ -610,7 +610,7 @@ npm run test:ci -- src/ai/client/__tests__/session-key-store.test.ts
 
 **实施步骤：**
 
-- [ ] 定义前端调用 contract。
+- [x] 定义前端调用 contract。
 
 建议 endpoint：
 

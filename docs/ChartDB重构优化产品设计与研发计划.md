@@ -1169,7 +1169,7 @@ Capability Matrix：
 
 - 编写 Phase 1 安全实施清单。（已完成，见 `docs/安全模型与AI边界.md`）
 - 移除浏览器暴露 OpenAI key。（已完成，Docker 构建和 `/config.js` 不再输出 API key）
-- 新增 AI Disabled / BYOK Session / Self-hosted Gateway 模式。
+- 新增 AI Disabled / BYOK Session / Self-hosted Gateway 模式。（已完成 mode gate；完整设置 UI 后续进入设置中心任务）
 - Note Markdown sanitize。
 - Nginx 增加 CSP 和安全响应头。
 - CLA workflow 权限收敛。
@@ -1499,8 +1499,8 @@ Capability Matrix：
 
 第一优先级：
 
-1. 实现 AI Disabled / BYOK Session / Self-hosted Gateway mode gating。
-2. Markdown sanitize。
+1. Markdown sanitize。
+2. 完成 Docker/Nginx 安全头。
 3. 完成 Phase 1 安全审查。
 4. 建立 schema-core。
 5. 抽离 storage / repository 边界。
