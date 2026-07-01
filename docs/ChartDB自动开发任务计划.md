@@ -631,7 +631,7 @@ phase: Phase 2
 type: CODE
 priority: P1
 title: 增加 command contract、command result 和 risk metadata
-status: queued
+status: done
 depends_on:
   - CHARTDB-P2-001
 owner_lane: core
@@ -648,6 +648,10 @@ acceptance:
   - command 输入和输出类型稳定
   - command result 可表达 success、validation error、risk warning
   - destructive command 有 risk metadata
+completion:
+  - 已新增 `src/schema-core/commands` 基础 contract，包含 `DiagramCommand`、`CommandContext`、`CommandResult`、`CommandRisk`、`ValidationIssue` 和创建 helper。
+  - 已新增 `src/schema-core/commands/__tests__/diagram-command.test.ts`，覆盖 command 创建、success result、validation error result 和 destructive risk metadata。
+  - 本轮不接入 Provider、不迁移业务行为，下一项进入 `CHARTDB-P2-003`。
 ```
 
 ### CHARTDB-P2-003：迁移 Table command
@@ -1626,7 +1630,7 @@ npm install
 npm run test:ci
 ```
 
-`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000` 和 `CHARTDB-P2-001` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口。下一轮自动任务应从 `CHARTDB-P2-002` 开始，定义 DiagramCommand 基础类型、CommandResult、CommandContext 和 risk metadata。不要跳过 Phase 2 直接做 storage、dialect 或 UI 改造。
+`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001` 和 `CHARTDB-P2-002` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口和 command 基础 contract。下一轮自动任务应从 `CHARTDB-P2-003` 开始，迁移 AddTable、UpdateTable、DeleteTable command。不要跳过 Phase 2 直接做 storage、dialect 或 UI 改造。
 
 ## 19. 计划边界确认
 

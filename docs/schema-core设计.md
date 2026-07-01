@@ -150,6 +150,7 @@ Phase 2 不一次性替换现有 undo/redo。兼容策略：
 - 新增 command、result、context、risk metadata。
 - 新增 command contract tests。
 - 验收：result 能表达 success、validation error、risk warning。
+- 状态：已完成，业务行为未接入，下一项迁移 Table command。
 
 ### CHARTDB-P2-003：迁移 Table command
 

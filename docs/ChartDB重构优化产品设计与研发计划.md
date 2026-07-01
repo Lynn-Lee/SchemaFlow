@@ -1187,7 +1187,7 @@ Capability Matrix：
 
 周期：2 到 3 周。
 
-当前状态：`CHARTDB-P2-000` 和 `CHARTDB-P2-001` 已完成，`docs/schema-core设计.md` 已定义旧类型映射、command contract、validator、diff 和 undo/redo 兼容层，`src/schema-core/model` 已建立兼容 re-export 出口。下一步从 `CHARTDB-P2-002` 开始定义 command contract，不改变用户可见行为。
+当前状态：`CHARTDB-P2-000`、`CHARTDB-P2-001` 和 `CHARTDB-P2-002` 已完成，`docs/schema-core设计.md` 已定义旧类型映射、command contract、validator、diff 和 undo/redo 兼容层，`src/schema-core/model` 已建立兼容 re-export 出口，`src/schema-core/commands` 已建立 command 基础 contract。下一步从 `CHARTDB-P2-003` 开始迁移 table command，不改变用户可见行为。
 
 目标：
 

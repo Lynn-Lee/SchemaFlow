@@ -756,7 +756,7 @@ curl -I http://localhost:8080
 
 **目标：** 解耦巨型 Provider，把编辑动作沉淀为可测试 command。
 
-**当前状态：** `CHARTDB-P2-000` 和 `CHARTDB-P2-001` 已完成，执行清单记录在 `docs/schema-core设计.md`，`src/schema-core/model` 已作为兼容 re-export 出口存在。后续从 Task 2.2 开始定义 command contract，不改变用户可见行为。
+**当前状态：** `CHARTDB-P2-000`、`CHARTDB-P2-001` 和 `CHARTDB-P2-002` 已完成，执行清单记录在 `docs/schema-core设计.md`，`src/schema-core/model` 已作为兼容 re-export 出口存在，`src/schema-core/commands` 已提供 command 基础 contract。后续从 Task 2.3 开始迁移 table command，不改变用户可见行为。
 
 **推荐分支：**
 
@@ -807,7 +807,7 @@ npm run build
 
 **实施步骤：**
 
-- [ ] 定义 command 类型。
+- [x] 定义 command 类型。
 
 建议：
 
@@ -820,7 +820,7 @@ export interface DiagramCommand<TType extends string = string, TPayload = unknow
 }
 ```
 
-- [ ] 定义 command result。
+- [x] 定义 command result。
 
 ```ts
 export interface CommandResult<TState> {
@@ -830,7 +830,7 @@ export interface CommandResult<TState> {
 }
 ```
 
-- [ ] 定义 command context。
+- [x] 定义 command context。
 
 ```ts
 export interface CommandContext {
@@ -839,7 +839,9 @@ export interface CommandContext {
 }
 ```
 
-- [ ] 增加测试确保 command 创建时字段完整。
+- [x] 增加测试确保 command 创建时字段完整。
+
+本轮结果：已新增 `DiagramCommand`、`CommandContext`、`CommandResult`、`CommandRisk` 和 `ValidationIssue` contract，并提供 `createDiagramCommand`、`createSuccessResult`、`createValidationErrorResult` 和 `createCommandRisk` helper；测试覆盖 success、validation error 和 destructive risk metadata。本 Task 未接入 Provider，业务行为保持不变。
 
 ### Task 2.3：迁移 AddTable / UpdateTable / DeleteTable command
 
