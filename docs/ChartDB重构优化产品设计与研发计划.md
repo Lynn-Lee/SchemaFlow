@@ -1167,6 +1167,7 @@ Capability Matrix：
 
 任务：
 
+- 编写 Phase 1 安全实施清单。（已完成，见 `docs/安全模型与AI边界.md`）
 - 移除浏览器暴露 OpenAI key。
 - 新增 AI Disabled / BYOK Session / Self-hosted Gateway 模式。
 - Note Markdown sanitize。

@@ -378,7 +378,7 @@ phase: Phase 1
 type: PLAN
 priority: P0
 title: 编写 Phase 1 安全实施清单
-status: queued
+status: done
 depends_on:
   - CHARTDB-P0-004
 owner_lane: security
@@ -391,6 +391,9 @@ verification:
 acceptance:
   - 明确 Disabled、BYOK Session、Self-hosted Gateway 三种 AI mode
   - 明确本地数据默认不出浏览器
+result:
+  - 已新增 `docs/安全模型与AI边界.md`
+  - 已定义密钥、BYOK Session、Self-hosted Gateway、Markdown、CSP 和剩余 advisory 的 Phase 1 实施边界
 ```
 
 ### CHARTDB-P1-001：移除构建期和运行时 API key 暴露

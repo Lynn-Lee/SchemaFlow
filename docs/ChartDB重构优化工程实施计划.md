@@ -480,6 +480,8 @@ git commit -m "chore: establish baseline checks"
 
 **目标：** 关闭 API key 暴露、Markdown XSS 和运行时配置风险。
 
+**当前状态：** `CHARTDB-P1-000` 已完成，Phase 1 安全实施清单已记录在 `docs/安全模型与AI边界.md`。后续代码任务必须以该文档约束为准：默认 AI mode 为 Disabled，BYOK 密钥只允许保存在当前浏览器会话内，Self-hosted Gateway 不把服务端 secret 下发到浏览器，Note Markdown 首轮禁用 raw HTML，Docker/Nginx 安全头和 CSP 以不破坏静态部署为前提逐步落地。
+
 **推荐分支：**
 
 ```bash
