@@ -1,4 +1,3 @@
-export const OPENAI_API_KEY: string = import.meta.env.VITE_OPENAI_API_KEY;
 export const OPENAI_API_ENDPOINT: string = import.meta.env
     .VITE_OPENAI_API_ENDPOINT;
 export const LLM_MODEL_NAME: string = import.meta.env.VITE_LLM_MODEL_NAME;

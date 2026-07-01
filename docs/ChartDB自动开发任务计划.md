@@ -404,7 +404,7 @@ phase: Phase 1
 type: CODE
 priority: P0
 title: 删除 Dockerfile 和 config.js 中的 OPENAI key 注入
-status: queued
+status: done
 depends_on:
   - CHARTDB-P1-000
 owner_lane: security
@@ -423,6 +423,12 @@ acceptance:
   - 构建产物不需要 OPENAI_API_KEY
   - `/config.js` 不输出 API key
   - deterministic SQL export 不依赖 AI key
+result:
+  - 已移除 `Dockerfile` 中的 `VITE_OPENAI_API_KEY` build arg 和 `.env` 写入。
+  - 已移除 `default.conf.template` 中 `/config.js` 输出 API key 的逻辑，仅保留 endpoint、model 和非敏感开关。
+  - 已移除 `src/lib/env.ts` 与 SQL export 对浏览器端长期 API key 的读取。
+  - 已暂停非 deterministic 的 AI-assisted SQL export fallback，避免在 `CHARTDB-P1-002` 前把 OpenAI SDK 和 key fallback 打入浏览器产物。
+  - 已新增安全回归测试，防止 Docker、Nginx runtime config 和 env module 重新暴露 API key。
 ```
 
 ### CHARTDB-P1-002：实现 AI mode gating
@@ -1592,7 +1598,7 @@ npm install
 npm run test:ci
 ```
 
-`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003` 和 `CHARTDB-P0-004` 已完成，Phase 0 通过验收。下一轮自动任务应从 `CHARTDB-P1-000` 开始，编写 Phase 1 安全实施清单。不要跳过 Phase 1 直接做 `schema-core`、storage 或 UI 改造。
+`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000` 和 `CHARTDB-P1-001` 已完成，Phase 0 通过验收且 Phase 1 已关闭构建期和运行时 API key 暴露。下一轮自动任务应从 `CHARTDB-P1-002` 开始，实现 AI Disabled / BYOK Session / Self-hosted Gateway mode gating。不要跳过 Phase 1 直接做 `schema-core`、storage 或 UI 改造。
 
 ## 19. 计划边界确认
 
