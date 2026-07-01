@@ -396,7 +396,7 @@ npm audit --omit=dev
 
 **实施步骤：**
 
-- [ ] 在 CI 中增加 audit 步骤。
+- [x] 在 CI 中增加 audit 步骤。
 
 建议插入到 install 后：
 
@@ -405,7 +405,7 @@ npm audit --omit=dev
   run: npm audit --omit=dev --audit-level=high
 ```
 
-- [ ] 保持原有 lint、build、test 顺序。
+- [x] 保持原有 lint、build、test 顺序。
 
 CI 目标顺序：
 
@@ -417,7 +417,7 @@ CI 目标顺序：
 6. build。
 7. test。
 
-- [ ] 新增 `docs/安全风险登记.md`，记录暂时无法修复的 advisory、影响范围和处置计划。
+- [ ] 新增 `docs/安全风险登记.md`，记录暂时无法修复的 advisory、影响范围和处置计划。该项转入后续安全文档任务，不阻塞 `CHARTDB-P0-003` 的 CI gate 验收。
 
 风险登记字段：
 

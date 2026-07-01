@@ -312,7 +312,7 @@ phase: Phase 0
 type: CODE
 priority: P0
 title: 在 CI 中加入 audit gate 和构建门禁
-status: queued
+status: done
 depends_on:
   - CHARTDB-P0-001
   - CHARTDB-P0-002
@@ -331,6 +331,11 @@ acceptance:
   - PR CI 至少包含 lint、test、build、prod audit
   - publish 前必须跑 test 和 build
   - workflow 不依赖本机私有路径或私有凭据
+completion:
+  - commit: 本轮提交，见自动化运行日志
+  - verified: npm run lint, npm run test:ci, npm run build, git diff --check, npm audit --omit=dev --audit-level=high
+  - ci: PR workflow 在 npm ci 后运行生产依赖 high audit，再执行 lint、build、test
+  - publish: tag publish 在 Docker 构建前运行生产依赖 high audit、lint、test、build
 ```
 
 ### CHARTDB-P0-004：Phase 0 验收记录
@@ -1580,7 +1585,7 @@ npm install
 npm run test:ci
 ```
 
-`CHARTDB-P0-001` 和 `CHARTDB-P0-002` 已完成。下一轮自动任务应从 `CHARTDB-P0-003` 开始，补齐 CI audit gate 和构建门禁。不要跳过 Phase 0 直接做 `schema-core`、storage 或 UI 改造。
+`CHARTDB-P0-001`、`CHARTDB-P0-002` 和 `CHARTDB-P0-003` 已完成。下一轮自动任务应从 `CHARTDB-P0-004` 开始，完成 Phase 0 验收记录。不要跳过 Phase 0 直接做 `schema-core`、storage 或 UI 改造。
 
 ## 19. 计划边界确认
 

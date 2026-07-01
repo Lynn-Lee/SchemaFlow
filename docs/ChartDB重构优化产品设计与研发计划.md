@@ -1146,7 +1146,7 @@ Capability Matrix：
 
 - 修复 `npm run test:ci`。
 - 升级 critical/high 安全依赖。（已完成生产依赖 high/critical 基线）
-- 加入 `npm audit --omit=dev` CI gate。
+- 加入 `npm audit --omit=dev` CI gate。（已完成 PR CI 和 tag publish 门禁）
 - 补充 `SECURITY.md`。
 - README 标记当前 AI key 暴露风险。
 - 建立风险登记文档。
