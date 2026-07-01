@@ -975,7 +975,7 @@ phase: Phase 4
 type: CODE
 priority: P1
 title: 创建 dialect contract 和 result type
-status: queued
+status: done
 depends_on:
     - CHARTDB-P4-000
 owner_lane: dialect
@@ -993,6 +993,14 @@ acceptance:
     - export result 包含 output、warnings、riskLevel
     - 旧 import/export 调用通过 adapter 兼容
 ```
+
+完成记录：
+
+- 新增 `src/dialects/common/importer.ts`、`src/dialects/common/exporter.ts`、`src/dialects/common/capability-matrix.ts` 和统一出口 `src/dialects/common/index.ts`。
+- `ImportResult` 已包含 `diagram`、`sourceDialect`、`warnings`、`unsupportedObjects` 和 `sourceMap`。
+- `ExportResult` 已包含 `output`、`targetDialect`、`warnings`、`unsupportedObjects` 和 `riskLevel`。
+- `wrapLegacySchemaImporter`、`wrapLegacySchemaExporter` 可把旧 import/export 函数包装成统一 contract，默认保留旧输出并返回空 warning/unsupported/sourceMap。
+- 下一项进入 `CHARTDB-P4-002`，迁移 PostgreSQL importer。
 
 ### CHARTDB-P4-002：迁移 PostgreSQL importer
 

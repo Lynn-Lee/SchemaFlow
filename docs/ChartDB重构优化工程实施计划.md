@@ -1085,11 +1085,11 @@ git switch -c codex/chartdb-phase-4-dialects
 
 **实施步骤：**
 
-- [ ] 定义 `SchemaImporter`。
+- [x] 定义 `SchemaImporter`。
 
-- [ ] 定义 `ImportResult`。
+- [x] 定义 `ImportResult`。
 
-- [ ] 定义 `SchemaExporter`。
+- [x] 定义 `SchemaExporter`。
 
 - [ ] 定义 capability support level：
 
@@ -1097,7 +1097,9 @@ git switch -c codex/chartdb-phase-4-dialects
 export type SupportLevel = 'full' | 'partial' | 'experimental' | 'unsupported';
 ```
 
-- [ ] 测试 support level 渲染和缺省值。
+- [x] 测试 support level 渲染和缺省值。
+
+本轮结果：已新增 `src/dialects/common` contract。`ImportResult`、`ExportResult`、`DialectWarning`、`UnsupportedDialectObject`、`DialectSourceMap`、`SupportLevel` 和 capability matrix helper 已具备单元测试；旧 import/export 函数可先通过 adapter 兼容进入统一 result 形状。下一项进入 `CHARTDB-P4-002`，先以 wrapper 方式迁移 PostgreSQL importer。
 
 ### Task 4.2：迁移 PostgreSQL importer
 
