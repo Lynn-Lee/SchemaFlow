@@ -754,7 +754,7 @@ curl -I http://localhost:8080
 
 **目标：** 解耦巨型 Provider，把编辑动作沉淀为可测试 command。
 
-**当前状态：** `CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005` 和 `CHARTDB-P2-006` 已完成，执行清单记录在 `docs/schema-core设计.md`，`src/schema-core/model` 已作为兼容 re-export 出口存在，`src/schema-core/commands` 已提供 command 基础 contract，并已迁移 table、field、index、relationship、area、note 和 custom type command。本轮已接入 command history metadata，旧 undo/redo 执行路径保持兼容。`CHARTDB-P3-000` 已新增 `docs/storage设计.md`，`CHARTDB-P3-001` 已抽离 Dexie schema 和 migration 定义到 `src/storage/db`，`CHARTDB-P3-002` 已抽出 repository API，`CHARTDB-P3-003` 已将 diagram 创建、删除和替换封装到 Dexie transaction，`CHARTDB-P3-004` 已新增 versioned backup/restore contract。后续从 `CHARTDB-P4-000` 开始定义 dialect contract 和迁移顺序。
+**当前状态：** `CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005` 和 `CHARTDB-P2-006` 已完成，执行清单记录在 `docs/schema-core设计.md`，`src/schema-core/model` 已作为兼容 re-export 出口存在，`src/schema-core/commands` 已提供 command 基础 contract，并已迁移 table、field、index、relationship、area、note 和 custom type command。本轮已接入 command history metadata，旧 undo/redo 执行路径保持兼容。`CHARTDB-P3-000` 已新增 `docs/storage设计.md`，`CHARTDB-P3-001` 已抽离 Dexie schema 和 migration 定义到 `src/storage/db`，`CHARTDB-P3-002` 已抽出 repository API，`CHARTDB-P3-003` 已将 diagram 创建、删除和替换封装到 Dexie transaction，`CHARTDB-P3-004` 已新增 versioned backup/restore contract。`CHARTDB-P4-000` 已新增 `docs/方言能力矩阵.md`，定义 dialect import/export capability、unsupported syntax、warning 规则和迁移顺序。后续从 `CHARTDB-P4-001` 开始创建 dialect contract 和 result type。
 
 **推荐分支：**
 
@@ -1073,6 +1073,8 @@ git switch -c codex/chartdb-phase-4-dialects
 ```
 
 ### Task 4.1：定义 importer/exporter contract
+
+前置执行清单：`CHARTDB-P4-000` 已完成，见 `docs/方言能力矩阵.md`。矩阵明确 PostgreSQL、MySQL、MariaDB、SQLite、SQL Server、Oracle、CockroachDB、ClickHouse 和 DBML 的当前 import/export 状态、unsupported syntax 与 warning 规则；Task 4.1 必须以该矩阵为 contract baseline。
 
 **涉及文件：**
 

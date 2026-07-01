@@ -946,7 +946,7 @@ phase: Phase 4
 type: PLAN
 priority: P1
 title: 定义 dialect contract 和迁移顺序
-status: queued
+status: done
 depends_on:
     - CHARTDB-P3-004
 owner_lane: dialect
@@ -959,6 +959,13 @@ verification:
 acceptance:
     - 每个方言都有 import、export、unsupported syntax、warning 规则
 ```
+
+完成记录：
+
+- 新增 `docs/方言能力矩阵.md`，记录 PostgreSQL、MySQL、MariaDB、SQLite、SQL Server、Oracle、CockroachDB、ClickHouse 和 DBML 的 import/export 当前状态、unsupported syntax 和 warning 规则。
+- 明确 Phase 4 统一 contract：`ImportResult`、`ExportResult`、`warnings`、`unsupportedObjects`、`sourceMap` 和 `riskLevel`。
+- 明确迁移顺序：先做 `CHARTDB-P4-001` common contract，再迁移 PostgreSQL importer，之后补齐其它 dialect wrapper 和 exporter result。
+- 下一项进入 `CHARTDB-P4-001`，创建 dialect contract 和 result type。
 
 ### CHARTDB-P4-001：定义 importer/exporter contract
 
@@ -1675,7 +1682,7 @@ npm install
 npm run test:ci
 ```
 
-`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005`、`CHARTDB-P2-006`、`CHARTDB-P3-000`、`CHARTDB-P3-001`、`CHARTDB-P3-002`、`CHARTDB-P3-003` 和 `CHARTDB-P3-004` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口、command 基础 contract、table command 纯函数、field/index/relationship command 纯函数、area/note/custom type command 纯函数，以及 command history metadata 接入。Phase 3 已完成 storage 执行清单、Dexie schema 集中化、repository API、diagram transaction service 和 backup/restore 版本化。下一轮自动任务应从 `CHARTDB-P4-000` 开始，定义 dialect contract 和迁移顺序。不要跳过 Phase 4 执行清单直接做具体 dialect 迁移。
+`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005`、`CHARTDB-P2-006`、`CHARTDB-P3-000`、`CHARTDB-P3-001`、`CHARTDB-P3-002`、`CHARTDB-P3-003`、`CHARTDB-P3-004` 和 `CHARTDB-P4-000` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口、command 基础 contract、table command 纯函数、field/index/relationship command 纯函数、area/note/custom type command 纯函数，以及 command history metadata 接入。Phase 3 已完成 storage 执行清单、Dexie schema 集中化、repository API、diagram transaction service 和 backup/restore 版本化。Phase 4 已新增 `docs/方言能力矩阵.md`，明确 dialect import/export capability、unsupported syntax 和 warning 规则。下一轮自动任务应从 `CHARTDB-P4-001` 开始，创建 dialect contract 和 result type。
 
 ## 19. 计划边界确认
 
