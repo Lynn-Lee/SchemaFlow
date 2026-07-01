@@ -251,7 +251,7 @@ phase: Phase 0
 type: CODE
 priority: P0
 title: 修复 npm run test:ci 中 localStorage.getItem 失败
-status: queued
+status: done
 depends_on:
   - CHARTDB-P0-000
 owner_lane: baseline
@@ -268,6 +268,9 @@ acceptance:
   - test:ci 不再因 localStorage.getItem 报错
   - 修复不会改变浏览器正常 localStorage 读取逻辑
   - 如果增加 test setup，必须只影响测试环境
+completion:
+  - commit: 8a2f788
+  - verified: npm run lint, npm run test:ci, npm run build, git diff --check
 ```
 
 ### CHARTDB-P0-002：建立安全依赖基线
@@ -1573,7 +1576,7 @@ npm install
 npm run test:ci
 ```
 
-第一轮只处理 `CHARTDB-P0-001`。如果该任务完成并通过 `npm run test:ci` 与 `npm run build`，再进入依赖升级和 CI gate。不要跳过 Phase 0 直接做 `schema-core`、storage 或 UI 改造。
+`CHARTDB-P0-001` 已完成。下一轮自动任务应从 `CHARTDB-P0-002` 开始，处理生产依赖 high/critical advisory 和剩余风险记录。不要跳过 Phase 0 直接做 `schema-core`、storage 或 UI 改造。
 
 ## 19. 计划边界确认
 
