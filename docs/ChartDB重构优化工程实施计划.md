@@ -754,7 +754,7 @@ curl -I http://localhost:8080
 
 **目标：** 解耦巨型 Provider，把编辑动作沉淀为可测试 command。
 
-**当前状态：** `CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005` 和 `CHARTDB-P2-006` 已完成，执行清单记录在 `docs/schema-core设计.md`，`src/schema-core/model` 已作为兼容 re-export 出口存在，`src/schema-core/commands` 已提供 command 基础 contract，并已迁移 table、field、index、relationship、area、note 和 custom type command。本轮已接入 command history metadata，旧 undo/redo 执行路径保持兼容。`CHARTDB-P3-000` 已新增 `docs/storage设计.md`，`CHARTDB-P3-001` 已抽离 Dexie schema 和 migration 定义到 `src/storage/db`。后续从 `CHARTDB-P3-002` 开始抽离 repository、diagram transaction 和 backup/restore。
+**当前状态：** `CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005` 和 `CHARTDB-P2-006` 已完成，执行清单记录在 `docs/schema-core设计.md`，`src/schema-core/model` 已作为兼容 re-export 出口存在，`src/schema-core/commands` 已提供 command 基础 contract，并已迁移 table、field、index、relationship、area、note 和 custom type command。本轮已接入 command history metadata，旧 undo/redo 执行路径保持兼容。`CHARTDB-P3-000` 已新增 `docs/storage设计.md`，`CHARTDB-P3-001` 已抽离 Dexie schema 和 migration 定义到 `src/storage/db`，`CHARTDB-P3-002` 已抽出 repository API，`CHARTDB-P3-003` 已将 diagram 创建、删除和替换封装到 Dexie transaction。后续从 `CHARTDB-P3-004` 开始做 backup/restore 版本化。
 
 **推荐分支：**
 
@@ -1013,7 +1013,7 @@ git switch -c codex/chartdb-phase-3-storage
 
 **实施步骤：**
 
-- [ ] 实现 `deleteDiagramWithChildren(diagramId)`。
+- [x] 实现 `deleteDiagramWithChildren(diagramId)`。
 
 删除对象：
 
@@ -1026,9 +1026,11 @@ git switch -c codex/chartdb-phase-3-storage
 - notes。
 - diagram filters。
 
-- [ ] 实现 `replaceDiagramData(diagram)`。
+- [x] 实现 `replaceDiagramData(diagram)`。
 
-- [ ] 测试事务失败时不产生半删状态。
+- [x] 测试事务失败时不产生半删状态。
+
+本轮结果：已新增 `src/storage/transactions/diagram-transaction-service.ts`，将 diagram 创建、删除和替换封装在 Dexie `transaction('rw')` 中。`createChartDBRepositories()` 的 diagram add/delete 已接入该 service，删除 diagram 会同时清理 tables、relationships、dependencies、areas、custom types、notes 和 diagram filter。新增 `src/storage/transactions/__tests__/diagram-transaction-service.test.ts` 覆盖 child write 失败回滚和 delete filter 清理；repository 测试补充 delete diagram filter 对外边界。下一项进入 Task 3.4。
 
 ### Task 3.4：实现 backup/restore
 

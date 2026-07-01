@@ -879,7 +879,7 @@ phase: Phase 3
 type: CODE
 priority: P1
 title: 为 diagram 级写操作增加事务封装
-status: queued
+status: done
 depends_on:
     - CHARTDB-P3-002
 owner_lane: storage
@@ -894,6 +894,11 @@ verification:
 acceptance:
     - 创建、删除、导入 diagram 时相关对象保持一致
     - 失败时不留下半成品 diagram
+completion:
+    - 新增 `src/storage/transactions/diagram-transaction-service.ts`，将 diagram 创建、删除和替换封装到 Dexie `transaction('rw')`。
+    - `createChartDBRepositories()` 的 diagram add/delete 已接入 transaction service，删除 diagram 会同步清理 tables、relationships、dependencies、areas、custom types、notes 和 diagram filter。
+    - 新增 `src/storage/transactions/__tests__/diagram-transaction-service.test.ts`，覆盖 child write 失败回滚和 delete filter 清理；repository 测试补充 delete diagram filter 边界。
+    - 下一项进入 `CHARTDB-P3-004`，备份恢复版本化。
 ```
 
 ### CHARTDB-P3-004：备份恢复版本化
@@ -1664,7 +1669,7 @@ npm install
 npm run test:ci
 ```
 
-`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005`、`CHARTDB-P2-006`、`CHARTDB-P3-000` 和 `CHARTDB-P3-001` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口、command 基础 contract、table command 纯函数、field/index/relationship command 纯函数、area/note/custom type command 纯函数，以及 command history metadata 接入。Phase 3 已完成 storage 执行清单和 Dexie schema 集中化。下一轮自动任务应从 `CHARTDB-P3-002` 开始，抽 Repository API。不要跳过 Phase 3 直接做 dialect、UI 或性能改造。
+`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005`、`CHARTDB-P2-006`、`CHARTDB-P3-000`、`CHARTDB-P3-001`、`CHARTDB-P3-002` 和 `CHARTDB-P3-003` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口、command 基础 contract、table command 纯函数、field/index/relationship command 纯函数、area/note/custom type command 纯函数，以及 command history metadata 接入。Phase 3 已完成 storage 执行清单、Dexie schema 集中化、repository API 和 diagram transaction service。下一轮自动任务应从 `CHARTDB-P3-004` 开始，做备份恢复版本化。不要跳过 Phase 3 直接做 dialect、UI 或性能改造。
 
 ## 19. 计划边界确认
 

@@ -79,11 +79,23 @@ const createMemoryTable = <T extends { id: string | number }>() => {
                 },
             };
         },
+        snapshot: () =>
+            new Map(
+                Array.from(rows.entries()).map(([id, row]) => [id, { ...row }])
+            ),
+        restore: (snapshot: Map<string | number, T>) => {
+            rows.clear();
+            snapshot.forEach((row, id) => rows.set(id, row));
+        },
     };
 };
 
-const createTestDb = () =>
-    ({
+type MemoryTable = ReturnType<
+    typeof createMemoryTable<{ id: string | number }>
+>;
+
+const createTestDb = () => {
+    const tables = {
         diagrams: createMemoryTable<Diagram>(),
         db_tables: createMemoryTable<DBTable & { diagramId: string }>(),
         db_relationships: createMemoryTable<
@@ -97,7 +109,26 @@ const createTestDb = () =>
         notes: createMemoryTable(),
         config: createMemoryTable(),
         diagram_filters: createMemoryTable(),
-    }) as unknown as ChartDBDexie;
+    };
+
+    return {
+        ...tables,
+        transaction: async (_mode: string, ...args: unknown[]) => {
+            const callback = args.at(-1) as () => Promise<void>;
+            const tableList = Object.values(tables) as MemoryTable[];
+            const snapshots = tableList.map((table) => table.snapshot());
+
+            try {
+                await callback();
+            } catch (error) {
+                tableList.forEach((table, index) => {
+                    table.restore(snapshots[index]);
+                });
+                throw error;
+            }
+        },
+    } as unknown as ChartDBDexie;
+};
 
 const createDiagram = (id = 'diagram-1'): Diagram => ({
     id,
@@ -192,6 +223,26 @@ describe('ChartDB repositories', () => {
                 diagramId: 'diagram-1',
                 id: 'missing-table',
             })
+        ).resolves.toBeUndefined();
+    });
+
+    it('deletes diagram filter with diagram records', async () => {
+        const repositories = createChartDBRepositories(createTestDb());
+        const diagram = createDiagram();
+
+        await repositories.diagrams.add({ diagram });
+        await repositories.diagramFilters.update(diagram.id, {
+            tableIds: ['table-1'],
+            schemaIds: [],
+        });
+
+        await repositories.diagrams.delete(diagram.id);
+
+        await expect(
+            repositories.diagrams.get(diagram.id)
+        ).resolves.toBeUndefined();
+        await expect(
+            repositories.diagramFilters.get(diagram.id)
         ).resolves.toBeUndefined();
     });
 

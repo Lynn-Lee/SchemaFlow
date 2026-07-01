@@ -8,6 +8,7 @@ import type { Diagram } from '@/lib/domain/diagram';
 import type { DiagramFilter } from '@/lib/domain/diagram-filter/diagram-filter';
 import type { Note } from '@/lib/domain/note';
 import type { ChartDBDexie } from '@/storage/db/chartdb-dexie';
+import { createDiagramTransactionService } from '@/storage/transactions/diagram-transaction-service';
 
 type DiagramListOptions = {
     includeTables?: boolean;
@@ -94,6 +95,7 @@ const createDiagramScopedRepository = <T extends { id: string }>(
 });
 
 export const createChartDBRepositories = (db: ChartDBDexie) => {
+    const diagramTransactions = createDiagramTransactionService(db);
     const tables = createDiagramScopedRepository<DBTable>(db.db_tables);
     const relationships = createDiagramScopedRepository<DBRelationship>(
         db.db_relationships,
@@ -167,43 +169,7 @@ export const createChartDBRepositories = (db: ChartDBDexie) => {
 
     const diagrams = {
         add: async ({ diagram }: { diagram: Diagram }) => {
-            await Promise.all([
-                db.diagrams.add({
-                    id: diagram.id,
-                    name: diagram.name,
-                    databaseType: diagram.databaseType,
-                    databaseEdition: diagram.databaseEdition,
-                    createdAt: diagram.createdAt,
-                    updatedAt: diagram.updatedAt,
-                }),
-                ...(diagram.tables ?? []).map((table) =>
-                    tables.add({ diagramId: diagram.id, item: table })
-                ),
-                ...(diagram.relationships ?? []).map((relationship) =>
-                    relationships.add({
-                        diagramId: diagram.id,
-                        item: relationship,
-                    })
-                ),
-                ...(diagram.dependencies ?? []).map((dependency) =>
-                    dependencies.add({
-                        diagramId: diagram.id,
-                        item: dependency,
-                    })
-                ),
-                ...(diagram.areas ?? []).map((area) =>
-                    areas.add({ diagramId: diagram.id, item: area })
-                ),
-                ...(diagram.customTypes ?? []).map((customType) =>
-                    customTypes.add({
-                        diagramId: diagram.id,
-                        item: customType,
-                    })
-                ),
-                ...(diagram.notes ?? []).map((note) =>
-                    notes.add({ diagramId: diagram.id, item: note })
-                ),
-            ]);
+            await diagramTransactions.addDiagramWithChildren({ diagram });
         },
         list: async (options: DiagramListOptions = {}): Promise<Diagram[]> => {
             const diagramRows = await db.diagrams.toArray();
@@ -247,15 +213,7 @@ export const createChartDBRepositories = (db: ChartDBDexie) => {
             }
         },
         delete: async (id: string) => {
-            await Promise.all([
-                db.diagrams.delete(id),
-                tables.deleteDiagramItems(id),
-                relationships.deleteDiagramItems(id),
-                dependencies.deleteDiagramItems(id),
-                areas.deleteDiagramItems(id),
-                customTypes.deleteDiagramItems(id),
-                notes.deleteDiagramItems(id),
-            ]);
+            await diagramTransactions.deleteDiagramWithChildren(id);
         },
     };
 
