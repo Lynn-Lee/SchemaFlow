@@ -754,7 +754,7 @@ curl -I http://localhost:8080
 
 **目标：** 解耦巨型 Provider，把编辑动作沉淀为可测试 command。
 
-**当前状态：** `CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005` 和 `CHARTDB-P2-006` 已完成，执行清单记录在 `docs/schema-core设计.md`，`src/schema-core/model` 已作为兼容 re-export 出口存在，`src/schema-core/commands` 已提供 command 基础 contract，并已迁移 table、field、index、relationship、area、note 和 custom type command。本轮已接入 command history metadata，旧 undo/redo 执行路径保持兼容。后续从 Phase 3 开始抽离 storage repository 和 migration。
+**当前状态：** `CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005` 和 `CHARTDB-P2-006` 已完成，执行清单记录在 `docs/schema-core设计.md`，`src/schema-core/model` 已作为兼容 re-export 出口存在，`src/schema-core/commands` 已提供 command 基础 contract，并已迁移 table、field、index、relationship、area、note 和 custom type command。本轮已接入 command history metadata，旧 undo/redo 执行路径保持兼容。`CHARTDB-P3-000` 已新增 `docs/storage设计.md`，后续从 `CHARTDB-P3-001` 开始抽离 Dexie schema、repository、diagram transaction 和 backup/restore。
 
 **推荐分支：**
 

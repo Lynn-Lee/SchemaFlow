@@ -804,6 +804,10 @@ verification:
     - rg -n "Dexie|repository|transaction|backup|restore|migration" docs/storage设计.md
 acceptance:
     - 明确 IndexedDB 表结构、迁移顺序和备份格式版本
+completion:
+    - 已新增 `docs/storage设计.md`，记录当前 Dexie 版本、表结构、migration 风险、目标 storage 目录和 repository / transaction / backup 边界。
+    - 已明确 `CHARTDB-P3-001` 到 `CHARTDB-P3-004` 的自动开发顺序：先抽 Dexie schema，再抽 repository，再做 diagram transaction，最后做 backup/restore 版本化。
+    - 下一项进入 `CHARTDB-P3-001`，创建 `src/storage/db` 并集中 Dexie schema。
 ```
 
 ### CHARTDB-P3-001：抽离 Dexie 数据库定义
