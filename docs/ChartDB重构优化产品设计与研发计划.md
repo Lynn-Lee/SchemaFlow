@@ -1187,6 +1187,8 @@ Capability Matrix：
 
 周期：2 到 3 周。
 
+当前状态：`CHARTDB-P2-000` 已完成，`docs/schema-core设计.md` 已定义旧类型映射、command contract、validator、diff 和 undo/redo 兼容层。下一步从 `CHARTDB-P2-001` 开始建立 `src/schema-core/model` 出口，不改变用户可见行为。
+
 目标：
 
 - 解耦 `ChartDBProvider`。

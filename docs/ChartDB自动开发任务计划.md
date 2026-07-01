@@ -572,7 +572,7 @@ phase: Phase 2
 type: PLAN
 priority: P1
 title: 定义 schema-core 拆分顺序和兼容层
-status: queued
+status: done
 depends_on:
   - CHARTDB-P1-005
 owner_lane: core
@@ -585,6 +585,9 @@ verification:
 acceptance:
   - 明确旧类型到新 domain type 的映射
   - 明确兼容层保留周期
+completion:
+  - 已新增 `docs/schema-core设计.md`，明确 schema-core 边界、目录、旧类型映射、command contract、validator、diff、undo/redo 兼容层和 P2-001 到 P2-006 的自动开发顺序。
+  - 下一项进入 `CHARTDB-P2-001`，只建立 `src/schema-core/model` 与旧路径 re-export，不修改业务行为。
 ```
 
 ### CHARTDB-P2-001：建立 schema-core 目录和领域模型出口
@@ -1618,7 +1621,7 @@ npm install
 npm run test:ci
 ```
 
-`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004` 和 `CHARTDB-P1-005` 已完成，Phase 0 和 Phase 1 均通过验收。下一轮自动任务应从 `CHARTDB-P2-000` 开始，编写 Phase 2 Schema Core 与 Command 架构执行清单。不要跳过 Phase 2 直接做 storage、dialect 或 UI 改造。
+`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005` 和 `CHARTDB-P2-000` 已完成，Phase 0 和 Phase 1 均通过验收。下一轮自动任务应从 `CHARTDB-P2-001` 开始，建立 `src/schema-core/model` 与旧路径兼容 re-export。不要跳过 Phase 2 直接做 storage、dialect 或 UI 改造。
 
 ## 19. 计划边界确认
 

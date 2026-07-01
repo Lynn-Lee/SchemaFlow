@@ -28,7 +28,7 @@
 8. Phase 7：发布治理与文档。
 9. Phase 8：可选 Cloud/Team 规划。
 
-Phase 0 和 Phase 1 是硬前置。Phase 0 已完成测试、构建、生产依赖 high audit 和 CI gate 验收；API key 暴露、Markdown raw HTML 和 remaining advisory 未完成 Phase 1 安全审查前，不进入大规模架构改造。
+Phase 0 和 Phase 1 是硬前置。Phase 0 已完成测试、构建、生产依赖 high audit 和 CI gate 验收；Phase 1 已完成 API key、Markdown、Docker/Nginx 和剩余 advisory 安全审查。进入 Phase 2 后先执行 `CHARTDB-P2-000` 定义 schema-core 拆分顺序和兼容层，再开始模型与 command 编码迁移。
 
 ### 1.2 分支策略
 
@@ -755,6 +755,8 @@ curl -I http://localhost:8080
 ## 6. Phase 2：Schema Core 与 Command 架构
 
 **目标：** 解耦巨型 Provider，把编辑动作沉淀为可测试 command。
+
+**当前状态：** `CHARTDB-P2-000` 已完成，执行清单记录在 `docs/schema-core设计.md`。后续从 Task 2.1 开始，只建立 `src/schema-core/model` 与旧路径 re-export，不改变业务行为。
 
 **推荐分支：**
 
