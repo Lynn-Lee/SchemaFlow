@@ -1187,7 +1187,7 @@ Capability Matrix：
 
 周期：2 到 3 周。
 
-当前状态：`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005` 和 `CHARTDB-P2-006` 已完成，`docs/schema-core设计.md` 已定义旧类型映射、command contract、validator、diff 和 undo/redo 兼容层，`src/schema-core/model` 已建立兼容 re-export 出口，`src/schema-core/commands` 已建立 command 基础 contract、table command 纯函数、field/index/relationship command 纯函数、area/note/custom type command 纯函数，以及 command history metadata adapter。`ChartDBProvider` 的新增、编辑、删除表、字段、索引、关系、Area、Note 和 CustomType 入口已接入 command，并在保留既有 Dexie 写入和 undo/redo 行为的同时写入 command history metadata。`CHARTDB-P3-000` 已新增 `docs/storage设计.md`，定义 storage repository、transaction、migration 和 backup/restore 的 Phase 3 执行清单；`CHARTDB-P3-001` 已将 Dexie 数据库名、版本、stores 和 migration 抽离到 `src/storage/db`；`CHARTDB-P3-002` 已抽出 repository API，`StorageProvider` 只组合 repository，不再直接写 Dexie table；`CHARTDB-P3-003` 已新增 diagram transaction service，让 diagram 创建、删除和替换在 Dexie transaction 中保持一致性。下一步从 `CHARTDB-P3-004` 开始做备份恢复版本化。
+当前状态：`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005` 和 `CHARTDB-P2-006` 已完成，`docs/schema-core设计.md` 已定义旧类型映射、command contract、validator、diff 和 undo/redo 兼容层，`src/schema-core/model` 已建立兼容 re-export 出口，`src/schema-core/commands` 已建立 command 基础 contract、table command 纯函数、field/index/relationship command 纯函数、area/note/custom type command 纯函数，以及 command history metadata adapter。`ChartDBProvider` 的新增、编辑、删除表、字段、索引、关系、Area、Note 和 CustomType 入口已接入 command，并在保留既有 Dexie 写入和 undo/redo 行为的同时写入 command history metadata。`CHARTDB-P3-000` 已新增 `docs/storage设计.md`，定义 storage repository、transaction、migration 和 backup/restore 的 Phase 3 执行清单；`CHARTDB-P3-001` 已将 Dexie 数据库名、版本、stores 和 migration 抽离到 `src/storage/db`；`CHARTDB-P3-002` 已抽出 repository API，`StorageProvider` 只组合 repository，不再直接写 Dexie table；`CHARTDB-P3-003` 已新增 diagram transaction service，让 diagram 创建、删除和替换在 Dexie transaction 中保持一致性；`CHARTDB-P3-004` 已让 JSON backup 使用 `chartdb.backup` + `schemaVersion: 1` 格式并在恢复前校验版本和 diagram count。下一步进入 `CHARTDB-P4-000`，定义 dialect contract 和迁移顺序。
 
 目标：
 
@@ -1221,15 +1221,15 @@ Capability Matrix：
 - 抽 Dexie repositories。
 - 抽 migration runner。
 - diagram 删除和恢复使用 transaction。
-- 新增 backup/restore service。
+- 新增 backup/restore service。（已完成 versioned backup contract；恢复摘要 UI 后续在体验阶段补齐）
 - 新增 storage health check。
 
 验收：
 
 - migration 测试覆盖旧版本到当前版本。
 - 删除 diagram 无孤儿记录。
-- backup 可恢复完整 diagram。
-- corrupted backup 有明确错误。
+- backup 可恢复完整 diagram，且恢复为新 diagram。
+- corrupted 或不兼容 backup 有明确错误。
 
 ### Phase 4：Importer / Exporter 插件化
 

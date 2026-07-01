@@ -16,7 +16,7 @@ Phase 3 的目标是把 IndexedDB 访问从 React Provider 中抽离，形成可
 - 当前 Dexie 版本：`13`。
 - 当前表：`diagrams`、`db_tables`、`db_relationships`、`db_dependencies`、`areas`、`db_custom_types`、`notes`、`config`、`diagram_filters`。
 - 既有 migration：字段 type 字符串迁移、relationship cardinality 迁移、field nullable 字符串迁移、config 重置。
-- 当前风险：diagram 级创建、删除、导入和恢复尚未进入 transaction service，失败时的一致性仍需在 `CHARTDB-P3-003` 收敛；backup/restore versioning 仍在 `CHARTDB-P3-004`。
+- 当前风险：diagram 级创建、删除和替换已进入 transaction service；backup/restore 已具备 versioned file contract。恢复前摘要 UI、多 diagram 选择和 backup migration runner 仍留给后续体验与格式演进任务。
 
 ## 3. 目标目录
 
@@ -95,16 +95,18 @@ diagram 级写操作必须逐步迁移到 transaction service：
 ```ts
 type ChartDBBackupV1 = {
     format: 'chartdb.backup';
-    formatVersion: 1;
+    schemaVersion: 1;
     createdAt: string;
     source: 'chartdb-local';
+    appVersion?: string;
+    diagramCount: number;
     diagrams: Diagram[];
 };
 ```
 
 约束：
 
-- 导出必须包含 `format`、`formatVersion`、`createdAt` 和 diagram count。
+- 导出必须包含 `format`、`schemaVersion`、`createdAt` 和 diagram count。
 - restore 前必须校验 JSON shape、format、formatVersion 和 diagram 基础字段。
 - 不兼容 backup 给出可理解错误，不写入 IndexedDB。
 - backup migration 与 IndexedDB migration 分开管理，避免混淆浏览器存储版本和文件格式版本。
@@ -114,7 +116,7 @@ type ChartDBBackupV1 = {
 1. `CHARTDB-P3-001`：抽离 Dexie 数据库定义，新增 `src/storage/db` 和 schema version 测试。
 2. `CHARTDB-P3-002`：抽 repository API，让 `StorageProvider` 组合 repository。（已完成）
 3. `CHARTDB-P3-003`：实现 diagram transaction service，覆盖删除和替换一致性。
-4. `CHARTDB-P3-004`：实现 backup schema version、校验和 restore migration。
+4. `CHARTDB-P3-004`：实现 backup schema version、校验和 restore migration。（已完成 versioned backup contract，后续 migration runner 随新格式版本增加）
 
 Phase 3 完成后才允许进入 Phase 4 dialect contract，不跳过 storage 事务和备份恢复验收。
 

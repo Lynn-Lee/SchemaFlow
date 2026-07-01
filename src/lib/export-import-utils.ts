@@ -1,6 +1,13 @@
 import { cloneDiagram } from './clone';
 import { diagramSchema, type Diagram } from './domain/diagram';
 import { generateDiagramId } from './utils';
+import {
+    CHARTDB_BACKUP_FORMAT,
+    createChartDBBackup,
+    parseChartDBBackup,
+    restoreDiagramFromBackup,
+} from '@/storage/backup';
+import packageJson from '../../package.json';
 
 export const runningIdGenerator = (): (() => string) => {
     let id = 0;
@@ -23,12 +30,29 @@ const cloneDiagramWithIds = (diagram: Diagram): Diagram => ({
 });
 
 export const diagramToJSONOutput = (diagram: Diagram): string => {
-    const clonedDiagram = cloneDiagramWithRunningIds(diagram).diagram;
-    return JSON.stringify(clonedDiagram, null, 2);
+    return JSON.stringify(
+        createChartDBBackup({
+            diagrams: [diagram],
+            appVersion: packageJson.version,
+        }),
+        null,
+        2
+    );
 };
 
 export const diagramFromJSONInput = (json: string): Diagram => {
     const loadedDiagram = JSON.parse(json);
+
+    if (
+        typeof loadedDiagram === 'object' &&
+        loadedDiagram !== null &&
+        'format' in loadedDiagram &&
+        loadedDiagram.format === CHARTDB_BACKUP_FORMAT
+    ) {
+        return restoreDiagramFromBackup({
+            backup: parseChartDBBackup(json),
+        });
+    }
 
     const diagram = diagramSchema.parse({
         ...loadedDiagram,

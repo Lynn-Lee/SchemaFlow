@@ -754,7 +754,7 @@ curl -I http://localhost:8080
 
 **目标：** 解耦巨型 Provider，把编辑动作沉淀为可测试 command。
 
-**当前状态：** `CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005` 和 `CHARTDB-P2-006` 已完成，执行清单记录在 `docs/schema-core设计.md`，`src/schema-core/model` 已作为兼容 re-export 出口存在，`src/schema-core/commands` 已提供 command 基础 contract，并已迁移 table、field、index、relationship、area、note 和 custom type command。本轮已接入 command history metadata，旧 undo/redo 执行路径保持兼容。`CHARTDB-P3-000` 已新增 `docs/storage设计.md`，`CHARTDB-P3-001` 已抽离 Dexie schema 和 migration 定义到 `src/storage/db`，`CHARTDB-P3-002` 已抽出 repository API，`CHARTDB-P3-003` 已将 diagram 创建、删除和替换封装到 Dexie transaction。后续从 `CHARTDB-P3-004` 开始做 backup/restore 版本化。
+**当前状态：** `CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005` 和 `CHARTDB-P2-006` 已完成，执行清单记录在 `docs/schema-core设计.md`，`src/schema-core/model` 已作为兼容 re-export 出口存在，`src/schema-core/commands` 已提供 command 基础 contract，并已迁移 table、field、index、relationship、area、note 和 custom type command。本轮已接入 command history metadata，旧 undo/redo 执行路径保持兼容。`CHARTDB-P3-000` 已新增 `docs/storage设计.md`，`CHARTDB-P3-001` 已抽离 Dexie schema 和 migration 定义到 `src/storage/db`，`CHARTDB-P3-002` 已抽出 repository API，`CHARTDB-P3-003` 已将 diagram 创建、删除和替换封装到 Dexie transaction，`CHARTDB-P3-004` 已新增 versioned backup/restore contract。后续从 `CHARTDB-P4-000` 开始定义 dialect contract 和迁移顺序。
 
 **推荐分支：**
 
@@ -1037,27 +1037,30 @@ git switch -c codex/chartdb-phase-3-storage
 **涉及文件：**
 
 - 新增：`src/storage/backup/backup-format.ts`
-- 新增：`src/storage/backup/export-backup.ts`
-- 新增：`src/storage/backup/import-backup.ts`
-- 新增：`src/features/diagrams/backup-restore-dialog.tsx`
+- 新增：`src/storage/backup/index.ts`
+- 修改：`src/lib/export-import-utils.ts`
+- 新增：`docs/备份恢复格式.md`
 - 测试：`src/storage/backup/__tests__/backup-restore.test.ts`
 
 **实施步骤：**
 
-- [ ] 定义 backup 格式。
+- [x] 定义 backup 格式。
 
-- [ ] 导出时写入：
+- [x] 导出时写入：
     - format。
-    - formatVersion。
+    - schemaVersion。
     - appVersion。
     - createdAt。
-    - diagram。
+    - diagram count。
+    - diagrams。
 
-- [ ] 恢复前校验格式。
+- [x] 恢复前校验格式。
 
 - [ ] 恢复前展示 diagram 摘要。
 
-- [ ] 支持导入为新 diagram。
+- [x] 支持导入为新 diagram。
+
+本轮结果：已新增 `src/storage/backup/backup-format.ts` 和 `src/storage/backup/index.ts`，定义 `chartdb.backup` + `schemaVersion: 1` 文件格式、metadata、diagram count 校验和恢复为新 diagram 的 id/date 刷新规则。`src/lib/export-import-utils.ts` 的 JSON 导出入口已切到新 backup 格式，恢复入口对新 backup 先校验格式和版本，同时保留旧单 diagram JSON 兼容路径。新增 `docs/备份恢复格式.md` 记录 backup schema、恢复规则和后续 migration 边界。下一项进入 Phase 4 的 `CHARTDB-P4-000`。
 
 ## 8. Phase 4：Importer / Exporter 插件化
 
