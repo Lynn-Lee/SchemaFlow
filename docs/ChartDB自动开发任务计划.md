@@ -346,7 +346,7 @@ phase: Phase 0
 type: DOC
 priority: P0
 title: 完成 Phase 0 验收记录
-status: queued
+status: done
 depends_on:
   - CHARTDB-P0-001
   - CHARTDB-P0-002
@@ -360,6 +360,10 @@ verification:
 acceptance:
   - 记录实际命令、结果、失败证据和剩余风险
   - 没有未填写内容
+completion:
+  - commit: 本轮提交，见自动化运行日志
+  - verified: rg -n "Phase 0|npm run test:ci|npm audit|npm run build" docs/阶段验收记录.md, npm run lint, npm run test:ci, npm run build, git diff --check, npm audit --omit=dev --audit-level=high
+  - exit_gate: Phase 0 已通过，允许进入 CHARTDB-P1-000
 ```
 
 ## 7. Phase 1：安全重构
@@ -1585,7 +1589,7 @@ npm install
 npm run test:ci
 ```
 
-`CHARTDB-P0-001`、`CHARTDB-P0-002` 和 `CHARTDB-P0-003` 已完成。下一轮自动任务应从 `CHARTDB-P0-004` 开始，完成 Phase 0 验收记录。不要跳过 Phase 0 直接做 `schema-core`、storage 或 UI 改造。
+`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003` 和 `CHARTDB-P0-004` 已完成，Phase 0 通过验收。下一轮自动任务应从 `CHARTDB-P1-000` 开始，编写 Phase 1 安全实施清单。不要跳过 Phase 1 直接做 `schema-core`、storage 或 UI 改造。
 
 ## 19. 计划边界确认
 

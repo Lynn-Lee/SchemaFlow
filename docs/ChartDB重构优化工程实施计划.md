@@ -28,7 +28,7 @@
 8. Phase 7：发布治理与文档。
 9. Phase 8：可选 Cloud/Team 规划。
 
-Phase 0 和 Phase 1 是硬前置。测试失败、安全 high 风险和 API key 暴露未解决前，不进入大规模架构改造。
+Phase 0 和 Phase 1 是硬前置。Phase 0 已完成测试、构建、生产依赖 high audit 和 CI gate 验收；API key 暴露、Markdown raw HTML 和 remaining advisory 未完成 Phase 1 安全审查前，不进入大规模架构改造。
 
 ### 1.2 分支策略
 
@@ -110,7 +110,9 @@ npm run build
 npm run test:ci
 ```
 
-当前结果：失败。失败点：
+当前结果：Phase 0 已修复该失败并通过完整 `npm run test:ci`。
+
+原始失败点：
 
 ```text
 TypeError: localStorage.getItem is not a function
@@ -447,7 +449,7 @@ npm audit --omit=dev --audit-level=high
 
 **实施步骤：**
 
-- [ ] 创建验收记录。
+- [x] 创建验收记录。
 
 建议结构：
 
@@ -465,9 +467,9 @@ npm audit --omit=dev --audit-level=high
 - 剩余风险：
 ```
 
-- [ ] 记录命令结果和剩余风险。
+- [x] 记录命令结果和剩余风险。
 
-- [ ] 提交 Phase 0。
+- [x] 提交 Phase 0。
 
 ```bash
 git add package.json package-lock.json .github docs src/test src/lib/utils
