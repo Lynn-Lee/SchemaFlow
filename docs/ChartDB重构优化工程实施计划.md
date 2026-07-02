@@ -1425,7 +1425,7 @@ npm run build
 
 **目标：** 让项目具备可持续发布和维护能力。
 
-**当前状态：** `CHARTDB-P7-002` 已补齐 README 文档导航、架构说明、导入导出接口约定和测试策略；发布、安全、备份恢复和方言能力文档已有独立入口。后续从 `CHARTDB-P7-003` 开始补齐 Issue template 和贡献规则。
+**当前状态：** `CHARTDB-P7-003` 已补齐 README 文档导航、架构说明、导入导出接口约定、测试策略、Issue template 和贡献规则；发布、安全、备份恢复、方言能力、问题上报和贡献流程已有独立入口。下一项进入 Phase 8 的可选 Cloud/Team 边界预研。
 
 **推荐分支：**
 
@@ -1478,17 +1478,24 @@ git switch -c codex/chartdb-phase-7-release-docs
 **涉及文件：**
 
 - 新增：`.github/ISSUE_TEMPLATE/bug_report.yml`
-- 新增：`.github/ISSUE_TEMPLATE/dialect_import_bug.yml`
+- 新增：`.github/ISSUE_TEMPLATE/feature_request.yml`
+- 新增：`.github/ISSUE_TEMPLATE/dialect_regression.yml`
 - 新增：`.github/ISSUE_TEMPLATE/security_report.md`
+- 新增：`.github/ISSUE_TEMPLATE/config.yml`
+- 修改：`CONTRIBUTING.md`
 
 **实施步骤：**
 
-- [ ] Dialect bug 模板要求用户提供：
+- [x] Dialect bug 模板要求用户提供：
     - 数据库类型。
     - 数据库版本。
     - 输入 DDL 或 Smart Query 输出脱敏样例。
     - 预期对象数量。
     - 实际结果。
+
+- [x] Security issue template 引导使用 GitHub private vulnerability reporting，不在公开 issue 泄露漏洞细节。
+
+- [x] Feature request template 要求说明本地优先影响，避免默认引入账号、云端 diagram 存储或自动上传。
 
 ## 12. Phase 8：可选 Cloud/Team 规划
 

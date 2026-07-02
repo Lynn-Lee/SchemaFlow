@@ -1,0 +1,73 @@
+name: Dialect import or export regression
+description: Report SQL, DBML, Smart Query, or export behavior that differs by database dialect.
+title: "[Dialect]: "
+labels: ["bug", "dialect", "regression"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Dialect regressions need a minimal sanitized fixture so maintainers can add it to the regression suite.
+  - type: dropdown
+    id: dialect
+    attributes:
+      label: Dialect
+      options:
+        - PostgreSQL
+        - MySQL
+        - MariaDB
+        - SQLite
+        - SQL Server
+        - Oracle
+        - ClickHouse
+        - DBML
+        - Smart Query JSON
+    validations:
+      required: true
+  - type: input
+    id: database-version
+    attributes:
+      label: Database version
+      placeholder: PostgreSQL 16.3, MySQL 8.4, SQLite 3.45, etc.
+    validations:
+      required: true
+  - type: dropdown
+    id: flow
+    attributes:
+      label: Flow
+      options:
+        - SQL import
+        - DBML import
+        - Smart Query import
+        - SQL export
+        - DBML export
+        - Import preview
+        - Backup restore
+    validations:
+      required: true
+  - type: textarea
+    id: fixture
+    attributes:
+      label: Minimal sanitized fixture
+      description: Include the smallest SQL, DBML, or Smart Query JSON sample that reproduces the issue.
+      render: sql
+    validations:
+      required: true
+  - type: input
+    id: expected-counts
+    attributes:
+      label: Expected object counts
+      placeholder: 3 tables, 2 relationships, 1 enum, 0 warnings
+    validations:
+      required: true
+  - type: textarea
+    id: actual-result
+    attributes:
+      label: Actual result
+      description: Include warnings, unsupported objects, missing objects, or generated SQL differences.
+    validations:
+      required: true
+  - type: textarea
+    id: regression-range
+    attributes:
+      label: Last known working version
+      placeholder: Optional commit, release, or date when this still worked.
