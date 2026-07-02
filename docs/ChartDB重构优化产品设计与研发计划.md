@@ -1290,7 +1290,7 @@ Capability Matrix：
 
 ### Phase 6：性能优化
 
-当前状态：`CHARTDB-P6-000` 已新增 `docs/性能基线与优化计划.md`，明确首屏 JS bundle、Monaco chunk、模板数据 chunk、large schema import 时间、layout worker 和 CI 性能预算的基线记录方式。`CHARTDB-P6-001` 已把 `CodeSnippet` 外层和 DBML highlight helper 的 Monaco runtime 静态依赖移入懒加载编辑器路径，`npm run build` 中 `code-editor` chunk 从 `15,279.59 kB` / gzip `2,787.98 kB` 降至 `3,788.30 kB` / gzip `976.92 kB`。`CHARTDB-P6-002` 已把模板列表切到 metadata-only manifest，详情和 clone 路径才按 slug 动态加载完整模板 diagram；build 输出中模板数据拆为独立 per-template JS chunk。剩余 `editor-page` 大 chunk 主要进入 DBML/parser 与 worker 化治理。下一项进入 `CHARTDB-P6-003`，推进 Parser 和 layout worker 化。
+当前状态：`CHARTDB-P6-000` 已新增 `docs/性能基线与优化计划.md`，明确首屏 JS bundle、Monaco chunk、模板数据 chunk、large schema import 时间、layout worker 和 CI 性能预算的基线记录方式。`CHARTDB-P6-001` 已把 `CodeSnippet` 外层和 DBML highlight helper 的 Monaco runtime 静态依赖移入懒加载编辑器路径，`npm run build` 中 `code-editor` chunk 从 `15,279.59 kB` / gzip `2,787.98 kB` 降至 `3,788.30 kB` / gzip `976.91 kB`。`CHARTDB-P6-002` 已把模板列表切到 metadata-only manifest，详情和 clone 路径才按 slug 动态加载完整模板 diagram；build 输出中模板数据拆为独立 per-template JS chunk。`CHARTDB-P6-003` 已将导入 Preview parse 与 Area layout 计算接入 module worker，并保留无 Worker 环境 fallback。剩余 `editor-page` 大 chunk 约 `11,474.96 kB` / gzip `1,807.52 kB`，继续进入后续 bundle budget 与 parser 拆包治理。下一项进入 `CHARTDB-P7-000`，定义发布门禁和文档补齐范围。
 
 周期：2 周。
 

@@ -78,7 +78,7 @@ phase: Phase 0
 type: CODE
 priority: P0
 title: 修复测试环境 localStorage 失败
-status: queued
+status: done
 depends_on: []
 owner_lane: baseline
 branch: codex/chartdb-p0-localstorage-test
@@ -1426,6 +1426,15 @@ acceptance:
     - 不支持 worker 的环境有降级路径
 ```
 
+完成记录：
+
+- 新增 `src/workers/worker-client.ts`，统一封装 module worker 调用、结构化错误和无 Worker 环境 fallback。
+- 新增 `src/workers/import-worker/import-worker.ts` 与 `src/workers/import-worker/import-preview-client.ts`，`parseImportPreview()` 默认经 worker 执行，主线程保留 `parseImportPreviewOnMainThread()` 降级路径。
+- 新增 `src/workers/layout-worker/layout-worker.ts` 与 `src/workers/layout-worker/layout-client.ts`，Area auto arrange 和 Move to Area 的表布局计算改为异步 worker client 调用，无 Worker 时回退到既有 `arrangeTablesForArea()`。
+- 新增 `worker-client`、`import-preview-worker-routing` 和 `layout-client` 契约测试，覆盖 worker 路由、结构化错误和 fallback。
+- `npm run build` 通过；入口 `index` 约 `2,609.63 kB` / gzip `513.31 kB`，`code-editor` 约 `3,788.30 kB` / gzip `976.91 kB`，`editor-page` 仍约 `11,474.96 kB` / gzip `1,807.52 kB`。本轮主要降低大 import/layout 的运行时主线程阻塞风险，parser 依赖体积仍进入后续 bundle budget 治理。
+- 下一项进入 `CHARTDB-P7-000`，定义 Phase 7 发布门禁和文档补齐范围。
+
 ## 13. Phase 7：发布治理与文档
 
 目标：让 release、Docker、自托管和贡献流程可重复。
@@ -1775,7 +1784,7 @@ npm install
 npm run test:ci
 ```
 
-`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005`、`CHARTDB-P2-006`、`CHARTDB-P3-000`、`CHARTDB-P3-001`、`CHARTDB-P3-002`、`CHARTDB-P3-003`、`CHARTDB-P3-004`、`CHARTDB-P4-000`、`CHARTDB-P4-001`、`CHARTDB-P4-002`、`CHARTDB-P4-003`、`CHARTDB-P4-004`、`CHARTDB-P4-005`、`CHARTDB-P5-000`、`CHARTDB-P5-001`、`CHARTDB-P5-002`、`CHARTDB-P5-003`、`CHARTDB-P5-004`、`CHARTDB-P6-000`、`CHARTDB-P6-001` 和 `CHARTDB-P6-002` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口、command 基础 contract、table command 纯函数、field/index/relationship command 纯函数、area/note/custom type command 纯函数，以及 command history metadata 接入。Phase 3 已完成 storage 执行清单、Dexie schema 集中化、repository API、diagram transaction service 和 backup/restore 版本化。Phase 4 已新增 common dialect contract、PostgreSQL wrapper、MySQL/MariaDB/SQLite/SQL Server/Oracle wrapper、DBML wrapper 和导入 preview flow；unsupported 或降级语义会进入统一 warning/unsupportedObjects，并在用户确认前展示。Phase 5 已建立 UX 和可访问性验收矩阵、首次进入入口、Smart Query Wizard、核心可访问名称修复与设置中心。Phase 6 已新增性能基线与优化计划，完成 Monaco runtime 懒加载拆分和模板 lazy registry。下一轮自动任务应从 `CHARTDB-P6-003` 开始，推进 Parser 和 layout worker 化。
+`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005`、`CHARTDB-P2-006`、`CHARTDB-P3-000`、`CHARTDB-P3-001`、`CHARTDB-P3-002`、`CHARTDB-P3-003`、`CHARTDB-P3-004`、`CHARTDB-P4-000`、`CHARTDB-P4-001`、`CHARTDB-P4-002`、`CHARTDB-P4-003`、`CHARTDB-P4-004`、`CHARTDB-P4-005`、`CHARTDB-P5-000`、`CHARTDB-P5-001`、`CHARTDB-P5-002`、`CHARTDB-P5-003`、`CHARTDB-P5-004`、`CHARTDB-P6-000`、`CHARTDB-P6-001`、`CHARTDB-P6-002` 和 `CHARTDB-P6-003` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口、command 基础 contract、table command 纯函数、field/index/relationship command 纯函数、area/note/custom type command 纯函数，以及 command history metadata 接入。Phase 3 已完成 storage 执行清单、Dexie schema 集中化、repository API、diagram transaction service 和 backup/restore 版本化。Phase 4 已新增 common dialect contract、PostgreSQL wrapper、MySQL/MariaDB/SQLite/SQL Server/Oracle wrapper、DBML wrapper 和导入 preview flow；unsupported 或降级语义会进入统一 warning/unsupportedObjects，并在用户确认前展示。Phase 5 已建立 UX 和可访问性验收矩阵、首次进入入口、Smart Query Wizard、核心可访问名称修复与设置中心。Phase 6 已新增性能基线与优化计划，完成 Monaco runtime 懒加载拆分、模板 lazy registry、import preview worker 和 area layout worker client。下一轮自动任务应从 `CHARTDB-P7-000` 开始，定义发布门禁和文档补齐范围。
 
 ## 19. 计划边界确认
 

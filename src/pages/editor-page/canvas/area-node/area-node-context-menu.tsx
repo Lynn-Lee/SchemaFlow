@@ -8,7 +8,7 @@ import {
 import { useBreakpoint } from '@/hooks/use-breakpoint';
 import { useChartDB } from '@/hooks/use-chartdb';
 import type { Area } from '@/lib/domain/area';
-import { arrangeTablesForArea } from '@/lib/utils/area-utils';
+import { arrangeTablesForAreaInWorker } from '@/workers/layout-worker/layout-client';
 import { LayoutGrid, Pencil, Trash2 } from 'lucide-react';
 import React, { useCallback } from 'react';
 import { useReactFlow } from '@xyflow/react';
@@ -36,7 +36,7 @@ export const AreaNodeContextMenu: React.FC<
         removeArea(area.id);
     }, [removeArea, area.id]);
 
-    const autoArrangeHandler = useCallback(() => {
+    const autoArrangeHandler = useCallback(async () => {
         const canvasNodes = getNodes();
         const areaNode = canvasNodes.find(
             (n) => n.id === area.id && n.type === 'area'
@@ -52,7 +52,13 @@ export const AreaNodeContextMenu: React.FC<
         if (tablesInArea.length === 0) return;
 
         const { positions, requiredWidth, requiredHeight } =
-            arrangeTablesForArea(tablesInArea, relationships, areaRect);
+            await arrangeTablesForAreaInWorker({
+                request: {
+                    tables: tablesInArea,
+                    relationships,
+                    areaRect,
+                },
+            });
 
         if (
             requiredWidth > areaRect.width ||

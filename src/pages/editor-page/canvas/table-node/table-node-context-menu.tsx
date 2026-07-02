@@ -13,7 +13,7 @@ import { useChartDB } from '@/hooks/use-chartdb';
 import { useLayout } from '@/hooks/use-layout';
 import { cloneTable } from '@/lib/clone';
 import type { DBTable } from '@/lib/domain/db-table';
-import { arrangeTablesForArea } from '@/lib/utils/area-utils';
+import { arrangeTablesForAreaInWorker } from '@/workers/layout-worker/layout-client';
 import {
     Check,
     Copy,
@@ -105,7 +105,7 @@ export const TableNodeContextMenu: React.FC<
 
     // Arrange tables into an area and apply positions
     const moveToArea = useCallback(
-        (
+        async (
             areaId: string,
             tableIds: string[],
             overrideRect?: {
@@ -138,7 +138,13 @@ export const TableNodeContextMenu: React.FC<
             const allAreaTables = [...existingAreaTables, ...movingTables];
 
             const { positions, requiredWidth, requiredHeight } =
-                arrangeTablesForArea(allAreaTables, relationships, areaRect);
+                await arrangeTablesForAreaInWorker({
+                    request: {
+                        tables: allAreaTables,
+                        relationships,
+                        areaRect,
+                    },
+                });
 
             if (
                 requiredWidth > areaRect.width ||
