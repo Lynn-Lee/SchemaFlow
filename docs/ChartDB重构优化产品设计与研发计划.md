@@ -1263,7 +1263,7 @@ Capability Matrix：
 
 ### Phase 5：产品体验与可访问性
 
-当前状态：`CHARTDB-P5-000` 已新增 `docs/可访问性与核心流程验收.md`，定义首次进入、Smart Query、导入 Preview、编辑画布和设置中心的桌面、移动、键盘、可访问性与失败状态验收矩阵。`CHARTDB-P5-001` 已重做首次进入入口：首次无本地 diagram 时首屏展示数据库选择、导入现有数据库、新建空白图和模板示例入口；未选择数据库或启动方式时显示原因；新建空白图失败会回滚已写入 diagram，避免半成品。`CHARTDB-P5-002` 已将 Smart Query 说明拆成结构化向导，明确不输入数据库密码、复制 Smart Query、粘贴 JSON、解析 Preview 和确认导入五步；preview 失败会提示 Smart Query JSON、SQL syntax 或 dialect limitations。`CHARTDB-P5-003` 已补齐核心 icon-only control、Dialog back button、Smart Query/SQL/DBML Monaco 编辑器用途名称和画布 Toolbar 的可访问名称，并新增 Phase 5 可访问性契约测试。下一项进入 `CHARTDB-P5-004`，建设设置中心。
+当前状态：`CHARTDB-P5-000` 已新增 `docs/可访问性与核心流程验收.md`，定义首次进入、Smart Query、导入 Preview、编辑画布和设置中心的桌面、移动、键盘、可访问性与失败状态验收矩阵。`CHARTDB-P5-001` 已重做首次进入入口：首次无本地 diagram 时首屏展示数据库选择、导入现有数据库、新建空白图和模板示例入口；未选择数据库或启动方式时显示原因；新建空白图失败会回滚已写入 diagram，避免半成品。`CHARTDB-P5-002` 已将 Smart Query 说明拆成结构化向导，明确不输入数据库密码、复制 Smart Query、粘贴 JSON、解析 Preview 和确认导入五步；preview 失败会提示 Smart Query JSON、SQL syntax 或 dialect limitations。`CHARTDB-P5-003` 已补齐核心 icon-only control、Dialog back button、Smart Query/SQL/DBML Monaco 编辑器用途名称和画布 Toolbar 的可访问名称，并新增 Phase 5 可访问性契约测试。`CHARTDB-P5-004` 已新增设置中心，集中管理本地显示偏好、AI mode、Self-hosted Gateway hint、导出/恢复 backup 和本地数据危险操作入口；BYOK key 仍为 session-only，不持久化。下一项进入 `CHARTDB-P6-000`，定义 Phase 6 性能优化执行清单。
 
 周期：2 周。
 

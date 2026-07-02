@@ -3,8 +3,14 @@ import { emptyFn } from '@/lib/utils';
 import type { Theme } from '../theme-context/theme-context';
 
 export type ScrollAction = 'pan' | 'zoom';
+export type LocalAIExportMode =
+    | 'disabled'
+    | 'byok-session'
+    | 'self-hosted-gateway';
 
 export interface LocalConfigContext {
+    localStorageAvailable: boolean;
+
     theme: Theme;
     setTheme: (theme: Theme) => void;
 
@@ -28,9 +34,20 @@ export interface LocalConfigContext {
 
     showMiniMapOnCanvas: boolean;
     setShowMiniMapOnCanvas: (showMiniMapOnCanvas: boolean) => void;
+
+    aiExportMode: LocalAIExportMode;
+    setAIExportMode: (mode: LocalAIExportMode) => void;
+
+    aiGatewayEndpoint: string;
+    setAIGatewayEndpoint: (endpoint: string) => void;
+
+    aiGatewayModelName: string;
+    setAIGatewayModelName: (modelName: string) => void;
 }
 
 export const LocalConfigContext = createContext<LocalConfigContext>({
+    localStorageAvailable: true,
+
     theme: 'system',
     setTheme: emptyFn,
 
@@ -54,4 +71,11 @@ export const LocalConfigContext = createContext<LocalConfigContext>({
 
     showMiniMapOnCanvas: false,
     setShowMiniMapOnCanvas: emptyFn,
+
+    aiExportMode: 'disabled',
+    setAIExportMode: emptyFn,
+    aiGatewayEndpoint: '',
+    setAIGatewayEndpoint: emptyFn,
+    aiGatewayModelName: '',
+    setAIGatewayModelName: emptyFn,
 });

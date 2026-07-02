@@ -17,6 +17,7 @@ import {
     Plus,
     FolderOpen,
     CodeXml,
+    Settings,
 } from 'lucide-react';
 import { Table, Workflow } from 'lucide-react';
 import { useLayout } from '@/hooks/use-layout';
@@ -52,7 +53,11 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = () => {
     const { isMd: isDesktop } = useBreakpoint('md');
     const { effectiveTheme } = useTheme();
     const { databaseType } = useChartDB();
-    const { openCreateDiagramDialog, openOpenDiagramDialog } = useDialog();
+    const {
+        openCreateDiagramDialog,
+        openOpenDiagramDialog,
+        openSettingsDialog,
+    } = useDialog();
 
     const diagramItems: SidebarItem[] = useMemo(
         () => [
@@ -164,8 +169,14 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = () => {
                 onClick: () => window.open('https://docs.chartdb.io', '_blank'),
                 active: false,
             },
+            {
+                title: 'Settings',
+                icon: Settings,
+                onClick: () => openSettingsDialog(),
+                active: false,
+            },
         ],
-        []
+        [openSettingsDialog]
     );
 
     return (

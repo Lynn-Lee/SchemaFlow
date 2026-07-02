@@ -1328,11 +1328,13 @@ rg -n "<Button|<button" src/pages src/dialogs src/components
 
 **实施步骤：**
 
-- [ ] 把 theme、language、minimap、field attributes 等集中到设置中心。
+- [x] 把 theme、language、minimap、field attributes 等集中到设置中心。
 
-- [ ] localStorage 读写加 try/catch 容错。
+- [x] localStorage 读写加 try/catch 容错。
 
-- [ ] 设置不保存 secret。
+- [x] 设置不保存 secret。
+
+本轮结果：已新增 `src/features/settings/settings-dialog.tsx`、`display-settings.tsx`、`privacy-settings.tsx` 和 `keyboard-shortcuts-settings.tsx`，并通过 `DialogProvider` 与左侧 Sidebar 的 `Settings` 入口打开。`LocalConfigProvider` 增加安全 localStorage 读写 helper，浏览器存储不可用时设置中心显示 session-only 降级说明。AI mode 支持 Disabled、BYOK Session、Self-hosted Gateway 切换；Gateway 仅保存 endpoint/model hint，BYOK key 不写入 localStorage。数据管理入口集中到导出 backup、恢复 backup 和清理本地 diagram 的破坏性确认说明。下一项进入 `CHARTDB-P6-000`。
 
 ## 10. Phase 6：性能优化
 
