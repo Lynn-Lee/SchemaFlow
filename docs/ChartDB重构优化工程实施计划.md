@@ -1425,6 +1425,8 @@ npm run build
 
 **目标：** 让项目具备可持续发布和维护能力。
 
+**当前状态：** `CHARTDB-P7-000` 已新增 `docs/发布检查清单.md`，明确 release gate、Docker smoke、文档 gate 和回滚失败处理；后续从 `CHARTDB-P7-001` 开始修改发布 workflow。
+
 **推荐分支：**
 
 ```bash
