@@ -1317,7 +1317,7 @@ Capability Matrix：
 
 ### Phase 7：发布治理与文档
 
-当前状态：`CHARTDB-P7-001` 已把发布门禁固化到 `publish.yaml`：正式镜像 push 前会运行 production audit、lint、test、build，并先执行 Docker smoke build/run，检查静态页面、安全响应头和 `/config.js` no-store。Phase 7 后续从 `CHARTDB-P7-002` 开始补齐 README、工程文档、issue template 和贡献规则。
+当前状态：`CHARTDB-P7-002` 已把发布门禁固化到 `publish.yaml`，并补齐 README 文档导航、架构说明、导入导出接口约定和测试策略；发布、安全、备份恢复和方言能力均有独立文档入口。Phase 7 后续从 `CHARTDB-P7-003` 开始补齐 issue template 和贡献规则。
 
 周期：1 周。
 

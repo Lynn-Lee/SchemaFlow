@@ -93,6 +93,18 @@ AI-assisted export is disabled by default in the browser build. Do not pass
 model provider secrets into `npm run build`; use deterministic SQL export unless
 you have configured a session-only BYOK flow or a self-hosted gateway.
 
+### Documentation
+
+ChartDB 的默认模式是本地优先、无账号、无数据库密码：Smart Query 由用户在自己的数据库环境中执行，diagram 数据默认保存在浏览器 IndexedDB，不会自动上传到远端服务。
+
+- [架构说明](docs/架构说明.md)：当前 React、schema-core、storage、dialects、workers 和发布边界。
+- [部署与安全配置](docs/部署与安全配置.md)：Docker/Nginx 自托管、安全响应头、CSP 和非敏感运行时配置。
+- [安全模型与 AI 边界](docs/安全模型与AI边界.md)：Disabled、BYOK Session 和 Self-hosted Gateway 的密钥与隐私规则。
+- [备份恢复格式](docs/备份恢复格式.md)：`chartdb.backup` 文件格式、导出和恢复约束。
+- [方言能力矩阵](docs/方言能力矩阵.md)：SQL/DBML import/export 的当前支持、降级和 warning 规则。
+- [导入导出接口约定](docs/导入导出接口约定.md)：import preview、dialect result 和 deterministic export contract。
+- [测试策略](docs/测试策略.md)：本地门禁、CI、发布 smoke 和高风险回归测试范围。
+
 ### Run the Docker Container
 
 ```bash

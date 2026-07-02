@@ -1425,7 +1425,7 @@ npm run build
 
 **目标：** 让项目具备可持续发布和维护能力。
 
-**当前状态：** `CHARTDB-P7-001` 已在 `publish.yaml` 中把 release gate 和 Docker smoke 固化到正式镜像 push 前；后续从 `CHARTDB-P7-002` 开始补齐工程文档。
+**当前状态：** `CHARTDB-P7-002` 已补齐 README 文档导航、架构说明、导入导出接口约定和测试策略；发布、安全、备份恢复和方言能力文档已有独立入口。后续从 `CHARTDB-P7-003` 开始补齐 Issue template 和贡献规则。
 
 **推荐分支：**
 
@@ -1467,11 +1467,11 @@ git switch -c codex/chartdb-phase-7-release-docs
 
 **实施步骤：**
 
-- [ ] 每份文档只写真实能力，不写未实现承诺。
+- [x] 每份文档只写真实能力，不写未实现承诺。
 
-- [ ] 支持矩阵从 dialect capabilities 生成或同步维护。
+- [x] 支持矩阵从 dialect capabilities 生成或同步维护。
 
-- [ ] README 链接到这些文档。
+- [x] README 链接到这些文档。
 
 ### Task 7.3：Issue template
 
