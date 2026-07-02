@@ -1238,22 +1238,28 @@ git switch -c codex/chartdb-phase-5-ux-a11y
 **涉及文件：**
 
 - 新增：`src/features/onboarding/onboarding-dialog.tsx`
-- 新增：`src/features/onboarding/database-picker.tsx`
-- 新增：`src/features/onboarding/start-options.tsx`
-- 修改：`src/dialogs/create-diagram-dialog/`
+- 新增：`src/features/onboarding/__tests__/onboarding-dialog.test.tsx`
+- 修改：`src/pages/editor-page/editor-page.tsx`
+- 修改：`src/pages/editor-page/use-diagram-loader.tsx`
 
 **实施步骤：**
 
-- [ ] 拆分数据库选择和启动方式选择。
+- [x] 拆分数据库选择和启动方式选择。
 
-- [ ] 三个入口：
+- [x] 三个入口：
     - 导入现有数据库。
-    - 创建空白图。
-    - 查看模板。
+    - 新建空白图。
+    - 查看模板示例。
 
-- [ ] 修复 radio accessible name。
+- [x] 无数据库选择时给出继续按钮失败原因。
 
-- [ ] 移动端使用全屏向导。
+- [x] 新建空白图失败时回滚已写入 diagram，避免半成品数据。
+
+本轮结果：首次空状态由 `useDiagramLoader()` 展示 `OnboardingDialog`，已有 diagram 或直接 URL 加载逻辑保持不变。Onboarding 首屏在同一个 dialog 内展示数据库选择和三种启动方式；导入现有数据库复用旧建图导入流程，JSON backup 入口复用现有导入文件弹窗，模板入口跳转到 featured templates。下一项进入 Task 5.2。
+
+- [x] 修复 radio accessible name。
+
+- [x] 移动端首屏显示主要动作，当前沿用 Dialog 全屏高度约束，不引入新路由。
 
 ### Task 5.2：Smart Query wizard
 

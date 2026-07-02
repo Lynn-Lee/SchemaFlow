@@ -1180,7 +1180,7 @@ phase: Phase 5
 type: CODE
 priority: P2
 title: 首屏提供导入、新建空白图、模板示例三入口
-status: queued
+status: done
 depends_on:
     - CHARTDB-P5-000
 owner_lane: ux
@@ -1197,6 +1197,8 @@ acceptance:
     - 移动端第一屏可看到主要动作
     - 创建失败不留下半成品 diagram
 ```
+
+本轮结果：已新增 `src/features/onboarding/onboarding-dialog.tsx` 和组件测试。首次无本地 diagram 时不再直接打开旧建图弹窗，而是在编辑页展示 onboarding dialog；首屏提供数据库选择、导入现有数据库、新建空白图、模板示例和 JSON backup 导入入口。未选择数据库或启动方式时继续按钮会显示可理解提示；新建空白图在 `addDiagram` 或 `updateConfig` 失败时回滚 diagram，避免留下半成品。下一项进入 `CHARTDB-P5-002`，把 Smart Query 拆成结构化向导。
 
 ### CHARTDB-P5-002：Smart Query Wizard
 

@@ -10,12 +10,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 export const useDiagramLoader = () => {
     const [initialDiagram, setInitialDiagram] = useState<Diagram | undefined>();
+    const [showOnboarding, setShowOnboarding] = useState(false);
     const { diagramId } = useParams<{ diagramId: string }>();
     const { config } = useConfig();
     const { loadDiagram, currentDiagram } = useChartDB();
     const { resetRedoStack, resetUndoStack } = useRedoUndoStack();
     const { showLoader, hideLoader } = useFullScreenLoader();
-    const { openCreateDiagramDialog, openOpenDiagramDialog } = useDialog();
+    const { openOpenDiagramDialog } = useDialog();
     const navigate = useNavigate();
     const { listDiagrams } = useStorage();
 
@@ -60,7 +61,7 @@ export const useDiagramLoader = () => {
             if (diagrams.length > 0) {
                 openOpenDiagramDialog({ canClose: false });
             } else {
-                openCreateDiagramDialog();
+                setShowOnboarding(true);
             }
         };
 
@@ -75,7 +76,6 @@ export const useDiagramLoader = () => {
         loadDefaultDiagram();
     }, [
         diagramId,
-        openCreateDiagramDialog,
         config,
         navigate,
         listDiagrams,
@@ -88,5 +88,5 @@ export const useDiagramLoader = () => {
         openOpenDiagramDialog,
     ]);
 
-    return { initialDiagram };
+    return { initialDiagram, showOnboarding, setShowOnboarding };
 };
