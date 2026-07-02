@@ -1503,7 +1503,7 @@ git switch -c codex/chartdb-phase-7-release-docs
 
 ### Task 8.1：Cloud/Team 技术预研
 
-**当前状态：** `CHARTDB-P8-000` 已完成 Cloud/Team 边界计划，新增 `docs/可选账号登录与团队协作预研.md`。该文档确认不登录仍可完整使用 OSS Core、本地 diagram 不自动上传、云同步必须用户主动开启，并定义 Workspace、Team、权限、AuditLog、租户隔离、数据导出/删除和权限 negative tests。下一步执行 `CHARTDB-P8-001`，补充技术栈选型记录。
+**当前状态：** `CHARTDB-P8-001` 已在 `docs/可选账号登录与团队协作预研.md` 补齐 Cloud/Team 技术栈选型记录。推荐方案为 `NestJS + PostgreSQL + Auth.js/OIDC adapter + REST API + append-only sync log`，对比方案为 Fastify 轻量 API；文档明确 OSS Core 隔离、Cloud/Team 不作为默认依赖、sync/push-pull 和 conflict 边界。本轮不新增登录代码，后续真正实现需要另开独立 Cloud/Team 工程计划。
 
 **交付物：**
 
@@ -1532,6 +1532,7 @@ git switch -c codex/chartdb-phase-7-release-docs
 - 不新增登录代码。
 - 不引入 Cloud/Team SDK 到 OSS Core 默认构建。
 - 不改变 IndexedDB 本地权威存储和本地备份恢复流程。
+- 不把 Auth、OAuth、SSO、PostgreSQL 或 sync client 作为 OSS Core 默认依赖。
 
 ## 13. 总体验收流程
 

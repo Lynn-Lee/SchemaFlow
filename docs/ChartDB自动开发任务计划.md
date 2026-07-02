@@ -1597,7 +1597,7 @@ phase: Phase 8
 type: SPIKE
 priority: P3
 title: 评估可选后端 API、认证、数据库和同步策略
-status: queued
+status: done
 depends_on:
     - CHARTDB-P8-000
 owner_lane: research
@@ -1611,6 +1611,8 @@ acceptance:
     - 说明和 OSS Core 的隔离方式
     - 不把 Cloud/Team 设为默认依赖
 ```
+
+本轮结果：已在 `docs/可选账号登录与团队协作预研.md` 补充 `CHARTDB-P8-001` 技术栈选型记录。推荐方案为 `NestJS + PostgreSQL + Auth.js/OIDC adapter + REST API + append-only sync log`；对比方案为 Fastify 轻量 API，并明确不推荐把 BaaS SDK 作为 OSS Core 默认依赖。文档已说明 OSS Core 隔离方式、Cloud/Team 不作为默认依赖、sync/pull-push 与 conflict 处理边界。本轮未新增登录代码，Phase 8 继续停留在预研和接口 contract。
 
 ## 15. 任务依赖图
 
@@ -1810,7 +1812,7 @@ npm install
 npm run test:ci
 ```
 
-`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005`、`CHARTDB-P2-006`、`CHARTDB-P3-000`、`CHARTDB-P3-001`、`CHARTDB-P3-002`、`CHARTDB-P3-003`、`CHARTDB-P3-004`、`CHARTDB-P4-000`、`CHARTDB-P4-001`、`CHARTDB-P4-002`、`CHARTDB-P4-003`、`CHARTDB-P4-004`、`CHARTDB-P4-005`、`CHARTDB-P5-000`、`CHARTDB-P5-001`、`CHARTDB-P5-002`、`CHARTDB-P5-003`、`CHARTDB-P5-004`、`CHARTDB-P6-000`、`CHARTDB-P6-001`、`CHARTDB-P6-002`、`CHARTDB-P6-003`、`CHARTDB-P7-000`、`CHARTDB-P7-001`、`CHARTDB-P7-002`、`CHARTDB-P7-003` 和 `CHARTDB-P8-000` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口、command 基础 contract、table command 纯函数、field/index/relationship command 纯函数、area/note/custom type command 纯函数，以及 command history metadata 接入。Phase 3 已完成 storage 执行清单、Dexie schema 集中化、repository API、diagram transaction service 和 backup/restore 版本化。Phase 4 已新增 common dialect contract、PostgreSQL wrapper、MySQL/MariaDB/SQLite/SQL Server/Oracle wrapper、DBML wrapper 和导入 preview flow；unsupported 或降级语义会进入统一 warning/unsupportedObjects，并在用户确认前展示。Phase 5 已建立 UX 和可访问性验收矩阵、首次进入入口、Smart Query Wizard、核心可访问名称修复与设置中心。Phase 6 已新增性能基线与优化计划，完成 Monaco runtime 懒加载拆分、模板 lazy registry、import preview worker 和 area layout worker client。Phase 7 已新增发布检查清单、发布 workflow gate、工程文档导航、issue templates 和贡献规则。Phase 8 已完成 Cloud/Team 边界计划，下一轮自动任务应从 `CHARTDB-P8-001` 开始，Cloud/Team 技术栈选型记录。
+`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005`、`CHARTDB-P2-006`、`CHARTDB-P3-000`、`CHARTDB-P3-001`、`CHARTDB-P3-002`、`CHARTDB-P3-003`、`CHARTDB-P3-004`、`CHARTDB-P4-000`、`CHARTDB-P4-001`、`CHARTDB-P4-002`、`CHARTDB-P4-003`、`CHARTDB-P4-004`、`CHARTDB-P4-005`、`CHARTDB-P5-000`、`CHARTDB-P5-001`、`CHARTDB-P5-002`、`CHARTDB-P5-003`、`CHARTDB-P5-004`、`CHARTDB-P6-000`、`CHARTDB-P6-001`、`CHARTDB-P6-002`、`CHARTDB-P6-003`、`CHARTDB-P7-000`、`CHARTDB-P7-001`、`CHARTDB-P7-002`、`CHARTDB-P7-003`、`CHARTDB-P8-000` 和 `CHARTDB-P8-001` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口、command 基础 contract、table command 纯函数、field/index/relationship command 纯函数、area/note/custom type command 纯函数，以及 command history metadata 接入。Phase 3 已完成 storage 执行清单、Dexie schema 集中化、repository API、diagram transaction service 和 backup/restore 版本化。Phase 4 已新增 common dialect contract、PostgreSQL wrapper、MySQL/MariaDB/SQLite/SQL Server/Oracle wrapper、DBML wrapper 和导入 preview flow；unsupported 或降级语义会进入统一 warning/unsupportedObjects，并在用户确认前展示。Phase 5 已建立 UX 和可访问性验收矩阵、首次进入入口、Smart Query Wizard、核心可访问名称修复与设置中心。Phase 6 已新增性能基线与优化计划，完成 Monaco runtime 懒加载拆分、模板 lazy registry、import preview worker 和 area layout worker client。Phase 7 已新增发布检查清单、发布 workflow gate、工程文档导航、issue templates 和贡献规则。Phase 8 已完成 Cloud/Team 边界计划和技术栈选型记录；后续若继续推进，需要另开独立 Cloud/Team 工程计划，不能直接进入登录实现。
 
 ## 19. 计划边界确认
 

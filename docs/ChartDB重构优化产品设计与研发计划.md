@@ -1344,7 +1344,7 @@ Capability Matrix：
 
 ### Phase 8：可选 Cloud/Team
 
-当前状态：`CHARTDB-P8-000` 已新增 `docs/可选账号登录与团队协作预研.md`，明确可选 Cloud/Team 不改变 OSS Core 默认无账号、本地优先模式；本地 diagram 不自动上传，云同步必须用户主动开启；Workspace、Team、权限、AuditLog、租户隔离、数据导出/删除和权限 negative tests 已进入后续 Cloud/Team 规划边界。下一项进入 `CHARTDB-P8-001`，评估可选后端 API、认证、数据库和同步策略。
+当前状态：`CHARTDB-P8-001` 已在 `docs/可选账号登录与团队协作预研.md` 补齐可选后端 API、认证、数据库和同步策略的技术栈选型记录。推荐方案为 `NestJS + PostgreSQL + Auth.js/OIDC adapter + REST API + append-only sync log`，对比 Fastify 轻量 API，并明确不推荐把 BaaS SDK 作为 OSS Core 默认依赖。Cloud/Team 仍不改变 OSS Core 默认无账号、本地优先模式；本地 diagram 不自动上传，云同步必须用户主动开启。
 
 周期：独立规划，不进入首轮。
 
@@ -1368,6 +1368,7 @@ Capability Matrix：
 - 用户主动开启云同步。
 - 分享链接默认只读。
 - 云端数据可导出和删除。
+- Cloud/Team 技术依赖不进入 OSS Core 默认构建。
 
 ## 7. 测试策略
 
