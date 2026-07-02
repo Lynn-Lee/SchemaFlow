@@ -85,6 +85,7 @@ export interface ImportDatabaseProps {
     importMethods?: ImportMethod[];
     importPreview?: ImportPreviewSummary | null;
     enableImportPreview?: boolean;
+    importError?: string;
 }
 
 export const ImportDatabase: React.FC<ImportDatabaseProps> = ({
@@ -103,6 +104,7 @@ export const ImportDatabase: React.FC<ImportDatabaseProps> = ({
     importMethods,
     importPreview,
     enableImportPreview = false,
+    importError,
 }) => {
     const { effectiveTheme } = useTheme();
     const [errorMessage, setErrorMessage] = useState('');
@@ -550,6 +552,14 @@ export const ImportDatabase: React.FC<ImportDatabaseProps> = ({
                     </Suspense>
                 </div>
 
+                {importError ? (
+                    <div
+                        role="alert"
+                        className="rounded-md border border-destructive/30 bg-destructive/10 p-2 text-xs text-destructive"
+                    >
+                        {importError}
+                    </div>
+                ) : null}
                 {errorMessage ||
                 ((importMethod === 'ddl' || importMethod === 'dbml') &&
                     sqlValidation) ? (
@@ -577,6 +587,7 @@ export const ImportDatabase: React.FC<ImportDatabaseProps> = ({
             isAutoFixing,
             handleErrorClick,
             importPreview,
+            importError,
         ]
     );
 

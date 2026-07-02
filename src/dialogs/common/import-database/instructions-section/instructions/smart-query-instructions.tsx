@@ -71,8 +71,63 @@ export const SmartQueryInstructions: React.FC<SmartQueryInstructionsProps> = ({
         loadScripts();
     }, []);
 
+    const wizardSteps = [
+        {
+            title: 'Choose this database type',
+            description:
+                'The query is generated for the selected database and client.',
+        },
+        {
+            title: 'Copy the Smart Query',
+            description:
+                'Run it in your own database client. No database password is required in ChartDB.',
+        },
+        {
+            title: 'Paste the JSON result',
+            description:
+                'Only paste the metadata JSON returned by the query, not a connection string or secret.',
+        },
+        {
+            title: 'Preview tables, relationships, and warnings',
+            description:
+                'ChartDB summarizes objects and dialect limitations before writing to the diagram.',
+        },
+        {
+            title: 'Confirm import',
+            description:
+                'Nothing is added to IndexedDB until you confirm the preview.',
+        },
+    ];
+
     return (
         <>
+            <div className="rounded-md border border-slate-200 bg-white p-3 text-sm text-slate-700 shadow-sm dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
+                <h3 className="font-medium text-slate-950 dark:text-slate-50">
+                    Smart Query Wizard
+                </h3>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                    ChartDB never asks for your database password. You copy a
+                    read-only metadata query, run it locally, then paste the
+                    JSON output here.
+                </p>
+                <ol className="mt-3 space-y-2">
+                    {wizardSteps.map((step, index) => (
+                        <li key={step.title} className="flex gap-2">
+                            <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-slate-900 text-[11px] font-medium text-white dark:bg-slate-100 dark:text-slate-950">
+                                {index + 1}
+                            </span>
+                            <div className="min-w-0">
+                                <div className="text-xs font-medium text-slate-950 dark:text-slate-50">
+                                    {step.title}
+                                </div>
+                                <div className="text-xs leading-5 text-muted-foreground">
+                                    {step.description}
+                                </div>
+                            </div>
+                        </li>
+                    ))}
+                </ol>
+            </div>
             <div className="flex flex-col gap-1">
                 <div className="flex flex-col gap-1 text-sm text-primary">
                     <div>

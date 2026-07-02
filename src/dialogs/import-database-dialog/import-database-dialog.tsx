@@ -50,6 +50,7 @@ export const ImportDatabaseDialog: React.FC<ImportDatabaseDialogProps> = ({
     >();
     const [pendingImport, setPendingImport] =
         useState<ParsedImportPreview | null>(null);
+    const [importError, setImportError] = useState('');
 
     useEffect(() => {
         setDatabaseEdition(undefined);
@@ -62,18 +63,21 @@ export const ImportDatabaseDialog: React.FC<ImportDatabaseDialogProps> = ({
         setScriptResult('');
         setImportMethod(initialImportMethod ?? importMethods[0]);
         setPendingImport(null);
+        setImportError('');
     }, [dialog.open, importMethods, initialImportMethod]);
 
     const setScriptResultAndResetPreview = useCallback<
         React.Dispatch<React.SetStateAction<string>>
     >((value) => {
         setPendingImport(null);
+        setImportError('');
         setScriptResult(value);
     }, []);
 
     const setImportMethodAndResetPreview = useCallback(
         (method: ImportMethod) => {
             setPendingImport(null);
+            setImportError('');
             setImportMethod(method);
         },
         []
@@ -83,6 +87,7 @@ export const ImportDatabaseDialog: React.FC<ImportDatabaseDialogProps> = ({
         React.Dispatch<React.SetStateAction<DatabaseEdition | undefined>>
     >((value) => {
         setPendingImport(null);
+        setImportError('');
         setDatabaseEdition(value);
     }, []);
 
@@ -163,19 +168,34 @@ export const ImportDatabaseDialog: React.FC<ImportDatabaseDialogProps> = ({
 
     const importDatabase = useCallback(async () => {
         if (!pendingImport) {
-            const preview = await parseImportPreview({
-                importMethod,
-                scriptResult,
-                databaseType,
-                databaseEdition,
-            });
+            setImportError('');
+            try {
+                const preview = await parseImportPreview({
+                    importMethod,
+                    scriptResult,
+                    databaseType,
+                    databaseEdition,
+                });
 
-            if (!preview.preview.hasImportableObjects) {
+                if (!preview.preview.hasImportableObjects) {
+                    setImportError(
+                        'Preview found no importable tables, relationships, or custom types. Check the pasted Smart Query JSON or the selected database dialect.'
+                    );
+                    return;
+                }
+
+                setPendingImport(preview);
+                return;
+            } catch (error) {
+                const message =
+                    error instanceof Error
+                        ? error.message
+                        : 'Unable to parse the import input.';
+                setImportError(
+                    `Preview failed: ${message}. Check the Smart Query JSON, SQL syntax, or dialect limitations before trying again.`
+                );
                 return;
             }
-
-            setPendingImport(preview);
-            return;
         }
 
         await applyImportedDiagram(pendingImport.result.diagram);
@@ -215,6 +235,7 @@ export const ImportDatabaseDialog: React.FC<ImportDatabaseDialogProps> = ({
                     importMethods={importMethods}
                     importPreview={pendingImport?.preview ?? null}
                     enableImportPreview
+                    importError={importError}
                 />
             </DialogContent>
         </Dialog>

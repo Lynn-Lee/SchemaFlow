@@ -27,8 +27,20 @@ import {
     importDBMLToDiagram,
 } from '@/lib/dbml/dbml-import/dbml-import';
 import type { ImportMethod } from '@/lib/import-method/import-method';
+import {
+    parseImportPreview,
+    type ParsedImportPreview,
+} from '@/features/import/import-preview';
 
 export interface CreateDiagramDialogProps extends BaseDialogProps {}
+
+function countMetadataTablesAndViews(metadata?: DatabaseMetadata): number {
+    if (!metadata) {
+        return 0;
+    }
+
+    return metadata.tables.length + (metadata.views?.length || 0);
+}
 
 export const CreateDiagramDialog: React.FC<CreateDiagramDialogProps> = ({
     dialog,
@@ -53,10 +65,15 @@ export const CreateDiagramDialog: React.FC<CreateDiagramDialogProps> = ({
     const navigate = useNavigate();
     const [parsedMetadata, setParsedMetadata] = useState<DatabaseMetadata>();
     const [isParsingMetadata, setIsParsingMetadata] = useState(false);
+    const [pendingImport, setPendingImport] =
+        useState<ParsedImportPreview | null>(null);
+    const [importError, setImportError] = useState('');
 
     useEffect(() => {
         setDatabaseEdition(undefined);
         setImportMethod('query');
+        setPendingImport(null);
+        setImportError('');
     }, [databaseType]);
 
     useEffect(() => {
@@ -74,6 +91,8 @@ export const CreateDiagramDialog: React.FC<CreateDiagramDialogProps> = ({
         setScriptResult('');
         setImportMethod('query');
         setParsedMetadata(undefined);
+        setPendingImport(null);
+        setImportError('');
     }, [dialog.open]);
 
     const hasExistingDiagram = (diagramId ?? '').trim().length !== 0;
@@ -82,13 +101,20 @@ export const CreateDiagramDialog: React.FC<CreateDiagramDialogProps> = ({
         async ({
             selectedTables,
             databaseMetadata,
+            preview,
         }: {
             selectedTables?: SelectedTable[];
             databaseMetadata?: DatabaseMetadata;
+            preview?: ParsedImportPreview;
         } = {}) => {
             let diagram: Diagram | undefined;
 
-            if (importMethod === 'ddl') {
+            if (preview) {
+                diagram = preview.result.diagram;
+                if (!diagram.name || diagram.name === 'Preview') {
+                    diagram.name = `Diagram ${diagramNumber}`;
+                }
+            } else if (importMethod === 'ddl') {
                 diagram = await sqlImportToDiagram({
                     sqlContent: scriptResult,
                     sourceDatabaseType: databaseType,
@@ -133,6 +159,7 @@ export const CreateDiagramDialog: React.FC<CreateDiagramDialogProps> = ({
             });
 
             closeCreateDiagramDialog();
+            setPendingImport(null);
             navigate(`/diagrams/${diagram.id}`);
         },
         [
@@ -178,43 +205,88 @@ export const CreateDiagramDialog: React.FC<CreateDiagramDialogProps> = ({
     const importNewDiagramOrFilterTables = useCallback(async () => {
         try {
             setIsParsingMetadata(true);
+            setImportError('');
 
-            if (importMethod === 'ddl' || importMethod === 'dbml') {
-                await importNewDiagram();
-            } else {
-                // Parse metadata asynchronously to avoid blocking the UI
-                const metadata = await new Promise<DatabaseMetadata>(
-                    (resolve, reject) => {
-                        setTimeout(() => {
-                            try {
-                                const result =
-                                    loadDatabaseMetadata(scriptResult);
-                                resolve(result);
-                            } catch (err) {
-                                reject(err);
-                            }
-                        }, 0);
-                    }
-                );
+            if (!pendingImport) {
+                const preview = await parseImportPreview({
+                    importMethod,
+                    scriptResult,
+                    databaseType,
+                    databaseEdition,
+                });
 
-                const totalTablesAndViews =
-                    metadata.tables.length + (metadata.views?.length || 0);
-
-                setParsedMetadata(metadata);
-
-                // Check if it's a large database that needs table selection
-                if (totalTablesAndViews > MAX_TABLES_WITHOUT_SHOWING_FILTER) {
-                    setStep(CreateDiagramDialogStep.SELECT_TABLES);
-                } else {
-                    await importNewDiagram({
-                        databaseMetadata: metadata,
-                    });
+                if (!preview.preview.hasImportableObjects) {
+                    setImportError(
+                        'Preview found no importable tables, relationships, or custom types. Check the pasted Smart Query JSON or the selected database dialect.'
+                    );
+                    return;
                 }
+
+                if (importMethod === 'query') {
+                    setParsedMetadata(loadDatabaseMetadata(scriptResult));
+                }
+
+                setPendingImport(preview);
+                return;
             }
+
+            if (
+                importMethod === 'query' &&
+                countMetadataTablesAndViews(parsedMetadata) >
+                    MAX_TABLES_WITHOUT_SHOWING_FILTER
+            ) {
+                setStep(CreateDiagramDialogStep.SELECT_TABLES);
+                return;
+            }
+
+            await importNewDiagram({
+                preview: pendingImport,
+            });
+        } catch (error) {
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : 'Unable to parse the import input.';
+            setImportError(
+                `Preview failed: ${message}. Check the Smart Query JSON, SQL syntax, or dialect limitations before trying again.`
+            );
         } finally {
             setIsParsingMetadata(false);
         }
-    }, [importMethod, scriptResult, importNewDiagram]);
+    }, [
+        pendingImport,
+        importMethod,
+        scriptResult,
+        databaseType,
+        databaseEdition,
+        parsedMetadata,
+        importNewDiagram,
+    ]);
+
+    const setScriptResultAndResetPreview = useCallback<
+        React.Dispatch<React.SetStateAction<string>>
+    >((value) => {
+        setPendingImport(null);
+        setImportError('');
+        setScriptResult(value);
+    }, []);
+
+    const setImportMethodAndResetPreview = useCallback(
+        (method: ImportMethod) => {
+            setPendingImport(null);
+            setImportError('');
+            setImportMethod(method);
+        },
+        []
+    );
+
+    const setDatabaseEditionAndResetPreview = useCallback<
+        React.Dispatch<React.SetStateAction<DatabaseEdition | undefined>>
+    >((value) => {
+        setPendingImport(null);
+        setImportError('');
+        setDatabaseEdition(value);
+    }, []);
 
     return (
         <Dialog
@@ -257,15 +329,18 @@ export const CreateDiagramDialog: React.FC<CreateDiagramDialogProps> = ({
                         databaseEdition={databaseEdition}
                         databaseType={databaseType}
                         scriptResult={scriptResult}
-                        setDatabaseEdition={setDatabaseEdition}
+                        setDatabaseEdition={setDatabaseEditionAndResetPreview}
                         goBack={() =>
                             setStep(CreateDiagramDialogStep.SELECT_DATABASE)
                         }
-                        setScriptResult={setScriptResult}
+                        setScriptResult={setScriptResultAndResetPreview}
                         title={t('new_diagram_dialog.import_database.title')}
                         importMethod={importMethod}
-                        setImportMethod={setImportMethod}
+                        setImportMethod={setImportMethodAndResetPreview}
                         keepDialogAfterImport={true}
+                        importPreview={pendingImport?.preview ?? null}
+                        enableImportPreview
+                        importError={importError}
                     />
                 ) : step === CreateDiagramDialogStep.SELECT_TABLES ? (
                     <SelectTables

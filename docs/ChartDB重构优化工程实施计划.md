@@ -1265,24 +1265,27 @@ git switch -c codex/chartdb-phase-5-ux-a11y
 
 **涉及文件：**
 
-- 新增：`src/features/import/smart-query-wizard.tsx`
-- 新增：`src/features/import/smart-query-result-validator.ts`
+- 新增：`src/dialogs/common/import-database/instructions-section/instructions/__tests__/smart-query-instructions.test.tsx`
+- 修改：`src/dialogs/common/import-database/instructions-section/instructions/smart-query-instructions.tsx`
 - 修改：`src/dialogs/common/import-database/import-database.tsx`
+- 修改：`src/dialogs/import-database-dialog/import-database-dialog.tsx`
 
 **实施步骤：**
 
-- [ ] 五步向导：
+- [x] 五步向导：
     1. 选择数据库。
     2. 复制 query。
     3. 粘贴结果。
     4. 校验摘要。
     5. 预览导入。
 
-- [ ] 输入为空时显示原因。
+- [x] 输入为空时显示原因。
 
-- [ ] JSON 错误显示具体提示。
+- [x] JSON 错误显示具体提示。
 
 - [ ] 复制按钮有 `aria-label`。
+
+本轮结果：Smart Query instructions 已展示 `Smart Query Wizard`，用五步说明串起选择数据库、复制 Smart Query、粘贴 JSON、Preview tables/relationships/warnings 和 Confirm import，并明确 ChartDB 不要求数据库密码、不接收连接串或 secret。导入 preview 解析失败或无可导入对象时，粘贴区会显示可操作错误，指向 Smart Query JSON、SQL syntax 或 dialect limitations。新建 diagram 的首次导入也接入 Preview/Confirm；大 Smart Query 结果在确认后仍保留进入 SelectTables 的旧分支。复制按钮命名和更广泛键盘路径进入 Task 5.3。
 
 ### Task 5.3：全局 aria-label 修复
 

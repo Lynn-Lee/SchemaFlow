@@ -1263,7 +1263,7 @@ Capability Matrix：
 
 ### Phase 5：产品体验与可访问性
 
-当前状态：`CHARTDB-P5-000` 已新增 `docs/可访问性与核心流程验收.md`，定义首次进入、Smart Query、导入 Preview、编辑画布和设置中心的桌面、移动、键盘、可访问性与失败状态验收矩阵。`CHARTDB-P5-001` 已重做首次进入入口：首次无本地 diagram 时首屏展示数据库选择、导入现有数据库、新建空白图和模板示例入口；未选择数据库或启动方式时显示原因；新建空白图失败会回滚已写入 diagram，避免半成品。下一项进入 `CHARTDB-P5-002`，把 Smart Query 拆成结构化向导。
+当前状态：`CHARTDB-P5-000` 已新增 `docs/可访问性与核心流程验收.md`，定义首次进入、Smart Query、导入 Preview、编辑画布和设置中心的桌面、移动、键盘、可访问性与失败状态验收矩阵。`CHARTDB-P5-001` 已重做首次进入入口：首次无本地 diagram 时首屏展示数据库选择、导入现有数据库、新建空白图和模板示例入口；未选择数据库或启动方式时显示原因；新建空白图失败会回滚已写入 diagram，避免半成品。`CHARTDB-P5-002` 已将 Smart Query 说明拆成结构化向导，明确不输入数据库密码、复制 Smart Query、粘贴 JSON、解析 Preview 和确认导入五步；preview 失败会提示 Smart Query JSON、SQL syntax 或 dialect limitations。下一项进入 `CHARTDB-P5-003`，全局 aria-label 和键盘路径修复。
 
 周期：2 周。
 
