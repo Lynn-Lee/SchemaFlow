@@ -54,6 +54,34 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Docker smoke build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          push: false
+          platforms: linux/amd64
+          tags: chartdb-release-smoke:ci
+
+      - name: Docker smoke run
+        run: |
+          set -euo pipefail
+          docker run --rm -d -p 8080:80 --name chartdb-release-smoke chartdb-release-smoke:ci
+          trap 'docker rm -f chartdb-release-smoke >/dev/null 2>&1 || true' EXIT
+
+          curl --fail --silent --show-error --head http://localhost:8080/
+          curl --fail --silent --show-error --head http://localhost:8080/config.js
+
+          root_headers="$(curl --fail --silent --show-error --head http://localhost:8080/)"
+          config_headers="$(curl --fail --silent --show-error --head http://localhost:8080/config.js)"
+
+          echo "$root_headers" | grep -i "content-security-policy"
+          echo "$root_headers" | grep -i "x-content-type-options: nosniff"
+          echo "$root_headers" | grep -i "referrer-policy"
+          echo "$root_headers" | grep -i "x-frame-options"
+          echo "$root_headers" | grep -i "permissions-policy"
+          echo "$config_headers" | grep -i "cache-control: no-store"
+
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v4

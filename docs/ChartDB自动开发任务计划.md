@@ -1476,7 +1476,7 @@ phase: Phase 7
 type: CODE
 priority: P2
 title: 发布前强制 test、build、audit、Docker smoke
-status: queued
+status: done
 depends_on:
     - CHARTDB-P7-000
 owner_lane: release
@@ -1494,6 +1494,13 @@ acceptance:
     - workflow 日志能明确定位失败门禁
 ```
 
+完成记录：
+
+- `publish.yaml` 在正式 multi-arch 镜像 push 前增加 Docker smoke build/run gate。
+- Docker smoke 使用 `push: false`、`load: true` 先构建本地 `linux/amd64` 镜像，启动容器后检查 `/` 和 `/config.js` 的可访问性。
+- smoke gate 检查 CSP、`X-Content-Type-Options`、`Referrer-Policy`、`X-Frame-Options`、`Permissions-Policy` 和 `/config.js` 的 `Cache-Control: no-store`；任一失败会在 Docker metadata 和正式 push 前中断 workflow。
+- 下一项进入 `CHARTDB-P7-002`，补齐工程文档。
+
 ### CHARTDB-P7-002：补齐工程文档
 
 ```yaml
@@ -1504,7 +1511,7 @@ priority: P2
 title: 补齐开发、部署、安全、备份恢复和方言文档
 status: queued
 depends_on:
-    - CHARTDB-P7-000
+    - CHARTDB-P7-001
 owner_lane: docs
 branch: codex/chartdb-p7-docs
 allowed_files:

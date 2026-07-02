@@ -1425,7 +1425,7 @@ npm run build
 
 **目标：** 让项目具备可持续发布和维护能力。
 
-**当前状态：** `CHARTDB-P7-000` 已新增 `docs/发布检查清单.md`，明确 release gate、Docker smoke、文档 gate 和回滚失败处理；后续从 `CHARTDB-P7-001` 开始修改发布 workflow。
+**当前状态：** `CHARTDB-P7-001` 已在 `publish.yaml` 中把 release gate 和 Docker smoke 固化到正式镜像 push 前；后续从 `CHARTDB-P7-002` 开始补齐工程文档。
 
 **推荐分支：**
 
@@ -1442,7 +1442,7 @@ git switch -c codex/chartdb-phase-7-release-docs
 
 **实施步骤：**
 
-- [ ] publish 中加入：
+- [x] publish 中加入：
     - `npm ci`。
     - `npm audit --omit=dev --audit-level=high`。
     - `npm run lint`。
@@ -1450,7 +1450,7 @@ git switch -c codex/chartdb-phase-7-release-docs
     - `npm run build`。
     - Docker build smoke。
 
-- [ ] tag 发布必须阻断 failing tests。
+- [x] tag 发布必须阻断 failing tests。
 
 ### Task 7.2：补齐工程文档
 
