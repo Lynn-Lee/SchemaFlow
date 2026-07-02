@@ -1,4 +1,4 @@
-import type { DatabaseType } from '@/lib/domain/database-type';
+import type { DialectType } from './importer';
 
 export type SupportLevel = 'full' | 'partial' | 'experimental' | 'unsupported';
 
@@ -21,7 +21,7 @@ export type DialectCapabilityMap = Partial<
 >;
 
 export interface DialectCapabilities {
-    dialect: DatabaseType;
+    dialect: DialectType;
     import: DialectCapabilityMap;
     export: DialectCapabilityMap;
     unsupportedSyntax: string[];
@@ -35,7 +35,7 @@ export function createDialectCapabilities({
     unsupportedSyntax = [],
     warningRules = [],
 }: {
-    dialect: DatabaseType;
+    dialect: DialectType;
     import?: DialectCapabilityMap;
     export?: DialectCapabilityMap;
     unsupportedSyntax?: string[];

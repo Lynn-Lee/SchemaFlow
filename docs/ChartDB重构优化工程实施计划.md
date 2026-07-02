@@ -1162,18 +1162,22 @@ export type SupportLevel = 'full' | 'partial' | 'experimental' | 'unsupported';
 
 - 新增：`src/dialects/dbml/importer.ts`
 - 新增：`src/dialects/dbml/exporter.ts`
-- 修改：`src/lib/dbml/dbml-import/dbml-import.ts`
-- 修改：`src/lib/dbml/dbml-export/dbml-export.ts`
+- 新增：`src/dialects/dbml/capabilities.ts`
+- 新增：`src/dialects/dbml/warnings.ts`
+- 新增：`src/dialects/dbml/__tests__/dbml-pipeline.test.ts`
+- 修改：`src/lib/domain/database-type.ts`
 
 **实施步骤：**
 
-- [ ] 先建立 wrapper，不立即重写内部逻辑。
+- [x] 先建立 wrapper，不立即重写内部逻辑。
 
-- [ ] DBML import 输出 `ImportResult`。
+- [x] DBML import 输出 `ImportResult`。
 
-- [ ] DBML export 输出 `ExportResult`。
+- [x] DBML export 输出 `ExportResult`。
 
-- [ ] round-trip 测试通过。
+- [x] round-trip 测试通过。
+
+本轮结果：已新增 `src/dialects/dbml` wrapper 和 capability 声明，DBML import/export 复用旧解析与生成逻辑进入统一 dialect contract。`TableGroup`、standalone `Note`、空表和重复表会输出结构化 `warnings` / `unsupportedObjects`；DBML export 若存在静默丢弃风险，`riskLevel` 不低于 `medium`。下一项进入 `CHARTDB-P4-005`，导入前展示 preview、warnings 和 object counts。
 
 ### Task 4.5：导入 preview flow
 

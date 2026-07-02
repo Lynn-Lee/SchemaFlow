@@ -1242,6 +1242,7 @@ Capability Matrix：
 - 已完成 `CHARTDB-P4-001` common contract，后续 importer/exporter 迁移应输出统一 result、warning、unsupported object、source map 和 risk level。
 - 已完成 `CHARTDB-P4-002` PostgreSQL wrapper，旧 PostgreSQL parser 通过 `src/dialects/postgresql` 进入统一 `ImportResult`，并输出 RLS、policy、extension、trigger、function 的结构化 unsupported warning。
 - 已完成 `CHARTDB-P4-003` SQL dialect wrapper，MySQL、MariaDB、SQLite、SQL Server 和 Oracle 的旧 importer 已接入统一 `ImportResult`，并输出 capability metadata、fallback 说明和 unsupported warning。
+- 已完成 `CHARTDB-P4-004` DBML wrapper，DBML import/export 已接入统一 `ImportResult` / `ExportResult`，并对 `TableGroup`、standalone `Note`、空表和重复表输出结构化 warning / unsupported object。
 
 任务：
 
@@ -1249,7 +1250,7 @@ Capability Matrix：
 - 每个 dialect 输出 capability matrix。
 - 拆 PostgreSQL importer。
 - MySQL、MariaDB、SQL Server、SQLite、Oracle、ClickHouse 对齐接口。
-- DBML import/export 统一到 pipeline。
+- DBML import/export 统一到 pipeline。（已完成）
 - 所有导入进入 preview。
 
 验收：

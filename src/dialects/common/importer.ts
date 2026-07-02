@@ -1,6 +1,7 @@
 import type { DatabaseType } from '@/lib/domain/database-type';
 import type { Diagram } from '@/lib/domain/diagram';
 
+export type DialectType = DatabaseType | 'dbml';
 export type DialectWarningSeverity = 'info' | 'warning' | 'error';
 export type DialectRiskLevel = 'low' | 'medium' | 'high';
 
@@ -40,7 +41,7 @@ export interface DialectSourceMap {
 
 export interface ImportResult {
     diagram: Diagram;
-    sourceDialect: DatabaseType;
+    sourceDialect: DialectType;
     warnings: DialectWarning[];
     unsupportedObjects: UnsupportedDialectObject[];
     sourceMap: DialectSourceMap;
@@ -58,7 +59,7 @@ export function createImportResult({
     sourceMap = {},
 }: {
     diagram: Diagram;
-    sourceDialect: DatabaseType;
+    sourceDialect: DialectType;
     warnings?: DialectWarning[];
     unsupportedObjects?: UnsupportedDialectObject[];
     sourceMap?: DialectSourceMap;
@@ -76,7 +77,7 @@ export function wrapLegacySchemaImporter<TInput>({
     sourceDialect,
     importDiagram,
 }: {
-    sourceDialect: DatabaseType;
+    sourceDialect: DialectType;
     importDiagram(input: TInput): Promise<Diagram> | Diagram;
 }): SchemaImporter<TInput> {
     return {

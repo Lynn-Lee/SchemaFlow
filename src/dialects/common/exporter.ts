@@ -1,6 +1,6 @@
-import type { DatabaseType } from '@/lib/domain/database-type';
 import type { Diagram } from '@/lib/domain/diagram';
 import type {
+    DialectType,
     DialectRiskLevel,
     DialectWarning,
     UnsupportedDialectObject,
@@ -8,7 +8,7 @@ import type {
 
 export interface ExportResult {
     output: string;
-    targetDialect: DatabaseType;
+    targetDialect: DialectType;
     warnings: DialectWarning[];
     unsupportedObjects: UnsupportedDialectObject[];
     riskLevel: DialectRiskLevel;
@@ -26,7 +26,7 @@ export function createExportResult({
     riskLevel = 'low',
 }: {
     output: string;
-    targetDialect: DatabaseType;
+    targetDialect: DialectType;
     warnings?: DialectWarning[];
     unsupportedObjects?: UnsupportedDialectObject[];
     riskLevel?: DialectRiskLevel;
@@ -44,7 +44,7 @@ export function wrapLegacySchemaExporter<TInput extends { diagram: Diagram }>({
     targetDialect,
     exportDiagram,
 }: {
-    targetDialect: DatabaseType;
+    targetDialect: DialectType;
     exportDiagram(input: TInput): Promise<string> | string;
 }): SchemaExporter<TInput> {
     return {

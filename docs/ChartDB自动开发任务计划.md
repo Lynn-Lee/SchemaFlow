@@ -1098,6 +1098,14 @@ acceptance:
     - DBML warning 与 SQL warning 使用同一结构
 ```
 
+完成记录：
+
+- 新增 `src/dialects/dbml` wrapper，提供 `dbmlSchemaImporter.importSchema()` 和 `dbmlSchemaExporter.exportSchema()`，复用既有 DBML import/export 内部逻辑并输出统一 `ImportResult` / `ExportResult`。
+- 新增 `dbmlCapabilities`，声明 DBML import/export 对 table、field、relationship、index、schema、custom type、comment、check 和 view 的支持等级。
+- 新增 DBML warning 提取：`TableGroup`、standalone `Note`、空表和重复表会进入统一 `warnings` / `unsupportedObjects`，其中 export 发生静默丢弃风险时 `riskLevel` 不低于 `medium`。
+- 新增 `src/dialects/dbml/__tests__/dbml-pipeline.test.ts`，覆盖 DBML round-trip wrapper、capability levels 和 structured warning。
+- 下一项进入 `CHARTDB-P4-005`，导入前展示 preview、warnings 和 object counts。
+
 ### CHARTDB-P4-005：导入 Preview Flow
 
 ```yaml
