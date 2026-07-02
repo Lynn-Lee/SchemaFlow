@@ -1189,9 +1189,9 @@ export type SupportLevel = 'full' | 'partial' | 'experimental' | 'unsupported';
 
 **实施步骤：**
 
-- [ ] 所有导入先进入 preview。
+- [x] 所有导入先进入 preview。
 
-- [ ] Preview 显示：
+- [x] Preview 显示：
     - tables。
     - views。
     - fields。
@@ -1199,7 +1199,9 @@ export type SupportLevel = 'full' | 'partial' | 'experimental' | 'unsupported';
     - relationships。
     - warnings。
 
-- [ ] 用户确认后才写入当前 diagram。
+- [x] 用户确认后才写入当前 diagram。
+
+本轮结果：已新增 `src/features/import/import-preview.ts` 和 `src/features/import/import-preview-panel.tsx`。导入对话框首次点击会通过 dialect wrapper 或 Smart Query metadata import 解析出 preview summary，展示 tables、relationships、customTypes、warnings 和 unsupportedObjects；只有用户再次确认后才写入当前 diagram 的 tables、relationships 和 customTypes，并继续保留既有表位置 offset、database type update 和 undo/redo reset 逻辑。下一项进入 `CHARTDB-P5-000`，定义 UX 和可访问性验收矩阵。
 
 ## 9. Phase 5：产品体验与可访问性
 

@@ -4,17 +4,16 @@ import { DatabaseType } from '@/lib/domain/database-type';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ImportDatabase } from '../common/import-database/import-database';
 import type { DatabaseEdition } from '@/lib/domain/database-edition';
-import type { DatabaseMetadata } from '@/lib/data/import-metadata/metadata-types/database-metadata';
-import { loadDatabaseMetadata } from '@/lib/data/import-metadata/metadata-types/database-metadata';
 import type { Diagram } from '@/lib/domain/diagram';
-import { loadFromDatabaseMetadata } from '@/lib/data/import-metadata/import';
 import { useChartDB } from '@/hooks/use-chartdb';
 import { useRedoUndoStack } from '@/hooks/use-redo-undo-stack';
 import { useTranslation } from 'react-i18next';
 import type { BaseDialogProps } from '../common/base-dialog-props';
-import { sqlImportToDiagram } from '@/lib/data/sql-import';
-import { importDBMLToDiagram } from '@/lib/dbml/dbml-import/dbml-import';
 import type { ImportMethod } from '@/lib/import-method/import-method';
+import {
+    parseImportPreview,
+    type ParsedImportPreview,
+} from '@/features/import/import-preview';
 
 export interface ImportDatabaseDialogProps extends BaseDialogProps {
     databaseType: DatabaseType;
@@ -41,6 +40,7 @@ export const ImportDatabaseDialog: React.FC<ImportDatabaseDialogProps> = ({
         databaseType: currentDatabaseType,
         updateDatabaseType,
         tables: existingTables,
+        addCustomTypes,
     } = useChartDB();
     const [scriptResult, setScriptResult] = useState('');
     const { resetRedoStack, resetUndoStack } = useRedoUndoStack();
@@ -48,9 +48,12 @@ export const ImportDatabaseDialog: React.FC<ImportDatabaseDialogProps> = ({
     const [databaseEdition, setDatabaseEdition] = useState<
         DatabaseEdition | undefined
     >();
+    const [pendingImport, setPendingImport] =
+        useState<ParsedImportPreview | null>(null);
 
     useEffect(() => {
         setDatabaseEdition(undefined);
+        setPendingImport(null);
     }, [databaseType]);
 
     useEffect(() => {
@@ -58,96 +61,131 @@ export const ImportDatabaseDialog: React.FC<ImportDatabaseDialogProps> = ({
         setDatabaseEdition(undefined);
         setScriptResult('');
         setImportMethod(initialImportMethod ?? importMethods[0]);
+        setPendingImport(null);
     }, [dialog.open, importMethods, initialImportMethod]);
 
+    const setScriptResultAndResetPreview = useCallback<
+        React.Dispatch<React.SetStateAction<string>>
+    >((value) => {
+        setPendingImport(null);
+        setScriptResult(value);
+    }, []);
+
+    const setImportMethodAndResetPreview = useCallback(
+        (method: ImportMethod) => {
+            setPendingImport(null);
+            setImportMethod(method);
+        },
+        []
+    );
+
+    const setDatabaseEditionAndResetPreview = useCallback<
+        React.Dispatch<React.SetStateAction<DatabaseEdition | undefined>>
+    >((value) => {
+        setPendingImport(null);
+        setDatabaseEdition(value);
+    }, []);
+
+    const applyImportedDiagram = useCallback(
+        async (diagram: Diagram) => {
+            // Skip if nothing to import
+            const newTablesNumber = diagram.tables?.length ?? 0;
+            const newRelationshipsNumber = diagram.relationships?.length ?? 0;
+            const newCustomTypesNumber = diagram.customTypes?.length ?? 0;
+            if (
+                newTablesNumber === 0 &&
+                newRelationshipsNumber === 0 &&
+                newCustomTypesNumber === 0
+            ) {
+                return;
+            }
+
+            // Close dialog immediately to prevent re-render blocking
+            closeImportDatabaseDialog();
+
+            // Calculate position offset for new tables to avoid overlap
+            let offsetX = 0;
+            if (existingTables.length > 0) {
+                // Find the rightmost table
+                const rightmostTable = existingTables.reduce((max, table) => {
+                    const tableRight = table.x + (table.width ?? 250);
+                    const maxRight = max.x + (max.width ?? 250);
+                    return tableRight > maxRight ? table : max;
+                });
+                // Position new tables 150px to the right of the rightmost table
+                offsetX =
+                    rightmostTable.x + (rightmostTable.width ?? 250) + 150;
+            }
+
+            // Apply offset to imported tables
+            const positionedTables =
+                diagram.tables?.map((table) => ({
+                    ...table,
+                    x: table.x + offsetX,
+                })) ?? [];
+
+            // Use queueMicrotask to defer work after dialog closes but before next paint
+            queueMicrotask(async () => {
+                // Add tables, relationships and custom types
+                await Promise.all([
+                    addTables(positionedTables, { updateHistory: false }),
+                    addRelationships(diagram.relationships ?? [], {
+                        updateHistory: false,
+                    }),
+                    addCustomTypes(diagram.customTypes ?? [], {
+                        updateHistory: false,
+                    }),
+                ]);
+
+                if (currentDatabaseType === DatabaseType.GENERIC) {
+                    await updateDatabaseType(databaseType);
+                }
+
+                // Reset undo/redo stacks
+                resetRedoStack();
+                resetUndoStack();
+                setPendingImport(null);
+            });
+        },
+        [
+            addCustomTypes,
+            addRelationships,
+            addTables,
+            closeImportDatabaseDialog,
+            currentDatabaseType,
+            databaseType,
+            existingTables,
+            resetRedoStack,
+            resetUndoStack,
+            updateDatabaseType,
+        ]
+    );
+
     const importDatabase = useCallback(async () => {
-        let diagram: Diagram | undefined;
-
-        if (importMethod === 'ddl') {
-            diagram = await sqlImportToDiagram({
-                sqlContent: scriptResult,
-                sourceDatabaseType: databaseType,
-                targetDatabaseType: databaseType,
-            });
-        } else if (importMethod === 'dbml') {
-            diagram = await importDBMLToDiagram(scriptResult, {
+        if (!pendingImport) {
+            const preview = await parseImportPreview({
+                importMethod,
+                scriptResult,
                 databaseType,
+                databaseEdition,
             });
-        } else {
-            const databaseMetadata: DatabaseMetadata =
-                loadDatabaseMetadata(scriptResult);
 
-            diagram = await loadFromDatabaseMetadata({
-                databaseType,
-                databaseMetadata,
-                databaseEdition:
-                    databaseEdition?.trim().length === 0
-                        ? undefined
-                        : databaseEdition,
-            });
-        }
+            if (!preview.preview.hasImportableObjects) {
+                return;
+            }
 
-        // Skip if nothing to import
-        const newTablesNumber = diagram.tables?.length ?? 0;
-        const newRelationshipsNumber = diagram.relationships?.length ?? 0;
-        if (newTablesNumber === 0 && newRelationshipsNumber === 0) {
+            setPendingImport(preview);
             return;
         }
 
-        // Close dialog immediately to prevent re-render blocking
-        closeImportDatabaseDialog();
-
-        // Calculate position offset for new tables to avoid overlap
-        let offsetX = 0;
-        if (existingTables.length > 0) {
-            // Find the rightmost table
-            const rightmostTable = existingTables.reduce((max, table) => {
-                const tableRight = table.x + (table.width ?? 250);
-                const maxRight = max.x + (max.width ?? 250);
-                return tableRight > maxRight ? table : max;
-            });
-            // Position new tables 150px to the right of the rightmost table
-            offsetX = rightmostTable.x + (rightmostTable.width ?? 250) + 150;
-        }
-
-        // Apply offset to imported tables
-        const positionedTables =
-            diagram.tables?.map((table) => ({
-                ...table,
-                x: table.x + offsetX,
-            })) ?? [];
-
-        // Use queueMicrotask to defer work after dialog closes but before next paint
-        queueMicrotask(async () => {
-            // Add tables and relationships
-            await Promise.all([
-                addTables(positionedTables, { updateHistory: false }),
-                addRelationships(diagram.relationships ?? [], {
-                    updateHistory: false,
-                }),
-            ]);
-
-            if (currentDatabaseType === DatabaseType.GENERIC) {
-                await updateDatabaseType(databaseType);
-            }
-
-            // Reset undo/redo stacks
-            resetRedoStack();
-            resetUndoStack();
-        });
+        await applyImportedDiagram(pendingImport.result.diagram);
     }, [
         importMethod,
         databaseEdition,
-        currentDatabaseType,
-        updateDatabaseType,
         databaseType,
         scriptResult,
-        addRelationships,
-        addTables,
-        resetRedoStack,
-        resetUndoStack,
-        closeImportDatabaseDialog,
-        existingTables,
+        pendingImport,
+        applyImportedDiagram,
     ]);
 
     return (
@@ -166,15 +204,17 @@ export const ImportDatabaseDialog: React.FC<ImportDatabaseDialogProps> = ({
                 <ImportDatabase
                     databaseType={databaseType}
                     databaseEdition={databaseEdition}
-                    setDatabaseEdition={setDatabaseEdition}
+                    setDatabaseEdition={setDatabaseEditionAndResetPreview}
                     onImport={importDatabase}
                     scriptResult={scriptResult}
-                    setScriptResult={setScriptResult}
+                    setScriptResult={setScriptResultAndResetPreview}
                     keepDialogAfterImport
                     title={t('import_database_dialog.title', { diagramName })}
                     importMethod={importMethod}
-                    setImportMethod={setImportMethod}
+                    setImportMethod={setImportMethodAndResetPreview}
                     importMethods={importMethods}
+                    importPreview={pendingImport?.preview ?? null}
+                    enableImportPreview
                 />
             </DialogContent>
         </Dialog>

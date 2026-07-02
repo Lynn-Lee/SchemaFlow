@@ -1081,7 +1081,7 @@ phase: Phase 4
 type: CODE
 priority: P1
 title: DBML import/export 统一走 dialect contract
-status: queued
+status: done
 depends_on:
     - CHARTDB-P4-001
 owner_lane: dialect
@@ -1114,7 +1114,7 @@ phase: Phase 4
 type: CODE
 priority: P1
 title: 导入前展示 preview、warnings 和 object counts
-status: queued
+status: done
 depends_on:
     - CHARTDB-P4-002
     - CHARTDB-P4-004
@@ -1132,6 +1132,14 @@ acceptance:
     - preview 显示 tables、relationships、customTypes、warnings
     - import error 可定位到输入片段或方言规则
 ```
+
+完成记录：
+
+- 新增 `src/features/import/import-preview.ts`，将统一 `ImportResult` 汇总为 preview summary，包含 tables、relationships、customTypes、warnings 和 unsupportedObjects 计数。
+- 新增 `src/features/import/import-preview-panel.tsx`，在导入对话框中展示 preview、warning 和 unsupported object 摘要。
+- `ImportDatabaseDialog` 改为两步导入：首次点击只解析并暂存 preview，不写入 IndexedDB；用户再次确认后才写入 tables、relationships 和 customTypes。
+- DBML 与 SQL DDL 导入 preview 走 Phase 4 dialect wrapper，Smart Query JSON 保持 metadata import 兼容路径。
+- 下一项进入 `CHARTDB-P5-000`，定义 UX 和可访问性验收矩阵。
 
 ## 11. Phase 5：产品体验与可访问性
 
@@ -1715,7 +1723,7 @@ npm install
 npm run test:ci
 ```
 
-`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005`、`CHARTDB-P2-006`、`CHARTDB-P3-000`、`CHARTDB-P3-001`、`CHARTDB-P3-002`、`CHARTDB-P3-003`、`CHARTDB-P3-004`、`CHARTDB-P4-000`、`CHARTDB-P4-001`、`CHARTDB-P4-002` 和 `CHARTDB-P4-003` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口、command 基础 contract、table command 纯函数、field/index/relationship command 纯函数、area/note/custom type command 纯函数，以及 command history metadata 接入。Phase 3 已完成 storage 执行清单、Dexie schema 集中化、repository API、diagram transaction service 和 backup/restore 版本化。Phase 4 已新增 common dialect contract、PostgreSQL wrapper，以及 MySQL、MariaDB、SQLite、SQL Server、Oracle wrapper；unsupported 或降级语义会进入统一 warning/unsupportedObjects。下一轮自动任务应从 `CHARTDB-P4-004` 开始，让 DBML 进入 dialect pipeline。
+`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005`、`CHARTDB-P2-006`、`CHARTDB-P3-000`、`CHARTDB-P3-001`、`CHARTDB-P3-002`、`CHARTDB-P3-003`、`CHARTDB-P3-004`、`CHARTDB-P4-000`、`CHARTDB-P4-001`、`CHARTDB-P4-002`、`CHARTDB-P4-003`、`CHARTDB-P4-004` 和 `CHARTDB-P4-005` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口、command 基础 contract、table command 纯函数、field/index/relationship command 纯函数、area/note/custom type command 纯函数，以及 command history metadata 接入。Phase 3 已完成 storage 执行清单、Dexie schema 集中化、repository API、diagram transaction service 和 backup/restore 版本化。Phase 4 已新增 common dialect contract、PostgreSQL wrapper、MySQL/MariaDB/SQLite/SQL Server/Oracle wrapper、DBML wrapper 和导入 preview flow；unsupported 或降级语义会进入统一 warning/unsupportedObjects，并在用户确认前展示。下一轮自动任务应从 `CHARTDB-P5-000` 开始，定义 UX 和可访问性验收矩阵。
 
 ## 19. 计划边界确认
 

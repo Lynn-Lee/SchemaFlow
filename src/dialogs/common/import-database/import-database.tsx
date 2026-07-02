@@ -52,6 +52,8 @@ import {
     clearErrorHighlight,
     highlightErrorLine,
 } from '@/components/code-snippet/dbml/utils';
+import type { ImportPreviewSummary } from '@/features/import/import-preview';
+import { ImportPreviewPanel } from '@/features/import/import-preview-panel';
 
 const calculateContentSizeMB = (content: string): number => {
     return content.length / (1024 * 1024); // Convert to MB
@@ -81,6 +83,8 @@ export interface ImportDatabaseProps {
     importMethod: ImportMethod;
     setImportMethod: (method: ImportMethod) => void;
     importMethods?: ImportMethod[];
+    importPreview?: ImportPreviewSummary | null;
+    enableImportPreview?: boolean;
 }
 
 export const ImportDatabase: React.FC<ImportDatabaseProps> = ({
@@ -97,6 +101,8 @@ export const ImportDatabase: React.FC<ImportDatabaseProps> = ({
     importMethod,
     setImportMethod,
     importMethods,
+    importPreview,
+    enableImportPreview = false,
 }) => {
     const { effectiveTheme } = useTheme();
     const [errorMessage, setErrorMessage] = useState('');
@@ -555,6 +561,9 @@ export const ImportDatabase: React.FC<ImportDatabaseProps> = ({
                         importMethod={importMethod}
                     />
                 ) : null}
+                {importPreview ? (
+                    <ImportPreviewPanel preview={importPreview} />
+                ) : null}
             </div>
         ),
         [
@@ -567,6 +576,7 @@ export const ImportDatabase: React.FC<ImportDatabaseProps> = ({
             sqlValidation,
             isAutoFixing,
             handleErrorClick,
+            importPreview,
         ]
     );
 
@@ -602,6 +612,12 @@ export const ImportDatabase: React.FC<ImportDatabaseProps> = ({
     }, [renderOutputTextArea, renderInstructions, isDesktop]);
 
     const renderFooter = useCallback(() => {
+        const importButtonLabel = enableImportPreview
+            ? importPreview
+                ? 'Confirm import'
+                : 'Preview import'
+            : t('new_diagram_dialog.import');
+
         return (
             <DialogFooter className="flex !justify-between gap-2">
                 <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
@@ -677,7 +693,7 @@ export const ImportDatabase: React.FC<ImportDatabaseProps> = ({
                             }
                             onClick={handleImport}
                         >
-                            {t('new_diagram_dialog.import')}
+                            {importButtonLabel}
                         </Button>
                     ) : (
                         <DialogClose asChild>
@@ -691,7 +707,7 @@ export const ImportDatabase: React.FC<ImportDatabaseProps> = ({
                                 }
                                 onClick={handleImport}
                             >
-                                {t('new_diagram_dialog.import')}
+                                {importButtonLabel}
                             </Button>
                         </DialogClose>
                     )}
@@ -724,6 +740,8 @@ export const ImportDatabase: React.FC<ImportDatabaseProps> = ({
         isAutoFixing,
         showAutoFixButton,
         handleAutoFix,
+        importPreview,
+        enableImportPreview,
     ]);
 
     return (

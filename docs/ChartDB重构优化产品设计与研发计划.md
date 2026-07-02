@@ -1243,6 +1243,7 @@ Capability Matrix：
 - 已完成 `CHARTDB-P4-002` PostgreSQL wrapper，旧 PostgreSQL parser 通过 `src/dialects/postgresql` 进入统一 `ImportResult`，并输出 RLS、policy、extension、trigger、function 的结构化 unsupported warning。
 - 已完成 `CHARTDB-P4-003` SQL dialect wrapper，MySQL、MariaDB、SQLite、SQL Server 和 Oracle 的旧 importer 已接入统一 `ImportResult`，并输出 capability metadata、fallback 说明和 unsupported warning。
 - 已完成 `CHARTDB-P4-004` DBML wrapper，DBML import/export 已接入统一 `ImportResult` / `ExportResult`，并对 `TableGroup`、standalone `Note`、空表和重复表输出结构化 warning / unsupported object。
+- 已完成 `CHARTDB-P4-005` 导入 preview flow，导入对话框会先展示 tables、relationships、customTypes、warnings 和 unsupportedObjects 摘要，用户确认前不会写入 IndexedDB。
 
 任务：
 
@@ -1251,7 +1252,7 @@ Capability Matrix：
 - 拆 PostgreSQL importer。
 - MySQL、MariaDB、SQL Server、SQLite、Oracle、ClickHouse 对齐接口。
 - DBML import/export 统一到 pipeline。（已完成）
-- 所有导入进入 preview。
+- 所有导入进入 preview。（已完成）
 
 验收：
 
