@@ -1290,6 +1290,8 @@ Capability Matrix：
 
 ### Phase 6：性能优化
 
+当前状态：`CHARTDB-P6-000` 已新增 `docs/性能基线与优化计划.md`，明确首屏 JS bundle、Monaco chunk、模板数据 chunk、large schema import 时间、layout worker 和 CI 性能预算的基线记录方式。下一项进入 `CHARTDB-P6-001`，优先让 Monaco 只在代码编辑器路径加载，并记录 build chunk 变化。
+
 周期：2 周。
 
 目标：

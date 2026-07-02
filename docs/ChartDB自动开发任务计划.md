@@ -1298,7 +1298,7 @@ phase: Phase 6
 type: PLAN
 priority: P2
 title: 定义 bundle、worker 和大 schema 性能指标
-status: queued
+status: done
 depends_on:
     - CHARTDB-P5-004
 owner_lane: performance
@@ -1310,6 +1310,12 @@ verification:
 acceptance:
     - 指标包含首屏 JS、Monaco chunk、大 schema import 时间
 ```
+
+完成记录：
+
+- 新增 `docs/性能基线与优化计划.md`，定义 Phase 6 的 bundle、Monaco chunk、templates chunk、large schema import、layout worker 和 CI 性能预算指标。
+- 明确 Phase 6 执行顺序为 Monaco 懒加载、模板 lazy registry、Parser/layout worker 化和 bundle budget。
+- 下一项进入 `CHARTDB-P6-001`，仅在代码编辑器路径加载 Monaco，并记录 `npm run build` chunk 变化。
 
 ### CHARTDB-P6-001：Monaco 懒加载
 
@@ -1737,7 +1743,7 @@ npm install
 npm run test:ci
 ```
 
-`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005`、`CHARTDB-P2-006`、`CHARTDB-P3-000`、`CHARTDB-P3-001`、`CHARTDB-P3-002`、`CHARTDB-P3-003`、`CHARTDB-P3-004`、`CHARTDB-P4-000`、`CHARTDB-P4-001`、`CHARTDB-P4-002`、`CHARTDB-P4-003`、`CHARTDB-P4-004`、`CHARTDB-P4-005`、`CHARTDB-P5-000`、`CHARTDB-P5-001`、`CHARTDB-P5-002`、`CHARTDB-P5-003` 和 `CHARTDB-P5-004` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口、command 基础 contract、table command 纯函数、field/index/relationship command 纯函数、area/note/custom type command 纯函数，以及 command history metadata 接入。Phase 3 已完成 storage 执行清单、Dexie schema 集中化、repository API、diagram transaction service 和 backup/restore 版本化。Phase 4 已新增 common dialect contract、PostgreSQL wrapper、MySQL/MariaDB/SQLite/SQL Server/Oracle wrapper、DBML wrapper 和导入 preview flow；unsupported 或降级语义会进入统一 warning/unsupportedObjects，并在用户确认前展示。Phase 5 已建立 UX 和可访问性验收矩阵、首次进入入口、Smart Query Wizard、核心可访问名称修复与设置中心。下一轮自动任务应从 `CHARTDB-P6-000` 开始，定义 Phase 6 性能优化执行清单。
+`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005`、`CHARTDB-P2-006`、`CHARTDB-P3-000`、`CHARTDB-P3-001`、`CHARTDB-P3-002`、`CHARTDB-P3-003`、`CHARTDB-P3-004`、`CHARTDB-P4-000`、`CHARTDB-P4-001`、`CHARTDB-P4-002`、`CHARTDB-P4-003`、`CHARTDB-P4-004`、`CHARTDB-P4-005`、`CHARTDB-P5-000`、`CHARTDB-P5-001`、`CHARTDB-P5-002`、`CHARTDB-P5-003`、`CHARTDB-P5-004` 和 `CHARTDB-P6-000` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口、command 基础 contract、table command 纯函数、field/index/relationship command 纯函数、area/note/custom type command 纯函数，以及 command history metadata 接入。Phase 3 已完成 storage 执行清单、Dexie schema 集中化、repository API、diagram transaction service 和 backup/restore 版本化。Phase 4 已新增 common dialect contract、PostgreSQL wrapper、MySQL/MariaDB/SQLite/SQL Server/Oracle wrapper、DBML wrapper 和导入 preview flow；unsupported 或降级语义会进入统一 warning/unsupportedObjects，并在用户确认前展示。Phase 5 已建立 UX 和可访问性验收矩阵、首次进入入口、Smart Query Wizard、核心可访问名称修复与设置中心。Phase 6 已新增性能基线与优化计划。下一轮自动任务应从 `CHARTDB-P6-001` 开始，仅在代码编辑器路径加载 Monaco。
 
 ## 19. 计划边界确认
 

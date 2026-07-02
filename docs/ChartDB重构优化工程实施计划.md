@@ -1340,6 +1340,8 @@ rg -n "<Button|<button" src/pages src/dialogs src/components
 
 **目标：** 降低首屏包体，避免大 schema 阻塞主线程。
 
+**当前状态：** `CHARTDB-P6-000` 已新增 `docs/性能基线与优化计划.md`，定义首屏 bundle、Monaco chunk、模板数据 chunk、large schema import、layout worker 和 CI 性能预算的记录方式与验收口径。下一项进入 `CHARTDB-P6-001`，先做 Monaco 懒加载并记录 `npm run build` chunk 变化。
+
 **推荐分支：**
 
 ```bash
