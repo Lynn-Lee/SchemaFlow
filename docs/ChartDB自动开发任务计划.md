@@ -237,7 +237,7 @@ phase: Phase 0
 type: PLAN
 priority: P0
 title: 编写 Phase 0 细化执行清单
-status: queued
+status: done
 depends_on: []
 owner_lane: baseline
 branch: codex/chartdb-p0-plan
@@ -249,6 +249,9 @@ verification:
 acceptance:
     - Phase 0 每个任务都有责任范围、验收命令和退出标准
     - 阶段验收记录包含 test、build、audit、CI 四类结果
+completion:
+    - Phase 0 任务卡、退出门槛和验收记录已在 `docs/ChartDB自动开发任务计划.md` 与 `docs/阶段验收记录.md` 中补齐。
+    - 当前状态已回填为 `done`，避免和计划末尾完成汇总不一致。
 ```
 
 ### CHARTDB-P0-001：修复测试环境 localStorage 失败
@@ -1431,8 +1434,10 @@ acceptance:
 - 新增 `src/workers/worker-client.ts`，统一封装 module worker 调用、结构化错误和无 Worker 环境 fallback。
 - 新增 `src/workers/import-worker/import-worker.ts` 与 `src/workers/import-worker/import-preview-client.ts`，`parseImportPreview()` 默认经 worker 执行，主线程保留 `parseImportPreviewOnMainThread()` 降级路径。
 - 新增 `src/workers/layout-worker/layout-worker.ts` 与 `src/workers/layout-worker/layout-client.ts`，Area auto arrange 和 Move to Area 的表布局计算改为异步 worker client 调用，无 Worker 时回退到既有 `arrangeTablesForArea()`。
-- 新增 `worker-client`、`import-preview-worker-routing` 和 `layout-client` 契约测试，覆盖 worker 路由、结构化错误和 fallback。
+- 新增 `worker-client`、`import-preview-worker-routing` 和 `layout-client` 契约测试，覆盖 worker 路由、结构化错误、progress、cancel 和 fallback。
+- 导入 Preview 对话框显示 `Building import preview` 进度状态，并提供 cancel 按钮；cancel 会中止当前 worker task 并阻止继续确认导入。
 - `npm run build` 通过；入口 `index` 约 `2,609.63 kB` / gzip `513.31 kB`，`code-editor` 约 `3,788.30 kB` / gzip `976.91 kB`，`editor-page` 仍约 `11,474.96 kB` / gzip `1,807.52 kB`。本轮主要降低大 import/layout 的运行时主线程阻塞风险，parser 依赖体积仍进入后续 bundle budget 治理。
+- 大 schema smoke 已转为可重复验收记录：`docs/性能基线与优化计划.md` 使用 100 tables 与 500 tables fixture 记录 import parse、preview summary 和 layout 耗时；当前 worker 化路径不再让导入 preview 或 area layout 长时间占用主线程。
 - 下一项进入 `CHARTDB-P7-000`，定义 Phase 7 发布门禁和文档补齐范围。
 
 ## 13. Phase 7：发布治理与文档
@@ -1531,6 +1536,7 @@ acceptance:
 - 新增 `docs/架构说明.md`，梳理 React 入口、schema-core、storage、dialects、workers、AI 和发布边界。
 - 新增 `docs/导入导出接口约定.md`，明确 `ImportResult`、`ExportResult`、Import Preview、backup 和 AI-assisted export 约束。
 - 新增 `docs/测试策略.md`，固化本地门禁、TDD、UI smoke、发布 Docker smoke、安全扫描和性能记录要求。
+- 新增 `.github/dependabot.yml`，每周检查 npm 和 GitHub Actions 依赖，生产依赖 security updates 独立分组，避免高危 advisory 漏过发布门禁。
 - 下一项进入 `CHARTDB-P7-003`，Issue template 和贡献规则。
 
 ### CHARTDB-P7-003：Issue template 和贡献规则

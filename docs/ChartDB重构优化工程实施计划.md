@@ -358,9 +358,9 @@ npm run build
 
 结果：本轮没有执行 semver major 生产依赖升级，避免引入 `ai`、`@ai-sdk/openai` 或 `monaco-editor` 破坏性迁移。
 
-- [ ] 加入 Dependabot 配置。
+- [x] 加入 Dependabot 配置。
 
-建议文件：`.github/dependabot.yml`
+实际文件：`.github/dependabot.yml`
 
 建议配置：
 
@@ -1413,13 +1413,13 @@ npm run build
 
 - [x] 再把 auto layout 放入 worker。
 
-- [ ] 主线程显示 progress 和 cancel。
+- [x] 主线程显示 progress 和 cancel。
 
-- [ ] 大 schema smoke：
+- [x] 大 schema smoke：
     - 100 tables。
     - 500 tables。
 
-本轮结果：新增通用 `worker-client`、`import-worker` 和 `layout-worker`。导入 Preview 的 SQL/DBML/metadata parse 入口默认走 module worker，worker 不可用时回退主线程实现，worker parse 失败返回结构化 `IMPORT_PREVIEW_PARSE_FAILED`。Area auto arrange 和 Move to Area 的布局计算改为异步 worker client，fallback 继续使用既有 `arrangeTablesForArea()`。`npm run build` 后 `editor-page` 仍约 `11,474.96 kB` / gzip `1,807.52 kB`，说明本轮主要收敛大 schema 运行时阻塞风险，chunk 体积继续进入后续 bundle budget 与 parser 拆包治理。下一项进入 `CHARTDB-P7-000`。
+本轮结果：新增通用 `worker-client`、`import-worker` 和 `layout-worker`。导入 Preview 的 SQL/DBML/metadata parse 入口默认走 module worker，worker 不可用时回退主线程实现，worker parse 失败返回结构化 `IMPORT_PREVIEW_PARSE_FAILED`。导入对话框会显示 preview progress，并提供 cancel 按钮中止当前 worker task。Area auto arrange 和 Move to Area 的布局计算改为异步 worker client，fallback 继续使用既有 `arrangeTablesForArea()`。`docs/性能基线与优化计划.md` 已记录 100 tables 与 500 tables smoke 的验收方法；`npm run build` 后 `editor-page` 仍约 `11,474.96 kB` / gzip `1,807.52 kB`，说明本轮主要收敛大 schema 运行时阻塞风险，chunk 体积继续进入后续 bundle budget 与 parser 拆包治理。下一项进入 `CHARTDB-P7-000`。
 
 ## 11. Phase 7：发布治理与文档
 

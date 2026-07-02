@@ -1263,7 +1263,7 @@ Capability Matrix：
 
 ### Phase 5：产品体验与可访问性
 
-当前状态：`CHARTDB-P5-000` 已新增 `docs/可访问性与核心流程验收.md`，定义首次进入、Smart Query、导入 Preview、编辑画布和设置中心的桌面、移动、键盘、可访问性与失败状态验收矩阵。`CHARTDB-P5-001` 已重做首次进入入口：首次无本地 diagram 时首屏展示数据库选择、导入现有数据库、新建空白图和模板示例入口；未选择数据库或启动方式时显示原因；新建空白图失败会回滚已写入 diagram，避免半成品。`CHARTDB-P5-002` 已将 Smart Query 说明拆成结构化向导，明确不输入数据库密码、复制 Smart Query、粘贴 JSON、解析 Preview 和确认导入五步；preview 失败会提示 Smart Query JSON、SQL syntax 或 dialect limitations。`CHARTDB-P5-003` 已补齐核心 icon-only control、Dialog back button、Smart Query/SQL/DBML Monaco 编辑器用途名称和画布 Toolbar 的可访问名称，并新增 Phase 5 可访问性契约测试。`CHARTDB-P5-004` 已新增设置中心，集中管理本地显示偏好、AI mode、Self-hosted Gateway hint、导出/恢复 backup 和本地数据危险操作入口；BYOK key 仍为 session-only，不持久化。下一项进入 `CHARTDB-P6-000`，定义 Phase 6 性能优化执行清单。
+当前状态：`CHARTDB-P5-000` 已新增 `docs/可访问性与核心流程验收.md`，定义首次进入、Smart Query、导入 Preview、编辑画布和设置中心的桌面、移动、键盘、可访问性与失败状态验收矩阵。`CHARTDB-P5-001` 已重做首次进入入口：首次无本地 diagram 时首屏展示数据库选择、导入现有数据库、新建空白图和模板示例入口；未选择数据库或启动方式时显示原因；新建空白图失败会回滚已写入 diagram，避免半成品。`CHARTDB-P5-002` 已将 Smart Query 说明拆成结构化向导，明确不输入数据库密码、复制 Smart Query、粘贴 JSON、解析 Preview 和确认导入五步；preview 失败会提示 Smart Query JSON、SQL syntax 或 dialect limitations，preview 运行中显示 progress 并允许 cancel。`CHARTDB-P5-003` 已补齐核心 icon-only control、Dialog back button、Smart Query/SQL/DBML Monaco 编辑器用途名称和画布 Toolbar 的可访问名称，并新增 Phase 5 可访问性契约测试。`CHARTDB-P5-004` 已新增设置中心，集中管理本地显示偏好、AI mode、Self-hosted Gateway hint、导出/恢复 backup 和本地数据危险操作入口；BYOK key 仍为 session-only，不持久化。i18n 未完成语言已在语言选择器标记为 experimental，locale 源码不再保留翻译 TODO 标记。下一项进入 `CHARTDB-P6-000`，定义 Phase 6 性能优化执行清单。
 
 周期：2 周。
 
@@ -1290,7 +1290,7 @@ Capability Matrix：
 
 ### Phase 6：性能优化
 
-当前状态：`CHARTDB-P6-000` 已新增 `docs/性能基线与优化计划.md`，明确首屏 JS bundle、Monaco chunk、模板数据 chunk、large schema import 时间、layout worker 和 CI 性能预算的基线记录方式。`CHARTDB-P6-001` 已把 `CodeSnippet` 外层和 DBML highlight helper 的 Monaco runtime 静态依赖移入懒加载编辑器路径，`npm run build` 中 `code-editor` chunk 从 `15,279.59 kB` / gzip `2,787.98 kB` 降至 `3,788.30 kB` / gzip `976.91 kB`。`CHARTDB-P6-002` 已把模板列表切到 metadata-only manifest，详情和 clone 路径才按 slug 动态加载完整模板 diagram；build 输出中模板数据拆为独立 per-template JS chunk。`CHARTDB-P6-003` 已将导入 Preview parse 与 Area layout 计算接入 module worker，并保留无 Worker 环境 fallback。剩余 `editor-page` 大 chunk 约 `11,474.96 kB` / gzip `1,807.52 kB`，继续进入后续 bundle budget 与 parser 拆包治理。下一项进入 `CHARTDB-P7-000`，定义发布门禁和文档补齐范围。
+当前状态：`CHARTDB-P6-000` 已新增 `docs/性能基线与优化计划.md`，明确首屏 JS bundle、Monaco chunk、模板数据 chunk、large schema import 时间、layout worker 和 CI 性能预算的基线记录方式。`CHARTDB-P6-001` 已把 `CodeSnippet` 外层和 DBML highlight helper 的 Monaco runtime 静态依赖移入懒加载编辑器路径，`npm run build` 中 `code-editor` chunk 从 `15,279.59 kB` / gzip `2,787.98 kB` 降至 `3,788.30 kB` / gzip `976.91 kB`。`CHARTDB-P6-002` 已把模板列表切到 metadata-only manifest，详情和 clone 路径才按 slug 动态加载完整模板 diagram；build 输出中模板数据拆为独立 per-template JS chunk。`CHARTDB-P6-003` 已将导入 Preview parse 与 Area layout 计算接入 module worker，保留无 Worker 环境 fallback，并为导入 preview 提供 progress/cancel 交互。100 tables 与 500 tables smoke 的记录方法已写入性能基线文档。剩余 `editor-page` 大 chunk 约 `11,474.96 kB` / gzip `1,807.52 kB`，继续进入后续 bundle budget 与 parser 拆包治理。下一项进入 `CHARTDB-P7-000`，定义发布门禁和文档补齐范围。
 
 周期：2 周。
 
@@ -1317,7 +1317,7 @@ Capability Matrix：
 
 ### Phase 7：发布治理与文档
 
-当前状态：`CHARTDB-P7-003` 已把发布门禁固化到 `publish.yaml`，补齐 README 文档导航、架构说明、导入导出接口约定和测试策略，并新增 bug、feature、dialect regression、security issue template 与贡献规则。发布、安全、备份恢复、方言能力、问题上报和贡献流程均有独立入口。下一项进入 Phase 8 的可选 Cloud/Team 边界预研。
+当前状态：`CHARTDB-P7-003` 已把发布门禁固化到 `publish.yaml`，补齐 README 文档导航、架构说明、导入导出接口约定和测试策略，并新增 Dependabot 配置、bug、feature、dialect regression、security issue template 与贡献规则。发布、安全、备份恢复、方言能力、问题上报和贡献流程均有独立入口。下一项进入 Phase 8 的可选 Cloud/Team 边界预研。
 
 周期：1 周。
 
