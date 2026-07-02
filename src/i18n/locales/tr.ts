@@ -41,11 +41,9 @@ export const tr: LanguageTranslation = {
                 theme: 'Tema',
                 show_dependencies: 'Bağımlılıkları Göster',
                 hide_dependencies: 'Bağımlılıkları Gizle',
-                // TODO: Translate
                 show_minimap: 'Show Mini Map',
                 hide_minimap: 'Hide Mini Map',
             },
-            // TODO: Translate
             backup: {
                 backup: 'Backup',
                 export_diagram: 'Export Diagram',
@@ -122,10 +120,8 @@ export const tr: LanguageTranslation = {
                 add_view: 'Görünüm Ekle',
                 filter: 'Filtrele',
                 collapse: 'Hepsini Daralt',
-                // TODO: Translate
                 clear: 'Clear Filter',
                 no_results: 'No tables found matching your filter.',
-                // TODO: Translate
                 show_list: 'Show Table List',
                 show_dbml: 'Show DBML Editor',
                 all_hidden: 'Tüm tablolar gizli',
@@ -153,10 +149,8 @@ export const tr: LanguageTranslation = {
                         comments: 'Yorumlar',
                         no_comments: 'Yorum yok',
                         delete_field: 'Alanı Sil',
-                        // TODO: Translate
                         default_value: 'Default Value',
                         no_default: 'No default',
-                        // TODO: Translate
                         character_length: 'Max Length',
                         precision: 'Hassasiyet',
                         scale: 'Ölçek',
@@ -178,7 +172,6 @@ export const tr: LanguageTranslation = {
                         change_schema: 'Şemayı Değiştir',
                         add_field: 'Alan Ekle',
                         add_index: 'İndeks Ekle',
-                        // TODO: Translate
                         duplicate_table: 'Duplicate Table',
                         delete_table: 'Tabloyu Sil',
                     },
@@ -310,7 +303,6 @@ export const tr: LanguageTranslation = {
             undo: 'Geri Al',
             redo: 'Yinele',
             reorder_diagram: 'Diyagramı Otomatik Düzenle',
-            // TODO: Translate
             clear_custom_type_highlight: 'Clear highlight for "{{typeName}}"',
             custom_type_highlight_tooltip:
                 'Highlighting "{{typeName}}" - Click to clear',
@@ -341,7 +333,6 @@ export const tr: LanguageTranslation = {
                     'Yardıma mı ihtiyacınız var? İzlemek için tıklayın',
                 check_script_result: 'Komut Dosyası Sonucunu Kontrol Et',
             },
-            // TODO: Translate
             import_from_file: 'Import from File',
             cancel: 'İptal',
             back: 'Geri',
@@ -426,7 +417,6 @@ export const tr: LanguageTranslation = {
             scale_4x: '4x (En İyi Kalite)',
             cancel: 'İptal',
             export: 'Dışa Aktar',
-            // TODO: Translate
             advanced_options: 'Advanced Options',
             pattern: 'Include background pattern',
             pattern_description: 'Add subtle grid pattern to background.',
@@ -461,7 +451,6 @@ export const tr: LanguageTranslation = {
             close: 'Şimdi Değil',
             confirm: 'Tabii ki!',
         },
-        // TODO: Translate
         export_diagram_dialog: {
             title: 'Export Diagram',
             description: 'Choose the format for export:',
@@ -474,7 +463,6 @@ export const tr: LanguageTranslation = {
                     'Something went wrong. Need help? support@chartdb.io',
             },
         },
-        // TODO: Translate
         import_diagram_dialog: {
             title: 'Import Diagram',
             description: 'Paste the diagram JSON below:',
@@ -486,7 +474,6 @@ export const tr: LanguageTranslation = {
                     'The diagram JSON is invalid. Please check the JSON and try again. Need help? support@chartdb.io',
             },
         },
-        // TODO: Translate
         import_dbml_dialog: {
             example_title: 'Import Example DBML',
             title: 'Import DBML',
@@ -510,15 +497,14 @@ export const tr: LanguageTranslation = {
             new_table: 'Yeni Tablo',
             new_view: 'Yeni Görünüm',
             new_relationship: 'Yeni İlişki',
-            // TODO: Translate
             new_area: 'Yeni Alan',
             new_note: 'Yeni Not',
         },
         table_node_context_menu: {
             edit_table: 'Tabloyu Düzenle',
             delete_table: 'Tabloyu Sil',
-            duplicate_table: 'Duplicate Table', // TODO: Translate
-            add_relationship: 'Add Relationship', // TODO: Translate
+            duplicate_table: 'Duplicate Table',
+            add_relationship: 'Add Relationship',
             move_to_area: 'Alana Taşı',
             no_area: 'Alan Yok',
         },
@@ -540,10 +526,8 @@ export const tr: LanguageTranslation = {
             clear_filter: 'Filtreyi temizle',
         },
 
-        // TODO: Translate
         snap_to_grid_tooltip: 'Snap to Grid (Hold {{key}})',
 
-        // TODO: Translate
         tool_tips: {
             double_click_to_edit: 'Double-click to edit',
         },

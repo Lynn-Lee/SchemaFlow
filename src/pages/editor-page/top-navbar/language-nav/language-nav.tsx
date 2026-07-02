@@ -29,7 +29,10 @@ export const LanguageNav: React.FC<LanguageNavProps> = () => {
     const languagesOptions: SelectBoxOption[] = languages.map((lang) => ({
         label: lang.nativeName,
         value: lang.code,
-        description: `(${lang.name})`,
+        description:
+            lang.status === 'experimental'
+                ? `(${lang.name}, experimental)`
+                : `(${lang.name})`,
     }));
 
     const handleLanguageChange: SelectBoxProps['onChange'] = useCallback(

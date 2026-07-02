@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Dialog, DialogContent } from '@/components/dialog/dialog';
 import { DatabaseType } from '@/lib/domain/database-type';
 import { useStorage } from '@/hooks/use-storage';
@@ -29,6 +29,7 @@ import {
 import type { ImportMethod } from '@/lib/import-method/import-method';
 import {
     parseImportPreview,
+    type ImportPreviewProgress,
     type ParsedImportPreview,
 } from '@/features/import/import-preview';
 
@@ -68,12 +69,20 @@ export const CreateDiagramDialog: React.FC<CreateDiagramDialogProps> = ({
     const [pendingImport, setPendingImport] =
         useState<ParsedImportPreview | null>(null);
     const [importError, setImportError] = useState('');
+    const [isPreviewingImport, setIsPreviewingImport] = useState(false);
+    const [importPreviewProgress, setImportPreviewProgress] =
+        useState<ImportPreviewProgress | null>(null);
+    const previewAbortControllerRef = useRef<AbortController | null>(null);
 
     useEffect(() => {
         setDatabaseEdition(undefined);
         setImportMethod('query');
         setPendingImport(null);
         setImportError('');
+        setIsPreviewingImport(false);
+        setImportPreviewProgress(null);
+        previewAbortControllerRef.current?.abort();
+        previewAbortControllerRef.current = null;
     }, [databaseType]);
 
     useEffect(() => {
@@ -93,6 +102,10 @@ export const CreateDiagramDialog: React.FC<CreateDiagramDialogProps> = ({
         setParsedMetadata(undefined);
         setPendingImport(null);
         setImportError('');
+        setIsPreviewingImport(false);
+        setImportPreviewProgress(null);
+        previewAbortControllerRef.current?.abort();
+        previewAbortControllerRef.current = null;
     }, [dialog.open]);
 
     const hasExistingDiagram = (diagramId ?? '').trim().length !== 0;
@@ -208,12 +221,25 @@ export const CreateDiagramDialog: React.FC<CreateDiagramDialogProps> = ({
             setImportError('');
 
             if (!pendingImport) {
-                const preview = await parseImportPreview({
-                    importMethod,
-                    scriptResult,
-                    databaseType,
-                    databaseEdition,
+                setIsPreviewingImport(true);
+                setImportPreviewProgress({
+                    stage: 'queued',
+                    message: 'Preparing import preview',
                 });
+                const abortController = new AbortController();
+                previewAbortControllerRef.current = abortController;
+                const preview = await parseImportPreview(
+                    {
+                        importMethod,
+                        scriptResult,
+                        databaseType,
+                        databaseEdition,
+                    },
+                    {
+                        signal: abortController.signal,
+                        onProgress: setImportPreviewProgress,
+                    }
+                );
 
                 if (!preview.preview.hasImportableObjects) {
                     setImportError(
@@ -243,6 +269,10 @@ export const CreateDiagramDialog: React.FC<CreateDiagramDialogProps> = ({
                 preview: pendingImport,
             });
         } catch (error) {
+            if (previewAbortControllerRef.current?.signal.aborted) {
+                setImportError('Import preview cancelled.');
+                return;
+            }
             const message =
                 error instanceof Error
                     ? error.message
@@ -251,6 +281,8 @@ export const CreateDiagramDialog: React.FC<CreateDiagramDialogProps> = ({
                 `Preview failed: ${message}. Check the Smart Query JSON, SQL syntax, or dialect limitations before trying again.`
             );
         } finally {
+            previewAbortControllerRef.current = null;
+            setIsPreviewingImport(false);
             setIsParsingMetadata(false);
         }
     }, [
@@ -268,6 +300,7 @@ export const CreateDiagramDialog: React.FC<CreateDiagramDialogProps> = ({
     >((value) => {
         setPendingImport(null);
         setImportError('');
+        setImportPreviewProgress(null);
         setScriptResult(value);
     }, []);
 
@@ -275,6 +308,7 @@ export const CreateDiagramDialog: React.FC<CreateDiagramDialogProps> = ({
         (method: ImportMethod) => {
             setPendingImport(null);
             setImportError('');
+            setImportPreviewProgress(null);
             setImportMethod(method);
         },
         []
@@ -285,7 +319,12 @@ export const CreateDiagramDialog: React.FC<CreateDiagramDialogProps> = ({
     >((value) => {
         setPendingImport(null);
         setImportError('');
+        setImportPreviewProgress(null);
         setDatabaseEdition(value);
+    }, []);
+
+    const cancelImportPreview = useCallback(() => {
+        previewAbortControllerRef.current?.abort();
     }, []);
 
     return (
@@ -341,6 +380,9 @@ export const CreateDiagramDialog: React.FC<CreateDiagramDialogProps> = ({
                         importPreview={pendingImport?.preview ?? null}
                         enableImportPreview
                         importError={importError}
+                        isPreviewingImport={isPreviewingImport}
+                        importPreviewProgress={importPreviewProgress}
+                        onCancelImportPreview={cancelImportPreview}
                     />
                 ) : step === CreateDiagramDialogStep.SELECT_TABLES ? (
                     <SelectTables

@@ -41,7 +41,6 @@ export const bn: LanguageTranslation = {
                 theme: 'থিম',
                 show_dependencies: 'নির্ভরতাগুলি দেখান',
                 hide_dependencies: 'নির্ভরতাগুলি লুকান',
-                // TODO: Translate
                 show_minimap: 'Show Mini Map',
                 hide_minimap: 'Hide Mini Map',
             },
@@ -123,10 +122,8 @@ export const bn: LanguageTranslation = {
                 add_view: 'ভিউ যোগ করুন',
                 filter: 'ফিল্টার',
                 collapse: 'সব ভাঁজ করুন',
-                // TODO: Translate
                 clear: 'Clear Filter',
                 no_results: 'No tables found matching your filter.',
-                // TODO: Translate
                 show_list: 'Show Table List',
                 show_dbml: 'Show DBML Editor',
                 all_hidden: 'সব টেবিল লুকানো আছে',
@@ -154,10 +151,8 @@ export const bn: LanguageTranslation = {
                         comments: 'মন্তব্য',
                         no_comments: 'কোনো মন্তব্য নেই',
                         delete_field: 'ফিল্ড মুছুন',
-                        // TODO: Translate
                         default_value: 'Default Value',
                         no_default: 'No default',
-                        // TODO: Translate
                         character_length: 'Max Length',
                         precision: 'নির্ভুলতা',
                         scale: 'স্কেল',
@@ -316,7 +311,6 @@ export const bn: LanguageTranslation = {
             reorder_diagram: 'স্বয়ংক্রিয় ডায়াগ্রাম সাজান',
             highlight_overlapping_tables: 'ওভারল্যাপিং টেবিল হাইলাইট করুন',
 
-            // TODO: Translate
             clear_custom_type_highlight: 'Clear highlight for "{{typeName}}"',
             custom_type_highlight_tooltip:
                 'Highlighting "{{typeName}}" - Click to clear',
@@ -436,7 +430,6 @@ export const bn: LanguageTranslation = {
             scale_4x: '4x (সেরা মান)',
             cancel: 'বাতিল করুন',
             export: 'রপ্তানি করুন',
-            // TODO: Translate
             advanced_options: 'Advanced Options',
             pattern: 'Include background pattern',
             pattern_description: 'Add subtle grid pattern to background.',
@@ -498,7 +491,6 @@ export const bn: LanguageTranslation = {
                     'ডায়াগ্রাম JSON অবৈধ। অনুগ্রহ করে JSON পরীক্ষা করুন এবং আবার চেষ্টা করুন। সাহায্যের প্রয়োজন? support@chartdb.io-এ যোগাযোগ করুন।',
             },
         },
-        // TODO: Translate
         import_dbml_dialog: {
             example_title: 'Import Example DBML',
             title: 'Import DBML',
@@ -523,7 +515,6 @@ export const bn: LanguageTranslation = {
             new_table: 'নতুন টেবিল',
             new_view: 'নতুন ভিউ',
             new_relationship: 'নতুন সম্পর্ক',
-            // TODO: Translate
             new_area: 'নতুন এলাকা',
             new_note: 'নতুন নোট',
         },
@@ -532,7 +523,7 @@ export const bn: LanguageTranslation = {
             edit_table: 'টেবিল সম্পাদনা করুন',
             duplicate_table: 'টেবিল নকল করুন',
             delete_table: 'টেবিল মুছে ফেলুন',
-            add_relationship: 'Add Relationship', // TODO: Translate
+            add_relationship: 'Add Relationship',
             move_to_area: 'এলাকায় সরান',
             no_area: 'কোনো এলাকা নেই',
         },

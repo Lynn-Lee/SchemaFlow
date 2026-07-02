@@ -151,10 +151,8 @@ export const fr: LanguageTranslation = {
                         comments: 'Commentaires',
                         no_comments: 'Pas de commentaires',
                         delete_field: 'Supprimer le Champ',
-                        // TODO: Translate
                         default_value: 'Default Value',
                         no_default: 'No default',
-                        // TODO: Translate
                         character_length: 'Max Length',
                         precision: 'Précision',
                         scale: 'Échelle',
@@ -310,7 +308,6 @@ export const fr: LanguageTranslation = {
             undo: 'Annuler',
             redo: 'Rétablir',
             reorder_diagram: 'Organiser Automatiquement le Diagramme',
-            // TODO: Translate
             clear_custom_type_highlight: 'Clear highlight for "{{typeName}}"',
             custom_type_highlight_tooltip:
                 'Highlighting "{{typeName}}" - Click to clear',
@@ -398,7 +395,6 @@ export const fr: LanguageTranslation = {
             scale_4x: '4x (Meilleure qualité)',
             cancel: 'Annuler',
             export: 'Exporter',
-            // TODO: Translate
             advanced_options: 'Advanced Options',
             pattern: 'Include background pattern',
             pattern_description: 'Add subtle grid pattern to background.',

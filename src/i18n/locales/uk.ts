@@ -121,10 +121,8 @@ export const uk: LanguageTranslation = {
                 add_view: 'Додати представлення',
                 filter: 'Фільтр',
                 collapse: 'Згорнути все',
-                // TODO: Translate
                 clear: 'Clear Filter',
                 no_results: 'No tables found matching your filter.',
-                // TODO: Translate
                 show_list: 'Show Table List',
                 show_dbml: 'Show DBML Editor',
                 all_hidden: 'Всі таблиці приховані',
@@ -152,10 +150,8 @@ export const uk: LanguageTranslation = {
                         comments: 'Коментарі',
                         no_comments: 'Немає коментарів',
                         delete_field: 'Видалити поле',
-                        // TODO: Translate
                         default_value: 'Default Value',
                         no_default: 'No default',
-                        // TODO: Translate
                         character_length: 'Max Length',
                         precision: 'Точність',
                         scale: 'Масштаб',
@@ -312,7 +308,6 @@ export const uk: LanguageTranslation = {
             undo: 'Скасувати',
             redo: 'Повторити',
             reorder_diagram: 'Автоматичне розміщення діаграми',
-            // TODO: Translate
             clear_custom_type_highlight: 'Clear highlight for "{{typeName}}"',
             custom_type_highlight_tooltip:
                 'Highlighting "{{typeName}}" - Click to clear',
@@ -434,7 +429,6 @@ export const uk: LanguageTranslation = {
             scale_4x: '4x (Найкраща якість)',
             cancel: 'Скасувати',
             export: 'Експортувати',
-            // TODO: Translate
             advanced_options: 'Advanced Options',
             pattern: 'Include background pattern',
             pattern_description: 'Add subtle grid pattern to background.',
@@ -494,7 +488,6 @@ export const uk: LanguageTranslation = {
                     'JSON діаграми є неправильним. Будь ласка, перевірте JSON і спробуйте ще раз. Потрібна допомога? support@chartdb.io',
             },
         },
-        // TODO: Translate
         import_dbml_dialog: {
             example_title: 'Import Example DBML',
             title: 'Import DBML',
@@ -519,7 +512,6 @@ export const uk: LanguageTranslation = {
             new_table: 'Нова таблиця',
             new_view: 'Нове представлення',
             new_relationship: 'Новий звʼязок',
-            // TODO: Translate
             new_area: 'Нова область',
             new_note: 'Нова Нотатка',
         },
@@ -528,7 +520,7 @@ export const uk: LanguageTranslation = {
             edit_table: 'Редагувати таблицю',
             duplicate_table: 'Дублювати таблицю',
             delete_table: 'Видалити таблицю',
-            add_relationship: 'Add Relationship', // TODO: Translate
+            add_relationship: 'Add Relationship',
             move_to_area: 'Перемістити в область',
             no_area: 'Без області',
         },

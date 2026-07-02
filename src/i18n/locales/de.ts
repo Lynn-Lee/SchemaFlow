@@ -41,7 +41,6 @@ export const de: LanguageTranslation = {
                 theme: 'Stil',
                 show_dependencies: 'Abhängigkeiten anzeigen',
                 hide_dependencies: 'Abhängigkeiten ausblenden',
-                // TODO: Translate
                 show_minimap: 'Show Mini Map',
                 hide_minimap: 'Hide Mini Map',
             },
@@ -123,10 +122,8 @@ export const de: LanguageTranslation = {
                 add_view: 'Ansicht hinzufügen',
                 filter: 'Filter',
                 collapse: 'Alle einklappen',
-                // TODO: Translate
                 clear: 'Clear Filter',
                 no_results: 'No tables found matching your filter.',
-                // TODO: Translate
                 show_list: 'Show Table List',
                 show_dbml: 'Show DBML Editor',
                 all_hidden: 'Alle Tabellen sind ausgeblendet',
@@ -154,10 +151,8 @@ export const de: LanguageTranslation = {
                         comments: 'Kommentare',
                         no_comments: 'Keine Kommentare',
                         delete_field: 'Feld löschen',
-                        // TODO: Translate
                         default_value: 'Default Value',
                         no_default: 'No default',
-                        // TODO: Translate
                         character_length: 'Max Length',
                         precision: 'Präzision',
                         scale: 'Skalierung',
@@ -179,7 +174,7 @@ export const de: LanguageTranslation = {
                         change_schema: 'Schema ändern',
                         add_field: 'Feld hinzufügen',
                         add_index: 'Index hinzufügen',
-                        duplicate_table: 'Duplicate Table', // TODO: Translate
+                        duplicate_table: 'Duplicate Table',
                         delete_table: 'Tabelle löschen',
                     },
                 },
@@ -315,7 +310,6 @@ export const de: LanguageTranslation = {
             redo: 'Wiederholen',
             reorder_diagram: 'Diagramm automatisch anordnen',
 
-            // TODO: Translate
             clear_custom_type_highlight: 'Clear highlight for "{{typeName}}"',
             custom_type_highlight_tooltip:
                 'Highlighting "{{typeName}}" - Click to clear',
@@ -350,7 +344,6 @@ export const de: LanguageTranslation = {
 
             cancel: 'Abbrechen',
             back: 'Zurück',
-            // TODO: Translate
             import_from_file: 'Import from File',
             empty_diagram: 'Leere Datenbank',
             continue: 'Weiter',
@@ -437,7 +430,6 @@ export const de: LanguageTranslation = {
             scale_4x: '4x (Beste Qualität)',
             cancel: 'Abbrechen',
             export: 'Exportieren',
-            // TODO: Translate
             advanced_options: 'Advanced Options',
             pattern: 'Include background pattern',
             pattern_description: 'Add subtle grid pattern to background.',
@@ -474,7 +466,6 @@ export const de: LanguageTranslation = {
             close: 'Nicht jetzt',
             confirm: 'Natürlich!',
         },
-        // TODO: Translate
         export_diagram_dialog: {
             title: 'Export Diagram',
             description: 'Choose the format for export:',
@@ -487,7 +478,6 @@ export const de: LanguageTranslation = {
                     'Something went wrong. Need help? support@chartdb.io',
             },
         },
-        // TODO: Translate
         import_diagram_dialog: {
             title: 'Import Diagram',
             description: 'Paste the diagram JSON below:',
@@ -499,7 +489,6 @@ export const de: LanguageTranslation = {
                     'The diagram JSON is invalid. Please check the JSON and try again. Need help? support@chartdb.io',
             },
         },
-        // TODO: Translate
         import_dbml_dialog: {
             example_title: 'Import Example DBML',
             title: 'Import DBML',
@@ -530,9 +519,9 @@ export const de: LanguageTranslation = {
 
         table_node_context_menu: {
             edit_table: 'Tabelle bearbeiten',
-            duplicate_table: 'Duplicate Table', // TODO: Translate
+            duplicate_table: 'Duplicate Table',
             delete_table: 'Tabelle löschen',
-            add_relationship: 'Add Relationship', // TODO: Translate
+            add_relationship: 'Add Relationship',
             move_to_area: 'In Bereich verschieben',
             no_area: 'Kein Bereich',
         },
@@ -555,7 +544,6 @@ export const de: LanguageTranslation = {
             clear_filter: 'Filter löschen',
         },
 
-        // TODO: Add translations
         snap_to_grid_tooltip: 'Snap to Grid (Hold {{key}})',
 
         tool_tips: {

@@ -41,11 +41,9 @@ export const ne: LanguageTranslation = {
                 theme: 'थिम',
                 show_dependencies: 'डिपेन्डेन्सीहरू देखाउनुहोस्',
                 hide_dependencies: 'डिपेन्डेन्सीहरू लुकाउनुहोस्',
-                // TODO: Translate
                 show_minimap: 'Show Mini Map',
                 hide_minimap: 'Hide Mini Map',
             },
-            // TODO: Translate
             backup: {
                 backup: 'Backup',
                 export_diagram: 'Export Diagram',
@@ -123,10 +121,8 @@ export const ne: LanguageTranslation = {
                 add_view: 'भ्यू थप्नुहोस्',
                 filter: 'फिल्टर',
                 collapse: 'सबै लुकाउनुहोस्',
-                // TODO: Translate
                 clear: 'Clear Filter',
                 no_results: 'No tables found matching your filter.',
-                // TODO: Translate
                 show_list: 'Show Table List',
                 show_dbml: 'Show DBML Editor',
                 all_hidden: 'सबै तालिकाहरू लुकेका छन्',
@@ -154,10 +150,8 @@ export const ne: LanguageTranslation = {
                         comments: 'टिप्पणीहरू',
                         no_comments: 'कुनै टिप्पणीहरू छैनन्',
                         delete_field: 'क्षेत्र हटाउनुहोस्',
-                        // TODO: Translate
                         default_value: 'Default Value',
                         no_default: 'No default',
-                        // TODO: Translate
                         character_length: 'Max Length',
                         precision: 'परिशुद्धता',
                         scale: 'स्केल',
@@ -313,7 +307,6 @@ export const ne: LanguageTranslation = {
             undo: 'पूर्ववत',
             redo: 'पुनः गर्नुहोस्',
             reorder_diagram: 'डायाग्राम स्वचालित मिलाउनुहोस्',
-            // TODO: Translate
             clear_custom_type_highlight: 'Clear highlight for "{{typeName}}"',
             custom_type_highlight_tooltip:
                 'Highlighting "{{typeName}}" - Click to clear',
@@ -436,7 +429,6 @@ export const ne: LanguageTranslation = {
             scale_4x: '४x (उत्तम गुणस्तर)',
             cancel: 'रद्द गर्नुहोस्',
             export: 'निर्यात गर्नुहोस्',
-            // TODO: Translate
             advanced_options: 'Advanced Options',
             pattern: 'Include background pattern',
             pattern_description: 'Add subtle grid pattern to background.',
@@ -498,7 +490,6 @@ export const ne: LanguageTranslation = {
                     'डायाग्राम JSON अमान्य छ। कृपया JSON जाँच गर्नुहोस् र पुन: प्रयास गर्नुहोस्। मद्दत चाहिन्छ? support@chartdb.io मा सम्पर्क गर्नुहोस्',
             },
         },
-        // TODO: Translate
         import_dbml_dialog: {
             example_title: 'Import Example DBML',
             title: 'Import DBML',
@@ -524,7 +515,6 @@ export const ne: LanguageTranslation = {
             new_table: 'नयाँ तालिका',
             new_view: 'नयाँ भ्यू',
             new_relationship: 'नयाँ सम्बन्ध',
-            // TODO: Translate
             new_area: 'नयाँ क्षेत्र',
             new_note: 'नयाँ नोट',
         },
@@ -533,7 +523,7 @@ export const ne: LanguageTranslation = {
             edit_table: 'तालिका सम्पादन गर्नुहोस्',
             duplicate_table: 'तालिका नक्कली गर्नुहोस्',
             delete_table: 'तालिका हटाउनुहोस्',
-            add_relationship: 'Add Relationship', // TODO: Translate
+            add_relationship: 'Add Relationship',
             move_to_area: 'क्षेत्रमा सार्नुहोस्',
             no_area: 'कुनै क्षेत्र छैन',
         },

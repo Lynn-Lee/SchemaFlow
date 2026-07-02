@@ -4,6 +4,11 @@ export interface WorkerTaskEnvelope<TPayload> {
     payload: TPayload;
 }
 
+export interface WorkerTaskProgress {
+    stage: string;
+    message: string;
+}
+
 export type WorkerTaskResponse<TResult> =
     | {
           id: string;
@@ -17,6 +22,11 @@ export type WorkerTaskResponse<TResult> =
               code: string;
               message: string;
           };
+      }
+    | {
+          id: string;
+          ok: null;
+          progress: WorkerTaskProgress;
       };
 
 export class WorkerTaskError extends Error {
@@ -48,13 +58,24 @@ export async function runWorkerTask<TPayload, TResult>({
     payload,
     createWorker,
     fallback,
+    onProgress,
+    signal,
 }: {
     type: string;
     payload: TPayload;
     createWorker?: WorkerFactory;
     fallback: () => Promise<TResult>;
+    onProgress?: (progress: WorkerTaskProgress) => void;
+    signal?: AbortSignal;
 }): Promise<TResult> {
-    if (typeof Worker === 'undefined' || !createWorker) {
+    if (signal?.aborted) {
+        throw new WorkerTaskError({
+            code: 'WORKER_TASK_CANCELLED',
+            message: 'Worker task was cancelled.',
+        });
+    }
+
+    if (!createWorker) {
         return fallback();
     }
 
@@ -71,12 +92,33 @@ export async function runWorkerTask<TPayload, TResult>({
         const cleanup = () => {
             worker.removeEventListener('message', handleMessage);
             worker.removeEventListener('error', handleError);
+            signal?.removeEventListener('abort', handleAbort);
             worker.terminate();
         };
 
         const handleError = () => {
             cleanup();
+            if (signal?.aborted) {
+                reject(
+                    new WorkerTaskError({
+                        code: 'WORKER_TASK_CANCELLED',
+                        message: 'Worker task was cancelled.',
+                    })
+                );
+                return;
+            }
+
             fallback().then(resolve, reject);
+        };
+
+        const handleAbort = () => {
+            cleanup();
+            reject(
+                new WorkerTaskError({
+                    code: 'WORKER_TASK_CANCELLED',
+                    message: 'Worker task was cancelled.',
+                })
+            );
         };
 
         const handleMessage = (
@@ -84,6 +126,11 @@ export async function runWorkerTask<TPayload, TResult>({
         ) => {
             const response = event.data;
             if (!response || response.id !== id) {
+                return;
+            }
+
+            if (response.ok === null) {
+                onProgress?.(response.progress);
                 return;
             }
 
@@ -97,6 +144,7 @@ export async function runWorkerTask<TPayload, TResult>({
 
         worker.addEventListener('message', handleMessage);
         worker.addEventListener('error', handleError);
+        signal?.addEventListener('abort', handleAbort, { once: true });
         worker.postMessage({
             id,
             type,

@@ -1,7 +1,7 @@
 import { Dialog, DialogContent } from '@/components/dialog/dialog';
 import { useDialog } from '@/hooks/use-dialog';
 import { DatabaseType } from '@/lib/domain/database-type';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ImportDatabase } from '../common/import-database/import-database';
 import type { DatabaseEdition } from '@/lib/domain/database-edition';
 import type { Diagram } from '@/lib/domain/diagram';
@@ -12,6 +12,7 @@ import type { BaseDialogProps } from '../common/base-dialog-props';
 import type { ImportMethod } from '@/lib/import-method/import-method';
 import {
     parseImportPreview,
+    type ImportPreviewProgress,
     type ParsedImportPreview,
 } from '@/features/import/import-preview';
 
@@ -51,10 +52,18 @@ export const ImportDatabaseDialog: React.FC<ImportDatabaseDialogProps> = ({
     const [pendingImport, setPendingImport] =
         useState<ParsedImportPreview | null>(null);
     const [importError, setImportError] = useState('');
+    const [isPreviewingImport, setIsPreviewingImport] = useState(false);
+    const [importPreviewProgress, setImportPreviewProgress] =
+        useState<ImportPreviewProgress | null>(null);
+    const previewAbortControllerRef = useRef<AbortController | null>(null);
 
     useEffect(() => {
         setDatabaseEdition(undefined);
         setPendingImport(null);
+        setIsPreviewingImport(false);
+        setImportPreviewProgress(null);
+        previewAbortControllerRef.current?.abort();
+        previewAbortControllerRef.current = null;
     }, [databaseType]);
 
     useEffect(() => {
@@ -64,6 +73,10 @@ export const ImportDatabaseDialog: React.FC<ImportDatabaseDialogProps> = ({
         setImportMethod(initialImportMethod ?? importMethods[0]);
         setPendingImport(null);
         setImportError('');
+        setIsPreviewingImport(false);
+        setImportPreviewProgress(null);
+        previewAbortControllerRef.current?.abort();
+        previewAbortControllerRef.current = null;
     }, [dialog.open, importMethods, initialImportMethod]);
 
     const setScriptResultAndResetPreview = useCallback<
@@ -71,6 +84,7 @@ export const ImportDatabaseDialog: React.FC<ImportDatabaseDialogProps> = ({
     >((value) => {
         setPendingImport(null);
         setImportError('');
+        setImportPreviewProgress(null);
         setScriptResult(value);
     }, []);
 
@@ -78,6 +92,7 @@ export const ImportDatabaseDialog: React.FC<ImportDatabaseDialogProps> = ({
         (method: ImportMethod) => {
             setPendingImport(null);
             setImportError('');
+            setImportPreviewProgress(null);
             setImportMethod(method);
         },
         []
@@ -88,6 +103,7 @@ export const ImportDatabaseDialog: React.FC<ImportDatabaseDialogProps> = ({
     >((value) => {
         setPendingImport(null);
         setImportError('');
+        setImportPreviewProgress(null);
         setDatabaseEdition(value);
     }, []);
 
@@ -169,13 +185,26 @@ export const ImportDatabaseDialog: React.FC<ImportDatabaseDialogProps> = ({
     const importDatabase = useCallback(async () => {
         if (!pendingImport) {
             setImportError('');
+            setIsPreviewingImport(true);
+            setImportPreviewProgress({
+                stage: 'queued',
+                message: 'Preparing import preview',
+            });
+            const abortController = new AbortController();
+            previewAbortControllerRef.current = abortController;
             try {
-                const preview = await parseImportPreview({
-                    importMethod,
-                    scriptResult,
-                    databaseType,
-                    databaseEdition,
-                });
+                const preview = await parseImportPreview(
+                    {
+                        importMethod,
+                        scriptResult,
+                        databaseType,
+                        databaseEdition,
+                    },
+                    {
+                        signal: abortController.signal,
+                        onProgress: setImportPreviewProgress,
+                    }
+                );
 
                 if (!preview.preview.hasImportableObjects) {
                     setImportError(
@@ -187,6 +216,10 @@ export const ImportDatabaseDialog: React.FC<ImportDatabaseDialogProps> = ({
                 setPendingImport(preview);
                 return;
             } catch (error) {
+                if (abortController.signal.aborted) {
+                    setImportError('Import preview cancelled.');
+                    return;
+                }
                 const message =
                     error instanceof Error
                         ? error.message
@@ -195,6 +228,11 @@ export const ImportDatabaseDialog: React.FC<ImportDatabaseDialogProps> = ({
                     `Preview failed: ${message}. Check the Smart Query JSON, SQL syntax, or dialect limitations before trying again.`
                 );
                 return;
+            } finally {
+                if (previewAbortControllerRef.current === abortController) {
+                    previewAbortControllerRef.current = null;
+                }
+                setIsPreviewingImport(false);
             }
         }
 
@@ -207,6 +245,10 @@ export const ImportDatabaseDialog: React.FC<ImportDatabaseDialogProps> = ({
         pendingImport,
         applyImportedDiagram,
     ]);
+
+    const cancelImportPreview = useCallback(() => {
+        previewAbortControllerRef.current?.abort();
+    }, []);
 
     return (
         <Dialog
@@ -236,6 +278,9 @@ export const ImportDatabaseDialog: React.FC<ImportDatabaseDialogProps> = ({
                     importPreview={pendingImport?.preview ?? null}
                     enableImportPreview
                     importError={importError}
+                    isPreviewingImport={isPreviewingImport}
+                    importPreviewProgress={importPreviewProgress}
+                    onCancelImportPreview={cancelImportPreview}
                 />
             </DialogContent>
         </Dialog>

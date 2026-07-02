@@ -41,7 +41,6 @@ export const zh_TW: LanguageTranslation = {
                 theme: '主題',
                 show_dependencies: '顯示相依性',
                 hide_dependencies: '隱藏相依性',
-                // TODO: Translate
                 show_minimap: 'Show Mini Map',
                 hide_minimap: 'Hide Mini Map',
             },
@@ -119,10 +118,8 @@ export const zh_TW: LanguageTranslation = {
                 add_view: '新增檢視',
                 filter: '篩選',
                 collapse: '全部摺疊',
-                // TODO: Translate
                 clear: 'Clear Filter',
                 no_results: 'No tables found matching your filter.',
-                // TODO: Translate
                 show_list: 'Show Table List',
                 show_dbml: 'Show DBML Editor',
                 all_hidden: '所有表格已隱藏',
@@ -150,10 +147,8 @@ export const zh_TW: LanguageTranslation = {
                         comments: '註解',
                         no_comments: '無註解',
                         delete_field: '刪除欄位',
-                        // TODO: Translate
                         default_value: 'Default Value',
                         no_default: 'No default',
-                        // TODO: Translate
                         character_length: 'Max Length',
                         precision: '精度',
                         scale: '小數位',
@@ -175,7 +170,7 @@ export const zh_TW: LanguageTranslation = {
                         change_schema: '變更 Schema',
                         add_field: '新增欄位',
                         add_index: '新增索引',
-                        duplicate_table: 'Duplicate Table', // TODO: Translate
+                        duplicate_table: 'Duplicate Table',
                         delete_table: '刪除表格',
                     },
                 },
@@ -306,7 +301,6 @@ export const zh_TW: LanguageTranslation = {
             undo: '復原',
             redo: '重做',
             reorder_diagram: '自動排列圖表',
-            // TODO: Translate
             clear_custom_type_highlight: 'Clear highlight for "{{typeName}}"',
             custom_type_highlight_tooltip:
                 'Highlighting "{{typeName}}" - Click to clear',
@@ -425,7 +419,6 @@ export const zh_TW: LanguageTranslation = {
             scale_4x: '4x (最佳品質)',
             cancel: '取消',
             export: '匯出',
-            // TODO: Translate
             advanced_options: 'Advanced Options',
             pattern: 'Include background pattern',
             pattern_description: 'Add subtle grid pattern to background.',
@@ -467,7 +460,6 @@ export const zh_TW: LanguageTranslation = {
             format_json: 'JSON',
             cancel: '取消',
             export: '匯出',
-            // TODO: Translate
             error: {
                 title: 'Error exporting diagram',
                 description:
@@ -486,7 +478,6 @@ export const zh_TW: LanguageTranslation = {
                     '圖表的 JSON 無效。請檢查 JSON 並再試一次。如需幫助，請聯繫 support@chartdb.io',
             },
         },
-        // TODO: Translate
         import_dbml_dialog: {
             example_title: 'Import Example DBML',
             title: 'Import DBML',
@@ -517,9 +508,9 @@ export const zh_TW: LanguageTranslation = {
 
         table_node_context_menu: {
             edit_table: '編輯表格',
-            duplicate_table: 'Duplicate Table', // TODO: Translate
+            duplicate_table: 'Duplicate Table',
             delete_table: '刪除表格',
-            add_relationship: 'Add Relationship', // TODO: Translate
+            add_relationship: 'Add Relationship',
             move_to_area: '移動到區域',
             no_area: '無區域',
         },

@@ -54,6 +54,8 @@ import {
 } from '@/components/code-snippet/dbml/utils';
 import type { ImportPreviewSummary } from '@/features/import/import-preview';
 import { ImportPreviewPanel } from '@/features/import/import-preview-panel';
+import type { ImportPreviewProgress } from '@/features/import/import-preview';
+import { ImportPreviewProgressPanel } from '@/features/import/import-preview-progress-panel';
 
 const calculateContentSizeMB = (content: string): number => {
     return content.length / (1024 * 1024); // Convert to MB
@@ -86,6 +88,9 @@ export interface ImportDatabaseProps {
     importPreview?: ImportPreviewSummary | null;
     enableImportPreview?: boolean;
     importError?: string;
+    isPreviewingImport?: boolean;
+    importPreviewProgress?: ImportPreviewProgress | null;
+    onCancelImportPreview?: () => void;
 }
 
 export const ImportDatabase: React.FC<ImportDatabaseProps> = ({
@@ -105,6 +110,9 @@ export const ImportDatabase: React.FC<ImportDatabaseProps> = ({
     importPreview,
     enableImportPreview = false,
     importError,
+    isPreviewingImport = false,
+    importPreviewProgress,
+    onCancelImportPreview,
 }) => {
     const { effectiveTheme } = useTheme();
     const [errorMessage, setErrorMessage] = useState('');
@@ -568,6 +576,12 @@ export const ImportDatabase: React.FC<ImportDatabaseProps> = ({
                         {importError}
                     </div>
                 ) : null}
+                {isPreviewingImport && importPreviewProgress ? (
+                    <ImportPreviewProgressPanel
+                        progress={importPreviewProgress}
+                        onCancel={onCancelImportPreview ?? (() => {})}
+                    />
+                ) : null}
                 {errorMessage ||
                 ((importMethod === 'ddl' || importMethod === 'dbml') &&
                     sqlValidation) ? (
@@ -596,6 +610,9 @@ export const ImportDatabase: React.FC<ImportDatabaseProps> = ({
         handleErrorClick,
         importPreview,
         importError,
+        isPreviewingImport,
+        importPreviewProgress,
+        onCancelImportPreview,
     ]);
 
     const renderContent = useCallback(() => {
@@ -707,11 +724,16 @@ export const ImportDatabase: React.FC<ImportDatabaseProps> = ({
                             disabled={
                                 scriptResult.trim().length === 0 ||
                                 errorMessage.length > 0 ||
-                                isAutoFixing
+                                isAutoFixing ||
+                                isPreviewingImport
                             }
                             onClick={handleImport}
                         >
-                            {importButtonLabel}
+                            {isPreviewingImport ? (
+                                <Spinner size="small" />
+                            ) : (
+                                importButtonLabel
+                            )}
                         </Button>
                     ) : (
                         <DialogClose asChild>
@@ -721,11 +743,16 @@ export const ImportDatabase: React.FC<ImportDatabaseProps> = ({
                                 disabled={
                                     scriptResult.trim().length === 0 ||
                                     errorMessage.length > 0 ||
-                                    isAutoFixing
+                                    isAutoFixing ||
+                                    isPreviewingImport
                                 }
                                 onClick={handleImport}
                             >
-                                {importButtonLabel}
+                                {isPreviewingImport ? (
+                                    <Spinner size="small" />
+                                ) : (
+                                    importButtonLabel
+                                )}
                             </Button>
                         </DialogClose>
                     )}
@@ -760,6 +787,7 @@ export const ImportDatabase: React.FC<ImportDatabaseProps> = ({
         handleAutoFix,
         importPreview,
         enableImportPreview,
+        isPreviewingImport,
     ]);
 
     return (

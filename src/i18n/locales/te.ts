@@ -41,11 +41,9 @@ export const te: LanguageTranslation = {
                 theme: 'థీమ్',
                 show_dependencies: 'ఆధారాలు చూపించండి',
                 hide_dependencies: 'ఆధారాలను దాచండి',
-                // TODO: Translate
                 show_minimap: 'Show Mini Map',
                 hide_minimap: 'Hide Mini Map',
             },
-            // TODO: Translate
             backup: {
                 backup: 'Backup',
                 export_diagram: 'Export Diagram',
@@ -123,10 +121,8 @@ export const te: LanguageTranslation = {
                 add_view: 'వ్యూ జోడించండి',
                 filter: 'ఫిల్టర్',
                 collapse: 'అన్ని కూల్ చేయి',
-                // TODO: Translate
                 clear: 'Clear Filter',
                 no_results: 'No tables found matching your filter.',
-                // TODO: Translate
                 show_list: 'Show Table List',
                 show_dbml: 'Show DBML Editor',
                 all_hidden: 'అన్ని పట్టికలు దాచబడ్డాయి',
@@ -154,10 +150,8 @@ export const te: LanguageTranslation = {
                         comments: 'వ్యాఖ్యలు',
                         no_comments: 'వ్యాఖ్యలు లేవు',
                         delete_field: 'ఫీల్డ్ తొలగించు',
-                        // TODO: Translate
                         default_value: 'Default Value',
                         no_default: 'No default',
-                        // TODO: Translate
                         character_length: 'Max Length',
                         precision: 'సూక్ష్మత',
                         scale: 'స్కేల్',
@@ -179,7 +173,6 @@ export const te: LanguageTranslation = {
                         change_schema: 'స్కీమాను మార్చు',
                         add_field: 'ఫీల్డ్ జోడించు',
                         add_index: 'ఇండెక్స్ జోడించు',
-                        // TODO: Translate
                         duplicate_table: 'Duplicate Table',
                         delete_table: 'పట్టికను తొలగించు',
                     },
@@ -313,7 +306,6 @@ export const te: LanguageTranslation = {
             undo: 'తిరిగి చేయు',
             redo: 'మరలా చేయు',
             reorder_diagram: 'చిత్రాన్ని స్వయంచాలకంగా అమర్చండి',
-            // TODO: Translate
             clear_custom_type_highlight: 'Clear highlight for "{{typeName}}"',
             custom_type_highlight_tooltip:
                 'Highlighting "{{typeName}}" - Click to clear',
@@ -347,7 +339,6 @@ export const te: LanguageTranslation = {
             },
 
             cancel: 'రద్దు',
-            // TODO: Translate
             import_from_file: 'Import from File',
             back: 'తిరుగు',
             empty_diagram: 'ఖాళీ డేటాబేస్',
@@ -435,7 +426,6 @@ export const te: LanguageTranslation = {
             scale_4x: '4x (అత్యుత్తమ నాణ్యత)',
             cancel: 'రద్దు',
             export: 'ఎగుమతి',
-            // TODO: Translate
             advanced_options: 'Advanced Options',
             pattern: 'Include background pattern',
             pattern_description: 'Add subtle grid pattern to background.',
@@ -474,7 +464,6 @@ export const te: LanguageTranslation = {
             confirm: 'ఖచ్చితంగా!',
         },
 
-        // TODO: Translate
         export_diagram_dialog: {
             title: 'Export Diagram',
             description: 'Choose the format for export:',
@@ -488,7 +477,6 @@ export const te: LanguageTranslation = {
             },
         },
 
-        // TODO: Translate
         import_diagram_dialog: {
             title: 'Import Diagram',
             description: 'Paste the diagram JSON below:',
@@ -500,7 +488,6 @@ export const te: LanguageTranslation = {
                     'The diagram JSON is invalid. Please check the JSON and try again. Need help? support@chartdb.io',
             },
         },
-        // TODO: Translate
         import_dbml_dialog: {
             example_title: 'Import Example DBML',
             title: 'Import DBML',
@@ -526,16 +513,15 @@ export const te: LanguageTranslation = {
             new_table: 'కొత్త పట్టిక',
             new_view: 'కొత్త వ్యూ',
             new_relationship: 'కొత్త సంబంధం',
-            // TODO: Translate
             new_area: 'కొత్త ప్రాంతం',
             new_note: 'కొత్త నోట్',
         },
 
         table_node_context_menu: {
             edit_table: 'పట్టికను సవరించు',
-            duplicate_table: 'Duplicate Table', // TODO: Translate
+            duplicate_table: 'Duplicate Table',
             delete_table: 'పట్టికను తొలగించు',
-            add_relationship: 'Add Relationship', // TODO: Translate
+            add_relationship: 'Add Relationship',
             move_to_area: 'ప్రాంతానికి తరలించు',
             no_area: 'ప్రాంతం లేదు',
         },
@@ -557,10 +543,8 @@ export const te: LanguageTranslation = {
             clear_filter: 'ఫిల్టర్ క్లియర్ చేయండి',
         },
 
-        // TODO: Translate
         snap_to_grid_tooltip: 'Snap to Grid (Hold {{key}})',
 
-        // TODO: Translate
         tool_tips: {
             double_click_to_edit: 'Double-click to edit',
         },

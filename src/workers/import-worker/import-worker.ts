@@ -23,6 +23,14 @@ self.addEventListener(
         }
 
         try {
+            self.postMessage({
+                id,
+                ok: null,
+                progress: {
+                    stage: 'parsing',
+                    message: 'Parsing import input',
+                },
+            } satisfies WorkerTaskResponse<ParsedImportPreview>);
             const result = await handleImportPreview(payload);
             self.postMessage({
                 id,

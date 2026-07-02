@@ -41,7 +41,6 @@ export const gu: LanguageTranslation = {
                 theme: 'થિમ',
                 show_dependencies: 'નિર્ભરતાઓ બતાવો',
                 hide_dependencies: 'નિર્ભરતાઓ છુપાવો',
-                // TODO: Translate
                 show_minimap: 'Show Mini Map',
                 hide_minimap: 'Hide Mini Map',
             },
@@ -123,10 +122,8 @@ export const gu: LanguageTranslation = {
                 add_view: 'વ્યૂ ઉમેરો',
                 filter: 'ફિલ્ટર',
                 collapse: 'બધાને સકુચિત કરો',
-                // TODO: Translate
                 clear: 'Clear Filter',
                 no_results: 'No tables found matching your filter.',
-                // TODO: Translate
                 show_list: 'Show Table List',
                 show_dbml: 'Show DBML Editor',
                 all_hidden: 'બધી ટેબલ્સ છુપાયેલી છે',
@@ -134,7 +131,6 @@ export const gu: LanguageTranslation = {
 
                 table: {
                     fields: 'ફીલ્ડ્સ',
-                    //TODO translate
                     nullable: 'Nullable?',
                     primary_key: 'પ્રાથમિક કી',
                     indexes: 'ઈન્ડેક્સ',
@@ -155,10 +151,8 @@ export const gu: LanguageTranslation = {
                         comments: 'ટિપ્પણીઓ',
                         no_comments: 'કોઈ ટિપ્પણીઓ નથી',
                         delete_field: 'ફીલ્ડ કાઢી નાખો',
-                        // TODO: Translate
                         default_value: 'Default Value',
                         no_default: 'No default',
-                        // TODO: Translate
                         character_length: 'Max Length',
                         precision: 'ચોકસાઈ',
                         scale: 'માપ',
@@ -313,7 +307,6 @@ export const gu: LanguageTranslation = {
             undo: 'અનડુ',
             redo: 'રીડુ',
             reorder_diagram: 'ડાયાગ્રામ ઑટોમેટિક ગોઠવો',
-            // TODO: Translate
             clear_custom_type_highlight: 'Clear highlight for "{{typeName}}"',
             custom_type_highlight_tooltip:
                 'Highlighting "{{typeName}}" - Click to clear',
@@ -433,7 +426,6 @@ export const gu: LanguageTranslation = {
             scale_4x: '4x (શ્રેષ્ઠ ગુણવત્તા)',
             cancel: 'રદ કરો',
             export: 'નિકાસ કરો',
-            // TODO: Translate
             advanced_options: 'Advanced Options',
             pattern: 'Include background pattern',
             pattern_description: 'Add subtle grid pattern to background.',
@@ -496,7 +488,6 @@ export const gu: LanguageTranslation = {
                     'ડાયાગ્રામ JSON અમાન્ય છે. કૃપા કરીને JSON તપાસો અને ફરી પ્રયાસ કરો. મદદ જોઈએ? support@chartdb.io પર સંપર્ક કરો.',
             },
         },
-        // TODO: Translate
         import_dbml_dialog: {
             example_title: 'Import Example DBML',
             title: 'Import DBML',
@@ -521,7 +512,6 @@ export const gu: LanguageTranslation = {
             new_table: 'નવું ટેબલ',
             new_view: 'નવું વ્યૂ',
             new_relationship: 'નવો સંબંધ',
-            // TODO: Translate
             new_area: 'નવો વિસ્તાર',
             new_note: 'નવી નોંધ',
         },
@@ -530,7 +520,7 @@ export const gu: LanguageTranslation = {
             edit_table: 'ટેબલ સંપાદિત કરો',
             duplicate_table: 'ટેબલ નકલ કરો',
             delete_table: 'ટેબલ કાઢી નાખો',
-            add_relationship: 'Add Relationship', // TODO: Translate
+            add_relationship: 'Add Relationship',
             move_to_area: 'વિસ્તારમાં ખસેડો',
             no_area: 'કોઈ વિસ્તાર નહીં',
         },

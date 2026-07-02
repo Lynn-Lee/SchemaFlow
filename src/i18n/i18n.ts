@@ -25,6 +25,36 @@ import { vi, viMetadata } from './locales/vi';
 import { ar, arMetadata } from './locales/ar';
 import { hr, hrMetadata } from './locales/hr';
 
+const experimentalLanguageCodes = new Set([
+    'ar',
+    'bn',
+    'de',
+    'es',
+    'fr',
+    'gu',
+    'hi',
+    'id_ID',
+    'ja',
+    'ko_KR',
+    'mr',
+    'ne',
+    'pt_BR',
+    'ru',
+    'te',
+    'tr',
+    'uk',
+    'vi',
+    'zh_CN',
+    'zh_TW',
+]);
+
+const withStatus = (metadata: LanguageMetadata): LanguageMetadata => ({
+    ...metadata,
+    status: experimentalLanguageCodes.has(metadata.code)
+        ? 'experimental'
+        : 'stable',
+});
+
 export const languages: LanguageMetadata[] = [
     enMetadata,
     frMetadata,
@@ -48,7 +78,7 @@ export const languages: LanguageMetadata[] = [
     guMetadata,
     viMetadata,
     arMetadata,
-];
+].map(withStatus);
 
 const resources = {
     en,

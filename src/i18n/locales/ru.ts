@@ -151,7 +151,6 @@ export const ru: LanguageTranslation = {
                         comments: 'Комментарии',
                         no_comments: 'Нет комментария',
                         delete_field: 'Удалить поле',
-                        // TODO: Translate
                         default_value: 'Default Value',
                         no_default: 'No default',
                         character_length: 'Макс. длина',
@@ -311,7 +310,6 @@ export const ru: LanguageTranslation = {
             undo: 'Отменить',
             redo: 'Вернуть',
             reorder_diagram: 'Автоматическая расстановка диаграммы',
-            // TODO: Translate
             clear_custom_type_highlight: 'Clear highlight for "{{typeName}}"',
             custom_type_highlight_tooltip:
                 'Highlighting "{{typeName}}" - Click to clear',
@@ -433,7 +431,6 @@ export const ru: LanguageTranslation = {
             scale_4x: '4x (Лучшее качество)',
             cancel: 'Отменить',
             export: 'Экспортировать',
-            // TODO: Translate
             advanced_options: 'Advanced Options',
             pattern: 'Include background pattern',
             pattern_description: 'Add subtle grid pattern to background.',

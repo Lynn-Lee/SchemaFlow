@@ -41,7 +41,6 @@ export const ko_KR: LanguageTranslation = {
                 theme: '테마',
                 show_dependencies: '종속성 보이기',
                 hide_dependencies: '종속성 숨기기',
-                // TODO: Translate
                 show_minimap: 'Show Mini Map',
                 hide_minimap: 'Hide Mini Map',
             },
@@ -122,10 +121,8 @@ export const ko_KR: LanguageTranslation = {
                 add_view: '뷰 추가',
                 filter: '필터',
                 collapse: '모두 접기',
-                // TODO: Translate
                 clear: 'Clear Filter',
                 no_results: 'No tables found matching your filter.',
-                // TODO: Translate
                 show_list: 'Show Table List',
                 show_dbml: 'Show DBML Editor',
                 all_hidden: '모든 테이블이 숨겨져 있습니다',
@@ -153,10 +150,8 @@ export const ko_KR: LanguageTranslation = {
                         comments: '주석',
                         no_comments: '주석 없음',
                         delete_field: '필드 삭제',
-                        // TODO: Translate
                         default_value: 'Default Value',
                         no_default: 'No default',
-                        // TODO: Translate
                         character_length: 'Max Length',
                         precision: '정밀도',
                         scale: '소수점 자릿수',
@@ -312,7 +307,6 @@ export const ko_KR: LanguageTranslation = {
             undo: '실행 취소',
             redo: '다시 실행',
             reorder_diagram: '다이어그램 자동 정렬',
-            // TODO: Translate
             clear_custom_type_highlight: 'Clear highlight for "{{typeName}}"',
             custom_type_highlight_tooltip:
                 'Highlighting "{{typeName}}" - Click to clear',
@@ -432,7 +426,6 @@ export const ko_KR: LanguageTranslation = {
             scale_4x: '4x (최고 화질)',
             cancel: '취소',
             export: '내보내기',
-            // TODO: Translate
             advanced_options: 'Advanced Options',
             pattern: 'Include background pattern',
             pattern_description: 'Add subtle grid pattern to background.',
@@ -493,7 +486,6 @@ export const ko_KR: LanguageTranslation = {
                     '다이어그램 JSON이 유효하지 않습니다. JSON이 올바른 형식인지 확인해주세요. 도움이 필요하신 경우 support@chartdb.io으로 연락해주세요.',
             },
         },
-        // TODO: Translate
         import_dbml_dialog: {
             example_title: 'Import Example DBML',
             title: 'Import DBML',
@@ -526,7 +518,7 @@ export const ko_KR: LanguageTranslation = {
             edit_table: '테이블 수정',
             duplicate_table: '테이블 복제',
             delete_table: '테이블 삭제',
-            add_relationship: 'Add Relationship', // TODO: Translate
+            add_relationship: 'Add Relationship',
             move_to_area: '영역으로 이동',
             no_area: '영역 없음',
         },

@@ -39,10 +39,8 @@ export const ja: LanguageTranslation = {
                 zoom_on_scroll: 'スクロールでズーム',
                 show_views: 'データベースビュー',
                 theme: 'テーマ',
-                // TODO: Translate
                 show_dependencies: 'Show Dependencies',
                 hide_dependencies: 'Hide Dependencies',
-                // TODO: Translate
                 show_minimap: 'Show Mini Map',
                 hide_minimap: 'Hide Mini Map',
             },
@@ -113,7 +111,6 @@ export const ja: LanguageTranslation = {
         clear: 'クリア',
         show_more: 'さらに表示',
         show_less: '表示を減らす',
-        // TODO: Translate
         copy_to_clipboard: 'Copy to Clipboard',
         copied: 'Copied!',
 
@@ -125,10 +122,8 @@ export const ja: LanguageTranslation = {
                 add_view: 'ビューを追加',
                 filter: 'フィルタ',
                 collapse: 'すべて折りたたむ',
-                // TODO: Translate
                 clear: 'Clear Filter',
                 no_results: 'No tables found matching your filter.',
-                // TODO: Translate
                 show_list: 'Show Table List',
                 show_dbml: 'Show DBML Editor',
                 all_hidden: 'すべてのテーブルが非表示です',
@@ -156,10 +151,8 @@ export const ja: LanguageTranslation = {
                         comments: 'コメント',
                         no_comments: 'コメントがありません',
                         delete_field: 'フィールドを削除',
-                        // TODO: Translate
                         default_value: 'Default Value',
                         no_default: 'No default',
-                        // TODO: Translate
                         character_length: 'Max Length',
                         precision: '精度',
                         scale: '小数点以下桁数',
@@ -181,7 +174,7 @@ export const ja: LanguageTranslation = {
                         change_schema: 'スキーマを変更',
                         add_field: 'フィールドを追加',
                         add_index: 'インデックスを追加',
-                        duplicate_table: 'Duplicate Table', // TODO: Translate
+                        duplicate_table: 'Duplicate Table',
                         delete_table: 'テーブルを削除',
                     },
                 },
@@ -315,7 +308,6 @@ export const ja: LanguageTranslation = {
             undo: '元に戻す',
             redo: 'やり直し',
             reorder_diagram: 'ダイアグラムを自動配置',
-            // TODO: Translate
             highlight_overlapping_tables: 'Highlight Overlapping Tables',
             clear_custom_type_highlight: 'Clear highlight for "{{typeName}}"',
             custom_type_highlight_tooltip:
@@ -343,14 +335,12 @@ export const ja: LanguageTranslation = {
                     step_1: 'ツール > オプション > クエリ結果 > SQL Serverに移動します。',
                     step_2: '「グリッドへの結果」を使用している場合、XML以外のデータの最大取得文字数を変更してください（9999999に設定）。',
                 },
-                // TODO: Translate
                 instructions_link: 'Need help? Watch how',
                 check_script_result: 'Check Script Result',
             },
 
             cancel: 'キャンセル',
             back: '戻る',
-            // TODO: Translate
             import_from_file: 'Import from File',
             empty_diagram: '空のデータベース',
             continue: '続行',
@@ -437,7 +427,6 @@ export const ja: LanguageTranslation = {
             scale_4x: '4x (最高画質)',
             cancel: 'キャンセル',
             export: 'エクスポート',
-            // TODO: Translate
             advanced_options: 'Advanced Options',
             pattern: 'Include background pattern',
             pattern_description: 'Add subtle grid pattern to background.',
@@ -475,7 +464,6 @@ export const ja: LanguageTranslation = {
             close: '今はしない',
             confirm: 'もちろん！',
         },
-        // TODO: Translate
         export_diagram_dialog: {
             title: 'Export Diagram',
             description: 'Choose the format for export:',
@@ -488,7 +476,6 @@ export const ja: LanguageTranslation = {
                     'Something went wrong. Need help? support@chartdb.io',
             },
         },
-        // TODO: Translate
         import_diagram_dialog: {
             title: 'Import Diagram',
             description: 'Paste the diagram JSON below:',
@@ -500,7 +487,6 @@ export const ja: LanguageTranslation = {
                     'The diagram JSON is invalid. Please check the JSON and try again. Need help? support@chartdb.io',
             },
         },
-        // TODO: Translate
         import_dbml_dialog: {
             example_title: 'Import Example DBML',
             title: 'Import DBML',
@@ -531,9 +517,9 @@ export const ja: LanguageTranslation = {
 
         table_node_context_menu: {
             edit_table: 'テーブルを編集',
-            duplicate_table: 'Duplicate Table', // TODO: Translate
+            duplicate_table: 'Duplicate Table',
             delete_table: 'テーブルを削除',
-            add_relationship: 'Add Relationship', // TODO: Translate
+            add_relationship: 'Add Relationship',
             move_to_area: 'エリアに移動',
             no_area: 'エリアなし',
         },
@@ -554,7 +540,6 @@ export const ja: LanguageTranslation = {
             clear_filter: 'フィルターをクリア',
         },
 
-        // TODO: Add translations
         snap_to_grid_tooltip: 'Snap to Grid (Hold {{key}})',
 
         tool_tips: {

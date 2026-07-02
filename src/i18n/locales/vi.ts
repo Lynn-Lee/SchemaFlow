@@ -41,7 +41,6 @@ export const vi: LanguageTranslation = {
                 theme: 'Chủ đề',
                 show_dependencies: 'Hiển thị các phụ thuộc',
                 hide_dependencies: 'Ẩn các phụ thuộc',
-                // TODO: Translate
                 show_minimap: 'Show Mini Map',
                 hide_minimap: 'Hide Mini Map',
             },
@@ -122,10 +121,8 @@ export const vi: LanguageTranslation = {
                 add_view: 'Thêm Chế độ xem',
                 filter: 'Lọc',
                 collapse: 'Thu gọn tất cả',
-                // TODO: Translate
                 clear: 'Clear Filter',
                 no_results: 'No tables found matching your filter.',
-                // TODO: Translate
                 show_list: 'Show Table List',
                 show_dbml: 'Show DBML Editor',
                 all_hidden: 'Tất cả bảng đã bị ẩn',
@@ -153,10 +150,8 @@ export const vi: LanguageTranslation = {
                         comments: 'Bình luận',
                         no_comments: 'Không có bình luận',
                         delete_field: 'Xóa trường',
-                        // TODO: Translate
                         default_value: 'Default Value',
                         no_default: 'No default',
-                        // TODO: Translate
                         character_length: 'Max Length',
                         precision: 'Độ chính xác',
                         scale: 'Tỷ lệ',
@@ -312,7 +307,6 @@ export const vi: LanguageTranslation = {
             undo: 'Hoàn tác',
             redo: 'Làm lại',
             reorder_diagram: 'Tự động sắp xếp sơ đồ',
-            // TODO: Translate
             clear_custom_type_highlight: 'Clear highlight for "{{typeName}}"',
             custom_type_highlight_tooltip:
                 'Highlighting "{{typeName}}" - Click to clear',
@@ -432,7 +426,6 @@ export const vi: LanguageTranslation = {
             scale_4x: '4x (Chất lượng tốt nhất)',
             cancel: 'Hủy',
             export: 'Xuất',
-            // TODO: Translate
             advanced_options: 'Advanced Options',
             pattern: 'Include background pattern',
             pattern_description: 'Add subtle grid pattern to background.',
@@ -494,7 +487,6 @@ export const vi: LanguageTranslation = {
                     'Sơ đồ ở dạng JSON không hợp lệ. Vui lòng kiểm tra JSON và thử lại. Bạn cần trợ giúp? support@chartdb.io',
             },
         },
-        // TODO: Translate
         import_dbml_dialog: {
             example_title: 'Import Example DBML',
             title: 'Import DBML',
@@ -519,7 +511,6 @@ export const vi: LanguageTranslation = {
             new_table: 'Tạo bảng mới',
             new_view: 'Chế độ xem Mới',
             new_relationship: 'Tạo quan hệ mới',
-            // TODO: Translate
             new_area: 'Khu vực mới',
             new_note: 'Ghi Chú Mới',
         },
@@ -528,7 +519,7 @@ export const vi: LanguageTranslation = {
             edit_table: 'Sửa bảng',
             duplicate_table: 'Nhân đôi bảng',
             delete_table: 'Xóa bảng',
-            add_relationship: 'Add Relationship', // TODO: Translate
+            add_relationship: 'Add Relationship',
             move_to_area: 'Di chuyển đến Khu vực',
             no_area: 'Không có Khu vực',
         },

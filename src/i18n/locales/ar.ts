@@ -41,7 +41,6 @@ export const ar: LanguageTranslation = {
                 theme: 'المظهر',
                 show_dependencies: 'إظهار الاعتمادات',
                 hide_dependencies: 'إخفاء الاعتمادات',
-                // TODO: Translate
                 show_minimap: 'Show Mini Map',
                 hide_minimap: 'Hide Mini Map',
             },
@@ -122,10 +121,8 @@ export const ar: LanguageTranslation = {
                 add_view: 'إضافة عرض',
                 filter: 'تصفية',
                 collapse: 'طي الكل',
-                // TODO: Translate
                 clear: 'Clear Filter',
                 no_results: 'No tables found matching your filter.',
-                // TODO: Translate
                 show_list: 'Show Table List',
                 show_dbml: 'Show DBML Editor',
                 all_hidden: 'جميع الجداول مخفية',
@@ -153,7 +150,6 @@ export const ar: LanguageTranslation = {
                         comments: 'تعليقات',
                         no_comments: 'لا يوجد تعليقات',
                         delete_field: 'حذف الحقل',
-                        // TODO: Translate
                         character_length: 'Max Length',
                         precision: 'الدقة',
                         scale: 'النطاق',
@@ -428,7 +424,6 @@ export const ar: LanguageTranslation = {
             scale_4x: '4x (أفضل جودة)',
             cancel: 'إلغاء',
             export: 'تصدير',
-            // TODO: Translate
             advanced_options: 'Advanced Options',
             pattern: 'Include background pattern',
             pattern_description: 'Add subtle grid pattern to background.',
@@ -488,7 +483,6 @@ export const ar: LanguageTranslation = {
             },
         },
         import_dbml_dialog: {
-            // TODO: Translate
             title: 'Import DBML',
             example_title: 'Import Example DBML',
             description: 'Import a database schema from DBML format.',
@@ -512,7 +506,6 @@ export const ar: LanguageTranslation = {
             new_table: 'جدول جديد',
             new_view: 'عرض جديد',
             new_relationship: 'علاقة جديدة',
-            // TODO: Translate
             new_area: 'منطقة جديدة',
             new_note: 'ملاحظة جديدة',
         },
@@ -521,7 +514,7 @@ export const ar: LanguageTranslation = {
             edit_table: 'تعديل الجدول',
             duplicate_table: 'نسخ الجدول',
             delete_table: 'حذف الجدول',
-            add_relationship: 'Add Relationship', // TODO: Translate
+            add_relationship: 'Add Relationship',
             move_to_area: 'نقل إلى منطقة',
             no_area: 'بدون منطقة',
         },

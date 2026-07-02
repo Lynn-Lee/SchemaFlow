@@ -41,7 +41,6 @@ export const hi: LanguageTranslation = {
                 theme: 'थीम',
                 show_dependencies: 'निर्भरता दिखाएँ',
                 hide_dependencies: 'निर्भरता छिपाएँ',
-                // TODO: Translate
                 show_minimap: 'Show Mini Map',
                 hide_minimap: 'Hide Mini Map',
             },
@@ -111,7 +110,6 @@ export const hi: LanguageTranslation = {
         clear: 'साफ़ करें',
         show_more: 'अधिक दिखाएँ',
         show_less: 'कम दिखाएँ',
-        // TODO: Translate
         copy_to_clipboard: 'Copy to Clipboard',
         copied: 'Copied!',
 
@@ -123,10 +121,8 @@ export const hi: LanguageTranslation = {
                 add_view: 'व्यू जोड़ें',
                 filter: 'फ़िल्टर',
                 collapse: 'सभी को संक्षिप्त करें',
-                // TODO: Translate
                 clear: 'Clear Filter',
                 no_results: 'No tables found matching your filter.',
-                // TODO: Translate
                 show_list: 'Show Table List',
                 show_dbml: 'Show DBML Editor',
                 all_hidden: 'सभी तालिकाएँ छिपी हुई हैं',
@@ -154,10 +150,8 @@ export const hi: LanguageTranslation = {
                         comments: 'टिप्पणियाँ',
                         no_comments: 'कोई टिप्पणी नहीं',
                         delete_field: 'फ़ील्ड हटाएँ',
-                        // TODO: Translate
                         default_value: 'Default Value',
                         no_default: 'No default',
-                        // TODO: Translate
                         character_length: 'Max Length',
                         precision: 'Precision',
                         scale: 'Scale',
@@ -179,7 +173,7 @@ export const hi: LanguageTranslation = {
                         change_schema: 'स्कीमा बदलें',
                         add_field: 'फ़ील्ड जोड़ें',
                         add_index: 'सूचकांक जोड़ें',
-                        duplicate_table: 'Duplicate Table', // TODO: Translate
+                        duplicate_table: 'Duplicate Table',
                         delete_table: 'तालिका हटाएँ',
                     },
                 },
@@ -314,7 +308,6 @@ export const hi: LanguageTranslation = {
             undo: 'पूर्ववत करें',
             redo: 'पुनः करें',
             reorder_diagram: 'आरेख स्वचालित व्यवस्थित करें',
-            // TODO: Translate
             clear_custom_type_highlight: 'Clear highlight for "{{typeName}}"',
             custom_type_highlight_tooltip:
                 'Highlighting "{{typeName}}" - Click to clear',
@@ -344,13 +337,11 @@ export const hi: LanguageTranslation = {
                     step_2: 'यदि आप "ग्रिड में परिणाम" का उपयोग कर रहे हैं, तो Non-XML डेटा के लिए अधिकतम वर्ण प्राप्ति (9999999 पर सेट करें)।',
                 },
                 instructions_link: 'मदद चाहिए? देखें कैसे',
-                // TODO: Translate
                 check_script_result: 'Check Script Result',
             },
 
             cancel: 'रद्द करें',
             back: 'वापस',
-            // TODO: Translate
             import_from_file: 'Import from File',
             empty_diagram: 'खाली डेटाबेस',
             continue: 'जारी रखें',
@@ -437,7 +428,6 @@ export const hi: LanguageTranslation = {
             scale_4x: '4x (सर्वोत्तम गुणवत्ता)',
             cancel: 'रद्द करें',
             export: 'निर्यात करें',
-            // TODO: Translate
             advanced_options: 'Advanced Options',
             pattern: 'Include background pattern',
             pattern_description: 'Add subtle grid pattern to background.',
@@ -475,7 +465,6 @@ export const hi: LanguageTranslation = {
             close: 'अभी नहीं',
             confirm: 'बिलकुल!',
         },
-        // TODO: Translate
         export_diagram_dialog: {
             title: 'Export Diagram',
             description: 'Choose the format for export:',
@@ -488,7 +477,6 @@ export const hi: LanguageTranslation = {
                     'Something went wrong. Need help? support@chartdb.io',
             },
         },
-        // TODO: Translate
         import_diagram_dialog: {
             title: 'Import Diagram',
             description: 'Paste the diagram JSON below:',
@@ -500,7 +488,6 @@ export const hi: LanguageTranslation = {
                     'The diagram JSON is invalid. Please check the JSON and try again. Need help? support@chartdb.io',
             },
         },
-        // TODO: Translate
         import_dbml_dialog: {
             example_title: 'Import Example DBML',
             title: 'Import DBML',
@@ -525,16 +512,15 @@ export const hi: LanguageTranslation = {
             new_table: 'नई तालिका',
             new_view: 'नया व्यू',
             new_relationship: 'नया संबंध',
-            // TODO: Translate
             new_area: 'नया क्षेत्र',
             new_note: 'नया नोट',
         },
 
         table_node_context_menu: {
             edit_table: 'तालिका संपादित करें',
-            duplicate_table: 'Duplicate Table', // TODO: Translate
+            duplicate_table: 'Duplicate Table',
             delete_table: 'तालिका हटाएँ',
-            add_relationship: 'Add Relationship', // TODO: Translate
+            add_relationship: 'Add Relationship',
             move_to_area: 'क्षेत्र में ले जाएं',
             no_area: 'कोई क्षेत्र नहीं',
         },
@@ -556,7 +542,6 @@ export const hi: LanguageTranslation = {
             clear_filter: 'फ़िल्टर साफ़ करें',
         },
 
-        // TODO: Add translations
         snap_to_grid_tooltip: 'Snap to Grid (Hold {{key}})',
 
         tool_tips: {

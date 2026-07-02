@@ -41,7 +41,6 @@ export const id_ID: LanguageTranslation = {
                 theme: 'Tema',
                 show_dependencies: 'Tampilkan Dependensi',
                 hide_dependencies: 'Sembunyikan Dependensi',
-                // TODO: Translate
                 show_minimap: 'Show Mini Map',
                 hide_minimap: 'Hide Mini Map',
             },
@@ -122,10 +121,8 @@ export const id_ID: LanguageTranslation = {
                 add_view: 'Tambah Tampilan',
                 filter: 'Saring',
                 collapse: 'Lipat Semua',
-                // TODO: Translate
                 clear: 'Clear Filter',
                 no_results: 'No tables found matching your filter.',
-                // TODO: Translate
                 show_list: 'Show Table List',
                 show_dbml: 'Show DBML Editor',
                 all_hidden: 'Semua tabel tersembunyi',
@@ -153,10 +150,8 @@ export const id_ID: LanguageTranslation = {
                         comments: 'Komentar',
                         no_comments: 'Tidak ada komentar',
                         delete_field: 'Hapus Kolom',
-                        // TODO: Translate
                         default_value: 'Default Value',
                         no_default: 'No default',
-                        // TODO: Translate
                         character_length: 'Max Length',
                         precision: 'Presisi',
                         scale: 'Skala',
@@ -312,7 +307,6 @@ export const id_ID: LanguageTranslation = {
             undo: 'Undo',
             redo: 'Redo',
             reorder_diagram: 'Atur Otomatis Diagram',
-            // TODO: Translate
             clear_custom_type_highlight: 'Clear highlight for "{{typeName}}"',
             custom_type_highlight_tooltip:
                 'Highlighting "{{typeName}}" - Click to clear',
@@ -432,7 +426,6 @@ export const id_ID: LanguageTranslation = {
             scale_4x: '4x (Kualitas Terbaik)',
             cancel: 'Batal',
             export: 'Ekspor',
-            // TODO: Translate
             advanced_options: 'Advanced Options',
             pattern: 'Include background pattern',
             pattern_description: 'Add subtle grid pattern to background.',
@@ -495,7 +488,6 @@ export const id_ID: LanguageTranslation = {
                     'Diagram JSON tidak valid. Silakan cek JSON dan coba lagi. Butuh bantuan? support@chartdb.io',
             },
         },
-        // TODO: Translate
         import_dbml_dialog: {
             example_title: 'Import Example DBML',
             title: 'Import DBML',
@@ -521,7 +513,6 @@ export const id_ID: LanguageTranslation = {
             new_table: 'Tabel Baru',
             new_view: 'Tampilan Baru',
             new_relationship: 'Hubungan Baru',
-            // TODO: Translate
             new_area: 'Area Baru',
             new_note: 'Catatan Baru',
         },
@@ -530,7 +521,7 @@ export const id_ID: LanguageTranslation = {
             edit_table: 'Ubah Tabel',
             delete_table: 'Hapus Tabel',
             duplicate_table: 'Duplikat Tabel',
-            add_relationship: 'Add Relationship', // TODO: Translate
+            add_relationship: 'Add Relationship',
             move_to_area: 'Pindahkan ke Area',
             no_area: 'Tanpa Area',
         },
