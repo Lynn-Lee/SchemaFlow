@@ -1344,6 +1344,8 @@ Capability Matrix：
 
 ### Phase 8：可选 Cloud/Team
 
+当前状态：`CHARTDB-P8-000` 已新增 `docs/可选账号登录与团队协作预研.md`，明确可选 Cloud/Team 不改变 OSS Core 默认无账号、本地优先模式；本地 diagram 不自动上传，云同步必须用户主动开启；Workspace、Team、权限、AuditLog、租户隔离、数据导出/删除和权限 negative tests 已进入后续 Cloud/Team 规划边界。下一项进入 `CHARTDB-P8-001`，评估可选后端 API、认证、数据库和同步策略。
+
 周期：独立规划，不进入首轮。
 
 目标：
@@ -1583,11 +1585,12 @@ Capability Matrix：
 
 ### M5：可选云端版
 
-- 登录。
-- Workspace。
-- 云同步。
+- 可选登录，不影响 OSS Core 本地模式。
+- Workspace 和 Team。
+- 用户主动开启的云同步。
 - 分享权限。
-- 审计与租户隔离。
+- AuditLog、权限 negative tests 和租户隔离。
+- 云端数据导出和数据删除。
 
 ## 13. 结论
 

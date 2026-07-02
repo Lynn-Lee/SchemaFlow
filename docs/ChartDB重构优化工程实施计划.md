@@ -1503,10 +1503,11 @@ git switch -c codex/chartdb-phase-7-release-docs
 
 ### Task 8.1：Cloud/Team 技术预研
 
+**当前状态：** `CHARTDB-P8-000` 已完成 Cloud/Team 边界计划，新增 `docs/可选账号登录与团队协作预研.md`。该文档确认不登录仍可完整使用 OSS Core、本地 diagram 不自动上传、云同步必须用户主动开启，并定义 Workspace、Team、权限、AuditLog、租户隔离、数据导出/删除和权限 negative tests。下一步执行 `CHARTDB-P8-001`，补充技术栈选型记录。
+
 **交付物：**
 
-- `docs/可选云端协作产品方案.md`
-- `docs/可选云端协作技术预研.md`
+- `docs/可选账号登录与团队协作预研.md`
 
 **设计范围：**
 
@@ -1525,6 +1526,12 @@ git switch -c codex/chartdb-phase-7-release-docs
 - 用户主动开启云同步。
 - 本地历史 diagram 不自动上传。
 - 云端数据可导出、可删除。
+
+**本轮限制：**
+
+- 不新增登录代码。
+- 不引入 Cloud/Team SDK 到 OSS Core 默认构建。
+- 不改变 IndexedDB 本地权威存储和本地备份恢复流程。
 
 ## 13. 总体验收流程
 
