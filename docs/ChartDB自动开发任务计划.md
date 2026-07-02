@@ -1153,18 +1153,24 @@ phase: Phase 5
 type: PLAN
 priority: P2
 title: 定义 UX 和可访问性验收矩阵
-status: queued
+status: done
 depends_on:
     - CHARTDB-P4-005
 owner_lane: ux
 branch: codex/chartdb-p5-plan
 allowed_files:
     - docs/可访问性与核心流程验收.md
+    - docs/ChartDB重构优化产品设计与研发计划.md
+    - docs/ChartDB重构优化工程实施计划.md
+    - docs/ChartDB自动开发任务计划.md
+    - docs/阶段验收记录.md
 verification:
     - rg -n "首次进入|Smart Query|aria|键盘|设置" docs/可访问性与核心流程验收.md
 acceptance:
     - 核心流程有桌面和移动验收步骤
 ```
+
+本轮结果：已新增 `docs/可访问性与核心流程验收.md`，定义首次进入、Smart Query、导入 Preview、编辑画布和设置中心的桌面、移动、键盘、可访问性与失败状态验收矩阵。Phase 5 后续代码任务必须按该矩阵回归 UI smoke、可访问名称、Dialog 焦点、Disabled 原因和错误提示。下一项进入 `CHARTDB-P5-001`，重做首次进入入口。
 
 ### CHARTDB-P5-001：重做首次进入入口
 
@@ -1723,7 +1729,7 @@ npm install
 npm run test:ci
 ```
 
-`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005`、`CHARTDB-P2-006`、`CHARTDB-P3-000`、`CHARTDB-P3-001`、`CHARTDB-P3-002`、`CHARTDB-P3-003`、`CHARTDB-P3-004`、`CHARTDB-P4-000`、`CHARTDB-P4-001`、`CHARTDB-P4-002`、`CHARTDB-P4-003`、`CHARTDB-P4-004` 和 `CHARTDB-P4-005` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口、command 基础 contract、table command 纯函数、field/index/relationship command 纯函数、area/note/custom type command 纯函数，以及 command history metadata 接入。Phase 3 已完成 storage 执行清单、Dexie schema 集中化、repository API、diagram transaction service 和 backup/restore 版本化。Phase 4 已新增 common dialect contract、PostgreSQL wrapper、MySQL/MariaDB/SQLite/SQL Server/Oracle wrapper、DBML wrapper 和导入 preview flow；unsupported 或降级语义会进入统一 warning/unsupportedObjects，并在用户确认前展示。下一轮自动任务应从 `CHARTDB-P5-000` 开始，定义 UX 和可访问性验收矩阵。
+`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005`、`CHARTDB-P2-006`、`CHARTDB-P3-000`、`CHARTDB-P3-001`、`CHARTDB-P3-002`、`CHARTDB-P3-003`、`CHARTDB-P3-004`、`CHARTDB-P4-000`、`CHARTDB-P4-001`、`CHARTDB-P4-002`、`CHARTDB-P4-003`、`CHARTDB-P4-004`、`CHARTDB-P4-005` 和 `CHARTDB-P5-000` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口、command 基础 contract、table command 纯函数、field/index/relationship command 纯函数、area/note/custom type command 纯函数，以及 command history metadata 接入。Phase 3 已完成 storage 执行清单、Dexie schema 集中化、repository API、diagram transaction service 和 backup/restore 版本化。Phase 4 已新增 common dialect contract、PostgreSQL wrapper、MySQL/MariaDB/SQLite/SQL Server/Oracle wrapper、DBML wrapper 和导入 preview flow；unsupported 或降级语义会进入统一 warning/unsupportedObjects，并在用户确认前展示。Phase 5 已建立 UX 和可访问性验收矩阵。下一轮自动任务应从 `CHARTDB-P5-001` 开始，重做首次进入入口。
 
 ## 19. 计划边界确认
 

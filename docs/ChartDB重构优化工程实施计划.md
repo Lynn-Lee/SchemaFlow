@@ -1213,6 +1213,26 @@ export type SupportLevel = 'full' | 'partial' | 'experimental' | 'unsupported';
 git switch -c codex/chartdb-phase-5-ux-a11y
 ```
 
+### Task 5.0：定义 UX 和可访问性验收矩阵
+
+**涉及文件：**
+
+- 新增：`docs/可访问性与核心流程验收.md`
+- 修改：`docs/阶段验收记录.md`
+- 修改：`docs/ChartDB自动开发任务计划.md`
+- 修改：`docs/ChartDB重构优化产品设计与研发计划.md`
+- 修改：`docs/ChartDB重构优化工程实施计划.md`
+
+**实施步骤：**
+
+- [x] 定义首次进入、Smart Query、导入 Preview、编辑画布和设置中心的验收矩阵。
+
+- [x] 明确桌面、移动、键盘、可访问性和失败状态验收。
+
+- [x] 定义 Phase 5 退出标准和后续任务回归范围。
+
+本轮结果：已新增 `docs/可访问性与核心流程验收.md`，作为 Phase 5 后续代码任务的验收依据。矩阵覆盖首次进入、Smart Query、导入 Preview、编辑画布和设置中心，要求后续任务验证桌面与移动 smoke、键盘路径、可访问名称、Dialog 焦点、Disabled 原因和错误提示。下一项进入 `CHARTDB-P5-001`，重做首次进入入口。
+
 ### Task 5.1：重做首次进入入口
 
 **涉及文件：**
