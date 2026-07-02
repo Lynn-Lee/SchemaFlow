@@ -1,17 +1,13 @@
 import { cn } from '@/lib/utils';
 import React, { lazy, Suspense, useCallback, useEffect } from 'react';
+import type { EditorProps } from '@monaco-editor/react';
 import { Spinner } from '../spinner/spinner';
-import { useTheme } from '@/hooks/use-theme';
-import { useMonaco } from '@monaco-editor/react';
 import { useToast } from '@/components/toast/use-toast';
 import { Button } from '../button/button';
 import type { LucideIcon } from 'lucide-react';
 import { Copy, CopyCheck } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../tooltip/tooltip';
 import { useTranslation } from 'react-i18next';
-import { DarkTheme } from './themes/dark';
-import { LightTheme } from './themes/light';
-import './config.ts';
 
 export const Editor = lazy(() =>
     import('./code-editor').then((module) => ({
@@ -25,7 +21,11 @@ export const DiffEditor = lazy(() =>
     }))
 );
 
-type EditorType = typeof Editor;
+const CodeSnippetEditor = lazy(() =>
+    import('./code-snippet-editor').then((module) => ({
+        default: module.CodeSnippetEditor,
+    }))
+);
 
 export interface CodeSnippetAction {
     label: string;
@@ -42,20 +42,11 @@ export interface CodeSnippetProps {
     loading?: boolean;
     autoScroll?: boolean;
     isComplete?: boolean;
-    editorProps?: React.ComponentProps<EditorType>;
+    editorProps?: EditorProps;
     actions?: CodeSnippetAction[];
     actionsTooltipSide?: 'top' | 'right' | 'bottom' | 'left';
     allowCopy?: boolean;
 }
-
-const editorAriaLabelByLanguage: Record<
-    NonNullable<CodeSnippetProps['language']>,
-    string
-> = {
-    sql: 'SQL query editor',
-    shell: 'Shell command editor',
-    dbml: 'DBML editor',
-};
 
 export const CodeSnippet: React.FC<CodeSnippetProps> = React.memo(
     ({
@@ -72,23 +63,10 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = React.memo(
         allowCopy = true,
     }) => {
         const { t } = useTranslation();
-        const monaco = useMonaco();
-        const { effectiveTheme } = useTheme();
         const { toast } = useToast();
         const [isCopied, setIsCopied] = React.useState(false);
         const [tooltipOpen, setTooltipOpen] = React.useState(false);
         const copyButtonLabel = t(isCopied ? 'copied' : 'copy_to_clipboard');
-        const editorAriaLabel =
-            editorProps?.options?.ariaLabel ??
-            editorAriaLabelByLanguage[language];
-
-        useEffect(() => {
-            monaco?.editor?.defineTheme?.(
-                effectiveTheme,
-                effectiveTheme === 'dark' ? DarkTheme : LightTheme
-            );
-            monaco?.editor?.setTheme?.(effectiveTheme);
-        }, [monaco, effectiveTheme]);
 
         useEffect(() => {
             if (!isCopied) return;
@@ -96,16 +74,6 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = React.memo(
                 setIsCopied(false);
             }, 1500);
         }, [isCopied]);
-
-        useEffect(() => {
-            if (monaco) {
-                const editor = monaco.editor.getModels()[0];
-                if (editor && autoScroll) {
-                    const lineCount = editor.getLineCount();
-                    monaco.editor.getEditors()[0]?.revealLine(lineCount);
-                }
-            }
-        }, [code, monaco, autoScroll]);
 
         const copyToClipboard = useCallback(async () => {
             if (!navigator?.clipboard) {
@@ -213,40 +181,11 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = React.memo(
                             </div>
                         ) : null}
 
-                        <Editor
-                            value={code}
+                        <CodeSnippetEditor
+                            code={code}
                             language={language}
-                            loading={<Spinner />}
-                            theme={effectiveTheme}
-                            {...editorProps}
-                            options={{
-                                editContext: false,
-                                readOnly: true,
-                                automaticLayout: true,
-                                scrollBeyondLastLine: false,
-                                renderValidationDecorations: 'off',
-                                lineDecorationsWidth: 0,
-                                overviewRulerBorder: false,
-                                overviewRulerLanes: 0,
-                                hideCursorInOverviewRuler: true,
-                                contextmenu: false,
-                                ...editorProps?.options,
-                                ariaLabel: editorAriaLabel,
-                                guides: {
-                                    indentation: false,
-                                    ...editorProps?.options?.guides,
-                                },
-                                scrollbar: {
-                                    vertical: 'hidden',
-                                    horizontal: 'hidden',
-                                    alwaysConsumeMouseWheel: false,
-                                    ...editorProps?.options?.scrollbar,
-                                },
-                                minimap: {
-                                    enabled: false,
-                                    ...editorProps?.options?.minimap,
-                                },
-                            }}
+                            autoScroll={autoScroll}
+                            editorProps={editorProps}
                         />
                         {!isComplete ? (
                             <div className="absolute bottom-2 right-2 size-2 animate-blink rounded-full bg-pink-600" />

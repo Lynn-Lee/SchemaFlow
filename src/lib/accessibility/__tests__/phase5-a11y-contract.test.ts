@@ -8,6 +8,9 @@ describe('Phase 5 accessibility contracts', () => {
         const codeSnippet = readSource(
             'src/components/code-snippet/code-snippet.tsx'
         );
+        const codeSnippetEditor = readSource(
+            'src/components/code-snippet/code-snippet-editor.tsx'
+        );
         const dialog = readSource('src/components/dialog/dialog.tsx');
         const toolbar = readSource(
             'src/pages/editor-page/canvas/toolbar/toolbar.tsx'
@@ -21,7 +24,7 @@ describe('Phase 5 accessibility contracts', () => {
 
         expect(codeSnippet).toContain('aria-label={copyButtonLabel}');
         expect(codeSnippet).toMatch(/aria-label=\{\s*action\.label\s*\}/);
-        expect(codeSnippet).toContain('ariaLabel: editorAriaLabel');
+        expect(codeSnippetEditor).toContain('ariaLabel: editorAriaLabel');
 
         expect(dialog).toContain('aria-label="Go back"');
 

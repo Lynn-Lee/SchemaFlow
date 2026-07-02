@@ -1325,22 +1325,32 @@ phase: Phase 6
 type: CODE
 priority: P2
 title: 仅在代码编辑器路径加载 Monaco
-status: queued
+status: done
 depends_on:
     - CHARTDB-P6-000
 owner_lane: performance
 branch: codex/chartdb-p6-monaco-lazy
 allowed_files:
+    - src/components/code-snippet/**
     - src/features/**
     - src/pages/**
     - vite.config.ts
 verification:
+    - npm run test -- src/components/code-snippet/__tests__/monaco-lazy-loading.test.ts
     - npm run build
 acceptance:
     - 首屏入口不主动加载 Monaco
     - code editor route 仍正常工作
     - build 输出记录 chunk 变化
 ```
+
+完成记录：
+
+- 新增 `src/components/code-snippet/__tests__/monaco-lazy-loading.test.ts`，锁定 `CodeSnippet` 外层模块和 DBML highlight helper 不再静态加载 Monaco runtime。
+- 新增 `src/components/code-snippet/code-snippet-editor.tsx`，把 `useMonaco`、theme setup 和 worker config 移入懒加载编辑器子组件；`CodeSnippet` 外层只保留复制/动作按钮和 Suspense 壳。
+- `src/components/code-snippet/dbml/utils.ts` 改为 type-only Monaco 引用，使用 Monaco 兼容的 plain range object，避免编辑器页为错误高亮提前加载 Monaco runtime。
+- build chunk 变化：基线 `code-editor-DNXSDyTK.js` 为 `15,279.59 kB` / gzip `2,787.98 kB`；本轮后 `code-editor-BHvScKzX.js` 为 `3,788.30 kB` / gzip `976.92 kB`。入口 `index` 仍为 `2,609.63 kB` / gzip `513.31 kB`；剩余 `editor-page-T0odRZ2l.js` 为 `11,472.77 kB` / gzip `1,806.40 kB`，主要转入 DBML/parser 与后续 worker 化治理。
+- 下一项进入 `CHARTDB-P6-002`，模板 lazy registry。
 
 ### CHARTDB-P6-002：模板 lazy registry
 
@@ -1743,7 +1753,7 @@ npm install
 npm run test:ci
 ```
 
-`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005`、`CHARTDB-P2-006`、`CHARTDB-P3-000`、`CHARTDB-P3-001`、`CHARTDB-P3-002`、`CHARTDB-P3-003`、`CHARTDB-P3-004`、`CHARTDB-P4-000`、`CHARTDB-P4-001`、`CHARTDB-P4-002`、`CHARTDB-P4-003`、`CHARTDB-P4-004`、`CHARTDB-P4-005`、`CHARTDB-P5-000`、`CHARTDB-P5-001`、`CHARTDB-P5-002`、`CHARTDB-P5-003`、`CHARTDB-P5-004` 和 `CHARTDB-P6-000` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口、command 基础 contract、table command 纯函数、field/index/relationship command 纯函数、area/note/custom type command 纯函数，以及 command history metadata 接入。Phase 3 已完成 storage 执行清单、Dexie schema 集中化、repository API、diagram transaction service 和 backup/restore 版本化。Phase 4 已新增 common dialect contract、PostgreSQL wrapper、MySQL/MariaDB/SQLite/SQL Server/Oracle wrapper、DBML wrapper 和导入 preview flow；unsupported 或降级语义会进入统一 warning/unsupportedObjects，并在用户确认前展示。Phase 5 已建立 UX 和可访问性验收矩阵、首次进入入口、Smart Query Wizard、核心可访问名称修复与设置中心。Phase 6 已新增性能基线与优化计划。下一轮自动任务应从 `CHARTDB-P6-001` 开始，仅在代码编辑器路径加载 Monaco。
+`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005`、`CHARTDB-P2-006`、`CHARTDB-P3-000`、`CHARTDB-P3-001`、`CHARTDB-P3-002`、`CHARTDB-P3-003`、`CHARTDB-P3-004`、`CHARTDB-P4-000`、`CHARTDB-P4-001`、`CHARTDB-P4-002`、`CHARTDB-P4-003`、`CHARTDB-P4-004`、`CHARTDB-P4-005`、`CHARTDB-P5-000`、`CHARTDB-P5-001`、`CHARTDB-P5-002`、`CHARTDB-P5-003`、`CHARTDB-P5-004`、`CHARTDB-P6-000` 和 `CHARTDB-P6-001` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口、command 基础 contract、table command 纯函数、field/index/relationship command 纯函数、area/note/custom type command 纯函数，以及 command history metadata 接入。Phase 3 已完成 storage 执行清单、Dexie schema 集中化、repository API、diagram transaction service 和 backup/restore 版本化。Phase 4 已新增 common dialect contract、PostgreSQL wrapper、MySQL/MariaDB/SQLite/SQL Server/Oracle wrapper、DBML wrapper 和导入 preview flow；unsupported 或降级语义会进入统一 warning/unsupportedObjects，并在用户确认前展示。Phase 5 已建立 UX 和可访问性验收矩阵、首次进入入口、Smart Query Wizard、核心可访问名称修复与设置中心。Phase 6 已新增性能基线与优化计划，并完成 Monaco runtime 懒加载拆分。下一轮自动任务应从 `CHARTDB-P6-002` 开始，建设模板 lazy registry。
 
 ## 19. 计划边界确认
 

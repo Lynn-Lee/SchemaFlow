@@ -1,5 +1,5 @@
 import type { DBMLError } from '@/lib/dbml/dbml-import/dbml-import-error';
-import * as monaco from 'monaco-editor';
+import type * as monaco from 'monaco-editor';
 
 export const highlightErrorLine = ({
     error,
@@ -17,12 +17,12 @@ export const highlightErrorLine = ({
 
     const decorations = [
         {
-            range: new monaco.Range(
-                error.line,
-                1,
-                error.line,
-                model.getLineMaxColumn(error.line)
-            ),
+            range: {
+                startLineNumber: error.line,
+                startColumn: 1,
+                endLineNumber: error.line,
+                endColumn: model.getLineMaxColumn(error.line),
+            },
             options: {
                 isWholeLine: true,
                 className: 'dbml-error-line',
@@ -30,7 +30,7 @@ export const highlightErrorLine = ({
                 hoverMessage: { value: error.message },
                 overviewRuler: {
                     color: '#ff0000',
-                    position: monaco.editor.OverviewRulerLane.Right,
+                    position: 4 as monaco.editor.OverviewRulerLane,
                     darkColor: '#ff0000',
                 },
             },

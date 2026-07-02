@@ -1340,7 +1340,7 @@ rg -n "<Button|<button" src/pages src/dialogs src/components
 
 **目标：** 降低首屏包体，避免大 schema 阻塞主线程。
 
-**当前状态：** `CHARTDB-P6-000` 已新增 `docs/性能基线与优化计划.md`，定义首屏 bundle、Monaco chunk、模板数据 chunk、large schema import、layout worker 和 CI 性能预算的记录方式与验收口径。下一项进入 `CHARTDB-P6-001`，先做 Monaco 懒加载并记录 `npm run build` chunk 变化。
+**当前状态：** `CHARTDB-P6-000` 已新增 `docs/性能基线与优化计划.md`，定义首屏 bundle、Monaco chunk、模板数据 chunk、large schema import、layout worker 和 CI 性能预算的记录方式与验收口径。`CHARTDB-P6-001` 已完成 Monaco 懒加载：外层 `CodeSnippet` 不再静态加载 Monaco runtime，DBML highlight helper 改为 type-only 引用，build 中 `code-editor` chunk 从 `15,279.59 kB` / gzip `2,787.98 kB` 降至 `3,788.30 kB` / gzip `976.92 kB`。下一项进入 `CHARTDB-P6-002`，模板 lazy registry。
 
 **推荐分支：**
 
@@ -1352,23 +1352,26 @@ git switch -c codex/chartdb-phase-6-performance
 
 **涉及文件：**
 
-- 修改：`src/components/code-snippet/code-editor.ts`
+- 新增：`src/components/code-snippet/code-snippet-editor.tsx`
+- 新增：`src/components/code-snippet/__tests__/monaco-lazy-loading.test.ts`
 - 修改：`src/components/code-snippet/code-snippet.tsx`
-- 修改：`vite.config.ts`
+- 修改：`src/components/code-snippet/dbml/utils.ts`
 
 **实施步骤：**
 
-- [ ] 确认当前 Monaco chunk。
+- [x] 确认当前 Monaco chunk。
 
 ```bash
 npm run build
 ```
 
-- [ ] 仅在 SQL/DBML editor 打开时加载 Monaco。
+- [x] 仅在 SQL/DBML editor 打开时加载 Monaco。
 
-- [ ] 按语言加载 worker。
+- [x] 按语言加载 worker。
 
-- [ ] 再次构建对比 chunk。
+- [x] 再次构建对比 chunk。
+
+本轮结果：基线 `npm run build` 输出 `code-editor-DNXSDyTK.js` 为 `15,279.59 kB` / gzip `2,787.98 kB`；修改后 `code-editor-BHvScKzX.js` 为 `3,788.30 kB` / gzip `976.92 kB`。新增懒加载契约测试覆盖 `CodeSnippet` 外层和 DBML highlight helper 不再静态加载 Monaco runtime。入口 `index` 仍为 `2,609.63 kB` / gzip `513.31 kB`；`editor-page` 剩余 `11,472.77 kB` / gzip `1,806.40 kB`，后续由模板 lazy registry 与 Parser/layout worker 化继续治理。下一项进入 `CHARTDB-P6-002`。
 
 ### Task 6.2：模板 lazy registry
 
