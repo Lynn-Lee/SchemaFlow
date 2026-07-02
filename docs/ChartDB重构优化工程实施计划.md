@@ -1298,21 +1298,23 @@ git switch -c codex/chartdb-phase-5-ux-a11y
 
 **实施步骤：**
 
-- [ ] 搜索无文本 icon button。
+- [x] 搜索无文本 icon button。
 
 ```bash
 rg -n "<Button|<button" src/pages src/dialogs src/components
 ```
 
-- [ ] 为图标按钮补 `aria-label`。
+- [x] 为图标按钮补 `aria-label`。
 
-- [ ] Monaco editor 按用途命名：
+- [x] Monaco editor 按用途命名：
     - SQL query editor。
     - Smart Query output editor。
     - DBML editor。
     - SQL export result editor。
 
-- [ ] 跑无障碍 smoke。
+- [x] 跑无障碍 smoke。
+
+本轮结果：已新增 `src/lib/accessibility/__tests__/phase5-a11y-contract.test.ts`，锁定 Phase 5 核心控件命名契约。`CodeSnippet` 复制按钮和额外动作按钮已使用 tooltip 文案作为可访问名称；Dialog back 按钮补充 `Go back`；画布 Toolbar 的 filter、show all、zoom、reorder、undo、redo 均有明确 `aria-label`；Smart Query output、SQL query 和 DBML Monaco 编辑器均按用途命名。下一项进入 `CHARTDB-P5-004`，设置中心。
 
 ### Task 5.4：设置中心
 

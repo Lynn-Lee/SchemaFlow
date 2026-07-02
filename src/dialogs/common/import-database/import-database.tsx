@@ -492,8 +492,15 @@ export const ImportDatabase: React.FC<ImportDatabaseProps> = ({
         ]
     );
 
-    const renderOutputTextArea = useCallback(
-        () => (
+    const renderOutputTextArea = useCallback(() => {
+        const editorAriaLabel =
+            importMethod === 'query'
+                ? 'Smart Query output editor'
+                : importMethod === 'dbml'
+                  ? 'DBML editor'
+                  : 'SQL query editor';
+
+        return (
             <div className="flex size-full flex-col gap-1 overflow-hidden rounded-md border p-1">
                 <div className="w-full text-center text-xs text-muted-foreground">
                     {importMethod === 'query'
@@ -524,6 +531,7 @@ export const ImportDatabase: React.FC<ImportDatabaseProps> = ({
                             }
                             options={{
                                 editContext: false,
+                                ariaLabel: editorAriaLabel,
                                 formatOnPaste: false, // Never format on paste - we handle it manually
                                 minimap: { enabled: false },
                                 scrollBeyondLastLine: false,
@@ -575,21 +583,20 @@ export const ImportDatabase: React.FC<ImportDatabaseProps> = ({
                     <ImportPreviewPanel preview={importPreview} />
                 ) : null}
             </div>
-        ),
-        [
-            errorMessage,
-            scriptResult,
-            importMethod,
-            effectiveTheme,
-            debouncedHandleInputChange,
-            handleEditorDidMount,
-            sqlValidation,
-            isAutoFixing,
-            handleErrorClick,
-            importPreview,
-            importError,
-        ]
-    );
+        );
+    }, [
+        errorMessage,
+        scriptResult,
+        importMethod,
+        effectiveTheme,
+        debouncedHandleInputChange,
+        handleEditorDidMount,
+        sqlValidation,
+        isAutoFixing,
+        handleErrorClick,
+        importPreview,
+        importError,
+    ]);
 
     const renderContent = useCallback(() => {
         return (

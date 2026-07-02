@@ -96,6 +96,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
                             <span>
                                 <ToolbarButton
                                     onClick={toggleFilter}
+                                    aria-label={'Filter diagram'}
                                     className={cn(
                                         'transition-all duration-200',
                                         {
@@ -123,7 +124,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <span>
-                                <ToolbarButton onClick={showAll}>
+                                <ToolbarButton
+                                    onClick={showAll}
+                                    aria-label={'Show all tables'}
+                                >
                                     <Scan />
                                 </ToolbarButton>
                             </span>
@@ -143,7 +147,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <span>
-                                <ToolbarButton onClick={zoomOutHandler}>
+                                <ToolbarButton
+                                    onClick={zoomOutHandler}
+                                    aria-label={'Zoom out'}
+                                >
                                     <ZoomOut />
                                 </ToolbarButton>
                             </span>
@@ -153,6 +160,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
                     <Button
                         variant="ghost"
                         onClick={resetZoom}
+                        aria-label={'Reset zoom'}
                         className="w-[60px] p-2 hover:bg-primary-foreground"
                     >
                         {zoom}
@@ -160,7 +168,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <span>
-                                <ToolbarButton onClick={zoomInHandler}>
+                                <ToolbarButton
+                                    onClick={zoomInHandler}
+                                    aria-label={'Zoom in'}
+                                >
                                     <ZoomIn />
                                 </ToolbarButton>
                             </span>
@@ -175,6 +186,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
                                     <span>
                                         <ToolbarButton
                                             onClick={showReorderConfirmation}
+                                            aria-label={'Reorder diagram'}
                                         >
                                             <LayoutGrid />
                                         </ToolbarButton>
@@ -193,6 +205,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
                                 <ToolbarButton
                                     onClick={undo}
                                     disabled={!hasUndo}
+                                    aria-label={'Undo diagram change'}
                                 >
                                     <Undo />
                                 </ToolbarButton>
@@ -215,6 +228,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
                                 <ToolbarButton
                                     onClick={redo}
                                     disabled={!hasRedo}
+                                    aria-label={'Redo diagram change'}
                                 >
                                     <Redo />
                                 </ToolbarButton>

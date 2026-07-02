@@ -48,6 +48,15 @@ export interface CodeSnippetProps {
     allowCopy?: boolean;
 }
 
+const editorAriaLabelByLanguage: Record<
+    NonNullable<CodeSnippetProps['language']>,
+    string
+> = {
+    sql: 'SQL query editor',
+    shell: 'Shell command editor',
+    dbml: 'DBML editor',
+};
+
 export const CodeSnippet: React.FC<CodeSnippetProps> = React.memo(
     ({
         className,
@@ -68,6 +77,10 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = React.memo(
         const { toast } = useToast();
         const [isCopied, setIsCopied] = React.useState(false);
         const [tooltipOpen, setTooltipOpen] = React.useState(false);
+        const copyButtonLabel = t(isCopied ? 'copied' : 'copy_to_clipboard');
+        const editorAriaLabel =
+            editorProps?.options?.ariaLabel ??
+            editorAriaLabelByLanguage[language];
 
         useEffect(() => {
             monaco?.editor?.defineTheme?.(
@@ -145,6 +158,7 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = React.memo(
                                                     className="h-fit p-1.5"
                                                     variant="outline"
                                                     onClick={copyToClipboard}
+                                                    aria-label={copyButtonLabel}
                                                 >
                                                     {isCopied ? (
                                                         <CopyCheck size={16} />
@@ -179,6 +193,9 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = React.memo(
                                                         )}
                                                         variant="outline"
                                                         onClick={action.onClick}
+                                                        aria-label={
+                                                            action.label
+                                                        }
                                                     >
                                                         <action.icon
                                                             size={16}
@@ -214,6 +231,7 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = React.memo(
                                 hideCursorInOverviewRuler: true,
                                 contextmenu: false,
                                 ...editorProps?.options,
+                                ariaLabel: editorAriaLabel,
                                 guides: {
                                     indentation: false,
                                     ...editorProps?.options?.guides,

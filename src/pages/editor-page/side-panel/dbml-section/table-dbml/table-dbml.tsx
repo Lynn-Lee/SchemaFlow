@@ -426,6 +426,7 @@ export const TableDBML: React.FC<TableDBMLProps> = () => {
                     theme: getEditorTheme(effectiveTheme),
                     onMount: handleEditorDidMount,
                     options: {
+                        ariaLabel: 'DBML editor',
                         wordWrap: 'off',
                         mouseWheelZoom: false,
                         readOnly: !isEditMode,
