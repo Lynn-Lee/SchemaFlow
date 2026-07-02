@@ -1340,7 +1340,7 @@ rg -n "<Button|<button" src/pages src/dialogs src/components
 
 **目标：** 降低首屏包体，避免大 schema 阻塞主线程。
 
-**当前状态：** `CHARTDB-P6-000` 已新增 `docs/性能基线与优化计划.md`，定义首屏 bundle、Monaco chunk、模板数据 chunk、large schema import、layout worker 和 CI 性能预算的记录方式与验收口径。`CHARTDB-P6-001` 已完成 Monaco 懒加载：外层 `CodeSnippet` 不再静态加载 Monaco runtime，DBML highlight helper 改为 type-only 引用，build 中 `code-editor` chunk 从 `15,279.59 kB` / gzip `2,787.98 kB` 降至 `3,788.30 kB` / gzip `976.92 kB`。下一项进入 `CHARTDB-P6-002`，模板 lazy registry。
+**当前状态：** `CHARTDB-P6-000` 已新增 `docs/性能基线与优化计划.md`，定义首屏 bundle、Monaco chunk、模板数据 chunk、large schema import、layout worker 和 CI 性能预算的记录方式与验收口径。`CHARTDB-P6-001` 已完成 Monaco 懒加载：外层 `CodeSnippet` 不再静态加载 Monaco runtime，DBML highlight helper 改为 type-only 引用，build 中 `code-editor` chunk 从 `15,279.59 kB` / gzip `2,787.98 kB` 降至 `3,788.30 kB` / gzip `976.92 kB`。`CHARTDB-P6-002` 已完成模板 lazy registry：模板列表只加载 metadata manifest，详情和 clone 路径按 slug 动态加载完整 diagram。下一项进入 `CHARTDB-P6-003`，Parser 和 layout worker 化。
 
 **推荐分支：**
 
@@ -1378,19 +1378,24 @@ npm run build
 **涉及文件：**
 
 - 新增：`src/templates-data/template-manifest.ts`
+- 新增：`src/templates-data/__tests__/template-lazy-registry.test.ts`
 - 修改：`src/templates-data/templates-data.ts`
+- 修改：`src/templates-data/template-utils.ts`
+- 修改：`src/router.tsx`
 - 修改：`src/pages/templates-page/templates-page.tsx`
-- 修改：`src/pages/template-page/template-page.tsx`
+- 修改：`src/pages/templates-page/template-card/template-card.tsx`
 
 **实施步骤：**
 
-- [ ] 建立 manifest，只包含 metadata。
+- [x] 建立 manifest，只包含 metadata。
 
-- [ ] diagram 数据改为动态 import。
+- [x] diagram 数据改为动态 import。
 
-- [ ] 模板详情页才加载完整 diagram。
+- [x] 模板详情页才加载完整 diagram。
 
-- [ ] 构建对比 templates chunk。
+- [x] 构建对比 templates chunk。
+
+本轮结果：新增 `TemplateManifest` 和 `templateManifests`，列表、featured 和 tag 筛选只读取 slug、名称、描述、标签、数据库类型、预览图和 featured 标记。`templates-data.ts` 移除全部模板模块静态 import，保留 `Template` 类型、`loadTemplates()` 和 `loadTemplateBySlug()` 兼容出口；路由详情页和 clone 页通过 `template-manifest` 的 `loadTemplateBySlug()` 按需加载单个完整 diagram。新增契约测试确认列表路径不再导入完整模板聚合模块，且完整模板只能通过 per-template dynamic import 加载。`npm run build` 输出已拆出 `employee-db-*`、`wordpress-db-*`、`monica-db-*` 等独立模板 chunk；入口 `index` 约 `2,609.63 kB` / gzip `513.32 kB`，`editor-page` 约 `11,472.80 kB` / gzip `1,806.46 kB`，后续进入 `CHARTDB-P6-003`。
 
 ### Task 6.3：Worker 化 parser/layout
 

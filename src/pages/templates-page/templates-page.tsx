@@ -8,12 +8,12 @@ import { Component, Star } from 'lucide-react';
 import { ListMenu } from '@/components/list-menu/list-menu';
 import { TemplateCard } from './template-card/template-card';
 import { useLoaderData, useMatches, useParams } from 'react-router-dom';
-import type { Template } from '@/templates-data/templates-data';
+import type { TemplateManifest } from '@/templates-data/template-manifest';
 import { Spinner } from '@/components/spinner/spinner';
 import { TemplatesPageHelmet } from './templates-page-helmet';
 
 export interface TemplatesPageLoaderData {
-    templates: Template[] | undefined;
+    templates: TemplateManifest[] | undefined;
     allTags: string[] | undefined;
 }
 

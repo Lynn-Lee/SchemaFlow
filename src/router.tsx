@@ -100,12 +100,12 @@ const routes: RouteObject[] = [
             };
         },
         loader: async ({ params }): Promise<TemplatePageLoaderData> => {
-            const { templates } =
-                await import('./templates-data/templates-data');
             return {
-                template: templates.find(
-                    (template) => template.slug === params.templateSlug
-                ),
+                template:
+                    await import('./templates-data/template-manifest').then(
+                        ({ loadTemplateBySlug }) =>
+                            loadTemplateBySlug(params.templateSlug)
+                    ),
             };
         },
     },
@@ -120,12 +120,12 @@ const routes: RouteObject[] = [
             };
         },
         loader: async ({ params }) => {
-            const { templates } =
-                await import('./templates-data/templates-data');
             return {
-                template: templates.find(
-                    (template) => template.slug === params.templateSlug
-                ),
+                template:
+                    await import('./templates-data/template-manifest').then(
+                        ({ loadTemplateBySlug }) =>
+                            loadTemplateBySlug(params.templateSlug)
+                    ),
             };
         },
     },

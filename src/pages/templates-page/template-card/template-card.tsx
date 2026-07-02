@@ -10,11 +10,11 @@ import {
     TooltipTrigger,
 } from '@/components/tooltip/tooltip';
 import { useTheme } from '@/hooks/use-theme';
-import type { Template } from '../../../templates-data/templates-data';
+import type { TemplateManifest } from '../../../templates-data/template-manifest';
 import { Badge } from '@/components/badge/badge';
 
 export interface TemplateCardProps {
-    template: Template;
+    template: TemplateManifest;
 }
 
 export const TemplateCard: React.FC<TemplateCardProps> = ({ template }) => {
@@ -49,7 +49,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({ template }) => {
                                 <img
                                     src={
                                         databaseSecondaryLogoMap[
-                                            template.diagram.databaseType
+                                            template.databaseType
                                         ]
                                     }
                                     className="h-5 max-w-fit"
@@ -57,11 +57,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({ template }) => {
                                 />
                             </TooltipTrigger>
                             <TooltipContent>
-                                {
-                                    databaseTypeToLabelMap[
-                                        template.diagram.databaseType
-                                    ]
-                                }
+                                {databaseTypeToLabelMap[template.databaseType]}
                             </TooltipContent>
                         </Tooltip>
                     </div>

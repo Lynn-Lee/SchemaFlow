@@ -1360,7 +1360,7 @@ phase: Phase 6
 type: CODE
 priority: P2
 title: 大模板数据按需加载
-status: queued
+status: done
 depends_on:
     - CHARTDB-P6-000
 owner_lane: performance
@@ -1369,13 +1369,26 @@ allowed_files:
     - src/templates-data/**
     - src/pages/templates-page/**
     - src/pages/examples-page/**
+    - src/pages/template-page/**
+    - src/pages/clone-template-page/**
+    - src/router.tsx
 verification:
+    - npm run test -- src/templates-data/__tests__/template-lazy-registry.test.ts
     - npm run test:ci
     - npm run build
 acceptance:
     - 模板列表不一次性加载全部大型 schema
     - 打开单个模板时按需加载详情
 ```
+
+完成记录：
+
+- 新增 `src/templates-data/template-manifest.ts`，把模板列表需要的 slug、名称、描述、标签、数据库类型、预览图和 featured 标记拆成 metadata-only manifest。
+- `src/templates-data/templates-data.ts` 不再静态 import 全部 `src/templates-data/templates/*` 大 diagram；详情和 clone loader 改为通过 `loadTemplateBySlug()` 动态加载单个完整模板。
+- `src/templates-data/template-utils.ts`、`src/pages/templates-page/templates-page.tsx` 和模板卡片改为消费 `TemplateManifest`，列表筛选不访问 `template.diagram`。
+- 新增 `src/templates-data/__tests__/template-lazy-registry.test.ts`，锁定列表 loader 不回退到完整模板聚合模块，且完整模板模块只能经 per-template dynamic import 加载。
+- build 输出已拆出每个模板的独立 JS chunk，例如 `employee-db-romprqJV.js`、`wordpress-db-B8pCH5_j.js`、`monica-db-Bj9lUCcR.js`；入口 `index` 保持约 `2,609.63 kB` / gzip `513.32 kB`，`editor-page` 仍约 `11,472.80 kB` / gzip `1,806.46 kB`，继续进入 `CHARTDB-P6-003`。
+- 下一项进入 `CHARTDB-P6-003`，Parser 和 layout worker 化。
 
 ### CHARTDB-P6-003：Parser 和 layout worker 化
 
@@ -1753,7 +1766,7 @@ npm install
 npm run test:ci
 ```
 
-`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005`、`CHARTDB-P2-006`、`CHARTDB-P3-000`、`CHARTDB-P3-001`、`CHARTDB-P3-002`、`CHARTDB-P3-003`、`CHARTDB-P3-004`、`CHARTDB-P4-000`、`CHARTDB-P4-001`、`CHARTDB-P4-002`、`CHARTDB-P4-003`、`CHARTDB-P4-004`、`CHARTDB-P4-005`、`CHARTDB-P5-000`、`CHARTDB-P5-001`、`CHARTDB-P5-002`、`CHARTDB-P5-003`、`CHARTDB-P5-004`、`CHARTDB-P6-000` 和 `CHARTDB-P6-001` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口、command 基础 contract、table command 纯函数、field/index/relationship command 纯函数、area/note/custom type command 纯函数，以及 command history metadata 接入。Phase 3 已完成 storage 执行清单、Dexie schema 集中化、repository API、diagram transaction service 和 backup/restore 版本化。Phase 4 已新增 common dialect contract、PostgreSQL wrapper、MySQL/MariaDB/SQLite/SQL Server/Oracle wrapper、DBML wrapper 和导入 preview flow；unsupported 或降级语义会进入统一 warning/unsupportedObjects，并在用户确认前展示。Phase 5 已建立 UX 和可访问性验收矩阵、首次进入入口、Smart Query Wizard、核心可访问名称修复与设置中心。Phase 6 已新增性能基线与优化计划，并完成 Monaco runtime 懒加载拆分。下一轮自动任务应从 `CHARTDB-P6-002` 开始，建设模板 lazy registry。
+`CHARTDB-P0-001`、`CHARTDB-P0-002`、`CHARTDB-P0-003`、`CHARTDB-P0-004`、`CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004`、`CHARTDB-P1-005`、`CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005`、`CHARTDB-P2-006`、`CHARTDB-P3-000`、`CHARTDB-P3-001`、`CHARTDB-P3-002`、`CHARTDB-P3-003`、`CHARTDB-P3-004`、`CHARTDB-P4-000`、`CHARTDB-P4-001`、`CHARTDB-P4-002`、`CHARTDB-P4-003`、`CHARTDB-P4-004`、`CHARTDB-P4-005`、`CHARTDB-P5-000`、`CHARTDB-P5-001`、`CHARTDB-P5-002`、`CHARTDB-P5-003`、`CHARTDB-P5-004`、`CHARTDB-P6-000`、`CHARTDB-P6-001` 和 `CHARTDB-P6-002` 已完成，Phase 0 和 Phase 1 均通过验收，Phase 2 已建立 schema-core model 出口、command 基础 contract、table command 纯函数、field/index/relationship command 纯函数、area/note/custom type command 纯函数，以及 command history metadata 接入。Phase 3 已完成 storage 执行清单、Dexie schema 集中化、repository API、diagram transaction service 和 backup/restore 版本化。Phase 4 已新增 common dialect contract、PostgreSQL wrapper、MySQL/MariaDB/SQLite/SQL Server/Oracle wrapper、DBML wrapper 和导入 preview flow；unsupported 或降级语义会进入统一 warning/unsupportedObjects，并在用户确认前展示。Phase 5 已建立 UX 和可访问性验收矩阵、首次进入入口、Smart Query Wizard、核心可访问名称修复与设置中心。Phase 6 已新增性能基线与优化计划，完成 Monaco runtime 懒加载拆分和模板 lazy registry。下一轮自动任务应从 `CHARTDB-P6-003` 开始，推进 Parser 和 layout worker 化。
 
 ## 19. 计划边界确认
 
