@@ -1,6 +1,6 @@
 # ChartDB 全方位评估与后续优化手册
 
-> 版本：v1.1（2026-07-03 修订：F-001 拆分、F-002 重定义、F-003 状态修正、A-001 解耦、批次 F 风险定性调整）
+> 版本：v1.2（2026-07-03 二次修订：C3 表述修正、6.2 批次 F 任务列表同步、T-005 依赖统一为 F-001a、F-002 拆为 F-002a/F-002b 互斥、7.2 安全扫描 window.env 判定说明）
 > 日期：2026-07-03
 > 本地路径：`/Users/lynn/SynologyDrive/SynologyDrive/Code/ChartDB`
 > 重构仓库：`https://github.com/Lynn-Lee/ChartDB`
@@ -48,7 +48,7 @@ ChartDB 已完成 Phase 0 到 Phase 8 的首轮重构，共 42 个任务全部 `
 |----|------|------|----------|
 | C1 | `schema-core/model/` 是空壳重导出，真实模型在 `lib/domain/` | 架构 | `src/schema-core/model/*.ts` |
 | C2 | `commandHistory` 数据从未被 undo/redo 使用，是死代码 | 架构 | `chartdb-provider.tsx` → `history-provider.tsx` |
-| C3 | 三个未使用依赖直接打入 bundle（6+ MB 浪费） | 技术栈 | `package.json` — `@ai-sdk/openai`、`ai`、`motion`、`@uidotdev/usehooks` |
+| C3 | 依赖声明与 AI SDK 残留治理（`@uidotdev/usehooks` 零引用；`motion` 实为 `framer-motion` 传递依赖需显式化；`@ai-sdk/openai`/`ai` 无静态 import） | 技术栈 | `package.json` — `@ai-sdk/openai`、`ai`、`motion`、`@uidotdev/usehooks` |
 | C4 | 构建产物 83 MB，无 manualChunks 优化 | 技术栈 | `vite.config.ts` |
 | C5 | ClickHouse 在 onboarding 中作为一等选项，但 DDL 导入会直接报错 | 产品 | `onboarding-dialog.tsx:38-45` → `sql-import/index.ts:224` |
 
@@ -103,9 +103,9 @@ ChartDB 已完成 Phase 0 到 Phase 8 的首轮重构，共 42 个任务全部 `
 
 ### 批次 F：低风险快速修复
 
-目标：移除未使用依赖、消除安全隐患、修复用户可见的功能断裂。其中 F-003 已完成、F-004 真正低风险可立即执行；F-001/F-002/F-006 涉及依赖树或构建产物，需在验证门禁下谨慎执行。
+目标：移除未使用依赖、消除安全隐患、修复用户可见的功能断裂。其中 F-003 已完成、F-004 真正低风险可立即执行；F-001a/F-001b/F-002a/F-006 涉及依赖树或构建产物，需在验证门禁下谨慎执行。
 
-> 修订说明（2026-07-03）：原手册将本批次标为「零风险高收益」并声称 `motion` 在 `src/` 中零引用。经核对，`src/components/tree-view/tree-view.tsx:8` 直接 `import { motion, AnimatePresence } from 'framer-motion'`，而 `framer-motion` 是 `motion` 的传递依赖，直接删除 `motion` 会导致构建报错。同时 `src/` 中无任何 `ai` / `@ai-sdk/openai` 静态 import，F-002「改为动态 import」的标题不成立。本批次任务卡已据此拆分和重定义。
+> 修订说明（2026-07-03）：原手册将本批次标为「零风险高收益」并声称 `motion` 在 `src/` 中零引用。经核对，`src/components/tree-view/tree-view.tsx:8` 直接 `import { motion, AnimatePresence } from 'framer-motion'`，而 `framer-motion` 是 `motion` 的传递依赖，直接删除 `motion` 会导致构建报错。同时 `src/` 中无任何 `ai` / `@ai-sdk/openai` 静态 import，F-002「改为动态 import」的标题不成立。本批次任务卡已据此拆分和重定义（F-001 → F-001a/F-001b，F-002 → F-002a/F-002b 互斥）。
 
 #### CHARTDB-F-001a：移除真正零引用的 @uidotdev/usehooks
 
@@ -178,21 +178,19 @@ acceptance:
     - build 通过，无运行时错误
 ```
 
-#### CHARTDB-F-002：移除未使用 AI SDK 依赖或做 AI adapter spike
+#### CHARTDB-F-002a：移除未使用的 AI SDK 依赖（默认执行）
 
 ```yaml
-id: CHARTDB-F-002
+id: CHARTDB-F-002a
 batch: 批次 F
 type: CODE
 priority: P0
-title: 移除未使用的 @ai-sdk/openai 和 ai 依赖，或做 AI adapter spike 预留加载路径
+title: 从 package.json 删除 @ai-sdk/openai 和 ai 依赖
 status: queued
 depends_on: []
 owner_lane: tech-debt
-branch: codex/chartdb-f-ai-sdk-cleanup
+branch: codex/chartdb-f-ai-sdk-remove
 allowed_files:
-    - src/lib/ai/**
-    - src/lib/data/sql-export/**
     - package.json
     - package-lock.json
 entry_context:
@@ -201,20 +199,61 @@ entry_context:
     - 原手册「改为动态 import」的标题不成立——根本没有静态 import 可改
     - 阶段验收记录 P0-002 已明确：AI SDK 依赖链保留 low advisory，避免破坏性迁移
 implementation_contract:
-    - 方案 A（推荐，最小切片）：从 package.json 删除 @ai-sdk/openai 和 ai，运行 npm install，确认 build/test 通过
-    - 方案 B（若后续要启用 AI）：保留依赖，在 ai-mode.ts 中新增 adapter spike（接口 + 动态 import 占位），但不恢复真实模型调用
-    - 无论选哪个方案，AI 默认禁用行为不变，不发送 schema 内容
-    - 若选方案 A，需同步更新阶段验收记录中 P0-002 的 advisory 结论
+    - 从 package.json dependencies 中删除 @ai-sdk/openai 和 ai
+    - 运行 npm install 更新 lockfile
+    - 确认 build/test 通过（SDK 未被任何代码引用，删除应无影响）
+    - AI 默认禁用行为不变，不发送 schema 内容
+    - 同步更新阶段验收记录中 P0-002 的 advisory 结论（low advisory 清零）
 verification:
     - npm run lint
     - npm run test:ci
     - npm run build
+    - rg -n "@ai-sdk/openai|^\"ai\"" package.json
     - npm run build 后检查 dist 中是否仍包含 AI SDK chunk
+acceptance:
+    - package.json 不再包含 @ai-sdk/openai 和 ai
+    - AI 默认禁用行为不变
+    - build 产物中无 AI SDK chunk
+    - 阶段验收记录 P0-002 advisory 结论已更新
+```
+
+> F-002a 与 F-002b 互斥。默认执行 F-002a（最小切片）。仅当产品明确决定近期启用 AI 能力时，才改领 F-002b。
+
+#### CHARTDB-F-002b：AI adapter spike（仅在决定启用 AI 时领取）
+
+```yaml
+id: CHARTDB-F-002b
+batch: 批次 F
+type: CODE
+priority: P2
+title: 在 ai-mode.ts 中新增 AI adapter spike 预留动态加载路径
+status: queued
+depends_on: []
+owner_lane: tech-debt
+branch: codex/chartdb-f-ai-sdk-adapter
+allowed_files:
+    - src/lib/ai/**
+    - src/lib/data/sql-export/**
+    - package.json
+    - package-lock.json
+entry_context:
+    - 仅在产品决定近期启用 AI 能力时领取本任务，否则执行 F-002a 删除依赖
+    - AI 功能默认禁用，仅在用户明确启用 BYOK/Gateway 模式时需要 SDK
+    - 当前 ai-mode.ts 只定义了接口契约，从未实际 import SDK
+implementation_contract:
+    - 保留 @ai-sdk/openai 和 ai 依赖
+    - 在 ai-mode.ts 中新增 adapter spike（接口 + 动态 import 占位），但不恢复真实模型调用
+    - 确保 AI 默认禁用时 SDK 不进入主 bundle（动态 import）
+    - 不发送 schema 内容，不持久化 API key
+verification:
+    - npm run lint
+    - npm run test:ci
+    - npm run build
+    - npm run build 后检查 dist 中 AI SDK 是否分离到独立 chunk
 acceptance:
     - AI SDK 不进入首屏 bundle
     - AI 默认禁用行为不变
-    - 若选方案 A：package.json 不再包含 @ai-sdk/openai 和 ai
-    - 若选方案 B：AI SDK 在独立 chunk 或完全不在 bundle 中，adapter 接口有测试
+    - AI SDK 在独立 chunk，adapter 接口有测试
 ```
 
 #### CHARTDB-F-003：entrypoint.sh 移除 OPENAI_API_KEY
@@ -1073,7 +1112,7 @@ priority: P2
 title: 移除 @uidotdev/usehooks 并内联简单 hooks
 status: queued
 depends_on:
-    - CHARTDB-F-001
+    - CHARTDB-F-001a
 owner_lane: tech-debt
 branch: codex/chartdb-t-hooks-cleanup
 allowed_files:
@@ -1081,12 +1120,12 @@ allowed_files:
     - package.json
     - package-lock.json
 entry_context:
-    - @uidotdev/usehooks 已在 F-001 中确认零引用
+    - @uidotdev/usehooks 已在 F-001a 中确认零引用
     - ahooks 仅用 useEventEmitter(3处) 和 useDebounceFn(1处)
     - react-use 仅用 useClickAway(5处) 和 useKeyPressEvent(4处)
     - useClickAway 和 useKeyPressEvent 实现简单（各约 20 行）
 implementation_contract:
-    - 确认 @uidotdev/usehooks 已在 F-001 中移除
+    - 确认 @uidotdev/usehooks 已在 F-001a 中移除
     - 将 useClickAway 内联为 src/hooks/use-click-away.ts
     - 将 useKeyPressEvent 内联为 src/hooks/use-key-press-event.ts
     - 评估是否保留 ahooks（useEventEmitter 和 useDebounceFn 较复杂，可保留）
@@ -1356,7 +1395,8 @@ flowchart TD
     subgraph 批次F[批次 F：低风险快速修复]
         F001a["F-001a 移除 @uidotdev/usehooks"]
         F001b["F-001b TreeView motion → framer-motion"]
-        F002["F-002 AI SDK 清理 / adapter spike"]
+        F002a["F-002a 移除 AI SDK 依赖（默认）"]
+        F002b["F-002b AI adapter spike（互斥）"]
         F003["F-003 entrypoint 移除 key (done)"]
         F004["F-004 window.open noopener"]
         F005["F-005 ClickHouse onboarding"]
@@ -1429,7 +1469,7 @@ flowchart TD
 ### 6.1 批次执行顺序
 
 ```text
-批次 F：低风险快速修复（F-003 已完成，F-004 真正低风险可立即执行；F-001/F-002/F-006 涉及依赖树或构建产物需谨慎）
+批次 F：低风险快速修复（F-003 已完成，F-004 真正低风险可立即执行；F-001a/F-001b/F-002a/F-006 涉及依赖树或构建产物需谨慎）
   → 批次 A：架构深化（A-001 已解耦，可优先推进；其余有严格依赖顺序需串行）
     → 批次 P：产品功能补齐（互相独立，可并行）
     → 批次 S：安全加固（互相独立，可并行）
@@ -1441,7 +1481,7 @@ flowchart TD
 
 任务：
 
-- `CHARTDB-F-001` 到 `CHARTDB-F-006`
+- `CHARTDB-F-001a`、`CHARTDB-F-001b`、`CHARTDB-F-002a`（默认）/`F-002b`（互斥）、`CHARTDB-F-003` 到 `CHARTDB-F-006`
 
 退出标准：
 
@@ -1542,6 +1582,8 @@ npm audit --omit=dev --audit-level=high
 rg -n "VITE_OPENAI_API_KEY|OPENAI_API_KEY|window\.env|rehype-raw|dangerouslySetInnerHTML" src Dockerfile default.conf.template .github
 ```
 
+> 命中判定说明：上述 rg 命令命中需按上下文判定，不等同失败。`window.env` 当前为已知的运行时配置入口（`/config.js` 注入），用于在浏览器侧读取部署期变量，本身不暴露密钥；只有当命中伴随 `VITE_OPENAI_API_KEY`/`OPENAI_API_KEY` 实际写入 bundle 或 `dangerouslySetInnerHTML` 未净化时才视为失败。`rehype-raw` 命中需确认是否用于受信内容。
+
 ### 7.3 涉及 UI 任务的额外验证
 
 ```bash
@@ -1585,7 +1627,7 @@ npm run build
 
 以下任务有严格依赖，必须串行：
 
-1. ~~`CHARTDB-F-001` → `CHARTDB-F-002` → `CHARTDB-F-006`~~（已解耦：F-001a/F-001b/F-002/F-006 互相独立，A-001 不再依赖 F-006）
+1. ~~`CHARTDB-F-001` → `CHARTDB-F-002` → `CHARTDB-F-006`~~（已解耦：F-001a/F-001b/F-002a/F-002b/F-006 互相独立，A-001 不再依赖 F-006）
 2. `CHARTDB-A-001` → `CHARTDB-A-002` → `CHARTDB-A-003`
 3. `CHARTDB-A-002` → `CHARTDB-A-004`、`CHARTDB-A-005`
 4. `CHARTDB-A-003` → `CHARTDB-T-007` → `CHARTDB-Q-003`
@@ -1607,7 +1649,7 @@ npm install
 npm run test:ci
 ```
 
-确认基线通过后，按 F-004 → F-001a/F-001b/F-002/F-005/F-006（可并行）→ A-001（已解耦，可优先）→ A-002 → P/S/T → Q 的顺序推进。每个任务完成后：
+确认基线通过后，按 F-004 → F-001a/F-001b/F-002a/F-005/F-006（可并行）→ A-001（已解耦，可优先）→ A-002 → P/S/T → Q 的顺序推进。每个任务完成后：
 
 1. 运行验证门禁。
 2. 提交任务分支。
@@ -1623,7 +1665,8 @@ npm run test:ci
 |---------|------|------|--------|------|------|
 | F-001a | 移除 @uidotdev/usehooks | F | P0 | queued | - |
 | F-001b | TreeView motion → framer-motion | F | P0 | queued | - |
-| F-002 | AI SDK 清理 / adapter spike | F | P0 | queued | - |
+| F-002a | 移除 AI SDK 依赖（默认） | F | P0 | queued | - |
+| F-002b | AI adapter spike（互斥） | F | P2 | queued | - |
 | F-003 | entrypoint 移除 key | F | P0 | done | - |
 | F-004 | window.open noopener | F | P0 | queued | - |
 | F-005 | ClickHouse onboarding | F | P0 | queued | - |
