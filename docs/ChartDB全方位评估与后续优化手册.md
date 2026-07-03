@@ -55,7 +55,7 @@ ChartDB 已完成 Phase 0 到 Phase 8 的首轮重构，共 42 个任务全部 `
 | C3 | 依赖声明与 AI SDK 残留治理（`@uidotdev/usehooks` 零引用；`motion` 实为 `framer-motion` 传递依赖需显式化；`@ai-sdk/openai`/`ai` 无静态 import） | 技术栈 | `package.json` — `@ai-sdk/openai`、`ai`、`motion`、`@uidotdev/usehooks` |
 | C4 | 构建产物 83 MB，无 manualChunks 优化 | 技术栈 | `vite.config.ts` |
 | C5 | 已修复：ClickHouse 不再作为 onboarding DDL 导入数据库选项，避免引导用户进入不支持路径 | 产品 | `onboarding-dialog.tsx` → `sql-import/index.ts` |
-| C6 | 无全局 React ErrorBoundary，任意渲染期未捕获异常导致整个应用白屏且无恢复入口 | 架构 | 全项目 `rg "ErrorBoundary\|componentDidCatch\|getDerivedStateFromError" src` 零命中；`src/main.tsx` 无根级捕获 |
+| C6 | 已修复：应用根级新增 React ErrorBoundary，渲染期未捕获异常会展示恢复页而非整页白屏 | 架构 | `src/App.tsx`、`src/components/error-boundary/error-boundary.tsx` |
 
 ### 3.2 High 问题
 
@@ -1481,6 +1481,11 @@ acceptance:
     - 根级存在 ErrorBoundary
     - 子组件抛出异常时展示 fallback UI 而非白屏
     - fallback UI 不上报用户数据到任何远端服务
+completion:
+    - 2026-07-04：新增 `src/components/error-boundary/error-boundary.tsx`，使用 class 组件实现 `getDerivedStateFromError` 和 `componentDidCatch`，仅本地 `console.error` 记录错误，不发送用户数据或 schema 到远端。
+    - `src/App.tsx` 在 `RouterProvider` 外层接入根级 ErrorBoundary，渲染期未捕获异常会展示恢复页和刷新入口，避免整页白屏。
+    - 新增 `src/components/error-boundary/__tests__/error-boundary.test.tsx`，红灯先失败于缺失 ErrorBoundary 模块，绿灯验证子组件 render 抛错时 fallback UI 正常渲染。
+    - 完整门禁、合并后快速验证和 origin/main 推送确认见 docs/阶段验收记录.md。
 ```
 
 #### CHARTDB-A-008：ChartDBContext 引入 selector，避免全量重渲染
@@ -2238,7 +2243,7 @@ npm run test:ci
 | Q-003 | UI 测试覆盖 | Q | P2 | queued | A-003, T-007 |
 | Q-004 | Smart Query i18n | Q | P3 | queued | - |
 | Q-005 | 浏览器依赖拆分 | Q | P3 | queued | A-001 |
-| A-007 | 全局 ErrorBoundary | A | P0 | queued | - |
+| A-007 | 全局 ErrorBoundary | A | P0 | done | - |
 | A-008 | Context selector | A | P2 | queued | A-003 |
 | A-009 | Diagram version 字段 | A | P2 | queued | A-001 |
 | A-010 | 元数据导入校验补齐 | A | P1 | queued | - |
