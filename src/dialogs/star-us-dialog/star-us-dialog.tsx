@@ -15,6 +15,7 @@ import type { BaseDialogProps } from '../common/base-dialog-props';
 import { useTranslation } from 'react-i18next';
 import { ZoomableImage } from '@/components/zoomable-image/zoomable-image';
 import { useLocalConfig } from '@/hooks/use-local-config';
+import { safeOpenUrl } from '@/lib/utils';
 
 export interface StarUsDialogProps extends BaseDialogProps {}
 
@@ -29,7 +30,7 @@ export const StarUsDialog: React.FC<StarUsDialogProps> = ({ dialog }) => {
 
     const handleConfirm = useCallback(() => {
         setGithubRepoOpened(true);
-        window.open('https://github.com/chartdb/chartdb', '_blank');
+        safeOpenUrl('https://github.com/chartdb/chartdb');
     }, [setGithubRepoOpened]);
 
     return (

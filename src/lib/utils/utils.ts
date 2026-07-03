@@ -42,6 +42,9 @@ export const getOperatingSystem = (): 'mac' | 'windows' | 'unknown' => {
     return 'unknown';
 };
 
+export const safeOpenUrl = (url: string): Window | null =>
+    window.open(url, '_blank', 'noopener,noreferrer');
+
 export const deepCopy = <T>(obj: T): T => JSON.parse(JSON.stringify(obj));
 
 export const debounce = <T extends (...args: Parameters<T>) => ReturnType<T>>(

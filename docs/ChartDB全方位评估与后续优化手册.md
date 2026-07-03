@@ -326,7 +326,7 @@ batch: 批次 F
 type: CODE
 priority: P0
 title: 为所有 window.open 调用添加 noopener noreferrer
-status: queued
+status: done
 depends_on: []
 owner_lane: security
 branch: codex/chartdb-f-window-open-noopener
@@ -353,6 +353,10 @@ verification:
 acceptance:
     - 全项目无缺少 noopener 的 window.open 调用
     - safeOpenUrl 有测试覆盖
+completion:
+    - 已新增 safeOpenUrl(url) 工具函数，统一使用 window.open(url, '_blank', 'noopener,noreferrer') 打开外链。
+    - 已将菜单、编辑侧栏和 Star Us 对话框中的 6 处 window.open 调用替换为 safeOpenUrl。
+    - 红灯验证确认 safeOpenUrl 缺失时测试失败；绿灯验证、缺失 noopener 扫描和完整门禁通过。
 ```
 
 #### CHARTDB-F-005：ClickHouse 从 onboarding 移除或标注
@@ -2182,7 +2186,7 @@ npm run test:ci
 | F-002a | 移除 AI SDK 依赖（默认） | F | P0 | queued | - |
 | F-002b | AI adapter spike（互斥） | F | P2 | queued | - |
 | F-003 | entrypoint 移除 key | F | P0 | done | - |
-| F-004 | window.open noopener | F | P0 | queued | - |
+| F-004 | window.open noopener | F | P0 | done | - |
 | F-005 | ClickHouse onboarding | F | P0 | queued | - |
 | F-006 | Vite manualChunks | F | P0 | queued | - |
 | A-001 | schema-core model 独立 | A | P0 | queued | - |

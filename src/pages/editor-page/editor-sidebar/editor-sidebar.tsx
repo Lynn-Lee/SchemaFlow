@@ -31,6 +31,7 @@ import { useChartDB } from '@/hooks/use-chartdb';
 import { supportsCustomTypes } from '@/lib/domain/database-capabilities';
 import { useDialog } from '@/hooks/use-dialog';
 import { Separator } from '@/components/separator/separator';
+import { safeOpenUrl } from '@/lib/utils';
 
 export interface SidebarItem {
     title: string;
@@ -149,24 +150,22 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = () => {
             {
                 title: 'Discord',
                 icon: DiscordLogoIcon,
-                onClick: () =>
-                    window.open('https://discord.gg/QeFwyWSKwC', '_blank'),
+                onClick: () => safeOpenUrl('https://discord.gg/QeFwyWSKwC'),
                 active: false,
             },
             {
                 title: 'Twitter',
                 icon: TwitterLogoIcon,
                 onClick: () =>
-                    window.open(
-                        'https://x.com/intent/follow?screen_name=jonathanfishner',
-                        '_blank'
+                    safeOpenUrl(
+                        'https://x.com/intent/follow?screen_name=jonathanfishner'
                     ),
                 active: false,
             },
             {
                 title: 'Docs',
                 icon: BookOpen,
-                onClick: () => window.open('https://docs.chartdb.io', '_blank'),
+                onClick: () => safeOpenUrl('https://docs.chartdb.io'),
                 active: false,
             },
             {

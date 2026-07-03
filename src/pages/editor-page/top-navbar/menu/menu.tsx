@@ -28,6 +28,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useLocalConfig } from '@/hooks/use-local-config';
 import { useNavigate } from 'react-router-dom';
 import { useAlert } from '@/context/alert-context/alert-context';
+import { safeOpenUrl } from '@/lib/utils';
 
 export interface MenuProps {}
 
@@ -101,11 +102,11 @@ export const Menu: React.FC<MenuProps> = () => {
     }, [openExportImageDialog]);
 
     const openChartDBDocs = useCallback(() => {
-        window.open('https://docs.chartdb.io', '_blank');
+        safeOpenUrl('https://docs.chartdb.io');
     }, []);
 
     const openJoinDiscord = useCallback(() => {
-        window.open('https://discord.gg/QeFwyWSKwC', '_blank');
+        safeOpenUrl('https://discord.gg/QeFwyWSKwC');
     }, []);
 
     const exportSQL = useCallback(
