@@ -186,7 +186,7 @@ batch: 批次 F
 type: CODE
 priority: P0
 title: 从 entrypoint.sh 的 envsubst 白名单中移除 OPENAI_API_KEY
-status: queued
+status: done
 depends_on: []
 owner_lane: security
 branch: codex/chartdb-f-entrypoint-key
@@ -206,6 +206,10 @@ verification:
 acceptance:
     - entrypoint.sh 不包含 OPENAI_API_KEY
     - 安全测试通过
+completion:
+    - 已从 entrypoint.sh 的 envsubst 白名单中移除 ${OPENAI_API_KEY}。
+    - 已在 browser-key-exposure.test.ts 中增加 entrypoint.sh 断言，防止运行时配置白名单重新暴露 OpenAI API key。
+    - 红灯验证确认旧白名单会失败；绿灯验证和完整门禁通过。
 ```
 
 #### CHARTDB-F-004：window.open 添加 noopener 防护
