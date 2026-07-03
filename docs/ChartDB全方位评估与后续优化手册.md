@@ -419,7 +419,7 @@ batch: 批次 F
 type: CODE
 priority: P0
 title: 为 Vite 构建添加 manualChunks 分离大型依赖
-status: queued
+status: done
 depends_on: []
 owner_lane: performance
 branch: codex/chartdb-f-vite-manual-chunks
@@ -447,6 +447,11 @@ acceptance:
     - 大型 vendor 依赖分离到独立 chunk
     - editor-page chunk 体积显著下降
     - build 通过，无运行时错误
+completion:
+    - 已在 vite.config.ts 的 build.rollupOptions.output 中添加 manualChunks 函数，按 node_modules 路径分离 vendor-react、vendor-monaco、vendor-sql-parser、vendor-dbml、vendor-ui、vendor-xyflow 和 vendor-i18n。
+    - 保留既有 external 配置和 assetFileNames 规则。
+    - 修改前 build：editor-page 11,477.69 kB / gzip 1,808.26 kB，code-editor 3,788.30 kB / gzip 976.91 kB，index 2,609.63 kB / gzip 513.31 kB。
+    - 修改后 build：editor-page 405.53 kB / gzip 111.31 kB，code-editor 0.48 kB / gzip 0.29 kB，index 507.60 kB / gzip 115.63 kB；大型依赖分别进入 vendor-sql-parser、vendor-monaco 和 vendor-dbml chunk。
 ```
 
 ### 批次 A：架构深化
@@ -2205,7 +2210,7 @@ npm run test:ci
 | F-003 | entrypoint 移除 key | F | P0 | done | - |
 | F-004 | window.open noopener | F | P0 | done | - |
 | F-005 | ClickHouse onboarding | F | P0 | done | - |
-| F-006 | Vite manualChunks | F | P0 | queued | - |
+| F-006 | Vite manualChunks | F | P0 | done | - |
 | A-001 | schema-core model 独立 | A | P0 | queued | - |
 | A-002 | 统一 undo/redo | A | P1 | queued | A-001 |
 | A-003 | Provider 拆分 | A | P1 | queued | A-002 |
