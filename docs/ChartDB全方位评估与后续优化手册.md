@@ -143,7 +143,7 @@ batch: 批次 F
 type: CODE
 priority: P0
 title: 移除 @uidotdev/usehooks 依赖
-status: queued
+status: done
 depends_on: []
 owner_lane: tech-debt
 branch: codex/chartdb-f-remove-usehooks
@@ -166,6 +166,10 @@ acceptance:
     - package.json 不再包含 @uidotdev/usehooks
     - build 产物体积下降
     - 无任何 import 报错
+completion:
+    - 已从 package.json dependencies 中删除 @uidotdev/usehooks，并通过 npm uninstall 同步移除 package-lock.json 中对应节点。
+    - 红灯校验确认旧依赖存在时会失败；绿灯校验确认 src/package.json/package-lock.json 均无 @uidotdev/usehooks 命中。
+    - 完整门禁、合并后快速验证和 origin/main 推送确认见 docs/阶段验收记录.md。
 ```
 
 #### CHARTDB-F-001b：处理 TreeView 动画依赖（motion → framer-motion）
@@ -2163,7 +2167,7 @@ npm install
 npm run test:ci
 ```
 
-确认基线通过后，按 F-004 → F-001a/F-001b/F-002a/F-005/F-006（可并行）→ A-001（已解耦，可优先）→ A-002 → P/S/T → Q 的顺序推进。
+确认基线通过后，按 F-004 → F-001a/F-001b/F-002a/F-005/F-006（可并行）→ A-001（已解耦，可优先）→ A-002 → P/S/T → Q 的顺序推进。当前 F-004、F-001a 已完成，下一项建议继续 F-001b/F-002a/F-005/F-006 中的第一个可验证最小切片。
 
 > 2026-07-04 补充：`CHARTDB-A-007`（全局 ErrorBoundary）和 `CHARTDB-P-013`（存储错误处理）是本次复核中优先级最高的两项新增任务——前者是 Critical 且无任何前置依赖，后者直接影响应用能否正常启动，建议插入在 F 批次之后、A-001 之前执行，不必等待架构深化批次全部完成。
 
@@ -2181,7 +2185,7 @@ npm run test:ci
 
 | 任务 ID | 标题 | 批次 | 优先级 | 状态 | 依赖 |
 |---------|------|------|--------|------|------|
-| F-001a | 移除 @uidotdev/usehooks | F | P0 | queued | - |
+| F-001a | 移除 @uidotdev/usehooks | F | P0 | done | - |
 | F-001b | TreeView motion → framer-motion | F | P0 | queued | - |
 | F-002a | 移除 AI SDK 依赖（默认） | F | P0 | queued | - |
 | F-002b | AI adapter spike（互斥） | F | P2 | queued | - |
