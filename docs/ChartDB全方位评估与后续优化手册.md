@@ -1,7 +1,7 @@
 # ChartDB 全方位评估与后续优化手册
 
-> 版本：v1.0
-> 日期：2026-07-02
+> 版本：v1.1（2026-07-03 修订：F-001 拆分、F-002 重定义、F-003 状态修正、A-001 解耦、批次 F 风险定性调整）
+> 日期：2026-07-03
 > 本地路径：`/Users/lynn/SynologyDrive/SynologyDrive/Code/ChartDB`
 > 重构仓库：`https://github.com/Lynn-Lee/ChartDB`
 > 依据文档：`docs/ChartDB自动开发任务计划.md`、`docs/ChartDB重构优化产品设计与研发计划.md`、`docs/ChartDB重构优化工程实施计划.md`
@@ -101,81 +101,120 @@ ChartDB 已完成 Phase 0 到 Phase 8 的首轮重构，共 42 个任务全部 `
 
 以下任务按批次组织，每个任务卡包含完整的文件范围、修复指引、验收命令和依赖关系。
 
-### 批次 F：快速修复（零风险高收益）
+### 批次 F：低风险快速修复
 
-目标：移除未使用依赖、消除安全隐患、修复用户可见的功能断裂。这些任务互相独立，可并行执行。
+目标：移除未使用依赖、消除安全隐患、修复用户可见的功能断裂。其中 F-003 已完成、F-004 真正低风险可立即执行；F-001/F-002/F-006 涉及依赖树或构建产物，需在验证门禁下谨慎执行。
 
-#### CHARTDB-F-001：移除完全未使用的依赖
+> 修订说明（2026-07-03）：原手册将本批次标为「零风险高收益」并声称 `motion` 在 `src/` 中零引用。经核对，`src/components/tree-view/tree-view.tsx:8` 直接 `import { motion, AnimatePresence } from 'framer-motion'`，而 `framer-motion` 是 `motion` 的传递依赖，直接删除 `motion` 会导致构建报错。同时 `src/` 中无任何 `ai` / `@ai-sdk/openai` 静态 import，F-002「改为动态 import」的标题不成立。本批次任务卡已据此拆分和重定义。
+
+#### CHARTDB-F-001a：移除真正零引用的 @uidotdev/usehooks
 
 ```yaml
-id: CHARTDB-F-001
+id: CHARTDB-F-001a
 batch: 批次 F
 type: CODE
 priority: P0
-title: 移除 motion 和 @uidotdev/usehooks 依赖
+title: 移除 @uidotdev/usehooks 依赖
 status: queued
 depends_on: []
 owner_lane: tech-debt
-branch: codex/chartdb-f-remove-unused-deps
+branch: codex/chartdb-f-remove-usehooks
 allowed_files:
     - package.json
     - package-lock.json
 entry_context:
-    - motion (Framer Motion, 488KB) 在 src/ 中零引用
-    - @uidotdev/usehooks (52KB) 在 src/ 中零引用
-    - 两者均通过 rg 确认无任何 import
+    - @uidotdev/usehooks (52KB) 在 src/ 中零引用（rg 确认无任何 import）
+    - 注意：motion 不可在本任务删除，见 F-001b
 implementation_contract:
-    - 从 package.json dependencies 中删除 motion 和 @uidotdev/usehooks
+    - 从 package.json dependencies 中仅删除 @uidotdev/usehooks
     - 运行 npm install 更新 lockfile
     - 确认无 import 报错
 verification:
     - npm run lint
     - npm run test:ci
     - npm run build
-    - rg -n "motion|@uidotdev/usehooks" src package.json
+    - rg -n "@uidotdev/usehooks" src package.json
 acceptance:
-    - package.json 不再包含 motion 和 @uidotdev/usehooks
+    - package.json 不再包含 @uidotdev/usehooks
     - build 产物体积下降
     - 无任何 import 报错
 ```
 
-#### CHARTDB-F-002：AI SDK 改为动态 import
+#### CHARTDB-F-001b：处理 TreeView 动画依赖（motion → framer-motion）
+
+```yaml
+id: CHARTDB-F-001b
+batch: 批次 F
+type: CODE
+priority: P0
+title: 将 TreeView 动画依赖从 motion 切换为显式 framer-motion
+status: queued
+depends_on: []
+owner_lane: tech-debt
+branch: codex/chartdb-f-treeview-motion
+allowed_files:
+    - package.json
+    - package-lock.json
+    - src/components/tree-view/tree-view.tsx
+entry_context:
+    - src/components/tree-view/tree-view.tsx:8 直接 import { motion, AnimatePresence } from 'framer-motion'
+    - package.json 只声明 "motion": "^12.23.6"，framer-motion 是 motion 的传递依赖
+    - 直接删除 motion 会导致 framer-motion 解析失败、构建报错
+    - TreeView 动画逻辑已成型，改 CSS/Radix 会扩大切片范围
+implementation_contract:
+    - 在 package.json 中将 motion 替换为显式 framer-motion（同版本约束）
+    - 运行 npm install 更新 lockfile
+    - 确认 tree-view.tsx 的 import 仍可解析（framer-motion 现为直接依赖）
+    - 不修改 TreeView 动画实现，仅修正依赖声明
+verification:
+    - npm run lint
+    - npm run test:ci
+    - npm run build
+    - rg -n "\"motion\"" package.json
+    - rg -n "framer-motion" package.json src/components/tree-view/tree-view.tsx
+acceptance:
+    - package.json 不再包含 motion，改为显式 framer-motion
+    - tree-view.tsx 动画行为不变
+    - build 通过，无运行时错误
+```
+
+#### CHARTDB-F-002：移除未使用 AI SDK 依赖或做 AI adapter spike
 
 ```yaml
 id: CHARTDB-F-002
 batch: 批次 F
 type: CODE
 priority: P0
-title: 将 @ai-sdk/openai 和 ai 改为动态 import
+title: 移除未使用的 @ai-sdk/openai 和 ai 依赖，或做 AI adapter spike 预留加载路径
 status: queued
-depends_on:
-    - CHARTDB-F-001
+depends_on: []
 owner_lane: tech-debt
-branch: codex/chartdb-f-ai-sdk-dynamic
+branch: codex/chartdb-f-ai-sdk-cleanup
 allowed_files:
     - src/lib/ai/**
     - src/lib/data/sql-export/**
     - package.json
     - package-lock.json
 entry_context:
-    - @ai-sdk/openai (3.1MB) + ai (2.7MB) 在 src/ 中零静态引用
-    - AI 功能默认禁用，仅在用户明确启用 BYOK/Gateway 模式时需要 SDK
-    - 当前 ai-mode.ts 只定义了接口契约，从未实际 import SDK
+    - src/ 中无任何 from 'ai' / from '@ai-sdk/openai' 静态 import（rg 确认）
+    - export-sql-script.ts:19,756 只调用本地 buildAIExportRequest（来自 @/lib/ai/ai-mode），未静态加载 SDK
+    - 原手册「改为动态 import」的标题不成立——根本没有静态 import 可改
+    - 阶段验收记录 P0-002 已明确：AI SDK 依赖链保留 low advisory，避免破坏性迁移
 implementation_contract:
-    - 在 ai-mode.ts 中保留 mode gate 逻辑不变
-    - 在实际需要调用 AI 模型的位置（export-sql-script.ts 的 AI fallback 路径）使用动态 import
-    - 示例：const { generateText } = await import('ai')
-    - 确保 AI 默认禁用时 SDK 不进入主 bundle
-    - 不要恢复真实模型调用，仅准备动态加载路径
+    - 方案 A（推荐，最小切片）：从 package.json 删除 @ai-sdk/openai 和 ai，运行 npm install，确认 build/test 通过
+    - 方案 B（若后续要启用 AI）：保留依赖，在 ai-mode.ts 中新增 adapter spike（接口 + 动态 import 占位），但不恢复真实模型调用
+    - 无论选哪个方案，AI 默认禁用行为不变，不发送 schema 内容
+    - 若选方案 A，需同步更新阶段验收记录中 P0-002 的 advisory 结论
 verification:
     - npm run lint
     - npm run test:ci
     - npm run build
-    - npm run build 后检查 dist 中 AI SDK 是否分离到独立 chunk
+    - npm run build 后检查 dist 中是否仍包含 AI SDK chunk
 acceptance:
     - AI SDK 不进入首屏 bundle
     - AI 默认禁用行为不变
-    - build 产物中 AI SDK 在独立 chunk 或完全不在 bundle 中
+    - 若选方案 A：package.json 不再包含 @ai-sdk/openai 和 ai
+    - 若选方案 B：AI SDK 在独立 chunk 或完全不在 bundle 中，adapter 接口有测试
 ```
 
 #### CHARTDB-F-003：entrypoint.sh 移除 OPENAI_API_KEY
@@ -293,9 +332,7 @@ type: CODE
 priority: P0
 title: 为 Vite 构建添加 manualChunks 分离大型依赖
 status: queued
-depends_on:
-    - CHARTDB-F-001
-    - CHARTDB-F-002
+depends_on: []
 owner_lane: performance
 branch: codex/chartdb-f-vite-manual-chunks
 allowed_files:
@@ -337,8 +374,7 @@ type: CODE
 priority: P0
 title: 将领域模型从 lib/domain 迁移到 schema-core/model
 status: queued
-depends_on:
-    - CHARTDB-F-006
+depends_on: []
 owner_lane: core
 branch: codex/chartdb-a-schema-core-model
 allowed_files:
@@ -1317,16 +1353,14 @@ acceptance:
 
 ```mermaid
 flowchart TD
-    subgraph 批次F[批次 F：快速修复]
-        F001["F-001 移除未使用依赖"]
-        F002["F-002 AI SDK 动态 import"]
-        F003["F-003 entrypoint 移除 key"]
+    subgraph 批次F[批次 F：低风险快速修复]
+        F001a["F-001a 移除 @uidotdev/usehooks"]
+        F001b["F-001b TreeView motion → framer-motion"]
+        F002["F-002 AI SDK 清理 / adapter spike"]
+        F003["F-003 entrypoint 移除 key (done)"]
         F004["F-004 window.open noopener"]
         F005["F-005 ClickHouse onboarding"]
         F006["F-006 Vite manualChunks"]
-        F001 --> F002
-        F001 --> F006
-        F002 --> F006
     end
 
     subgraph 批次A[批次 A：架构深化]
@@ -1376,9 +1410,8 @@ flowchart TD
         Q005["Q-005 浏览器依赖拆分"]
     end
 
-    F006 --> A001
     F005 --> P006
-    F001 --> T005
+    F001a --> T005
     A001 --> A002
     A002 --> A003
     A002 --> A004
@@ -1396,8 +1429,8 @@ flowchart TD
 ### 6.1 批次执行顺序
 
 ```text
-批次 F：快速修复（零风险高收益，立即可执行）
-  → 批次 A：架构深化（有严格依赖顺序，需串行）
+批次 F：低风险快速修复（F-003 已完成，F-004 真正低风险可立即执行；F-001/F-002/F-006 涉及依赖树或构建产物需谨慎）
+  → 批次 A：架构深化（A-001 已解耦，可优先推进；其余有严格依赖顺序需串行）
     → 批次 P：产品功能补齐（互相独立，可并行）
     → 批次 S：安全加固（互相独立，可并行）
     → 批次 T：技术栈优化（部分依赖 A-003）
@@ -1542,7 +1575,7 @@ npm run build
 
 | 并发 lane | 可并发范围 | 不可同时修改 |
 |-----------|------------|--------------|
-| `security` | F-003、F-004、S-001、S-002 | default.conf.template |
+| `security` | F-004、S-001、S-002（F-003 已完成） | default.conf.template |
 | `product` | F-005、P-001 到 P-006 | onboarding-dialog.tsx |
 | `performance` | F-006、T-001 到 T-006 | vite.config.ts |
 | `dialect` | A-006、P-006 | src/dialects/ 同一目录 |
@@ -1552,17 +1585,19 @@ npm run build
 
 以下任务有严格依赖，必须串行：
 
-1. `CHARTDB-F-001` → `CHARTDB-F-002` → `CHARTDB-F-006`
+1. ~~`CHARTDB-F-001` → `CHARTDB-F-002` → `CHARTDB-F-006`~~（已解耦：F-001a/F-001b/F-002/F-006 互相独立，A-001 不再依赖 F-006）
 2. `CHARTDB-A-001` → `CHARTDB-A-002` → `CHARTDB-A-003`
 3. `CHARTDB-A-002` → `CHARTDB-A-004`、`CHARTDB-A-005`
 4. `CHARTDB-A-003` → `CHARTDB-T-007` → `CHARTDB-Q-003`
 
 ## 10. 首轮执行建议
 
+> 修订说明（2026-07-03）：原手册建议从 F-001 开始，但 F-001 的 `motion` 零引用假设不成立（见 F-001b）。下一项实际代码任务建议从 **CHARTDB-F-004**（window.open noopener，真正低风险、独立、已核实 6 处）开始，而不是继续按原手册从 F-001 开始。
+
 建议先创建第一个任务分支：
 
 ```bash
-git switch -c codex/chartdb-f-remove-unused-deps
+git switch -c codex/chartdb-f-window-open-noopener
 ```
 
 然后执行：
@@ -1572,7 +1607,7 @@ npm install
 npm run test:ci
 ```
 
-确认基线通过后，按批次 F → A → P/S/T → Q 的顺序推进。每个任务完成后：
+确认基线通过后，按 F-004 → F-001a/F-001b/F-002/F-005/F-006（可并行）→ A-001（已解耦，可优先）→ A-002 → P/S/T → Q 的顺序推进。每个任务完成后：
 
 1. 运行验证门禁。
 2. 提交任务分支。
@@ -1586,13 +1621,14 @@ npm run test:ci
 
 | 任务 ID | 标题 | 批次 | 优先级 | 状态 | 依赖 |
 |---------|------|------|--------|------|------|
-| F-001 | 移除未使用依赖 | F | P0 | queued | - |
-| F-002 | AI SDK 动态 import | F | P0 | queued | F-001 |
-| F-003 | entrypoint 移除 key | F | P0 | queued | - |
+| F-001a | 移除 @uidotdev/usehooks | F | P0 | queued | - |
+| F-001b | TreeView motion → framer-motion | F | P0 | queued | - |
+| F-002 | AI SDK 清理 / adapter spike | F | P0 | queued | - |
+| F-003 | entrypoint 移除 key | F | P0 | done | - |
 | F-004 | window.open noopener | F | P0 | queued | - |
 | F-005 | ClickHouse onboarding | F | P0 | queued | - |
-| F-006 | Vite manualChunks | F | P0 | queued | F-001, F-002 |
-| A-001 | schema-core model 独立 | A | P0 | queued | F-006 |
+| F-006 | Vite manualChunks | F | P0 | queued | - |
+| A-001 | schema-core model 独立 | A | P0 | queued | - |
 | A-002 | 统一 undo/redo | A | P1 | queued | A-001 |
 | A-003 | Provider 拆分 | A | P1 | queued | A-002 |
 | A-004 | diff/load 走 command | A | P1 | queued | A-002 |
@@ -1611,7 +1647,7 @@ npm run test:ci
 | T-002 | 模板懒加载完善 | T | P1 | queued | - |
 | T-003 | PNG 转 WebP | T | P2 | queued | - |
 | T-004 | 统一图标库 | T | P2 | queued | - |
-| T-005 | 精简 hooks 库 | T | P2 | queued | F-001 |
+| T-005 | 精简 hooks 库 | T | P2 | queued | F-001a |
 | T-006 | Monaco config 惰性 | T | P2 | queued | - |
 | T-007 | canvas 拆分 | T | P2 | queued | A-003 |
 | Q-001 | migration 测试 | Q | P2 | queued | - |
