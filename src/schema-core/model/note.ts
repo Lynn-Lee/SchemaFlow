@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
-export interface Area {
+export interface Note {
     id: string;
-    name: string;
+    content: string;
     x: number;
     y: number;
     width: number;
@@ -11,9 +11,9 @@ export interface Area {
     order?: number;
 }
 
-export const areaSchema: z.ZodType<Area> = z.object({
+export const noteSchema: z.ZodType<Note> = z.object({
     id: z.string(),
-    name: z.string(),
+    content: z.string(),
     x: z.number(),
     y: z.number(),
     width: z.number(),

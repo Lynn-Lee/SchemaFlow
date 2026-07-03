@@ -268,7 +268,7 @@ batch: 批次 F
 type: CODE
 priority: P2
 title: 在 ai-mode.ts 中新增 AI adapter spike 预留动态加载路径
-status: queued
+status: done
 depends_on: []
 owner_lane: tech-debt
 branch: codex/chartdb-f-ai-sdk-adapter
@@ -496,6 +496,12 @@ acceptance:
     - schema-core/model/ 不依赖 React、Dexie、Monaco、DOM
     - 旧 import 路径通过 re-export 兼容
     - 无业务行为变化
+completion:
+    - 2026-07-04：已将 `area`、`table`、`field`、`index`、`relationship`、`diagram`、`database`、`customType`、`dependency`、`note`、`schema` 等纯模型定义迁移到 `src/schema-core/model/`，旧 `src/lib/domain/` 文件改为兼容 re-export。
+    - `databaseEditionToImageMap` 仍保留在 `src/lib/domain/database-edition.ts`，避免 schema-core 引入图片 asset/UI 依赖；`DatabaseEdition`、label 与 edition map 已迁入 schema-core。
+    - `db-table` 原先通过 `lib/utils` 间接依赖浏览器工具层，本轮在 schema-core model 内使用纯本地 helper，避免 `window` / `localStorage` 间接进入模型层。
+    - 新增 `model-exports.test.ts` 断言 schema-core model 文件不再从 `@/lib/domain` 重导出；红灯先失败于 `area.ts` 空壳 re-export，绿灯后通过。
+    - 完整门禁、合并后快速验证和 origin/main 推送确认见 docs/阶段验收记录.md。
 ```
 
 #### CHARTDB-A-002：统一 undo/redo 到 Command 驱动
@@ -506,7 +512,7 @@ batch: 批次 A
 type: CODE
 priority: P1
 title: 让 history-provider 实际使用 commandHistory 驱动 undo/redo
-status: queued
+status: done
 depends_on:
     - CHARTDB-A-001
 owner_lane: core
@@ -2222,7 +2228,7 @@ npm run test:ci
 | F-004 | window.open noopener | F | P0 | done | - |
 | F-005 | ClickHouse onboarding | F | P0 | done | - |
 | F-006 | Vite manualChunks | F | P0 | done | - |
-| A-001 | schema-core model 独立 | A | P0 | queued | - |
+| A-001 | schema-core model 独立 | A | P0 | done | - |
 | A-002 | 统一 undo/redo | A | P1 | queued | A-001 |
 | A-003 | Provider 拆分 | A | P1 | queued | A-002 |
 | A-004 | diff/load 走 command | A | P1 | queued | A-002 |

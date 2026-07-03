@@ -126,6 +126,22 @@ describe('schema-core model exports', () => {
             }
         }
     });
+
+    it('keeps schema-core model definitions in schema-core instead of re-exporting lib/domain', () => {
+        const modelRoot = join(process.cwd(), 'src/schema-core/model');
+        const sourceFiles = collectSourceFiles(modelRoot);
+
+        expect(sourceFiles.length).toBeGreaterThan(0);
+
+        for (const filePath of sourceFiles) {
+            const source = readFileSync(filePath, 'utf8');
+
+            expect(
+                source.includes('@/lib/domain'),
+                `${filePath} should own model definitions instead of re-exporting lib/domain`
+            ).toBe(false);
+        }
+    });
 });
 
 function collectSourceFiles(root: string): string[] {
