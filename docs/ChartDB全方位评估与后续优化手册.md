@@ -1,7 +1,7 @@
 # ChartDB 全方位评估与后续优化手册
 
-> 版本：v1.3（2026-07-03 三次修订：M1 标记已修复、期望无命中的 rg 验证命令改为 shell 取反写法）
-> 日期：2026-07-03
+> 版本：v1.4（2026-07-04 四次修订：新增独立三路复核发现 13 项，覆盖架构可靠性、产品/无障碍、安全预防三个维度；已对 v1.3 全部具体断言逐条核对代码现状，结论：v1.3 记录准确，无需撤回）
+> 日期：2026-07-04
 > 本地路径：`/Users/lynn/SynologyDrive/SynologyDrive/Code/ChartDB`
 > 重构仓库：`https://github.com/Lynn-Lee/ChartDB`
 > 依据文档：`docs/ChartDB自动开发任务计划.md`、`docs/ChartDB重构优化产品设计与研发计划.md`、`docs/ChartDB重构优化工程实施计划.md`
@@ -12,6 +12,8 @@
 ChartDB 已完成 Phase 0 到 Phase 8 的首轮重构，共 42 个任务全部 `done`。本轮评估从**架构设计、安全漏洞、产品设计、技术栈与代码质量**四个维度对重构后的代码库进行了深度审查。
 
 评估结论：重构方向正确，安全基线扎实（无 Critical/High 安全漏洞），分层意图清晰。但处于**重构进行中**的状态——架构边界有虚假层、Provider 未拆分、依赖冗余严重、部分功能为空壳。本手册把发现的问题转换为可自动派发、可验证、可回滚的任务队列。
+
+> **2026-07-04 复核说明**：本次复核对 v1.3 的全部 Critical/High/Medium 关键断言（C1-C5、H1-H8、M2-M12 中可静态验证的项、任务卡中引用的行号）逐条用 `rg`/`wc`/文件读取重新核实，结论：**v1.3 记录与当前代码状态一致，无失真项**，可直接沿用。在此基础上，另发起三路独立复核（安全纵深 / 产品与可访问性 / 架构与技术栈可靠性），要求复核者不得重复已记录问题、只报告新发现，最终合并得到 13 项新增问题（1 Critical、5 High、6 Medium、1 Low），已并入下表和任务卡（新增 ID 前缀沿用批次字母，编号从各批次现有最大编号之后继续）。
 
 ## 2. 评估总览
 
@@ -33,12 +35,14 @@ ChartDB 已完成 Phase 0 到 Phase 8 的首轮重构，共 42 个任务全部 `
 
 ### 2.2 问题统计
 
-| 严重程度 | 数量 | 分布 |
+> 2026-07-04 复核后合计 48 项（原 35 项 + 新增 13 项）。新增项见 3.5 节，任务卡见 4.x「批次追加」。
+
+| 严重程度 | 数量（原 → 现） | 分布 |
 |----------|------|------|
-| Critical | 5 | 架构 2 + 技术栈 2 + 产品 1 |
-| High | 8 | 架构 4 + 产品 5 + 技术栈 3（有交叉） |
-| Medium | 12 | 安全 4 + 架构 4 + 产品 4 |
-| Low | 10 | 架构 4 + 安全 4 + 产品 5（有交叉） |
+| Critical | 5 → 6 | 架构 3 + 技术栈 2 + 产品 1 |
+| High | 8 → 13 | 架构 7 + 产品 7 + 技术栈 3（有交叉） |
+| Medium | 12 → 18 | 安全 5 + 架构 5 + 产品 8（有交叉） |
+| Low | 10 → 11 | 架构 4 + 安全 4 + 产品 6（有交叉） |
 
 ## 3. 问题清单（按严重程度排序）
 
@@ -51,6 +55,7 @@ ChartDB 已完成 Phase 0 到 Phase 8 的首轮重构，共 42 个任务全部 `
 | C3 | 依赖声明与 AI SDK 残留治理（`@uidotdev/usehooks` 零引用；`motion` 实为 `framer-motion` 传递依赖需显式化；`@ai-sdk/openai`/`ai` 无静态 import） | 技术栈 | `package.json` — `@ai-sdk/openai`、`ai`、`motion`、`@uidotdev/usehooks` |
 | C4 | 构建产物 83 MB，无 manualChunks 优化 | 技术栈 | `vite.config.ts` |
 | C5 | ClickHouse 在 onboarding 中作为一等选项，但 DDL 导入会直接报错 | 产品 | `onboarding-dialog.tsx:38-45` → `sql-import/index.ts:224` |
+| C6 | 无全局 React ErrorBoundary，任意渲染期未捕获异常导致整个应用白屏且无恢复入口 | 架构 | 全项目 `rg "ErrorBoundary\|componentDidCatch\|getDerivedStateFromError" src` 零命中；`src/main.tsx` 无根级捕获 |
 
 ### 3.2 High 问题
 
@@ -64,6 +69,11 @@ ChartDB 已完成 Phase 0 到 Phase 8 的首轮重构，共 42 个任务全部 `
 | H6 | Oracle/ClickHouse/CockroachDB 导出静默走 PostgreSQL 格式 | 产品 | `export-sql-script.ts:172-186` |
 | H7 | 50 个模板数据文件全部静态打包（~73,000 行） | 技术栈 | `src/templates-data/templates/*.ts` |
 | H8 | i18n 22 种语言全部静态打包 | 技术栈 | `src/i18n/i18n.ts` |
+| H9 | ChartDBContext 单一扁平 value 对象无 selector，任一 table 变更导致全部 62 处 `useChartDB()` 消费方重渲染 | 架构 | `chartdb-context.tsx:69-331`、`chartdb-provider.tsx:2740` |
+| H10 | `Diagram` 类型无 `version`/`schemaVersion` 字段，字段“改形状”时无迁移钩子，只能靠 Zod `.optional()` 兜底 | 架构 | `src/lib/domain/diagram.ts:16-29` |
+| H11 | 数据库元数据导入热路径未走 Zod 校验：`DatabaseMetadataSchema` 存在但未接入 `import-preview-core.ts`/`create-diagram-dialog.tsx` 实际调用点 | 架构 | `database-metadata.ts:54-61` vs `import-preview-core.ts:176`、`create-diagram-dialog.tsx:148,252` |
+| H12 | Canvas 画布主体（节点拖拽、连线、选中）零 `aria-label`/`role`/键盘处理，核心编辑功能纯鼠标依赖 | 产品 | `src/pages/editor-page/canvas/canvas.tsx`（1908 行） |
+| H13 | 应用启动/打开图表流程缺少 try/catch：IndexedDB 读取失败时 loader 无限转圈或对话框静默显示空列表 | 产品 | `use-diagram-loader.tsx:38-59`、`open-diagram-dialog.tsx:50-57` |
 
 ### 3.3 Medium 问题
 
@@ -81,6 +91,12 @@ ChartDB 已完成 Phase 0 到 Phase 8 的首轮重构，共 42 个任务全部 `
 | M10 | Monaco config.ts 中 `import * as monaco` 是静态导入 | 技术栈 | `code-snippet/config.ts` |
 | M11 | 三个 hooks 库并存，仅用 4 个 API | 技术栈 | `package.json` — `ahooks`、`react-use`、`@uidotdev/usehooks` |
 | M12 | Vite 无 manualChunks，大型依赖未分离 | 技术栈 | `vite.config.ts` |
+| M13 | Web Worker 任务无超时/deadline：worker 挂起但不触发 `onerror` 时，调用方 Promise 永不 resolve，UI 静默卡死 | 架构 | `src/workers/worker-client.ts:60-141` |
+| M14 | React Router 路由无 `errorElement`：loader 抛错或路由级 chunk 加载失败时显示无样式默认错误页，无应用 header/重试入口 | 产品 | `src/router.tsx`（7 个路由均无 `errorElement`） |
+| M15 | Onboarding 选择的数据库类型在“导入现有数据库”路径中被丢弃：`CreateDiagramDialog` 打开时 `useEffect` 无条件重置为 `SELECT_DATABASE`/`GENERIC` | 产品 | `onboarding-dialog.tsx:159-160` → `create-diagram-dialog.tsx:96-109` |
+| M16 | 移动端无 canvas 响应式护栏：无媒体查询/`isMobile` 判断，也无“建议桌面使用”提示，触屏交互静默降级 | 产品 | `src/pages/editor-page/canvas/`、`use-is-lost-in-canvas.tsx`（仅处理平移越界，不处理视口尺寸） |
+| M17 | Self-hosted AI Gateway endpoint 无 URL 校验即写入 localStorage：未来功能上线前若不加白名单/协议校验，存在 SSRF 隐患（当前因功能未实现为死代码，非当下可利用漏洞，需预防性修复） | 安全 | `privacy-settings.tsx:83-90`、`local-config-provider.tsx:88-90,131-133`、`ai-mode.ts:78-87` |
+| M18 | `templates-page.tsx` 整页文案未接入 i18n（标题、描述、Featured/All Templates/Tags 等均硬编码英文），范围比已知的 Smart Query 文案缺口更大 | 产品 | `src/pages/templates-page/templates-page.tsx` |
 
 ### 3.4 Low 问题
 
@@ -96,6 +112,18 @@ ChartDB 已完成 Phase 0 到 Phase 8 的首轮重构，共 42 个任务全部 `
 | L8 | Smart Query wizard 关键安全提示未纳入 i18n | 产品 | `smart-query-instructions.tsx:82-112` |
 | L9 | 测试覆盖率 20.6%，核心 UI 逻辑无测试 | 质量 | 139 测试 / 673 文件 |
 | L10 | `updateTablesState` 的 `forceOverride` 是危险通配操作 | 架构 | `chartdb-provider.tsx:679-810` |
+| L11 | `export-sql-dialog.tsx` 的 Deterministic/AI 切换按钮文案硬编码，未走 i18n（该对话框其余文案均已 `t()` 化） | 产品 | `src/dialogs/export-sql-dialog/export-sql-dialog.tsx:294-306` |
+
+### 3.5 二次独立复核新增发现（2026-07-04）
+
+采用三路并行、互不重复的独立复核方式：安全纵深（SQL/DBML 解析、AI/BYOK 密钥流向、导入文件处理、Markdown 渲染、依赖供应链、Docker/Nginx 头、浏览器存储）、产品与可访问性（onboarding 全路径、空/加载/错误态、undo/redo 数据丢失场景、可访问性、移动端、i18n 完整性、模板画廊一致性）、架构与技术栈可靠性（CI/CD、全局错误边界、Worker 容错、Context 渲染性能、Diagram 版本兼容、Zod 校验边界、依赖许可证、构建可复现性）。三路均被告知已知的 35 项问题清单，只报告清单之外的新发现。
+
+结果：**未发现新的 Critical 安全漏洞**（BYOK key 仍正确保持内存态不落盘；SQL/DBML 解析未见 ReDoS 或原型污染路径；Markdown 渲染未见 XSS；CI 工作流的 `pull_request_target` 用法核实为安全用法，未检出 untrusted checkout + secrets 的经典供应链漏洞；依赖许可证无 GPL/AGPL 传染风险；`package-lock.json` 与 `package.json` 版本一致，无可疑 postinstall 脚本）。新发现的 13 项问题已并入 3.1-3.4 节的 C6、H9-H13、M13-M18、L11，对应任务卡见「批次追加」（第 4.6 节）。
+
+其中两项值得单独说明优先级判断依据：
+
+- **H9（Context 无 selector）**判定为 High 而非 Medium：编辑侧栏几乎每次按键都会触发全应用 62 个 `useChartDB()` 消费方重渲染，在大型 diagram（数十张表）上会有可感知的输入卡顿，且随 `CHARTDB-A-003` Provider 拆分同步治理性价比最高，晚做只会随体量增长变得更贵。
+- **H12（Canvas 无障碍）**判定为 High 但注明：`docs/可访问性与核心流程验收.md` 的 Phase 5 验收范围明确只覆盖 Dialog、icon button、Radio、Monaco 的可访问名称和键盘路径，未要求画布节点/连线本体可键盘操作——这是**图形类工具的常见行业限制**，不是本轮重构的回归。本手册仍将其列为 High 是因为它是核心编辑能力的可用性上限，建议至少在批次 P 任务卡中做成“显式记录的已知限制 + 最小可行改进”，而非要求短期内做到完整键盘等价操作。
 
 ## 4. 任务卡
 
@@ -1388,6 +1416,455 @@ acceptance:
     - import 路径更新
 ```
 
+### 4.6 批次追加：二次复核新增任务（2026-07-04）
+
+以下任务卡对应 3.5 节新增的 13 项发现，按批次归入 A（架构）/P（产品）/S（安全）/Q（质量/i18n），编号从各批次现有最大编号后继续。
+
+#### CHARTDB-A-007：新增全局 ErrorBoundary
+
+```yaml
+id: CHARTDB-A-007
+batch: 批次 A
+type: CODE
+priority: P0
+title: 在应用根级新增 React ErrorBoundary，避免未捕获异常导致整页白屏
+status: queued
+depends_on: []
+owner_lane: core
+branch: codex/chartdb-a-error-boundary
+allowed_files:
+    - src/main.tsx
+    - src/App.tsx
+    - src/components/error-boundary/**
+    - src/components/error-boundary/__tests__/**
+entry_context:
+    - rg "ErrorBoundary|componentDidCatch|getDerivedStateFromError" src 零命中
+    - src/router.tsx 的 7 个路由均无 errorElement（见 M14），根级也无 ErrorBoundary 兜底
+    - 任意组件渲染期抛出未捕获异常会直接卸载整个 React 树，用户只看到白屏，无刷新或返回入口
+implementation_contract:
+    - 新增 src/components/error-boundary/error-boundary.tsx，实现 class 组件 getDerivedStateFromError + componentDidCatch
+    - 在根组件（main.tsx 或 App.tsx）包裹路由树
+    - 捕获后展示最小可用的错误页：说明出错、提供"刷新页面"和"导出当前数据"（如可行）操作，不吞掉错误也不发送数据到远端
+    - 新增单元测试：模拟子组件抛出异常，断言 fallback UI 渲染而不是崩溃
+verification:
+    - npm run lint
+    - npm run test:ci
+    - npm run build
+    - rg -n "ErrorBoundary" src/main.tsx src/App.tsx
+acceptance:
+    - 根级存在 ErrorBoundary
+    - 子组件抛出异常时展示 fallback UI 而非白屏
+    - fallback UI 不上报用户数据到任何远端服务
+```
+
+#### CHARTDB-A-008：ChartDBContext 引入 selector，避免全量重渲染
+
+```yaml
+id: CHARTDB-A-008
+batch: 批次 A
+type: CODE
+priority: P2
+title: 为 ChartDBContext 消费方引入 selector/拆分 context，避免任一 table 变更导致全部消费方重渲染
+status: queued
+depends_on:
+    - CHARTDB-A-003
+owner_lane: core
+branch: codex/chartdb-a-context-selector
+allowed_files:
+    - src/context/chartdb-context/**
+    - src/context/chartdb-context/__tests__/**
+entry_context:
+    - chartdb-context.tsx:69-331 定义单一扁平 context value；chartdb-provider.tsx:2740 每次渲染都构建新的 value 对象
+    - 全项目 62 处 useChartDB() 消费方在任一 table/relationship/area 变更时全部重渲染
+    - table-node.tsx 因 props 来自 XYFlow 节点数据而非直接订阅 context，已用 React.memo 规避；side-panel 列表等直接订阅 context 的组件无此保护，编辑单个字段可能导致整个侧边栏树重渲染
+implementation_contract:
+    - 优先方案：将 context value 按域拆分为多个 context（tablesContext、relationshipsContext、uiStateContext 等），消费方按需订阅
+    - 或引入轻量 selector hook（如 use-context-selector 模式）包裹现有单一 context，不强制立即拆分底层 state
+    - 本任务不要求重写 ChartDBProvider 内部状态管理，只解决消费端订阅粒度问题
+    - 新增渲染次数的回归测试（对关键 side-panel 组件断言无关变更不触发重渲染）
+verification:
+    - npm run lint
+    - npm run test:ci
+    - npm run build
+acceptance:
+    - 编辑单个 table 字段不再触发全部 62 处消费方重渲染
+    - 对外 useChartDB() API 兼容或有明确迁移说明
+    - 无行为回归
+```
+
+#### CHARTDB-A-009：Diagram 类型补充 version 字段与迁移钩子
+
+```yaml
+id: CHARTDB-A-009
+batch: 批次 A
+type: CODE
+priority: P2
+title: 为 Diagram 数据结构补充显式 version 字段，预留字段"改形状"时的迁移钩子
+status: queued
+depends_on:
+    - CHARTDB-A-001
+owner_lane: core
+branch: codex/chartdb-a-diagram-version-field
+allowed_files:
+    - src/lib/domain/diagram.ts
+    - src/lib/export-import-utils.ts
+    - src/schema-core/model/diagram.ts
+    - src/lib/domain/__tests__/**
+entry_context:
+    - src/lib/domain/diagram.ts:16-29 的 Diagram 接口无 version/schemaVersion 字段
+    - 当前完全依赖每个新字段在 Zod schema 中声明为 .optional() 来兼容旧数据
+    - 如果未来字段发生"改形状"而非"新增"（例如 DBField.type 从 string 变为 object），旧 diagram JSON 只能静默丢失或抛出无法定位的 Zod 报错
+implementation_contract:
+    - 在 Diagram 类型和对应 Zod schema 中新增 version 字段（数字或语义化字符串），新建 diagram 时写入当前版本号
+    - 在 diagramFromJSONInput（export-import-utils.ts）中新增按 version 分支的迁移函数占位（无历史版本需要迁移时可先实现 identity 迁移 + 版本号补全）
+    - 校验失败时抛出的错误信息应说明"检测到的版本"和"期望的版本"，而非原始 Zod 错误
+    - 新增测试覆盖：无 version 字段的旧数据能被识别为 v0 并补全；version 高于当前支持版本时给出明确错误而非崩溃
+verification:
+    - npm run test:ci
+    - npm run build
+acceptance:
+    - Diagram 具有 version 字段
+    - 旧数据（无 version）可被正确识别和迁移
+    - 版本不兼容时报错信息可读、可操作
+```
+
+#### CHARTDB-A-010：数据库元数据导入热路径接入 Zod 校验
+
+```yaml
+id: CHARTDB-A-010
+batch: 批次 A
+type: CODE
+priority: P1
+title: 让 import-preview-core 和 create-diagram-dialog 的元数据导入路径实际调用 DatabaseMetadataSchema 校验
+status: queued
+depends_on: []
+owner_lane: core
+branch: codex/chartdb-a-metadata-validation-gap
+allowed_files:
+    - src/lib/data/import-metadata/**
+    - src/features/import/import-preview-core.ts
+    - src/dialogs/create-diagram-dialog/create-diagram-dialog.tsx
+    - src/lib/data/import-metadata/__tests__/**
+entry_context:
+    - database-metadata.ts:54-61 的 loadDatabaseMetadata() 对 JSON.parse 结果直接做 TypeScript 类型断言，未调用同文件中已存在的 DatabaseMetadataSchema.parse/safeParse
+    - 该 schema 和 isDatabaseMetadata() 辅助函数已在 lib/data/import-metadata/utils.ts:165 的另一调用点使用，但真正的热路径 import-preview-core.ts:176、create-diagram-dialog.tsx:148,252 并未接入
+    - 用户粘贴的数据库内省脚本输出（可能来自不受信的第三方连接器脚本或手工编辑）未经校验就流入 diagram 构建，格式错误会在更深的建表逻辑中以不可读的 undefined 属性异常形式出现，而不是清晰的"元数据格式无效"提示
+implementation_contract:
+    - 在 import-preview-core.ts 和 create-diagram-dialog.tsx 的元数据解析入口调用 DatabaseMetadataSchema.safeParse
+    - 校验失败时返回清晰的 diagnostics/错误提示，不让异常穿透到更深的建表代码
+    - 保持 lib/data/import-metadata/utils.ts 现有校验路径不变
+    - 新增测试覆盖：畸形元数据 JSON 在两个热路径入口都能被拦截并给出可操作错误
+verification:
+    - npm run test:ci
+    - npm run build
+acceptance:
+    - 两个热路径入口都对元数据 JSON 做 Zod 校验
+    - 畸形输入有清晰错误提示，不产生深层 undefined 崩溃
+    - 现有正常导入流程无回归
+```
+
+#### CHARTDB-A-011：Worker 任务增加超时/deadline
+
+```yaml
+id: CHARTDB-A-011
+batch: 批次 A
+type: CODE
+priority: P2
+title: 为 worker-client 的任务执行增加超时保护，避免 worker 挂起导致调用方永久等待
+status: queued
+depends_on: []
+owner_lane: core
+branch: codex/chartdb-a-worker-timeout
+allowed_files:
+    - src/workers/worker-client.ts
+    - src/workers/__tests__/**
+entry_context:
+    - worker-client.ts:60-141 的 runWorkerTask 在 worker.onerror 时正确 fallback 到主线程解析，也支持 AbortSignal 取消
+    - 但没有超时/deadline 竞速：如果 worker 陷入死循环或长时间不返回也不抛出 error 事件（例如超大 SQL 脚本触发解析器病态分支），Promise 永不 resolve，调用方（如 import preview）无限等待且无提示
+implementation_contract:
+    - 在 runWorkerTask 中新增可配置超时（默认几秒到十几秒，视最大预期输入调整）
+    - 超时后终止/忽略该 worker 任务，触发与 onerror 相同的 fallback 路径，并标记结果来源为 timeout-fallback 供上层区分
+    - 新增测试：模拟 worker 长时间不响应，断言超时后走 fallback 而不是永久 pending
+verification:
+    - npm run test:ci -- src/workers/__tests__/
+    - npm run build
+acceptance:
+    - worker 任务有超时保护
+    - 超时后正确 fallback，不留下永久 pending 的 Promise
+    - 正常路径无行为回归
+```
+
+#### CHARTDB-P-010：Canvas 键盘可访问性 —— 记录已知限制并补最小改进
+
+```yaml
+id: CHARTDB-P-010
+batch: 批次 P
+type: CODE
+priority: P2
+title: 为 canvas 核心交互（节点选中、删除、平移）补充最小键盘路径，并在可访问性文档中显式记录范围边界
+status: queued
+depends_on: []
+owner_lane: product
+branch: codex/chartdb-p-canvas-a11y-baseline
+allowed_files:
+    - src/pages/editor-page/canvas/**
+    - docs/可访问性与核心流程验收.md
+    - src/pages/editor-page/canvas/__tests__/**
+entry_context:
+    - canvas.tsx（1908 行）零 aria-label/role/键盘处理，核心图表编辑（拖拽建表、连线）纯鼠标依赖
+    - docs/可访问性与核心流程验收.md 的 Phase 5 验收范围明确只覆盖 Dialog/icon button/Radio/Monaco 的可访问名称和键盘路径，未要求画布节点/连线本体可键盘操作——这是图形类工具的常见行业限制，不是本轮回归
+    - 完整的画布键盘等价操作（拖拽、连线的键盘替代）工作量大，不适合作为单个任务一次性完成
+implementation_contract:
+    - 第一步（本任务范围）：为已选中节点补充键盘删除（Delete/Backspace）、方向键微调位置、Tab 在节点间循环焦点这三个最小可行改进
+    - 在 docs/可访问性与核心流程验收.md 中新增一行，显式声明"画布节点/连线的完整键盘等价操作暂不在验收范围内，属于已知限制"，避免后续任务误以为是待修回归
+    - 不要求本任务实现连线的键盘替代操作
+    - 新增测试覆盖新增的键盘路径
+verification:
+    - npm run lint
+    - npm run test:ci
+    - npm run build
+acceptance:
+    - 选中节点后可用键盘删除和方向键微调
+    - 可访问性文档显式记录画布本体键盘操作的范围边界
+    - 无行为回归
+```
+
+#### CHARTDB-P-011：路由增加 errorElement
+
+```yaml
+id: CHARTDB-P-011
+batch: 批次 P
+type: CODE
+priority: P2
+title: 为 React Router 路由配置增加 errorElement，避免 loader 报错或 chunk 加载失败时显示无样式默认错误页
+status: queued
+depends_on: []
+owner_lane: product
+branch: codex/chartdb-p-router-error-element
+allowed_files:
+    - src/router.tsx
+    - src/components/route-error-boundary/**
+    - src/components/route-error-boundary/__tests__/**
+entry_context:
+    - src/router.tsx 的 7 个路由均未配置 errorElement
+    - loader 抛错（如网络波动导致模板页动态 import chunk 失败）会让 React Router 渲染其内置默认错误页，脱离 ChartDB 的 header/nav/主题，用户无法返回或重试
+implementation_contract:
+    - 新增 RouteErrorBoundary 组件，展示与 ChartDB 视觉一致的错误页，提供"返回首页"和"重试"操作
+    - 为 router.tsx 中每个路由配置 errorElement
+    - 新增测试：模拟 loader 抛错，断言渲染的是自定义错误页而非默认页
+verification:
+    - npm run lint
+    - npm run test:ci
+    - npm run build
+acceptance:
+    - 全部路由配置 errorElement
+    - loader 报错时展示带 ChartDB 视觉和重试入口的错误页
+    - 无行为回归
+```
+
+#### CHARTDB-P-012：Onboarding 数据库选择在导入路径中保持一致
+
+```yaml
+id: CHARTDB-P-012
+batch: 批次 P
+type: CODE
+priority: P3
+title: 用户在 onboarding 选择数据库类型后，导入路径应保留该选择而非重置为 SELECT_DATABASE/GENERIC
+status: queued
+depends_on: []
+owner_lane: product
+branch: codex/chartdb-p-onboarding-db-carryover
+allowed_files:
+    - src/features/onboarding/onboarding-dialog.tsx
+    - src/dialogs/create-diagram-dialog/create-diagram-dialog.tsx
+    - src/features/onboarding/__tests__/**
+entry_context:
+    - onboarding-dialog.tsx:159-160 在 startOption 为 'import' 时调用 openCreateDiagramDialog() 不传参数
+    - create-diagram-dialog.tsx:96-109 的 useEffect 在 dialog.open 变化时无条件把 step 重置为 SELECT_DATABASE、databaseType 重置为 DatabaseType.GENERIC
+    - 用户在 onboarding 选了 MySQL，点击继续导入后又被要求重新选一次数据库，浪费一步且体验割裂
+implementation_contract:
+    - openCreateDiagramDialog() 支持传入初始 databaseType（和可选的初始 step）
+    - onboarding-dialog.tsx 在打开 CreateDiagramDialog 时传入用户已选的数据库类型
+    - create-diagram-dialog.tsx 的重置逻辑改为：仅在未提供初始 databaseType 时才重置为 GENERIC/SELECT_DATABASE
+    - 新增测试覆盖：从 onboarding 选择 X 数据库进入导入流程，CreateDiagramDialog 初始状态应为 X 而非 GENERIC
+verification:
+    - npm run lint
+    - npm run test:ci
+    - npm run build
+acceptance:
+    - onboarding 选择的数据库类型在导入路径中被保留
+    - 未经 onboarding 直接打开 CreateDiagramDialog 时行为不变（仍默认 SELECT_DATABASE/GENERIC）
+    - 无行为回归
+```
+
+#### CHARTDB-P-013：应用启动与打开图表流程补充错误处理
+
+```yaml
+id: CHARTDB-P-013
+batch: 批次 P
+type: CODE
+priority: P1
+title: 为 use-diagram-loader 和 OpenDiagramDialog 的存储读取补充 try/catch 和错误态
+status: queued
+depends_on: []
+owner_lane: product
+branch: codex/chartdb-p-storage-error-handling
+allowed_files:
+    - src/hooks/use-diagram-loader.tsx
+    - src/dialogs/open-diagram-dialog/open-diagram-dialog.tsx
+    - src/hooks/__tests__/**
+    - src/dialogs/open-diagram-dialog/__tests__/**
+entry_context:
+    - use-diagram-loader.tsx:38-59 的 await loadDiagram / await listDiagrams 无 try/catch；IndexedDB 被浏览器阻塞、隐私模式配额耗尽或数据损坏时，hideLoader() 永远不会被调用，应用启动画面卡死在加载动画
+    - open-diagram-dialog.tsx:50-57 的 fetchDiagrams 同样无 try/catch，listDiagrams 抛错时对话框静默显示空列表，用户无法得知是"没有图表"还是"读取失败"
+implementation_contract:
+    - 在两处调用点包裹 try/catch，捕获存储层异常
+    - use-diagram-loader：捕获后展示明确的启动失败提示（而非无限转圈），并提供刷新重试操作
+    - OpenDiagramDialog：捕获后在列表位置展示错误态（区别于"暂无图表"的空态），提供重试按钮
+    - 新增测试：mock 存储层抛错，断言两处都能展示错误态而不是永久 pending 或静默空列表
+verification:
+    - npm run lint
+    - npm run test:ci
+    - npm run build
+acceptance:
+    - 存储读取失败时应用不会永久卡在加载动画
+    - OpenDiagramDialog 能区分"空列表"和"读取失败"
+    - 正常路径无行为回归
+```
+
+#### CHARTDB-P-014：移动端 canvas 护栏提示
+
+```yaml
+id: CHARTDB-P-014
+batch: 批次 P
+type: CODE
+priority: P3
+title: 在小屏幕/触屏设备打开 canvas 时给出明确提示，而非静默降级
+status: queued
+depends_on: []
+owner_lane: product
+branch: codex/chartdb-p-mobile-canvas-notice
+allowed_files:
+    - src/pages/editor-page/canvas/**
+    - src/pages/editor-page/**
+    - src/i18n/locales/zh_CN.ts
+    - src/i18n/locales/en.ts
+entry_context:
+    - 全项目无媒体查询/isMobile 判断应用于 canvas 视口；use-is-lost-in-canvas.tsx 只处理节点平移出可视区域后的找回，不处理小屏幕布局
+    - 移动端用户打开 canvas 会得到完整的鼠标导向工具栏和 XYFlow 画布，触屏手势体验大概率不佳，且没有任何提示告知这是非最优体验
+implementation_contract:
+    - 检测小屏幕/触屏视口，在进入 canvas 时展示一次性、可关闭的提示条，说明"移动端体验有限，建议使用桌面浏览器编辑"
+    - 不阻断移动端使用，仅做提示，不新增"桌面专属"硬性门槛
+    - 提示文案走 i18n
+    - 新增测试覆盖提示的展示和关闭逻辑
+verification:
+    - npm run lint
+    - npm run test:ci
+    - npm run build
+acceptance:
+    - 移动端进入 canvas 时展示体验提示
+    - 提示可关闭且不重复打扰
+    - 桌面端行为不变
+```
+
+#### CHARTDB-S-004：AI Gateway endpoint 增加 URL 校验（预防性修复）
+
+```yaml
+id: CHARTDB-S-004
+batch: 批次 S
+type: CODE
+priority: P2
+title: 为 self-hosted AI Gateway endpoint 增加协议与主机校验，阻断 SSRF 隐患
+status: queued
+depends_on: []
+owner_lane: security
+branch: codex/chartdb-s-ai-gateway-url-validation
+allowed_files:
+    - src/features/settings/privacy-settings.tsx
+    - src/context/local-config-context/local-config-provider.tsx
+    - src/lib/ai/ai-mode.ts
+    - src/lib/ai/__tests__/**
+entry_context:
+    - privacy-settings.tsx:83-90 允许用户输入任意字符串作为 aiGatewayEndpoint，local-config-provider.tsx:88-90,131-133 原样写入 localStorage，无协议/主机校验
+    - ai-mode.ts:78-87 的 buildAIExportRequest 原样透传 endpoint；当前 export-sql-script.ts:756-770 在实际发起请求前直接抛出"客户端未启用"错误，因此现阶段不可利用，但一旦该功能后续真正接入 fetch，未校验的 endpoint 就是可利用的 SSRF 入口（如指向 file://、内网地址、云元数据服务 169.254.169.254 等）
+implementation_contract:
+    - 新增 validateGatewayEndpoint(url) 校验函数：要求 https 协议，拒绝 localhost/127.0.0.1/内网私有地址段/169.254.169.254 等
+    - 在保存 aiGatewayEndpoint 前调用校验，校验失败时在输入框旁展示明确错误，不写入 localStorage
+    - buildAIExportRequest 在构造请求前也执行同样校验，作为纵深防御（不仅依赖 UI 层）
+    - 新增测试覆盖：合法 https 公网地址通过；file://、localhost、169.254.169.254、内网网段被拒绝
+verification:
+    - npm run lint
+    - npm run test:ci
+    - npm run build
+acceptance:
+    - 非法 endpoint 无法保存
+    - buildAIExportRequest 对非法 endpoint 也会拒绝（纵深防御）
+    - 该校验为预防性修复，不改变当前"AI 客户端未启用"的既有行为
+```
+
+#### CHARTDB-Q-006：templates-page 接入 i18n
+
+```yaml
+id: CHARTDB-Q-006
+batch: 批次 Q
+type: CODE
+priority: P2
+title: 将 templates-page.tsx 的硬编码英文文案接入 i18n
+status: queued
+depends_on: []
+owner_lane: i18n
+branch: codex/chartdb-q-templates-page-i18n
+allowed_files:
+    - src/pages/templates-page/**
+    - src/i18n/locales/zh_CN.ts
+    - src/i18n/locales/en.ts
+    - src/i18n/types.ts
+entry_context:
+    - src/pages/templates-page/templates-page.tsx 的标题、描述、"Featured"、"All Templates"、"Tags"、GitHub iframe title 等全部硬编码英文，未调用 t()
+    - 项目内几乎所有其它 dialog/page 都已完整接入 i18n，这是范围最大的遗漏页面
+implementation_contract:
+    - 将页面内硬编码字符串提取为 i18n key
+    - 在 zh_CN.ts 和 en.ts 中补充对应翻译，更新 i18n types
+    - 新增测试覆盖关键 i18n key 存在性
+verification:
+    - npm run lint
+    - npm run test:ci
+    - npm run build
+acceptance:
+    - templates-page 无硬编码英文文案
+    - 中英文翻译完整
+    - 页面渲染无回归
+```
+
+#### CHARTDB-Q-007：export-sql-dialog 切换按钮文案接入 i18n
+
+```yaml
+id: CHARTDB-Q-007
+batch: 批次 Q
+type: CODE
+priority: P3
+title: 将 export-sql-dialog 的 Deterministic/AI 切换按钮文案接入 i18n
+status: queued
+depends_on: []
+owner_lane: i18n
+branch: codex/chartdb-q-export-dialog-toggle-i18n
+allowed_files:
+    - src/dialogs/export-sql-dialog/export-sql-dialog.tsx
+    - src/i18n/locales/zh_CN.ts
+    - src/i18n/locales/en.ts
+entry_context:
+    - export-sql-dialog.tsx:294-306 的 Deterministic/AI 切换按钮标签硬编码，该对话框其余文案均已 t() 化
+implementation_contract:
+    - 提取切换按钮文案为 i18n key，在 zh_CN.ts 和 en.ts 中补充翻译
+verification:
+    - npm run lint
+    - npm run test:ci
+    - npm run build
+acceptance:
+    - 切换按钮文案走 i18n
+    - 无硬编码英文残留
+```
+
 ## 5. 任务依赖图
 
 ```mermaid
@@ -1410,11 +1887,18 @@ flowchart TD
         A004["A-004 diff/load 走 command"]
         A005["A-005 checkConstraint command"]
         A006["A-006 dialects 迁移 parser"]
+        A007["A-007 全局 ErrorBoundary"]
+        A008["A-008 Context selector"]
+        A009["A-009 Diagram version 字段"]
+        A010["A-010 元数据校验补齐"]
+        A011["A-011 Worker 超时"]
         A001 --> A002
         A002 --> A003
         A002 --> A004
         A002 --> A005
         A001 --> A006
+        A001 --> A009
+        A003 --> A008
     end
 
     subgraph 批次P[批次 P：产品功能补齐]
@@ -1424,12 +1908,18 @@ flowchart TD
         P004["P-004 ImportResult confidence"]
         P005["P-005 Backup 恢复预览"]
         P006["P-006 缺失 dialect wrapper"]
+        P010["P-010 Canvas a11y 基线"]
+        P011["P-011 路由 errorElement"]
+        P012["P-012 Onboarding 数据库延续"]
+        P013["P-013 存储错误处理"]
+        P014["P-014 移动端护栏提示"]
     end
 
     subgraph 批次S[批次 S：安全加固]
         S001["S-001 CSP 收紧"]
         S002["S-002 innerHTML 修复"]
         S003["S-003 Monaco 升级评估"]
+        S004["S-004 AI Gateway URL 校验"]
     end
 
     subgraph 批次T[批次 T：技术栈优化]
@@ -1448,6 +1938,8 @@ flowchart TD
         Q003["Q-003 UI 测试覆盖"]
         Q004["Q-004 Smart Query i18n"]
         Q005["Q-005 浏览器依赖拆分"]
+        Q006["Q-006 templates-page i18n"]
+        Q007["Q-007 export dialog i18n"]
     end
 
     F005 --> P006
@@ -1462,6 +1954,8 @@ flowchart TD
     A003 --> T007
     A003 --> Q003
     T007 --> Q003
+    A001 --> A009
+    A003 --> A008
 ```
 
 ## 6. 执行批次与优先级
@@ -1496,7 +1990,7 @@ flowchart TD
 
 任务：
 
-- `CHARTDB-A-001` 到 `CHARTDB-A-006`
+- `CHARTDB-A-001` 到 `CHARTDB-A-011`（新增 A-007 到 A-011，见 4.6 节）
 
 退出标准：
 
@@ -1506,12 +2000,17 @@ flowchart TD
 - diff 合并和 loadDiagram 走 command 管道。
 - checkConstraint 有完整 command 覆盖。
 - 至少 PostgreSQL parser 迁移到 dialects 子包。
+- 根级存在 ErrorBoundary，未捕获异常不再导致整页白屏。
+- ChartDBContext 消费方按需订阅，编辑单个字段不再触发全量重渲染。
+- Diagram 有 version 字段和迁移钩子。
+- 数据库元数据导入热路径接入 Zod 校验。
+- Worker 任务有超时保护，不再无限期挂起。
 
 ### 6.4 批次 P：产品功能补齐
 
 任务：
 
-- `CHARTDB-P-001` 到 `CHARTDB-P-006`
+- `CHARTDB-P-001` 到 `CHARTDB-P-014`（新增 P-010 到 P-014，见 4.6 节）
 
 退出标准：
 
@@ -1521,18 +2020,24 @@ flowchart TD
 - ImportResult 包含 confidence 字段。
 - Backup 恢复前展示摘要预览。
 - CockroachDB 和 ClickHouse 有 dialect wrapper。
+- Canvas 核心交互有最小键盘路径，且可访问性文档显式记录范围边界。
+- 全部路由配置 errorElement。
+- Onboarding 选择的数据库类型在导入路径中被保留。
+- 应用启动和打开图表流程有存储错误处理，不再无限期卡在加载动画。
+- 移动端进入 canvas 时展示体验提示。
 
 ### 6.5 批次 S：安全加固
 
 任务：
 
-- `CHARTDB-S-001` 到 `CHARTDB-S-003`
+- `CHARTDB-S-001` 到 `CHARTDB-S-004`（新增 S-004，见 4.6 节）
 
 退出标准：
 
 - CSP `connect-src` 不允许任意 http: 连接。
 - 无不受控的 `innerHTML` 赋值。
 - Monaco dompurify 升级路径有明确结论。
+- self-hosted AI Gateway endpoint 有协议/主机校验，阻断 SSRF 隐患。
 
 ### 6.6 批次 T：技术栈优化
 
@@ -1554,7 +2059,7 @@ flowchart TD
 
 任务：
 
-- `CHARTDB-Q-001` 到 `CHARTDB-Q-005`
+- `CHARTDB-Q-001` 到 `CHARTDB-Q-007`（新增 Q-006、Q-007，见 4.6 节）
 
 退出标准：
 
@@ -1563,6 +2068,7 @@ flowchart TD
 - ChartDBProvider 和 Canvas 有测试覆盖。
 - Smart Query wizard 文案走 i18n。
 - lib/utils 不直接依赖浏览器 API。
+- templates-page 和 export-sql-dialog 切换按钮文案走 i18n。
 
 ## 7. 全局执行门禁
 
@@ -1617,11 +2123,12 @@ npm run build
 
 | 并发 lane | 可并发范围 | 不可同时修改 |
 |-----------|------------|--------------|
-| `security` | F-004、S-001、S-002（F-003 已完成） | default.conf.template |
-| `product` | F-005、P-001 到 P-006 | onboarding-dialog.tsx |
+| `security` | F-004、S-001、S-002、S-004（F-003 已完成） | default.conf.template |
+| `product` | F-005、P-001 到 P-014 | onboarding-dialog.tsx |
 | `performance` | F-006、T-001 到 T-006 | vite.config.ts |
 | `dialect` | A-006、P-006 | src/dialects/ 同一目录 |
-| `test` | Q-001 到 Q-005 | 共享 test setup |
+| `test` | Q-001 到 Q-007 | 共享 test setup |
+| `core` | A-007 到 A-011（除 A-008 依赖 A-003 外互相独立） | chartdb-provider.tsx、chartdb-context.tsx |
 
 ### 9.2 必须串行的任务
 
@@ -1631,6 +2138,9 @@ npm run build
 2. `CHARTDB-A-001` → `CHARTDB-A-002` → `CHARTDB-A-003`
 3. `CHARTDB-A-002` → `CHARTDB-A-004`、`CHARTDB-A-005`
 4. `CHARTDB-A-003` → `CHARTDB-T-007` → `CHARTDB-Q-003`
+5. `CHARTDB-A-001` → `CHARTDB-A-009`（Diagram version 字段需要 schema-core model 先独立）
+6. `CHARTDB-A-003` → `CHARTDB-A-008`（Context selector 拆分建议在 Provider 拆分之后进行，避免两个任务同时改 chartdb-provider.tsx 冲突）
+7. `CHARTDB-A-007`、`CHARTDB-A-010`、`CHARTDB-A-011`、`CHARTDB-S-004`、`CHARTDB-P-010` 到 `CHARTDB-P-014`、`CHARTDB-Q-006`、`CHARTDB-Q-007` 无前置依赖，可随时并行插入
 
 ## 10. 首轮执行建议
 
@@ -1649,7 +2159,11 @@ npm install
 npm run test:ci
 ```
 
-确认基线通过后，按 F-004 → F-001a/F-001b/F-002a/F-005/F-006（可并行）→ A-001（已解耦，可优先）→ A-002 → P/S/T → Q 的顺序推进。每个任务完成后：
+确认基线通过后，按 F-004 → F-001a/F-001b/F-002a/F-005/F-006（可并行）→ A-001（已解耦，可优先）→ A-002 → P/S/T → Q 的顺序推进。
+
+> 2026-07-04 补充：`CHARTDB-A-007`（全局 ErrorBoundary）和 `CHARTDB-P-013`（存储错误处理）是本次复核中优先级最高的两项新增任务——前者是 Critical 且无任何前置依赖，后者直接影响应用能否正常启动，建议插入在 F 批次之后、A-001 之前执行，不必等待架构深化批次全部完成。
+
+每个任务完成后：
 
 1. 运行验证门禁。
 2. 提交任务分支。
@@ -1698,3 +2212,16 @@ npm run test:ci
 | Q-003 | UI 测试覆盖 | Q | P2 | queued | A-003, T-007 |
 | Q-004 | Smart Query i18n | Q | P3 | queued | - |
 | Q-005 | 浏览器依赖拆分 | Q | P3 | queued | A-001 |
+| A-007 | 全局 ErrorBoundary | A | P0 | queued | - |
+| A-008 | Context selector | A | P2 | queued | A-003 |
+| A-009 | Diagram version 字段 | A | P2 | queued | A-001 |
+| A-010 | 元数据导入校验补齐 | A | P1 | queued | - |
+| A-011 | Worker 超时保护 | A | P2 | queued | - |
+| P-010 | Canvas 键盘可访问性基线 | P | P2 | queued | - |
+| P-011 | 路由 errorElement | P | P2 | queued | - |
+| P-012 | Onboarding 数据库选择延续 | P | P3 | queued | - |
+| P-013 | 存储错误处理 | P | P1 | queued | - |
+| P-014 | 移动端 canvas 护栏提示 | P | P3 | queued | - |
+| S-004 | AI Gateway URL 校验 | S | P2 | queued | - |
+| Q-006 | templates-page i18n | Q | P2 | queued | - |
+| Q-007 | export dialog 切换按钮 i18n | Q | P3 | queued | - |
