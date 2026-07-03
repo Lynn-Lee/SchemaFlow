@@ -25,4 +25,22 @@ describe('ChartDBProvider structure', () => {
         );
         expect(fs.existsSync(hookPath)).toBe(true);
     });
+
+    it('moves dependency operations into a domain hook', () => {
+        const hookPath = path.join(
+            chartDBContextDir,
+            'use-dependency-operations.ts'
+        );
+        expect(fs.existsSync(hookPath)).toBe(true);
+
+        const providerValuePath = path.join(
+            chartDBContextDir,
+            'use-chartdb-provider-value.tsx'
+        );
+        const providerValueSource = fs.readFileSync(providerValuePath, 'utf8');
+
+        expect(providerValueSource).toContain('useDependencyOperations');
+        expect(providerValueSource).not.toContain('const createDependency');
+        expect(providerValueSource).not.toContain('const updateDependency');
+    });
 });

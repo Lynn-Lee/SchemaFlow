@@ -588,7 +588,8 @@ acceptance:
 progress:
     - 2026-07-04：已完成第一段结构切片：`ChartDBProvider` 由 2864 行收敛为 21 行薄包装，只负责调用 `useChartDBProviderValue()` 并挂载 `chartDBContext.Provider`。
     - 原 Provider 逻辑已迁入 `src/context/chartdb-context/use-chartdb-provider-value.tsx`，消费方 `useChartDB()` API 不变；新增 `chartdb-provider-structure.test.ts` 锁定 Provider 主体不超过 800 行。
-    - 本切片尚未把 table/field/relationship/area/note/custom type/check constraint/dependency 操作继续拆成独立领域 hook，下一轮继续完成该 acceptance。
+    - 2026-07-04：已完成第二段结构切片：Dependency 操作迁入 `src/context/chartdb-context/use-dependency-operations.ts`，Provider value 只负责组装该领域 hook 返回的 context API。
+    - 本切片尚未把 table/field/relationship/area/note/custom type/check constraint 操作继续拆成独立领域 hook，下一轮继续完成该 acceptance。
 ```
 
 #### CHARTDB-A-004：diff 合并和 loadDiagram 走 Command 管道

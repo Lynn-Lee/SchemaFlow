@@ -3,6 +3,7 @@ import type { DBTable } from '@/lib/domain/db-table';
 import { deepCopy, generateId } from '@/lib/utils';
 import { defaultTableColor, randomColor, viewColor } from '@/lib/colors';
 import type { ChartDBContext, ChartDBEvent } from './chartdb-context';
+import { useDependencyOperations } from './use-dependency-operations';
 import { DatabaseType } from '@/lib/domain/database-type';
 import type { DBField } from '@/lib/domain/db-field';
 import {
@@ -1852,163 +1853,24 @@ export const useChartDBProviderValue = ({
             ]
         );
 
-    const addDependencies: ChartDBContext['addDependencies'] = useCallback(
-        async (
-            dependencies: DBDependency[],
-            options = { updateHistory: true }
-        ) => {
-            setDependencies((currentDependencies) => [
-                ...currentDependencies,
-                ...dependencies,
-            ]);
-
-            const updatedAt = new Date();
-            setDiagramUpdatedAt(updatedAt);
-
-            await Promise.all([
-                ...dependencies.map((dependency) =>
-                    db.addDependency({ diagramId, dependency })
-                ),
-                db.updateDiagram({ id: diagramId, attributes: { updatedAt } }),
-            ]);
-
-            if (options.updateHistory) {
-                addUndoAction({
-                    action: 'addDependencies',
-                    redoData: { dependencies },
-                    undoData: {
-                        dependenciesIds: dependencies.map((r) => r.id),
-                    },
-                });
-                resetRedoStack();
-            }
-        },
-        [db, diagramId, setDependencies, addUndoAction, resetRedoStack]
-    );
-
-    const addDependency: ChartDBContext['addDependency'] = useCallback(
-        async (dependency: DBDependency, options = { updateHistory: true }) => {
-            return addDependencies([dependency], options);
-        },
-        [addDependencies]
-    );
-
-    const createDependency: ChartDBContext['createDependency'] = useCallback(
-        async ({ tableId, dependentTableId }) => {
-            const table = getTable(tableId);
-            const dependentTable = getTable(dependentTableId);
-
-            const dependency: DBDependency = {
-                id: generateId(),
-                tableId,
-                dependentTableId,
-                dependentSchema: dependentTable?.schema,
-                schema: table?.schema,
-                createdAt: Date.now(),
-            };
-
-            await addDependency(dependency);
-
-            return dependency;
-        },
-        [addDependency, getTable]
-    );
-
-    const getDependency: ChartDBContext['getDependency'] = useCallback(
-        (id: string) =>
-            dependencies.find((dependency) => dependency.id === id) ?? null,
-        [dependencies]
-    );
-
-    const removeDependencies: ChartDBContext['removeDependencies'] =
-        useCallback(
-            async (ids: string[], options = { updateHistory: true }) => {
-                const prevDependencies = [
-                    ...dependencies.filter((dependency) =>
-                        ids.includes(dependency.id)
-                    ),
-                ];
-
-                setDependencies((dependencies) =>
-                    dependencies.filter(
-                        (dependency) => !ids.includes(dependency.id)
-                    )
-                );
-
-                const updatedAt = new Date();
-                setDiagramUpdatedAt(updatedAt);
-                await Promise.all([
-                    ...ids.map((id) => db.deleteDependency({ diagramId, id })),
-                    db.updateDiagram({
-                        id: diagramId,
-                        attributes: { updatedAt },
-                    }),
-                ]);
-
-                if (prevDependencies.length > 0 && options.updateHistory) {
-                    addUndoAction({
-                        action: 'removeDependencies',
-                        redoData: { dependenciesIds: ids },
-                        undoData: { dependencies: prevDependencies },
-                    });
-                    resetRedoStack();
-                }
-            },
-            [
-                db,
-                diagramId,
-                setDependencies,
-                addUndoAction,
-                resetRedoStack,
-                dependencies,
-            ]
-        );
-
-    const removeDependency: ChartDBContext['removeDependency'] = useCallback(
-        async (id: string, options = { updateHistory: true }) => {
-            return removeDependencies([id], options);
-        },
-        [removeDependencies]
-    );
-
-    const updateDependency: ChartDBContext['updateDependency'] = useCallback(
-        async (
-            id: string,
-            dependency: Partial<DBDependency>,
-            options = { updateHistory: true }
-        ) => {
-            const prevDependency = getDependency(id);
-            setDependencies((dependencies) =>
-                dependencies.map((d) =>
-                    d.id === id ? { ...d, ...dependency } : d
-                )
-            );
-
-            const updatedAt = new Date();
-            setDiagramUpdatedAt(updatedAt);
-            await Promise.all([
-                db.updateDiagram({ id: diagramId, attributes: { updatedAt } }),
-                db.updateDependency({ id, attributes: dependency }),
-            ]);
-
-            if (!!prevDependency && options.updateHistory) {
-                addUndoAction({
-                    action: 'updateDependency',
-                    redoData: { dependencyId: id, dependency },
-                    undoData: { dependencyId: id, dependency: prevDependency },
-                });
-                resetRedoStack();
-            }
-        },
-        [
-            db,
-            diagramId,
-            setDependencies,
-            addUndoAction,
-            resetRedoStack,
-            getDependency,
-        ]
-    );
+    const {
+        addDependency,
+        addDependencies,
+        createDependency,
+        getDependency,
+        removeDependency,
+        removeDependencies,
+        updateDependency,
+    } = useDependencyOperations({
+        addUndoAction,
+        db,
+        dependencies,
+        diagramId,
+        getTable,
+        resetRedoStack,
+        setDependencies,
+        setDiagramUpdatedAt,
+    });
 
     // Area operations
     const addAreas: ChartDBContext['addAreas'] = useCallback(
