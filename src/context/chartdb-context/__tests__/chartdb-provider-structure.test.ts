@@ -65,4 +65,25 @@ describe('ChartDBProvider structure', () => {
         expect(providerValueSource).not.toContain('const createCustomType');
         expect(providerValueSource).not.toContain('const updateCustomType');
     });
+
+    it('moves table and field operations into a domain hook', () => {
+        const hookPath = path.join(
+            chartDBContextDir,
+            'use-table-field-operations.ts'
+        );
+        expect(fs.existsSync(hookPath)).toBe(true);
+
+        const providerValuePath = path.join(
+            chartDBContextDir,
+            'use-chartdb-provider-value.tsx'
+        );
+        const providerValueSource = fs.readFileSync(providerValuePath, 'utf8');
+
+        expect(providerValueSource).toContain('useTableFieldOperations');
+        expect(providerValueSource).not.toContain('const createTable');
+        expect(providerValueSource).not.toContain('const updateTable');
+        expect(providerValueSource).not.toContain('const updateTablesState');
+        expect(providerValueSource).not.toContain('const createField');
+        expect(providerValueSource).not.toContain('const updateField');
+    });
 });
