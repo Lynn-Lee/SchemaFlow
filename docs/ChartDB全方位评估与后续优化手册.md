@@ -1,6 +1,6 @@
 # ChartDB 全方位评估与后续优化手册
 
-> 版本：v1.2（2026-07-03 二次修订：C3 表述修正、6.2 批次 F 任务列表同步、T-005 依赖统一为 F-001a、F-002 拆为 F-002a/F-002b 互斥、7.2 安全扫描 window.env 判定说明）
+> 版本：v1.3（2026-07-03 三次修订：M1 标记已修复、期望无命中的 rg 验证命令改为 shell 取反写法）
 > 日期：2026-07-03
 > 本地路径：`/Users/lynn/SynologyDrive/SynologyDrive/Code/ChartDB`
 > 重构仓库：`https://github.com/Lynn-Lee/ChartDB`
@@ -69,7 +69,7 @@ ChartDB 已完成 Phase 0 到 Phase 8 的首轮重构，共 42 个任务全部 `
 
 | ID | 问题 | 维度 | 文件位置 |
 |----|------|------|----------|
-| M1 | `entrypoint.sh` 仍将 `OPENAI_API_KEY` 列入 envsubst 白名单 | 安全 | `entrypoint.sh:4` |
+| M1 | 已修复：`entrypoint.sh` 不再将 `OPENAI_API_KEY` 列入 envsubst 白名单 | 安全 | `entrypoint.sh`、`src/lib/security/__tests__/browser-key-exposure.test.ts` |
 | M2 | `window.open()` 6 处缺少 `noopener` 防护 | 安全 | `menu.tsx`、`editor-sidebar.tsx`、`star-us-dialog.tsx` |
 | M3 | CSP `connect-src 'self' http: https:` 过于宽松 | 安全 | `default.conf.template:19` |
 | M4 | `monaco-editor → dompurify@3.3.1` 多个 XSS 绕过 advisory | 安全 | 间接依赖 |
@@ -133,7 +133,7 @@ verification:
     - npm run lint
     - npm run test:ci
     - npm run build
-    - rg -n "@uidotdev/usehooks" src package.json
+    - bash -lc '! rg -n "@uidotdev/usehooks" src package.json'
 acceptance:
     - package.json 不再包含 @uidotdev/usehooks
     - build 产物体积下降
@@ -170,7 +170,7 @@ verification:
     - npm run lint
     - npm run test:ci
     - npm run build
-    - rg -n "\"motion\"" package.json
+    - bash -lc '! rg -n "\"motion\"" package.json'
     - rg -n "framer-motion" package.json src/components/tree-view/tree-view.tsx
 acceptance:
     - package.json 不再包含 motion，改为显式 framer-motion
@@ -208,7 +208,7 @@ verification:
     - npm run lint
     - npm run test:ci
     - npm run build
-    - rg -n "@ai-sdk/openai|^\"ai\"" package.json
+    - bash -lc '! rg -n "@ai-sdk/openai|^\"ai\"" package.json'
     - npm run build 后检查 dist 中是否仍包含 AI SDK chunk
 acceptance:
     - package.json 不再包含 @ai-sdk/openai 和 ai
@@ -280,7 +280,7 @@ implementation_contract:
     - 在 browser-key-exposure.test.ts 中增加断言，确保 entrypoint.sh 不包含 OPENAI_API_KEY
 verification:
     - npm run test:ci -- src/lib/security/__tests__/browser-key-exposure.test.ts
-    - rg -n "OPENAI_API_KEY" entrypoint.sh
+    - bash -lc '! rg -n "OPENAI_API_KEY" entrypoint.sh'
 acceptance:
     - entrypoint.sh 不包含 OPENAI_API_KEY
     - 安全测试通过
@@ -321,7 +321,7 @@ verification:
     - npm run lint
     - npm run test:ci
     - npm run build
-    - rg -n "window\.open\(" src | rg -v "noopener"
+    - bash -lc '! (rg -n "window\.open\(" src | rg -v "noopener")'
 acceptance:
     - 全项目无缺少 noopener 的 window.open 调用
     - safeOpenUrl 有测试覆盖
@@ -1134,7 +1134,7 @@ verification:
     - npm run lint
     - npm run test:ci
     - npm run build
-    - rg -n "react-use|@uidotdev/usehooks" src
+    - bash -lc '! rg -n "react-use|@uidotdev/usehooks" src'
 acceptance:
     - react-use 和 @uidotdev/usehooks 从 package.json 移除
     - 内联 hooks 行为一致
