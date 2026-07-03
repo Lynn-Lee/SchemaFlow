@@ -54,7 +54,7 @@ ChartDB 已完成 Phase 0 到 Phase 8 的首轮重构，共 42 个任务全部 `
 | C2 | `commandHistory` 数据从未被 undo/redo 使用，是死代码 | 架构 | `chartdb-provider.tsx` → `history-provider.tsx` |
 | C3 | 依赖声明与 AI SDK 残留治理（`@uidotdev/usehooks` 零引用；`motion` 实为 `framer-motion` 传递依赖需显式化；`@ai-sdk/openai`/`ai` 无静态 import） | 技术栈 | `package.json` — `@ai-sdk/openai`、`ai`、`motion`、`@uidotdev/usehooks` |
 | C4 | 构建产物 83 MB，无 manualChunks 优化 | 技术栈 | `vite.config.ts` |
-| C5 | ClickHouse 在 onboarding 中作为一等选项，但 DDL 导入会直接报错 | 产品 | `onboarding-dialog.tsx:38-45` → `sql-import/index.ts:224` |
+| C5 | 已修复：ClickHouse 不再作为 onboarding DDL 导入数据库选项，避免引导用户进入不支持路径 | 产品 | `onboarding-dialog.tsx` → `sql-import/index.ts` |
 | C6 | 无全局 React ErrorBoundary，任意渲染期未捕获异常导致整个应用白屏且无恢复入口 | 架构 | 全项目 `rg "ErrorBoundary\|componentDidCatch\|getDerivedStateFromError" src` 零命中；`src/main.tsx` 无根级捕获 |
 
 ### 3.2 High 问题
@@ -380,7 +380,7 @@ batch: 批次 F
 type: CODE
 priority: P0
 title: 从 onboarding 数据库选项中移除 ClickHouse 或标注为 Smart Query only
-status: queued
+status: done
 depends_on: []
 owner_lane: product
 branch: codex/chartdb-f-clickhouse-onboarding
@@ -405,6 +405,10 @@ verification:
 acceptance:
     - onboarding 不会引导用户进入会报错的 ClickHouse DDL 导入路径
     - 数据库选项与实际导入能力一致
+completion:
+    - 已采用方案 A，从 onboarding 的 DATABASE_OPTIONS 中移除 ClickHouse，保留 PostgreSQL、MySQL、SQLite、SQL Server 和 MariaDB。
+    - 已新增 onboarding 契约测试，确认 ClickHouse 不再作为 DDL import 数据库选项展示。
+    - 红灯验证确认旧选项仍存在时测试失败；绿灯验证、完整门禁、合并后快速验证和 origin/main 推送结果见 docs/阶段验收记录.md。
 ```
 
 #### CHARTDB-F-006：添加 Vite manualChunks 配置
@@ -2176,7 +2180,7 @@ npm install
 npm run test:ci
 ```
 
-确认基线通过后，按 F-004 → F-001a/F-001b/F-002a/F-005/F-006（可并行）→ A-001（已解耦，可优先）→ A-002 → P/S/T → Q 的顺序推进。当前 F-004、F-001a 已完成，下一项建议继续 F-001b/F-002a/F-005/F-006 中的第一个可验证最小切片。
+确认基线通过后，按 F-004 → F-001a/F-001b/F-002a/F-005/F-006（可并行）→ A-001（已解耦，可优先）→ A-002 → P/S/T → Q 的顺序推进。当前 F-004、F-001a、F-001b、F-002a、F-005 已完成，下一项建议继续 F-006。
 
 > 2026-07-04 补充：`CHARTDB-A-007`（全局 ErrorBoundary）和 `CHARTDB-P-013`（存储错误处理）是本次复核中优先级最高的两项新增任务——前者是 Critical 且无任何前置依赖，后者直接影响应用能否正常启动，建议插入在 F 批次之后、A-001 之前执行，不必等待架构深化批次全部完成。
 
@@ -2200,7 +2204,7 @@ npm run test:ci
 | F-002b | AI adapter spike（互斥） | F | P2 | queued | - |
 | F-003 | entrypoint 移除 key | F | P0 | done | - |
 | F-004 | window.open noopener | F | P0 | done | - |
-| F-005 | ClickHouse onboarding | F | P0 | queued | - |
+| F-005 | ClickHouse onboarding | F | P0 | done | - |
 | F-006 | Vite manualChunks | F | P0 | queued | - |
 | A-001 | schema-core model 独立 | A | P0 | queued | - |
 | A-002 | 统一 undo/redo | A | P1 | queued | A-001 |

@@ -78,6 +78,14 @@ describe('OnboardingDialog', () => {
         expect(addDiagram).not.toHaveBeenCalled();
     });
 
+    it('does not offer ClickHouse as a DDL import database option', () => {
+        renderDialog();
+
+        expect(
+            screen.queryByRole('radio', { name: /ClickHouse/i })
+        ).not.toBeInTheDocument();
+    });
+
     it('explains why continue cannot create a blank diagram without a database', async () => {
         renderDialog();
         const user = userEvent.setup();

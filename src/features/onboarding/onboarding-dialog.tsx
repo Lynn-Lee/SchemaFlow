@@ -41,7 +41,6 @@ const DATABASE_OPTIONS = [
     DatabaseType.SQLITE,
     DatabaseType.SQL_SERVER,
     DatabaseType.MARIADB,
-    DatabaseType.CLICKHOUSE,
 ];
 
 const START_OPTIONS: Array<{
