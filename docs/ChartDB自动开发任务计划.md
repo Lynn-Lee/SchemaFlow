@@ -788,6 +788,7 @@ completion:
     - 已新增 `src/schema-core/commands/command-history.ts`，将成功 command result 收敛为包含 redo command、undo command、affected entity ids 和 risk snapshot 的 history entry。
     - 已新增 `src/schema-core/commands/__tests__/command-history.test.ts`，覆盖成功结果生成 history entry，以及 validation error 不写入 command history。
     - `RedoUndoAction` 已支持可选 `commandHistory` batch；`ChartDBProvider` 中已迁移的 table、field、index、relationship、area、note 和 custom type 操作会在保留旧 undo/redo 行为的同时写入 command metadata。
+    - 2026-07-04 追加：`HistoryProvider` 已优先 replay `commandHistory` 中的 redo/undo command；缺少 commandHistory 或遇到尚未支持的 command 时继续 fallback 到旧 handler。
     - 下一项进入 `CHARTDB-P3-000`，定义 storage repository 和 migration 计划。
 ```
 

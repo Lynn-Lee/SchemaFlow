@@ -539,6 +539,11 @@ acceptance:
     - history-provider 能读取并执行 commandHistory batch
     - undo/redo 通过 command 驱动时行为与旧 handler 一致
     - 旧 handler 作为 fallback 保留
+completion:
+    - 2026-07-04：`HistoryProvider` 已优先读取 `RedoUndoAction.commandHistory`，按 `redoCommand` / `undoCommand` replay 已迁移的 table、field、index、relationship、area、note 和 custom type command。
+    - undo replay 会反向执行 batch entries，避免批量命令回滚时破坏依赖顺序；无法 replay 或缺少 commandHistory 时继续回退旧 `redoData` / `undoData` handler。
+    - 新增 `src/context/history-context/__tests__/history-provider.test.tsx`，用 commandHistory payload 与 legacy payload 不一致的方式验证 undo/redo 优先走 command，并覆盖 legacy fallback。
+    - 红灯先失败于 `history-provider` 仍执行 legacy payload；绿灯和完整门禁见 docs/阶段验收记录.md。
 ```
 
 #### CHARTDB-A-003：ChartDBProvider 拆分
@@ -2229,7 +2234,7 @@ npm run test:ci
 | F-005 | ClickHouse onboarding | F | P0 | done | - |
 | F-006 | Vite manualChunks | F | P0 | done | - |
 | A-001 | schema-core model 独立 | A | P0 | done | - |
-| A-002 | 统一 undo/redo | A | P1 | queued | A-001 |
+| A-002 | 统一 undo/redo | A | P1 | done | A-001 |
 | A-003 | Provider 拆分 | A | P1 | queued | A-002 |
 | A-004 | diff/load 走 command | A | P1 | queued | A-002 |
 | A-005 | checkConstraint command | A | P2 | queued | A-002 |

@@ -1,8 +1,27 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { historyContext } from './history-context';
 import { useChartDB } from '@/hooks/use-chartdb';
 import { useRedoUndoStack } from '@/hooks/use-redo-undo-stack';
-import type { RedoUndoActionHandlers } from './redo-undo-action';
+import type {
+    RedoUndoAction,
+    RedoUndoActionHandlers,
+} from './redo-undo-action';
+import type {
+    Area,
+    DBCustomType,
+    DBDependency,
+    DBField,
+    DBIndex,
+    DBRelationship,
+    DBTable,
+    Note,
+} from '@/schema-core/model';
+import type {
+    CommandHistoryBatch,
+    SchemaCoreCommand,
+} from '@/schema-core/commands';
+
+type CommandReplayDirection = 'redo' | 'undo';
 
 export const HistoryProvider: React.FC<React.PropsWithChildren> = ({
     children,
@@ -388,19 +407,335 @@ export const HistoryProvider: React.FC<React.PropsWithChildren> = ({
         ]
     );
 
+    const canReplayCommand = (command: SchemaCoreCommand) => {
+        switch (command.type) {
+            case 'table.add':
+            case 'table.update':
+            case 'table.delete':
+            case 'table.restore':
+            case 'field.add':
+            case 'field.update':
+            case 'field.delete':
+            case 'field.restore':
+            case 'index.add':
+            case 'index.update':
+            case 'index.delete':
+            case 'relationship.add':
+            case 'relationship.update':
+            case 'relationship.delete':
+            case 'area.add':
+            case 'area.update':
+            case 'area.delete':
+            case 'note.add':
+            case 'note.update':
+            case 'note.delete':
+            case 'custom_type.add':
+            case 'custom_type.update':
+            case 'custom_type.delete':
+                return true;
+            default:
+                return false;
+        }
+    };
+
+    const replayCommand = useCallback(
+        async (command: SchemaCoreCommand) => {
+            switch (command.type) {
+                case 'table.add': {
+                    const { table } = command.payload as { table: DBTable };
+                    await addTables([table], { updateHistory: false });
+                    return;
+                }
+                case 'table.update': {
+                    const { tableId, table } = command.payload as {
+                        tableId: string;
+                        table: Partial<DBTable>;
+                    };
+                    await updateTable(tableId, table, { updateHistory: false });
+                    return;
+                }
+                case 'table.delete': {
+                    const { tableId } = command.payload as { tableId: string };
+                    await removeTables([tableId], { updateHistory: false });
+                    return;
+                }
+                case 'table.restore': {
+                    const { table, relationships, dependencies } =
+                        command.payload as {
+                            table: DBTable;
+                            relationships: DBRelationship[];
+                            dependencies: DBDependency[];
+                        };
+                    await addTables([table], { updateHistory: false });
+                    await addRelationships(relationships, {
+                        updateHistory: false,
+                    });
+                    await addDependencies(dependencies, {
+                        updateHistory: false,
+                    });
+                    return;
+                }
+                case 'field.add': {
+                    const { tableId, field } = command.payload as {
+                        tableId: string;
+                        field: DBField;
+                    };
+                    await addField(tableId, field, { updateHistory: false });
+                    return;
+                }
+                case 'field.update': {
+                    const { tableId, fieldId, field } = command.payload as {
+                        tableId: string;
+                        fieldId: string;
+                        field: Partial<DBField>;
+                    };
+                    await updateField(tableId, fieldId, field, {
+                        updateHistory: false,
+                    });
+                    return;
+                }
+                case 'field.delete': {
+                    const { tableId, fieldId } = command.payload as {
+                        tableId: string;
+                        fieldId: string;
+                    };
+                    await removeField(tableId, fieldId, {
+                        updateHistory: false,
+                    });
+                    return;
+                }
+                case 'field.restore': {
+                    const { tableId, field, indexes, relationships } =
+                        command.payload as {
+                            tableId: string;
+                            field: DBField;
+                            indexes: DBIndex[];
+                            relationships: DBRelationship[];
+                        };
+                    await addField(tableId, field, { updateHistory: false });
+                    await Promise.all([
+                        ...indexes.map((index) =>
+                            addIndex(tableId, index, { updateHistory: false })
+                        ),
+                        addRelationships(relationships, {
+                            updateHistory: false,
+                        }),
+                    ]);
+                    return;
+                }
+                case 'index.add': {
+                    const { tableId, index } = command.payload as {
+                        tableId: string;
+                        index: DBIndex;
+                    };
+                    await addIndex(tableId, index, { updateHistory: false });
+                    return;
+                }
+                case 'index.update': {
+                    const { tableId, indexId, index } = command.payload as {
+                        tableId: string;
+                        indexId: string;
+                        index: Partial<DBIndex>;
+                    };
+                    await updateIndex(tableId, indexId, index, {
+                        updateHistory: false,
+                    });
+                    return;
+                }
+                case 'index.delete': {
+                    const { tableId, indexId } = command.payload as {
+                        tableId: string;
+                        indexId: string;
+                    };
+                    await removeIndex(tableId, indexId, {
+                        updateHistory: false,
+                    });
+                    return;
+                }
+                case 'relationship.add': {
+                    const { relationship } = command.payload as {
+                        relationship: DBRelationship;
+                    };
+                    await addRelationships([relationship], {
+                        updateHistory: false,
+                    });
+                    return;
+                }
+                case 'relationship.update': {
+                    const { relationshipId, relationship } =
+                        command.payload as {
+                            relationshipId: string;
+                            relationship: Partial<DBRelationship>;
+                        };
+                    await updateRelationship(relationshipId, relationship, {
+                        updateHistory: false,
+                    });
+                    return;
+                }
+                case 'relationship.delete': {
+                    const { relationshipId } = command.payload as {
+                        relationshipId: string;
+                    };
+                    await removeRelationships([relationshipId], {
+                        updateHistory: false,
+                    });
+                    return;
+                }
+                case 'area.add': {
+                    const { area } = command.payload as { area: Area };
+                    await addAreas([area], { updateHistory: false });
+                    return;
+                }
+                case 'area.update': {
+                    const { areaId, area } = command.payload as {
+                        areaId: string;
+                        area: Partial<Area>;
+                    };
+                    await updateArea(areaId, area, { updateHistory: false });
+                    return;
+                }
+                case 'area.delete': {
+                    const { areaId } = command.payload as { areaId: string };
+                    await removeAreas([areaId], { updateHistory: false });
+                    return;
+                }
+                case 'note.add': {
+                    const { note } = command.payload as { note: Note };
+                    await addNotes([note], { updateHistory: false });
+                    return;
+                }
+                case 'note.update': {
+                    const { noteId, note } = command.payload as {
+                        noteId: string;
+                        note: Partial<Note>;
+                    };
+                    await updateNote(noteId, note, { updateHistory: false });
+                    return;
+                }
+                case 'note.delete': {
+                    const { noteId } = command.payload as { noteId: string };
+                    await removeNotes([noteId], { updateHistory: false });
+                    return;
+                }
+                case 'custom_type.add': {
+                    const { customType } = command.payload as {
+                        customType: DBCustomType;
+                    };
+                    await addCustomTypes([customType], {
+                        updateHistory: false,
+                    });
+                    return;
+                }
+                case 'custom_type.update': {
+                    const { customTypeId, customType } = command.payload as {
+                        customTypeId: string;
+                        customType: Partial<DBCustomType>;
+                    };
+                    await updateCustomType(customTypeId, customType, {
+                        updateHistory: false,
+                    });
+                    return;
+                }
+                case 'custom_type.delete': {
+                    const { customTypeId } = command.payload as {
+                        customTypeId: string;
+                    };
+                    await removeCustomTypes([customTypeId], {
+                        updateHistory: false,
+                    });
+                    return;
+                }
+                default:
+                    return;
+            }
+        },
+        [
+            addTables,
+            updateTable,
+            removeTables,
+            addRelationships,
+            addDependencies,
+            addField,
+            updateField,
+            removeField,
+            addIndex,
+            updateIndex,
+            removeIndex,
+            updateRelationship,
+            removeRelationships,
+            addAreas,
+            updateArea,
+            removeAreas,
+            addNotes,
+            updateNote,
+            removeNotes,
+            addCustomTypes,
+            updateCustomType,
+            removeCustomTypes,
+        ]
+    );
+
+    const replayCommandHistory = useCallback(
+        async (
+            commandHistory: CommandHistoryBatch | undefined,
+            direction: CommandReplayDirection
+        ) => {
+            if (!commandHistory) {
+                return false;
+            }
+
+            const entries =
+                direction === 'undo'
+                    ? [...commandHistory.entries].reverse()
+                    : commandHistory.entries;
+            const commands = entries.map((entry) =>
+                direction === 'undo' ? entry.undoCommand : entry.redoCommand
+            );
+
+            if (!commands.every(canReplayCommand)) {
+                return false;
+            }
+
+            for (const command of commands) {
+                await replayCommand(command);
+            }
+
+            return true;
+        },
+        [replayCommand]
+    );
+
+    const runLegacyUndoHandler = async (action: RedoUndoAction) => {
+        const handler = undoActionHandlers[action.action];
+        await handler?.({
+            undoData: action.undoData,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } as any);
+    };
+
+    const runLegacyRedoHandler = async (action: RedoUndoAction) => {
+        const handler = redoActionHandlers[action.action];
+        await handler?.({
+            redoData: action.redoData,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } as any);
+    };
+
     const undo = async () => {
         const action = undoStack.pop();
         if (!action) {
             return;
         }
 
-        const handler = undoActionHandlers[action.action];
         addRedoAction(action);
 
-        await handler?.({
-            undoData: action.undoData,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } as any);
+        const replayed = await replayCommandHistory(
+            action.commandHistory,
+            'undo'
+        );
+        if (!replayed) {
+            await runLegacyUndoHandler(action);
+        }
     };
 
     const redo = async () => {
@@ -409,13 +744,15 @@ export const HistoryProvider: React.FC<React.PropsWithChildren> = ({
             return;
         }
 
-        const handler = redoActionHandlers[action.action];
         addUndoAction(action);
 
-        await handler?.({
-            redoData: action.redoData,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } as any);
+        const replayed = await replayCommandHistory(
+            action.commandHistory,
+            'redo'
+        );
+        if (!replayed) {
+            await runLegacyRedoHandler(action);
+        }
     };
 
     return (
