@@ -27,6 +27,7 @@ import { DiffProvider } from '@/context/diff-context/diff-provider';
 import { TopNavbarMock } from './top-navbar/top-navbar-mock';
 import { DiagramFilterProvider } from '@/context/diagram-filter-context/diagram-filter-provider';
 import { OnboardingDialog } from '@/features/onboarding/onboarding-dialog';
+import { Button } from '@/components/button/button';
 
 const OPEN_STAR_US_AFTER_SECONDS = 30;
 const SHOW_STAR_US_AGAIN_AFTER_DAYS = 1;
@@ -45,8 +46,13 @@ const EditorPageComponent: React.FC = () => {
     const { isMd: isDesktop } = useBreakpoint('md');
     const { starUsDialogLastOpen, setStarUsDialogLastOpen, githubRepoOpened } =
         useLocalConfig();
-    const { initialDiagram, showOnboarding, setShowOnboarding } =
-        useDiagramLoader();
+    const {
+        initialDiagram,
+        loadError,
+        retryLoadDiagram,
+        showOnboarding,
+        setShowOnboarding,
+    } = useDiagramLoader();
 
     useEffect(() => {
         if (HIDE_CHARTDB_CLOUD) {
@@ -85,28 +91,53 @@ const EditorPageComponent: React.FC = () => {
             <section
                 className={`bg-background ${isDesktop ? 'h-screen w-screen' : 'h-dvh w-dvw'} flex select-none flex-col overflow-x-hidden`}
             >
-                <Suspense
-                    fallback={
-                        <>
-                            <TopNavbarMock />
-                            <div className="flex flex-1 items-center justify-center">
-                                <Spinner
-                                    size={isDesktop ? 'large' : 'medium'}
-                                />
+                {loadError ? (
+                    <>
+                        <TopNavbarMock />
+                        <div
+                            role="alert"
+                            className="flex flex-1 items-center justify-center px-6 text-center"
+                        >
+                            <div className="max-w-md space-y-4">
+                                <h1 className="text-xl font-semibold">
+                                    Diagram could not be loaded
+                                </h1>
+                                <p className="text-sm text-muted-foreground">
+                                    {loadError}
+                                </p>
+                                <Button
+                                    type="button"
+                                    onClick={retryLoadDiagram}
+                                >
+                                    Retry loading diagram
+                                </Button>
                             </div>
-                        </>
-                    }
-                >
-                    {isDesktop ? (
-                        <EditorDesktopLayoutLazy
-                            initialDiagram={initialDiagram}
-                        />
-                    ) : (
-                        <EditorMobileLayoutLazy
-                            initialDiagram={initialDiagram}
-                        />
-                    )}
-                </Suspense>
+                        </div>
+                    </>
+                ) : (
+                    <Suspense
+                        fallback={
+                            <>
+                                <TopNavbarMock />
+                                <div className="flex flex-1 items-center justify-center">
+                                    <Spinner
+                                        size={isDesktop ? 'large' : 'medium'}
+                                    />
+                                </div>
+                            </>
+                        }
+                    >
+                        {isDesktop ? (
+                            <EditorDesktopLayoutLazy
+                                initialDiagram={initialDiagram}
+                            />
+                        ) : (
+                            <EditorMobileLayoutLazy
+                                initialDiagram={initialDiagram}
+                            />
+                        )}
+                    </Suspense>
+                )}
             </section>
             <OnboardingDialog
                 open={showOnboarding}

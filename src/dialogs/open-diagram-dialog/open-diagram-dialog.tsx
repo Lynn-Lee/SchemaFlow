@@ -43,17 +43,28 @@ export const OpenDiagramDialog: React.FC<OpenDiagramDialogProps> = ({
     const navigate = useNavigate();
     const { listDiagrams } = useStorage();
     const [diagrams, setDiagrams] = useState<Diagram[]>([]);
+    const [loadError, setLoadError] = useState<string | undefined>();
     const [selectedDiagramId, setSelectedDiagramId] = useState<
         string | undefined
     >();
 
     const fetchDiagrams = useCallback(async () => {
-        const diagrams = await listDiagrams({ includeTables: true });
-        setDiagrams(
-            diagrams.sort(
-                (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
-            )
-        );
+        try {
+            setLoadError(undefined);
+            const diagrams = await listDiagrams({ includeTables: true });
+            setDiagrams(
+                diagrams.sort(
+                    (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
+                )
+            );
+        } catch (error) {
+            setDiagrams([]);
+            setLoadError(
+                error instanceof Error
+                    ? error.message
+                    : 'Local diagrams could not be read.'
+            );
+        }
     }, [listDiagrams]);
 
     useEffect(() => {
@@ -144,103 +155,123 @@ export const OpenDiagramDialog: React.FC<OpenDiagramDialogProps> = ({
                 </DialogHeader>
                 <DialogInternalContent>
                     <div className="flex flex-1 items-center justify-center">
-                        <Table>
-                            <TableHeader className="sticky top-0 bg-background">
-                                <TableRow>
-                                    <TableHead />
-                                    <TableHead>
-                                        {t(
-                                            'open_diagram_dialog.table_columns.name'
-                                        )}
-                                    </TableHead>
-                                    <TableHead className="hidden items-center sm:inline-flex">
-                                        {t(
-                                            'open_diagram_dialog.table_columns.created_at'
-                                        )}
-                                    </TableHead>
-                                    <TableHead>
-                                        {t(
-                                            'open_diagram_dialog.table_columns.last_modified'
-                                        )}
-                                    </TableHead>
-                                    <TableHead className="text-center">
-                                        {t(
-                                            'open_diagram_dialog.table_columns.tables_count'
-                                        )}
-                                    </TableHead>
-                                    <TableHead />
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {diagrams.map((diagram, index) => (
-                                    <TableRow
-                                        key={diagram.id}
-                                        data-state={`${selectedDiagramId === diagram.id ? 'selected' : ''}`}
-                                        data-diagram-id={diagram.id}
-                                        data-selection-index={index}
-                                        tabIndex={0}
-                                        onFocus={() =>
-                                            onFocusHandler(diagram.id)
-                                        }
-                                        className="focus:bg-accent focus:outline-none"
-                                        onClick={(e) => {
-                                            switch (e.detail) {
-                                                case 1:
-                                                    setSelectedDiagramId(
-                                                        diagram.id
-                                                    );
-                                                    break;
-                                                case 2:
-                                                    openDiagram(diagram.id);
-                                                    closeOpenDiagramDialog();
-                                                    break;
-                                                default:
-                                                    setSelectedDiagramId(
-                                                        diagram.id
-                                                    );
-                                            }
-                                        }}
-                                        onKeyDown={handleRowKeyDown}
-                                    >
-                                        <TableCell className="table-cell">
-                                            <div className="flex justify-center">
-                                                <DiagramIcon
-                                                    databaseType={
-                                                        diagram.databaseType
-                                                    }
-                                                    databaseEdition={
-                                                        diagram.databaseEdition
-                                                    }
-                                                />
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>{diagram.name}</TableCell>
-                                        <TableCell className="hidden items-center sm:table-cell">
-                                            {diagram.createdAt.toLocaleString()}
-                                        </TableCell>
-                                        <TableCell>
-                                            {diagram.updatedAt.toLocaleString()}
-                                        </TableCell>
-                                        <TableCell className="text-center">
-                                            {diagram.tables?.length}
-                                        </TableCell>
-                                        <TableCell className="items-center p-0 pr-1 text-right">
-                                            <DiagramRowActionsMenu
-                                                diagram={diagram}
-                                                onOpen={() => {
-                                                    openDiagram(diagram.id);
-                                                    closeOpenDiagramDialog();
-                                                }}
-                                                numberOfDiagrams={
-                                                    diagrams.length
-                                                }
-                                                refetch={fetchDiagrams}
-                                            />
-                                        </TableCell>
+                        {loadError ? (
+                            <div
+                                role="alert"
+                                aria-label="Could not load local diagrams"
+                                className="max-w-md space-y-3 text-center"
+                            >
+                                <h3 className="text-base font-semibold">
+                                    Could not load local diagrams
+                                </h3>
+                                <p className="text-sm text-muted-foreground">
+                                    {loadError}
+                                </p>
+                                <Button type="button" onClick={fetchDiagrams}>
+                                    Retry loading diagrams
+                                </Button>
+                            </div>
+                        ) : (
+                            <Table>
+                                <TableHeader className="sticky top-0 bg-background">
+                                    <TableRow>
+                                        <TableHead />
+                                        <TableHead>
+                                            {t(
+                                                'open_diagram_dialog.table_columns.name'
+                                            )}
+                                        </TableHead>
+                                        <TableHead className="hidden items-center sm:inline-flex">
+                                            {t(
+                                                'open_diagram_dialog.table_columns.created_at'
+                                            )}
+                                        </TableHead>
+                                        <TableHead>
+                                            {t(
+                                                'open_diagram_dialog.table_columns.last_modified'
+                                            )}
+                                        </TableHead>
+                                        <TableHead className="text-center">
+                                            {t(
+                                                'open_diagram_dialog.table_columns.tables_count'
+                                            )}
+                                        </TableHead>
+                                        <TableHead />
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
+                                </TableHeader>
+                                <TableBody>
+                                    {diagrams.map((diagram, index) => (
+                                        <TableRow
+                                            key={diagram.id}
+                                            data-state={`${selectedDiagramId === diagram.id ? 'selected' : ''}`}
+                                            data-diagram-id={diagram.id}
+                                            data-selection-index={index}
+                                            tabIndex={0}
+                                            onFocus={() =>
+                                                onFocusHandler(diagram.id)
+                                            }
+                                            className="focus:bg-accent focus:outline-none"
+                                            onClick={(e) => {
+                                                switch (e.detail) {
+                                                    case 1:
+                                                        setSelectedDiagramId(
+                                                            diagram.id
+                                                        );
+                                                        break;
+                                                    case 2:
+                                                        openDiagram(diagram.id);
+                                                        closeOpenDiagramDialog();
+                                                        break;
+                                                    default:
+                                                        setSelectedDiagramId(
+                                                            diagram.id
+                                                        );
+                                                }
+                                            }}
+                                            onKeyDown={handleRowKeyDown}
+                                        >
+                                            <TableCell className="table-cell">
+                                                <div className="flex justify-center">
+                                                    <DiagramIcon
+                                                        databaseType={
+                                                            diagram.databaseType
+                                                        }
+                                                        databaseEdition={
+                                                            diagram.databaseEdition
+                                                        }
+                                                    />
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                {diagram.name}
+                                            </TableCell>
+                                            <TableCell className="hidden items-center sm:table-cell">
+                                                {diagram.createdAt.toLocaleString()}
+                                            </TableCell>
+                                            <TableCell>
+                                                {diagram.updatedAt.toLocaleString()}
+                                            </TableCell>
+                                            <TableCell className="text-center">
+                                                {diagram.tables?.length}
+                                            </TableCell>
+                                            <TableCell className="items-center p-0 pr-1 text-right">
+                                                <DiagramRowActionsMenu
+                                                    diagram={diagram}
+                                                    onOpen={() => {
+                                                        openDiagram(diagram.id);
+                                                        closeOpenDiagramDialog();
+                                                    }}
+                                                    numberOfDiagrams={
+                                                        diagrams.length
+                                                    }
+                                                    refetch={fetchDiagrams}
+                                                />
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        )}
                     </div>
                 </DialogInternalContent>
 

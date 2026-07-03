@@ -1736,7 +1736,7 @@ batch: 批次 P
 type: CODE
 priority: P1
 title: 为 use-diagram-loader 和 OpenDiagramDialog 的存储读取补充 try/catch 和错误态
-status: queued
+status: done
 depends_on: []
 owner_lane: product
 branch: codex/chartdb-p-storage-error-handling
@@ -1761,6 +1761,12 @@ acceptance:
     - 存储读取失败时应用不会永久卡在加载动画
     - OpenDiagramDialog 能区分"空列表"和"读取失败"
     - 正常路径无行为回归
+completion:
+    - 2026-07-04：真实入口位于 `src/pages/editor-page/use-diagram-loader.tsx`，任务卡中的 `src/hooks/use-diagram-loader.tsx` 为旧路径；本轮按真实代码位置最小越界修改，并在验收记录中说明。
+    - `useDiagramLoader()` 捕获 `loadDiagram` / `listDiagrams` 存储读取异常，确保已显示的全屏 loader 会被关闭，并向编辑页暴露可重试的启动失败状态。
+    - `EditorPageComponent` 在启动失败时显示错误说明和 `Retry loading diagram`，避免 IndexedDB 被阻塞或数据损坏时无限停留在加载动画。
+    - `OpenDiagramDialog` 捕获 `listDiagrams({ includeTables: true })` 异常，在列表区域显示区别于空列表的错误态和 `Retry loading diagrams`。
+    - 新增 `src/pages/editor-page/__tests__/use-diagram-loader.test.tsx` 与 `src/dialogs/open-diagram-dialog/__tests__/open-diagram-dialog.test.tsx`，红灯先复现未捕获 reject，绿灯验证两处错误态。
 ```
 
 #### CHARTDB-P-014：移动端 canvas 护栏提示
@@ -2251,7 +2257,7 @@ npm run test:ci
 | P-010 | Canvas 键盘可访问性基线 | P | P2 | queued | - |
 | P-011 | 路由 errorElement | P | P2 | queued | - |
 | P-012 | Onboarding 数据库选择延续 | P | P3 | queued | - |
-| P-013 | 存储错误处理 | P | P1 | queued | - |
+| P-013 | 存储错误处理 | P | P1 | done | - |
 | P-014 | 移动端 canvas 护栏提示 | P | P3 | queued | - |
 | S-004 | AI Gateway URL 校验 | S | P2 | queued | - |
 | Q-006 | templates-page i18n | Q | P2 | queued | - |
