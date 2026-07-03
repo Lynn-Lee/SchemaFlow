@@ -180,7 +180,7 @@ batch: 批次 F
 type: CODE
 priority: P0
 title: 将 TreeView 动画依赖从 motion 切换为显式 framer-motion
-status: queued
+status: done
 depends_on: []
 owner_lane: tech-debt
 branch: codex/chartdb-f-treeview-motion
@@ -208,6 +208,11 @@ acceptance:
     - package.json 不再包含 motion，改为显式 framer-motion
     - tree-view.tsx 动画行为不变
     - build 通过，无运行时错误
+completion:
+    - 已从 package.json dependencies 中删除 motion，并改为显式声明 framer-motion。
+    - package-lock.json 删除 motion wrapper 节点，保留原先经 motion 拉入的 framer-motion 12.23.x 依赖树，未修改 TreeView 动画实现。
+    - 红灯校验确认 motion 仍存在且 framer-motion 未直接声明时会失败；绿灯校验确认 package.json 不再包含 motion 且 tree-view.tsx 的 framer-motion import 可由直接依赖解析。
+    - 完整门禁、合并后快速验证和 origin/main 推送确认见 docs/阶段验收记录.md。
 ```
 
 #### CHARTDB-F-002a：移除未使用的 AI SDK 依赖（默认执行）
@@ -2186,7 +2191,7 @@ npm run test:ci
 | 任务 ID | 标题 | 批次 | 优先级 | 状态 | 依赖 |
 |---------|------|------|--------|------|------|
 | F-001a | 移除 @uidotdev/usehooks | F | P0 | done | - |
-| F-001b | TreeView motion → framer-motion | F | P0 | queued | - |
+| F-001b | TreeView motion → framer-motion | F | P0 | done | - |
 | F-002a | 移除 AI SDK 依赖（默认） | F | P0 | queued | - |
 | F-002b | AI adapter spike（互斥） | F | P2 | queued | - |
 | F-003 | entrypoint 移除 key | F | P0 | done | - |
