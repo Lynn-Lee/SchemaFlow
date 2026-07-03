@@ -223,7 +223,7 @@ batch: 批次 F
 type: CODE
 priority: P0
 title: 从 package.json 删除 @ai-sdk/openai 和 ai 依赖
-status: queued
+status: done
 depends_on: []
 owner_lane: tech-debt
 branch: codex/chartdb-f-ai-sdk-remove
@@ -252,6 +252,10 @@ acceptance:
     - AI 默认禁用行为不变
     - build 产物中无 AI SDK chunk
     - 阶段验收记录 P0-002 advisory 结论已更新
+completion:
+    - 2026-07-03：已删除 package.json / package-lock.json 中的 @ai-sdk/openai 和 ai，并移除 @ai-sdk provider/gateway 传递依赖树。
+    - 红灯依赖契约检查先确认 package.json 与 lockfile 仍含 AI SDK 依赖；绿灯后 package/lock/dist 均无 AI SDK 命中。
+    - npm audit --omit=dev --audit-level=high 通过；剩余 production advisory 为 monaco-editor -> dompurify 的 1 low + 1 moderate，转入 S-003。
 ```
 
 > F-002a 与 F-002b 互斥。默认执行 F-002a（最小切片）。仅当产品明确决定近期启用 AI 能力时，才改领 F-002b。
@@ -2192,7 +2196,7 @@ npm run test:ci
 |---------|------|------|--------|------|------|
 | F-001a | 移除 @uidotdev/usehooks | F | P0 | done | - |
 | F-001b | TreeView motion → framer-motion | F | P0 | done | - |
-| F-002a | 移除 AI SDK 依赖（默认） | F | P0 | queued | - |
+| F-002a | 移除 AI SDK 依赖（默认） | F | P0 | done | - |
 | F-002b | AI adapter spike（互斥） | F | P2 | queued | - |
 | F-003 | entrypoint 移除 key | F | P0 | done | - |
 | F-004 | window.open noopener | F | P0 | done | - |
