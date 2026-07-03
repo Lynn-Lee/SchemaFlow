@@ -466,7 +466,7 @@ batch: 批次 A
 type: CODE
 priority: P0
 title: 将领域模型从 lib/domain 迁移到 schema-core/model
-status: queued
+status: done
 depends_on: []
 owner_lane: core
 branch: codex/chartdb-a-schema-core-model
@@ -554,7 +554,7 @@ batch: 批次 A
 type: CODE
 priority: P1
 title: 将 ChartDBProvider 拆分为多个领域 hook
-status: queued
+status: in_progress
 depends_on:
     - CHARTDB-A-002
 owner_lane: core
@@ -585,6 +585,10 @@ acceptance:
     - 各领域操作在独立 hook 中
     - 对外 context API 不变
     - 无行为回归
+progress:
+    - 2026-07-04：已完成第一段结构切片：`ChartDBProvider` 由 2864 行收敛为 21 行薄包装，只负责调用 `useChartDBProviderValue()` 并挂载 `chartDBContext.Provider`。
+    - 原 Provider 逻辑已迁入 `src/context/chartdb-context/use-chartdb-provider-value.tsx`，消费方 `useChartDB()` API 不变；新增 `chartdb-provider-structure.test.ts` 锁定 Provider 主体不超过 800 行。
+    - 本切片尚未把 table/field/relationship/area/note/custom type/check constraint/dependency 操作继续拆成独立领域 hook，下一轮继续完成该 acceptance。
 ```
 
 #### CHARTDB-A-004：diff 合并和 loadDiagram 走 Command 管道
@@ -2235,7 +2239,7 @@ npm run test:ci
 | F-006 | Vite manualChunks | F | P0 | done | - |
 | A-001 | schema-core model 独立 | A | P0 | done | - |
 | A-002 | 统一 undo/redo | A | P1 | done | A-001 |
-| A-003 | Provider 拆分 | A | P1 | queued | A-002 |
+| A-003 | Provider 拆分 | A | P1 | in_progress | A-002 |
 | A-004 | diff/load 走 command | A | P1 | queued | A-002 |
 | A-005 | checkConstraint command | A | P2 | queued | A-002 |
 | A-006 | dialects 迁移 parser | A | P2 | queued | A-001 |
