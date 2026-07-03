@@ -43,4 +43,26 @@ describe('ChartDBProvider structure', () => {
         expect(providerValueSource).not.toContain('const createDependency');
         expect(providerValueSource).not.toContain('const updateDependency');
     });
+
+    it('moves visual and custom type operations into a domain hook', () => {
+        const hookPath = path.join(
+            chartDBContextDir,
+            'use-visual-operations.ts'
+        );
+        expect(fs.existsSync(hookPath)).toBe(true);
+
+        const providerValuePath = path.join(
+            chartDBContextDir,
+            'use-chartdb-provider-value.tsx'
+        );
+        const providerValueSource = fs.readFileSync(providerValuePath, 'utf8');
+
+        expect(providerValueSource).toContain('useVisualOperations');
+        expect(providerValueSource).not.toContain('const createArea');
+        expect(providerValueSource).not.toContain('const updateArea');
+        expect(providerValueSource).not.toContain('const createNote');
+        expect(providerValueSource).not.toContain('const updateNote');
+        expect(providerValueSource).not.toContain('const createCustomType');
+        expect(providerValueSource).not.toContain('const updateCustomType');
+    });
 });

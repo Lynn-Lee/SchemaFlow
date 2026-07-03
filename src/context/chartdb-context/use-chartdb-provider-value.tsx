@@ -1,9 +1,10 @@
 import { useCallback, useMemo, useState } from 'react';
 import type { DBTable } from '@/lib/domain/db-table';
 import { deepCopy, generateId } from '@/lib/utils';
-import { defaultTableColor, randomColor, viewColor } from '@/lib/colors';
+import { defaultTableColor, viewColor } from '@/lib/colors';
 import type { ChartDBContext, ChartDBEvent } from './chartdb-context';
 import { useDependencyOperations } from './use-dependency-operations';
+import { useVisualOperations } from './use-visual-operations';
 import { DatabaseType } from '@/lib/domain/database-type';
 import type { DBField } from '@/lib/domain/db-field';
 import {
@@ -29,45 +30,29 @@ import type { Note } from '@/lib/domain/note';
 import { storageInitialValue } from '../storage-context/storage-context';
 import { useDiff } from '../diff-context/use-diff';
 import type { DiffCalculatedEvent } from '../diff-context/diff-context';
-import {
-    DBCustomTypeKind,
-    type DBCustomType,
-} from '@/lib/domain/db-custom-type';
+import type { DBCustomType } from '@/lib/domain/db-custom-type';
 import { getDefaultPrimaryKeyType } from '@/lib/data/data-types/data-types';
 import {
     applyFieldCommand,
-    applyAreaCommand,
-    applyCustomTypeCommand,
     applyIndexCommand,
-    applyNoteCommand,
     applyRelationshipCommand,
     applyTableCommand,
     createCommandHistoryBatch,
     createCommandHistoryEntry,
-    createAddAreaCommand,
-    createAddCustomTypeCommand,
     createAddFieldCommand,
     createAddIndexCommand,
-    createAddNoteCommand,
     createAddRelationshipCommand,
     createAddTableCommand,
-    createDeleteAreaCommand,
-    createDeleteCustomTypeCommand,
     createDeleteFieldCommand,
     createDeleteIndexCommand,
-    createDeleteNoteCommand,
     createDeleteRelationshipCommand,
     createDeleteTableCommand,
-    createUpdateAreaCommand,
-    createUpdateCustomTypeCommand,
     createUpdateFieldCommand,
     createUpdateIndexCommand,
-    createUpdateNoteCommand,
     createUpdateRelationshipCommand,
     createUpdateTableCommand,
     type DiagramFieldIndexRelationshipCommandState,
     type DiagramTableCommandState,
-    type DiagramVisualCustomTypeCommandState,
     type CommandHistoryBatch,
     type CommandHistoryEntry,
     type CommandResult,
@@ -220,17 +205,6 @@ export const useChartDBProviderValue = ({
             diagramUpdatedAt,
         ]
     );
-
-    const createVisualCustomTypeCommandState =
-        useCallback((): DiagramVisualCustomTypeCommandState => {
-            return {
-                databaseType,
-                tables,
-                areas,
-                notes,
-                customTypes,
-            };
-        }, [databaseType, tables, areas, notes, customTypes]);
 
     const clearDiagramData: ChartDBContext['clearDiagramData'] =
         useCallback(async () => {
@@ -1872,436 +1846,48 @@ export const useChartDBProviderValue = ({
         setDiagramUpdatedAt,
     });
 
-    // Area operations
-    const addAreas: ChartDBContext['addAreas'] = useCallback(
-        async (areas: Area[], options = { updateHistory: true }) => {
-            let commandState = createVisualCustomTypeCommandState();
-            const acceptedAreas: Area[] = [];
-            const commandHistoryEntries: Array<CommandHistoryEntry | null> = [];
-            for (const area of areas) {
-                const command = createAddAreaCommand({
-                    context: commandContext,
-                    area,
-                });
-                const result = applyAreaCommand({
-                    command,
-                    context: commandContext,
-                    state: commandState,
-                });
-                commandHistoryEntries.push(
-                    createCommandHistoryEntry({ redoCommand: command, result })
-                );
-                commandState = result.state;
-                if (result.status === 'success') {
-                    acceptedAreas.push(area);
-                }
-            }
-
-            if (acceptedAreas.length === 0) return;
-
-            setAreas(commandState.areas);
-
-            const updatedAt = new Date();
-            setDiagramUpdatedAt(updatedAt);
-
-            await Promise.all([
-                ...acceptedAreas.map((area) => db.addArea({ diagramId, area })),
-                db.updateDiagram({ id: diagramId, attributes: { updatedAt } }),
-            ]);
-
-            if (options.updateHistory) {
-                addUndoAction({
-                    action: 'addAreas',
-                    redoData: { areas: acceptedAreas },
-                    undoData: { areaIds: acceptedAreas.map((a) => a.id) },
-                    commandHistory: createBatchedCommandHistory(
-                        commandHistoryEntries
-                    ),
-                });
-                resetRedoStack();
-            }
-        },
-        [
-            commandContext,
-            createVisualCustomTypeCommandState,
-            db,
-            diagramId,
-            setAreas,
-            addUndoAction,
-            resetRedoStack,
-        ]
-    );
-
-    const addArea: ChartDBContext['addArea'] = useCallback(
-        async (area: Area, options = { updateHistory: true }) => {
-            return addAreas([area], options);
-        },
-        [addAreas]
-    );
-
-    const createArea: ChartDBContext['createArea'] = useCallback(
-        async (attributes) => {
-            const area: Area = {
-                id: generateId(),
-                name: `Area ${areas.length + 1}`,
-                x: 0,
-                y: 0,
-                width: 300,
-                height: 200,
-                color: randomColor(),
-                ...attributes,
-            };
-
-            await addArea(area);
-
-            return area;
-        },
-        [areas, addArea]
-    );
-
-    const getArea: ChartDBContext['getArea'] = useCallback(
-        (id: string) => areas.find((area) => area.id === id) ?? null,
-        [areas]
-    );
-
-    const removeAreas: ChartDBContext['removeAreas'] = useCallback(
-        async (ids: string[], options = { updateHistory: true }) => {
-            let commandState = createVisualCustomTypeCommandState();
-            const prevAreas = areas.filter((area) => ids.includes(area.id));
-            const commandHistoryEntries: Array<CommandHistoryEntry | null> = [];
-            for (const id of ids) {
-                const command = createDeleteAreaCommand({
-                    context: commandContext,
-                    areaId: id,
-                });
-                const result = applyAreaCommand({
-                    command,
-                    context: commandContext,
-                    state: commandState,
-                });
-                commandHistoryEntries.push(
-                    createCommandHistoryEntry({ redoCommand: command, result })
-                );
-                commandState = result.state;
-            }
-
-            if (prevAreas.length === 0) return;
-
-            setAreas(commandState.areas);
-
-            const updatedAt = new Date();
-            setDiagramUpdatedAt(updatedAt);
-
-            await Promise.all([
-                ...prevAreas.map((area) =>
-                    db.deleteArea({ diagramId, id: area.id })
-                ),
-                db.updateDiagram({ id: diagramId, attributes: { updatedAt } }),
-            ]);
-
-            if (prevAreas.length > 0 && options.updateHistory) {
-                addUndoAction({
-                    action: 'removeAreas',
-                    redoData: { areaIds: ids },
-                    undoData: { areas: prevAreas },
-                    commandHistory: createBatchedCommandHistory(
-                        commandHistoryEntries
-                    ),
-                });
-                resetRedoStack();
-            }
-        },
-        [
-            commandContext,
-            createVisualCustomTypeCommandState,
-            db,
-            diagramId,
-            setAreas,
-            areas,
-            addUndoAction,
-            resetRedoStack,
-        ]
-    );
-
-    const removeArea: ChartDBContext['removeArea'] = useCallback(
-        async (id: string, options = { updateHistory: true }) => {
-            return removeAreas([id], options);
-        },
-        [removeAreas]
-    );
-
-    const updateArea: ChartDBContext['updateArea'] = useCallback(
-        async (
-            id: string,
-            area: Partial<Area>,
-            options = { updateHistory: true }
-        ) => {
-            const prevArea = getArea(id);
-            const command = createUpdateAreaCommand({
-                context: commandContext,
-                areaId: id,
-                area,
-            });
-            const result = applyAreaCommand({
-                command,
-                context: commandContext,
-                state: createVisualCustomTypeCommandState(),
-            });
-
-            if (result.status !== 'success') return;
-
-            setAreas(result.state.areas);
-
-            const updatedAt = new Date();
-            setDiagramUpdatedAt(updatedAt);
-
-            await Promise.all([
-                db.updateDiagram({ id: diagramId, attributes: { updatedAt } }),
-                db.updateArea({ id, attributes: area }),
-            ]);
-
-            if (!!prevArea && options.updateHistory) {
-                addUndoAction({
-                    action: 'updateArea',
-                    redoData: { areaId: id, area },
-                    undoData: { areaId: id, area: prevArea },
-                    commandHistory: createSingleCommandHistory(command, result),
-                });
-                resetRedoStack();
-            }
-        },
-        [
-            commandContext,
-            createVisualCustomTypeCommandState,
-            db,
-            diagramId,
-            setAreas,
-            getArea,
-            addUndoAction,
-            resetRedoStack,
-        ]
-    );
-
-    // Note operations
-    const addNotes: ChartDBContext['addNotes'] = useCallback(
-        async (notes: Note[], options = { updateHistory: true }) => {
-            let commandState = createVisualCustomTypeCommandState();
-            const acceptedNotes: Note[] = [];
-            const commandHistoryEntries: Array<CommandHistoryEntry | null> = [];
-            for (const note of notes) {
-                const command = createAddNoteCommand({
-                    context: commandContext,
-                    note,
-                });
-                const result = applyNoteCommand({
-                    command,
-                    context: commandContext,
-                    state: commandState,
-                });
-                commandHistoryEntries.push(
-                    createCommandHistoryEntry({ redoCommand: command, result })
-                );
-                commandState = result.state;
-                if (result.status === 'success') {
-                    acceptedNotes.push(note);
-                }
-            }
-
-            if (acceptedNotes.length === 0) return;
-
-            setNotes(commandState.notes);
-
-            const updatedAt = new Date();
-            setDiagramUpdatedAt(updatedAt);
-
-            await Promise.all([
-                ...acceptedNotes.map((note) => db.addNote({ diagramId, note })),
-                db.updateDiagram({ id: diagramId, attributes: { updatedAt } }),
-            ]);
-
-            if (options.updateHistory) {
-                addUndoAction({
-                    action: 'addNotes',
-                    redoData: { notes: acceptedNotes },
-                    undoData: { noteIds: acceptedNotes.map((n) => n.id) },
-                    commandHistory: createBatchedCommandHistory(
-                        commandHistoryEntries
-                    ),
-                });
-                resetRedoStack();
-            }
-        },
-        [
-            commandContext,
-            createVisualCustomTypeCommandState,
-            db,
-            diagramId,
-            setNotes,
-            addUndoAction,
-            resetRedoStack,
-        ]
-    );
-
-    const addNote: ChartDBContext['addNote'] = useCallback(
-        async (note: Note, options = { updateHistory: true }) => {
-            return addNotes([note], options);
-        },
-        [addNotes]
-    );
-
-    const createNote: ChartDBContext['createNote'] = useCallback(
-        async (attributes) => {
-            const note: Note = {
-                id: generateId(),
-                content: '',
-                x: 0,
-                y: 0,
-                width: 200,
-                height: 150,
-                color: '#ffe374', // Default warm yellow
-                ...attributes,
-            };
-
-            await addNote(note);
-
-            return note;
-        },
-        [addNote]
-    );
-
-    const getNote: ChartDBContext['getNote'] = useCallback(
-        (id: string) => notes.find((note) => note.id === id) ?? null,
-        [notes]
-    );
-
-    const removeNotes: ChartDBContext['removeNotes'] = useCallback(
-        async (ids: string[], options = { updateHistory: true }) => {
-            let commandState = createVisualCustomTypeCommandState();
-            const prevNotes = notes.filter((note) => ids.includes(note.id));
-            const commandHistoryEntries: Array<CommandHistoryEntry | null> = [];
-            for (const id of ids) {
-                const command = createDeleteNoteCommand({
-                    context: commandContext,
-                    noteId: id,
-                });
-                const result = applyNoteCommand({
-                    command,
-                    context: commandContext,
-                    state: commandState,
-                });
-                commandHistoryEntries.push(
-                    createCommandHistoryEntry({ redoCommand: command, result })
-                );
-                commandState = result.state;
-            }
-
-            if (prevNotes.length === 0) return;
-
-            setNotes(commandState.notes);
-
-            const updatedAt = new Date();
-            setDiagramUpdatedAt(updatedAt);
-
-            await Promise.all([
-                ...prevNotes.map((note) =>
-                    db.deleteNote({ diagramId, id: note.id })
-                ),
-                db.updateDiagram({ id: diagramId, attributes: { updatedAt } }),
-            ]);
-
-            if (prevNotes.length > 0 && options.updateHistory) {
-                addUndoAction({
-                    action: 'removeNotes',
-                    redoData: { noteIds: ids },
-                    undoData: { notes: prevNotes },
-                    commandHistory: createBatchedCommandHistory(
-                        commandHistoryEntries
-                    ),
-                });
-                resetRedoStack();
-            }
-        },
-        [
-            commandContext,
-            createVisualCustomTypeCommandState,
-            db,
-            diagramId,
-            setNotes,
-            notes,
-            addUndoAction,
-            resetRedoStack,
-        ]
-    );
-
-    const removeNote: ChartDBContext['removeNote'] = useCallback(
-        async (id: string, options = { updateHistory: true }) => {
-            return removeNotes([id], options);
-        },
-        [removeNotes]
-    );
-
-    const updateNote: ChartDBContext['updateNote'] = useCallback(
-        async (
-            id: string,
-            note: Partial<Note>,
-            options = { updateHistory: true }
-        ) => {
-            const prevNote = getNote(id);
-            const command = createUpdateNoteCommand({
-                context: commandContext,
-                noteId: id,
-                note,
-            });
-            const result = applyNoteCommand({
-                command,
-                context: commandContext,
-                state: createVisualCustomTypeCommandState(),
-            });
-
-            if (result.status !== 'success') return;
-
-            setNotes(result.state.notes);
-
-            const updatedAt = new Date();
-            setDiagramUpdatedAt(updatedAt);
-
-            await Promise.all([
-                db.updateDiagram({ id: diagramId, attributes: { updatedAt } }),
-                db.updateNote({ id, attributes: note }),
-            ]);
-
-            if (!!prevNote && options.updateHistory) {
-                addUndoAction({
-                    action: 'updateNote',
-                    redoData: { noteId: id, note },
-                    undoData: { noteId: id, note: prevNote },
-                    commandHistory: createSingleCommandHistory(command, result),
-                });
-                resetRedoStack();
-            }
-        },
-        [
-            commandContext,
-            createVisualCustomTypeCommandState,
-            db,
-            diagramId,
-            setNotes,
-            getNote,
-            addUndoAction,
-            resetRedoStack,
-        ]
-    );
-
-    const highlightCustomTypeId = useCallback(
-        (id?: string) => setHighlightedCustomTypeId(id),
-        [setHighlightedCustomTypeId]
-    );
-
-    const highlightedCustomType = useMemo(() => {
-        return highlightedCustomTypeId
-            ? customTypes.find((type) => type.id === highlightedCustomTypeId)
-            : undefined;
-    }, [highlightedCustomTypeId, customTypes]);
+    const {
+        addArea,
+        addAreas,
+        createArea,
+        getArea,
+        removeArea,
+        removeAreas,
+        updateArea,
+        addNote,
+        addNotes,
+        createNote,
+        getNote,
+        removeNote,
+        removeNotes,
+        updateNote,
+        addCustomType,
+        addCustomTypes,
+        createCustomType,
+        getCustomType,
+        highlightCustomTypeId,
+        highlightedCustomType,
+        removeCustomType,
+        removeCustomTypes,
+        updateCustomType,
+    } = useVisualOperations({
+        addUndoAction,
+        areas,
+        commandContext,
+        customTypes,
+        databaseType,
+        db,
+        diagramId,
+        highlightedCustomTypeId,
+        notes,
+        resetRedoStack,
+        setAreas,
+        setCustomTypes,
+        setDiagramUpdatedAt,
+        setHighlightedCustomTypeId,
+        setNotes,
+        tables,
+    });
 
     const loadDiagramFromData: ChartDBContext['loadDiagramFromData'] =
         useCallback(
@@ -2373,228 +1959,6 @@ export const useChartDBProviderValue = ({
             return diagram;
         },
         [storageDB, loadDiagramFromData]
-    );
-
-    // Custom type operations
-    const getCustomType: ChartDBContext['getCustomType'] = useCallback(
-        (id: string) => customTypes.find((type) => type.id === id) ?? null,
-        [customTypes]
-    );
-
-    const addCustomTypes: ChartDBContext['addCustomTypes'] = useCallback(
-        async (
-            customTypes: DBCustomType[],
-            options = { updateHistory: true }
-        ) => {
-            let commandState = createVisualCustomTypeCommandState();
-            const acceptedCustomTypes: DBCustomType[] = [];
-            const commandHistoryEntries: Array<CommandHistoryEntry | null> = [];
-            for (const customType of customTypes) {
-                const command = createAddCustomTypeCommand({
-                    context: commandContext,
-                    customType,
-                });
-                const result = applyCustomTypeCommand({
-                    command,
-                    context: commandContext,
-                    state: commandState,
-                });
-                commandHistoryEntries.push(
-                    createCommandHistoryEntry({ redoCommand: command, result })
-                );
-                commandState = result.state;
-                if (result.status === 'success') {
-                    acceptedCustomTypes.push(customType);
-                }
-            }
-
-            if (acceptedCustomTypes.length === 0) return;
-
-            setCustomTypes(commandState.customTypes);
-            const updatedAt = new Date();
-            setDiagramUpdatedAt(updatedAt);
-
-            await Promise.all([
-                db.updateDiagram({ id: diagramId, attributes: { updatedAt } }),
-                ...acceptedCustomTypes.map((customType) =>
-                    db.addCustomType({ diagramId, customType })
-                ),
-            ]);
-
-            if (options.updateHistory) {
-                addUndoAction({
-                    action: 'addCustomTypes',
-                    redoData: { customTypes: acceptedCustomTypes },
-                    undoData: {
-                        customTypeIds: acceptedCustomTypes.map((t) => t.id),
-                    },
-                    commandHistory: createBatchedCommandHistory(
-                        commandHistoryEntries
-                    ),
-                });
-                resetRedoStack();
-            }
-        },
-        [
-            commandContext,
-            createVisualCustomTypeCommandState,
-            db,
-            diagramId,
-            setCustomTypes,
-            addUndoAction,
-            resetRedoStack,
-        ]
-    );
-
-    const addCustomType: ChartDBContext['addCustomType'] = useCallback(
-        async (customType: DBCustomType, options = { updateHistory: true }) => {
-            return addCustomTypes([customType], options);
-        },
-        [addCustomTypes]
-    );
-
-    const createCustomType: ChartDBContext['createCustomType'] = useCallback(
-        async (attributes) => {
-            const customType: DBCustomType = {
-                id: generateId(),
-                name: `type_${customTypes.length + 1}`,
-                kind: DBCustomTypeKind.enum,
-                values: [],
-                fields: [],
-                ...attributes,
-            };
-
-            await addCustomType(customType);
-            return customType;
-        },
-        [addCustomType, customTypes]
-    );
-
-    const removeCustomTypes: ChartDBContext['removeCustomTypes'] = useCallback(
-        async (ids, options = { updateHistory: true }) => {
-            let commandState = createVisualCustomTypeCommandState();
-            const typesToRemove: DBCustomType[] = [];
-            const commandHistoryEntries: Array<CommandHistoryEntry | null> = [];
-            for (const id of ids) {
-                const previousType = commandState.customTypes.find(
-                    (type) => type.id === id
-                );
-                const command = createDeleteCustomTypeCommand({
-                    context: commandContext,
-                    customTypeId: id,
-                });
-                const result = applyCustomTypeCommand({
-                    command,
-                    context: commandContext,
-                    state: commandState,
-                });
-                commandHistoryEntries.push(
-                    createCommandHistoryEntry({ redoCommand: command, result })
-                );
-                commandState = result.state;
-                if (result.status === 'success' && previousType) {
-                    typesToRemove.push(previousType);
-                }
-            }
-
-            if (typesToRemove.length === 0) return;
-
-            setCustomTypes(commandState.customTypes);
-
-            const updatedAt = new Date();
-            setDiagramUpdatedAt(updatedAt);
-
-            await Promise.all([
-                db.updateDiagram({ id: diagramId, attributes: { updatedAt } }),
-                ...typesToRemove.map((customType) =>
-                    db.deleteCustomType({ diagramId, id: customType.id })
-                ),
-            ]);
-
-            if (typesToRemove.length > 0 && options.updateHistory) {
-                addUndoAction({
-                    action: 'removeCustomTypes',
-                    redoData: {
-                        customTypeIds: typesToRemove.map((type) => type.id),
-                    },
-                    undoData: {
-                        customTypes: typesToRemove,
-                    },
-                    commandHistory: createBatchedCommandHistory(
-                        commandHistoryEntries
-                    ),
-                });
-                resetRedoStack();
-            }
-        },
-        [
-            commandContext,
-            createVisualCustomTypeCommandState,
-            db,
-            diagramId,
-            setCustomTypes,
-            addUndoAction,
-            resetRedoStack,
-        ]
-    );
-
-    const removeCustomType: ChartDBContext['removeCustomType'] = useCallback(
-        async (id: string, options = { updateHistory: true }) => {
-            return removeCustomTypes([id], options);
-        },
-        [removeCustomTypes]
-    );
-
-    const updateCustomType: ChartDBContext['updateCustomType'] = useCallback(
-        async (
-            id: string,
-            customType: Partial<DBCustomType>,
-            options = { updateHistory: true }
-        ) => {
-            const prevCustomType = getCustomType(id);
-            const command = createUpdateCustomTypeCommand({
-                context: commandContext,
-                customTypeId: id,
-                customType,
-            });
-            const result = applyCustomTypeCommand({
-                command,
-                context: commandContext,
-                state: createVisualCustomTypeCommandState(),
-            });
-
-            if (result.status !== 'success') return;
-
-            setCustomTypes(result.state.customTypes);
-
-            const updatedAt = new Date();
-            setDiagramUpdatedAt(updatedAt);
-
-            await Promise.all([
-                db.updateDiagram({ id: diagramId, attributes: { updatedAt } }),
-                db.updateCustomType({ id, attributes: customType }),
-            ]);
-
-            if (!!prevCustomType && options.updateHistory) {
-                addUndoAction({
-                    action: 'updateCustomType',
-                    redoData: { customTypeId: id, customType },
-                    undoData: { customTypeId: id, customType: prevCustomType },
-                    commandHistory: createSingleCommandHistory(command, result),
-                });
-                resetRedoStack();
-            }
-        },
-        [
-            commandContext,
-            createVisualCustomTypeCommandState,
-            db,
-            setCustomTypes,
-            addUndoAction,
-            resetRedoStack,
-            getCustomType,
-            diagramId,
-        ]
     );
 
     return {
