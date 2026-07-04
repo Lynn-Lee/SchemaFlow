@@ -1,4 +1,4 @@
-import { createContext } from 'react';
+import { createContext, useContext, useSyncExternalStore } from 'react';
 import type { DBTable } from '@/lib/domain/db-table';
 import { emptyFn } from '@/lib/utils';
 import { DatabaseType } from '@/lib/domain/database-type';
@@ -333,7 +333,7 @@ export interface ChartDBContext {
     ) => Promise<void>;
 }
 
-export const chartDBContext = createContext<ChartDBContext>({
+export const initialChartDBContext: ChartDBContext = {
     databaseType: DatabaseType.GENERIC,
     diagramName: '',
     diagramId: '',
@@ -442,4 +442,57 @@ export const chartDBContext = createContext<ChartDBContext>({
     removeCustomType: emptyFn,
     removeCustomTypes: emptyFn,
     updateCustomType: emptyFn,
-});
+};
+
+export const chartDBContext = createContext<ChartDBContext>(
+    initialChartDBContext
+);
+
+type ChartDBStoreListener = () => void;
+
+export interface ChartDBStore {
+    getSnapshot: () => ChartDBContext;
+    setValue: (value: ChartDBContext) => void;
+    subscribe: (listener: ChartDBStoreListener) => () => void;
+}
+
+export const createChartDBStore = (
+    initialValue: ChartDBContext
+): ChartDBStore => {
+    let value = initialValue;
+    const listeners = new Set<ChartDBStoreListener>();
+
+    return {
+        getSnapshot: () => value,
+        setValue: (nextValue) => {
+            if (Object.is(value, nextValue)) {
+                return;
+            }
+
+            value = nextValue;
+            listeners.forEach((listener) => listener());
+        },
+        subscribe: (listener) => {
+            listeners.add(listener);
+            return () => {
+                listeners.delete(listener);
+            };
+        },
+    };
+};
+
+export const chartDBStoreContext = createContext<ChartDBStore>(
+    createChartDBStore(initialChartDBContext)
+);
+
+export const useChartDBSelector = <Selected,>(
+    selector: (chartDB: ChartDBContext) => Selected
+): Selected => {
+    const store = useContext(chartDBStoreContext);
+
+    return useSyncExternalStore(
+        store.subscribe,
+        () => selector(store.getSnapshot()),
+        () => selector(store.getSnapshot())
+    );
+};

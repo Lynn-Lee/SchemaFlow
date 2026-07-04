@@ -1581,7 +1581,7 @@ batch: 批次 A
 type: CODE
 priority: P2
 title: 为 ChartDBContext 消费方引入 selector/拆分 context，避免任一 table 变更导致全部消费方重渲染
-status: queued
+status: done
 depends_on:
     - CHARTDB-A-003
 owner_lane: core
@@ -1606,6 +1606,21 @@ acceptance:
     - 编辑单个 table 字段不再触发全部 62 处消费方重渲染
     - 对外 useChartDB() API 兼容或有明确迁移说明
     - 无行为回归
+completion:
+    completed_at: 2026-07-04
+    result:
+        - 新增稳定的 ChartDB store 与 `useChartDBSelector()`，selector 消费方可按需订阅 `diagramName`、`tables`、操作函数等单个 slice。
+        - `ChartDBProvider` 同时保留原 `chartDBContext.Provider`，旧 `useChartDB()` API 继续兼容；新增 store provider 通过 layout effect 同步最新 ChartDB value。
+        - 新增渲染计数回归测试：只订阅 `diagramName` 的 memo 消费方在 `tables` 增加时不再重渲染，证明后续关键侧栏组件可逐步迁移到 selector。
+        - 本轮不批量修改 62 处旧 `useChartDB()` 消费方，避免跨页面大范围重构；迁移消费方将作为后续最小切片继续推进。
+    verification:
+        - npm run test:ci -- src/context/chartdb-context/__tests__/chartdb-context-selector.test.tsx src/context/chartdb-context/__tests__/chartdb-provider-structure.test.ts
+        - npm run lint
+        - npm run test:ci
+        - npm run build
+        - git diff --check
+next:
+    - 继续批次 A 中剩余 queued 项，优先在 `CHARTDB-A-009`、`CHARTDB-A-011` 中按依赖和可验证范围选择下一个最小切片。
 ```
 
 #### CHARTDB-A-009：Diagram 类型补充 version 字段与迁移钩子
@@ -2350,7 +2365,7 @@ npm run test:ci
 | Q-004 | Smart Query i18n | Q | P3 | queued | - |
 | Q-005 | 浏览器依赖拆分 | Q | P3 | queued | A-001 |
 | A-007 | 全局 ErrorBoundary | A | P0 | done | - |
-| A-008 | Context selector | A | P2 | queued | A-003 |
+| A-008 | Context selector | A | P2 | done | A-003 |
 | A-009 | Diagram version 字段 | A | P2 | queued | A-001 |
 | A-010 | 元数据导入校验补齐 | A | P1 | done | - |
 | A-011 | Worker 超时保护 | A | P2 | queued | - |
