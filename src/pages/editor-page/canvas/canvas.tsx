@@ -8,7 +8,6 @@ import React, {
 import type {
     addEdge,
     NodePositionChange,
-    NodeRemoveChange,
     NodeDimensionChange,
     OnEdgesChange,
     OnNodesChange,
@@ -23,7 +22,6 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import equal from 'fast-deep-equal';
-import type { RelationshipEdgeType } from './relationship-edge/relationship-edge';
 import { useChartDB } from '@/hooks/use-chartdb';
 import { useToast } from '@/components/toast/use-toast';
 import { useLayout } from '@/hooks/use-layout';
@@ -36,7 +34,6 @@ import { CanvasContextMenu } from './canvas-context-menu';
 import { areFieldTypesCompatible } from '@/lib/data/data-types/data-types';
 import type { ChartDBEvent } from '@/context/chartdb-context/chartdb-context';
 import { debounce, getOperatingSystem } from '@/lib/utils';
-import type { DependencyEdgeType } from './dependency-edge/dependency-edge';
 import {
     BOTTOM_SOURCE_HANDLE_ID_PREFIX,
     TOP_SOURCE_HANDLE_ID_PREFIX,
@@ -87,6 +84,7 @@ import {
 } from './canvas-overlap-updates';
 import { buildCanvasNodes } from './canvas-nodes';
 import { buildParentAreaUpdates } from './canvas-parent-areas';
+import { buildCanvasEdgeChangeSet } from './canvas-edge-changes';
 
 export type { EdgeType, NodeType } from './canvas-model';
 
@@ -473,40 +471,22 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
 
     const onEdgesChangeHandler: OnEdgesChange<EdgeType> = useCallback(
         (changes) => {
-            let changesToApply = changes;
+            const {
+                changesToApply,
+                relationshipIdsToRemove,
+                dependencyIdsToRemove,
+            } = buildCanvasEdgeChangeSet({
+                changes,
+                readonly: !!readonly,
+                getEdge: (id) => getEdge(id) as EdgeType | undefined,
+            });
 
-            if (readonly) {
-                changesToApply = changesToApply.filter(
-                    (change) => change.type !== 'remove'
-                );
+            if (relationshipIdsToRemove.length > 0) {
+                removeRelationships(relationshipIdsToRemove);
             }
 
-            const removeChanges: NodeRemoveChange[] = changesToApply.filter(
-                (change) => change.type === 'remove'
-            ) as NodeRemoveChange[];
-
-            const edgesToRemove = removeChanges
-                .map((change) => getEdge(change.id) as EdgeType | undefined)
-                .filter((edge) => !!edge);
-
-            const relationshipsToRemove: string[] = (
-                edgesToRemove.filter(
-                    (edge) => edge?.type === 'relationship-edge'
-                ) as RelationshipEdgeType[]
-            ).map((edge) => edge?.data?.relationship?.id as string);
-
-            const dependenciesToRemove: string[] = (
-                edgesToRemove.filter(
-                    (edge) => edge?.type === 'dependency-edge'
-                ) as DependencyEdgeType[]
-            ).map((edge) => edge?.data?.dependency?.id as string);
-
-            if (relationshipsToRemove.length > 0) {
-                removeRelationships(relationshipsToRemove);
-            }
-
-            if (dependenciesToRemove.length > 0) {
-                removeDependencies(dependenciesToRemove);
+            if (dependencyIdsToRemove.length > 0) {
+                removeDependencies(dependencyIdsToRemove);
             }
 
             return onEdgesChange(changesToApply);
