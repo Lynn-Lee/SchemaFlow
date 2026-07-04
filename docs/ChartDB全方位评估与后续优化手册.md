@@ -1596,6 +1596,9 @@ progress:
     - 2026-07-05：完成第十四段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-nodes.ts`，将 table/area/note React Flow node 组装、target edge count、overlap/custom type 标记和临时节点保留逻辑从 `canvas.tsx` 抽出为可独立测试的纯函数层。
     - 新增 `src/pages/editor-page/canvas/__tests__/canvas-nodes.test.ts`，红灯先失败于缺失 `../canvas-nodes`，绿灯覆盖 table/area/note 节点组装、字段 target edge count、overlap/highlighted custom type 状态和 transient node 保留。
     - `canvas.tsx` 从 960 行降到 907 行；本轮仍不标记 done，下一步继续拆 `CanvasViewport` / drag / zoom hooks / parent area update 或其它事件 handler，直到主体低于 500 行。
+    - 2026-07-05：完成第十五段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-parent-areas.ts`，将可见 table/area 计算 parentAreaId 差异更新的逻辑从 `canvas.tsx` 抽出为可独立测试的纯函数层。
+    - 新增 `src/pages/editor-page/canvas/__tests__/canvas-parent-areas.test.ts`，红灯先失败于缺失 `../canvas-parent-areas`，绿灯覆盖进入可见 area 时写入 parentAreaId、移出 area 时清空 parentAreaId，并忽略 hidden table/area 与未变化 table。
+    - `canvas.tsx` 从 907 行降到 876 行；本轮仍不标记 done，下一步继续拆 `CanvasViewport` / drag / zoom hooks / 其它事件 handler，直到主体低于 500 行。
 ```
 
 ### 批次 Q：代码质量

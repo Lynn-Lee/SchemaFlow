@@ -23,7 +23,6 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import equal from 'fast-deep-equal';
-import type { TableNodeType } from './table-node/table-node';
 import type { RelationshipEdgeType } from './relationship-edge/relationship-edge';
 import { useChartDB } from '@/hooks/use-chartdb';
 import { useToast } from '@/components/toast/use-toast';
@@ -43,8 +42,6 @@ import {
     TOP_SOURCE_HANDLE_ID_PREFIX,
 } from './table-node/table-node-dependency-indicator';
 import { useCanvas } from '@/hooks/use-canvas';
-import type { AreaNodeType } from './area-node/area-node';
-import { updateTablesParentAreas } from '@/lib/utils/area-utils';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useIsLostInCanvas } from './hooks/use-is-lost-in-canvas';
 import type { DiagramFilter } from '@/lib/domain/diagram-filter/diagram-filter';
@@ -89,6 +86,7 @@ import {
     buildVisibleTableOverlapGraph,
 } from './canvas-overlap-updates';
 import { buildCanvasNodes } from './canvas-nodes';
+import { buildParentAreaUpdates } from './canvas-parent-areas';
 
 export type { EdgeType, NodeType } from './canvas-model';
 
@@ -390,35 +388,7 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
 
     useEffect(() => {
         const checkParentAreas = debounce(() => {
-            const visibleTables = nodes
-                .filter((node) => node.type === 'table' && !node.hidden)
-                .map((node) => (node as TableNodeType).data.table);
-            const visibleAreas = nodes
-                .filter((node) => node.type === 'area' && !node.hidden)
-                .map((node) => (node as AreaNodeType).data.area);
-
-            const updatedTables = updateTablesParentAreas(
-                visibleTables,
-                visibleAreas
-            );
-            const needsUpdate: Array<{
-                id: string;
-                parentAreaId: string | null;
-            }> = [];
-
-            updatedTables.forEach((newTable, index) => {
-                const oldTable = visibleTables[index];
-                if (
-                    oldTable &&
-                    (!!newTable.parentAreaId || !!oldTable.parentAreaId) &&
-                    newTable.parentAreaId !== oldTable.parentAreaId
-                ) {
-                    needsUpdate.push({
-                        id: newTable.id,
-                        parentAreaId: newTable.parentAreaId || null,
-                    });
-                }
-            });
+            const needsUpdate = buildParentAreaUpdates(nodes);
 
             if (needsUpdate.length > 0) {
                 updateTablesState(
