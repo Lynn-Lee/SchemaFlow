@@ -11,7 +11,8 @@ import type { DBRelationship } from '@/lib/domain/db-relationship';
 import { useReactFlow } from '@xyflow/react';
 import { useChartDB } from '@/hooks/use-chartdb';
 import { useFocusOn } from '@/hooks/use-focus-on';
-import { useClickAway, useKeyPressEvent } from 'react-use';
+import { useClickAway } from '@/hooks/use-click-away';
+import { useKeyPressEvent } from '@/hooks/use-key-press-event';
 import {
     DropdownMenu,
     DropdownMenuContent,

@@ -12,7 +12,8 @@ import { CSS } from '@dnd-kit/utilities';
 import type { Area } from '@/lib/domain/area';
 import { Input } from '@/components/input/input';
 import { useChartDB } from '@/hooks/use-chartdb';
-import { useClickAway, useKeyPressEvent } from 'react-use';
+import { useClickAway } from '@/hooks/use-click-away';
+import { useKeyPressEvent } from '@/hooks/use-key-press-event';
 import { useTranslation } from 'react-i18next';
 import {
     Tooltip,

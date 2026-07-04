@@ -1421,7 +1421,7 @@ batch: 批次 T
 type: CODE
 priority: P2
 title: 移除 @uidotdev/usehooks 并内联简单 hooks
-status: queued
+status: done
 depends_on:
     - CHARTDB-F-001a
 owner_lane: tech-debt
@@ -1450,6 +1450,23 @@ acceptance:
     - react-use 和 @uidotdev/usehooks 从 package.json 移除
     - 内联 hooks 行为一致
     - ahooks 保留或移除有明确决策
+completion:
+    completed_at: 2026-07-04
+    result:
+        - 新增 `src/hooks/use-click-away.ts`、`src/hooks/use-key-press.ts`、`src/hooks/use-key-press-event.ts`，用本地最小实现替代 `react-use` 的 click-away 与 key press event hooks。
+        - 将编辑名称、Area/Note/Relationship/CustomType、canvas popover 等调用点切换到本地 hooks。
+        - 通过 `npm uninstall react-use @uidotdev/usehooks` 从 `package.json` 和 `package-lock.json` 移除 `react-use` 及其传递依赖；`@uidotdev/usehooks` 仍保持无引用、无依赖。
+        - 保留 `ahooks`：当前仍承担 `useEventEmitter` 和 `useDebounceFn`，不在本切片内重写复杂事件总线/防抖语义。
+        - 新增 `src/hooks/__tests__/local-hooks-contract.test.tsx`，锁定 package/source 不再依赖目标 hooks 包，并覆盖 click-away、keydown/keyup 行为。
+    verification:
+        - npm run test:ci -- src/hooks/__tests__/local-hooks-contract.test.tsx
+        - bash -lc '! rg -n "react-use|@uidotdev/usehooks" src'
+        - npm run lint
+        - npm run test:ci
+        - npm run build
+        - git diff --check
+    next:
+        - 进入 `CHARTDB-T-006`：Monaco config 惰性初始化。
 ```
 
 #### CHARTDB-T-006：Monaco config 惰性初始化
@@ -2558,7 +2575,7 @@ npm run test:ci
 | T-002 | 模板懒加载完善 | T | P1 | done | - |
 | T-003 | PNG 转 WebP | T | P2 | done | - |
 | T-004 | 统一图标库 | T | P2 | done | - |
-| T-005 | 精简 hooks 库 | T | P2 | queued | F-001a |
+| T-005 | 精简 hooks 库 | T | P2 | done | F-001a |
 | T-006 | Monaco config 惰性 | T | P2 | queued | - |
 | T-007 | canvas 拆分 | T | P2 | queued | A-003 |
 | Q-001 | migration 测试 | Q | P2 | queued | - |

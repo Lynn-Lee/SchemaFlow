@@ -340,7 +340,7 @@ npm audit --omit=dev
 建议优先处理：
 
 - `react-router-dom` / `react-router`。
-- `react-use` / `js-cookie`。
+- `react-use` / `js-cookie`（`react-use` 已在 `CHARTDB-T-005` 中移除）。
 - `vite`。
 - `vitest`。
 - `happy-dom`。

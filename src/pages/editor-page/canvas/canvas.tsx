@@ -121,7 +121,7 @@ import { useDiagramFilter } from '@/context/diagram-filter-context/use-diagram-f
 import { filterTable } from '@/lib/domain/diagram-filter/filter';
 import { defaultSchemas } from '@/lib/data/default-schemas';
 import { useDiff } from '@/context/diff-context/use-diff';
-import { useClickAway } from 'react-use';
+import { useClickAway } from '@/hooks/use-click-away';
 
 const HIGHLIGHTED_EDGE_Z_INDEX = 1;
 const DEFAULT_EDGE_Z_INDEX = 0;

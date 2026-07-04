@@ -15,7 +15,8 @@ import { ListItemHeaderButton } from '@/pages/editor-page/side-panel/list-item-h
 import type { DBTable } from '@/lib/domain/db-table';
 import { Input } from '@/components/input/input';
 import { useChartDB } from '@/hooks/use-chartdb';
-import { useClickAway, useKeyPressEvent } from 'react-use';
+import { useClickAway } from '@/hooks/use-click-away';
+import { useKeyPressEvent } from '@/hooks/use-key-press-event';
 import { useSortable } from '@dnd-kit/sortable';
 import {
     DropdownMenu,

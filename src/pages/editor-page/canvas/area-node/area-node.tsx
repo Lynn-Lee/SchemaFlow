@@ -10,7 +10,8 @@ import { NodeResizer } from '@xyflow/react';
 import type { Area } from '@/lib/domain/area';
 import { useChartDB } from '@/hooks/use-chartdb';
 import { Input } from '@/components/input/input';
-import { useClickAway, useKeyPressEvent } from 'react-use';
+import { useClickAway } from '@/hooks/use-click-away';
+import { useKeyPressEvent } from '@/hooks/use-key-press-event';
 import {
     Tooltip,
     TooltipContent,

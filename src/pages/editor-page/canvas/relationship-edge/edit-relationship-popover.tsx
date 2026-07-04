@@ -3,7 +3,7 @@ import { Trash2, ArrowLeftRight, CircleDotDashed } from 'lucide-react';
 import { Button } from '@/components/button/button';
 import type { Cardinality } from '@/lib/domain/db-relationship';
 import { cn } from '@/lib/utils';
-import { useClickAway } from 'react-use';
+import { useClickAway } from '@/hooks/use-click-away';
 import { useCanvas } from '@/hooks/use-canvas';
 import { useLayout } from '@/hooks/use-layout';
 
