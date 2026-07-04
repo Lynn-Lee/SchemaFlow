@@ -91,7 +91,10 @@ export interface ChartDBContext {
         options?: { updateHistory: boolean }
     ) => Promise<void>;
     loadDiagram: (diagramId: string) => Promise<Diagram | undefined>;
-    loadDiagramFromData: (diagram: Diagram) => void;
+    loadDiagramFromData: (
+        diagram: Diagram,
+        options?: { resetHistory?: boolean; emitEvent?: boolean }
+    ) => void;
     updateDiagramUpdatedAt: () => Promise<void>;
     clearDiagramData: () => Promise<void>;
     deleteDiagram: () => Promise<void>;

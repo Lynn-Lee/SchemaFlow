@@ -9,6 +9,7 @@ import type { Area } from '@/lib/domain/area';
 import type { DBCustomType } from '@/lib/domain/db-custom-type';
 import type { Note } from '@/lib/domain/note';
 import type { CommandHistoryBatch } from '@/schema-core/commands';
+import type { Diagram } from '@/schema-core/model';
 
 type Action = keyof ChartDBContext;
 
@@ -23,6 +24,12 @@ type RedoUndoActionUpdateDiagramName = RedoUndoActionBase<
     'updateDiagramName',
     { name: string },
     { name: string }
+>;
+
+type RedoUndoActionLoadDiagramFromData = RedoUndoActionBase<
+    'loadDiagramFromData',
+    { diagram: Diagram },
+    { diagram: Diagram }
 >;
 
 type RedoUndoActionUpdateTable = RedoUndoActionBase<
@@ -210,6 +217,7 @@ type RedoUndoActionRemoveNotes = RedoUndoActionBase<
 >;
 
 export type RedoUndoAction =
+    | RedoUndoActionLoadDiagramFromData
     | RedoUndoActionAddTables
     | RedoUndoActionRemoveTables
     | RedoUndoActionUpdateTable

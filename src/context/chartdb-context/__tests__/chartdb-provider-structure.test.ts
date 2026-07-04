@@ -131,4 +131,16 @@ describe('ChartDBProvider structure', () => {
         expect(providerValueSource).not.toContain('const updateIndex');
         expect(providerValueSource).not.toContain('const getIndex');
     });
+
+    it('routes diff merge and diagram load through schema-core diagram commands', () => {
+        const providerValuePath = path.join(
+            chartDBContextDir,
+            'use-chartdb-provider-value.tsx'
+        );
+        const providerValueSource = fs.readFileSync(providerValuePath, 'utf8');
+
+        expect(providerValueSource).toContain('applyDiagramCommand');
+        expect(providerValueSource).toContain('createMergeDiagramDiffCommand');
+        expect(providerValueSource).toContain('createReplaceDiagramCommand');
+    });
 });

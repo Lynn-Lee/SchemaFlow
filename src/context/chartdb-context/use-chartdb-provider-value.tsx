@@ -27,6 +27,13 @@ import { storageInitialValue } from '../storage-context/storage-context';
 import { useDiff } from '../diff-context/use-diff';
 import type { DiffCalculatedEvent } from '../diff-context/diff-context';
 import type { DBCustomType } from '@/lib/domain/db-custom-type';
+import {
+    applyDiagramCommand,
+    createCommandHistoryBatch,
+    createCommandHistoryEntry,
+    createMergeDiagramDiffCommand,
+    createReplaceDiagramCommand,
+} from '@/schema-core/commands';
 
 export interface ChartDBProviderValueProps {
     diagram?: Diagram;
@@ -70,26 +77,6 @@ export const useChartDBProviderValue = ({
 
     const [highlightedCustomTypeId, setHighlightedCustomTypeId] =
         useState<string>();
-
-    const diffCalculatedHandler = useCallback((event: DiffCalculatedEvent) => {
-        const { tablesToAdd, fieldsToAdd, relationshipsToAdd, areasToAdd } =
-            event.data;
-        setTables((tables) =>
-            [...tables, ...(tablesToAdd ?? [])].map((table) => {
-                const fields = fieldsToAdd.get(table.id);
-                return fields
-                    ? { ...table, fields: [...table.fields, ...fields] }
-                    : table;
-            })
-        );
-        setRelationships((relationships) => [
-            ...relationships,
-            ...(relationshipsToAdd ?? []),
-        ]);
-        setAreas((areas) => [...areas, ...(areasToAdd ?? [])]);
-    }, []);
-
-    diffEvents.useSubscription(diffCalculatedHandler);
 
     const defaultSchemaName = useMemo(
         () => defaultSchemas[databaseType],
@@ -171,6 +158,67 @@ export const useChartDBProviderValue = ({
             diagramUpdatedAt,
         ]
     );
+
+    const applyDiagramState = useCallback((nextDiagram: Diagram) => {
+        setDiagramId(nextDiagram.id);
+        setDiagramName(nextDiagram.name);
+        setDatabaseType(nextDiagram.databaseType);
+        setDatabaseEdition(nextDiagram.databaseEdition);
+        setTables(nextDiagram.tables ?? []);
+        setRelationships(nextDiagram.relationships ?? []);
+        setDependencies(nextDiagram.dependencies ?? []);
+        setAreas(nextDiagram.areas ?? []);
+        setCustomTypes(nextDiagram.customTypes ?? []);
+        setDiagramCreatedAt(nextDiagram.createdAt);
+        setDiagramUpdatedAt(nextDiagram.updatedAt);
+        setHighlightedCustomTypeId(undefined);
+        setNotes(nextDiagram.notes ?? []);
+    }, []);
+
+    const diffCalculatedHandler = useCallback(
+        (event: DiffCalculatedEvent) => {
+            const { tablesToAdd, fieldsToAdd, relationshipsToAdd, areasToAdd } =
+                event.data;
+            const command = createMergeDiagramDiffCommand({
+                context: commandContext,
+                additions: {
+                    tables: tablesToAdd,
+                    fieldsByTableId: fieldsToAdd,
+                    relationships: relationshipsToAdd,
+                    areas: areasToAdd,
+                },
+            });
+            const result = applyDiagramCommand({
+                command,
+                context: commandContext,
+                state: { diagram: currentDiagram },
+            });
+
+            if (result.status !== 'success') {
+                return;
+            }
+
+            applyDiagramState(result.state.diagram);
+            addUndoAction({
+                action: 'loadDiagramFromData',
+                redoData: { diagram: result.state.diagram },
+                undoData: { diagram: currentDiagram },
+                commandHistory: createCommandHistoryBatch([
+                    createCommandHistoryEntry({ redoCommand: command, result }),
+                ]),
+            });
+            resetRedoStack();
+        },
+        [
+            addUndoAction,
+            applyDiagramState,
+            commandContext,
+            currentDiagram,
+            resetRedoStack,
+        ]
+    );
+
+    diffEvents.useSubscription(diffCalculatedHandler);
 
     const clearDiagramData: ChartDBContext['clearDiagramData'] =
         useCallback(async () => {
@@ -438,41 +486,37 @@ export const useChartDBProviderValue = ({
 
     const loadDiagramFromData: ChartDBContext['loadDiagramFromData'] =
         useCallback(
-            (diagram) => {
-                setDiagramId(diagram.id);
-                setDiagramName(diagram.name);
-                setDatabaseType(diagram.databaseType);
-                setDatabaseEdition(diagram.databaseEdition);
-                setTables(diagram.tables ?? []);
-                setRelationships(diagram.relationships ?? []);
-                setDependencies(diagram.dependencies ?? []);
-                setAreas(diagram.areas ?? []);
-                setCustomTypes(diagram.customTypes ?? []);
-                setDiagramCreatedAt(diagram.createdAt);
-                setDiagramUpdatedAt(diagram.updatedAt);
-                setHighlightedCustomTypeId(undefined);
-                setNotes(diagram.notes ?? []);
+            (diagram, options) => {
+                const command = createReplaceDiagramCommand({
+                    context: commandContext,
+                    diagram,
+                });
+                const result = applyDiagramCommand({
+                    command,
+                    context: commandContext,
+                    state: { diagram: currentDiagram },
+                });
 
-                events.emit({ action: 'load_diagram', data: { diagram } });
+                if (result.status !== 'success') {
+                    return;
+                }
 
-                resetRedoStack();
-                resetUndoStack();
+                applyDiagramState(result.state.diagram);
+
+                if (options?.emitEvent ?? true) {
+                    events.emit({ action: 'load_diagram', data: { diagram } });
+                }
+
+                if (options?.resetHistory ?? true) {
+                    resetRedoStack();
+                    resetUndoStack();
+                }
             },
             [
-                setDiagramId,
-                setDiagramName,
-                setDatabaseType,
-                setDatabaseEdition,
-                setTables,
-                setRelationships,
-                setDependencies,
-                setAreas,
-                setCustomTypes,
-                setDiagramCreatedAt,
-                setDiagramUpdatedAt,
-                setHighlightedCustomTypeId,
+                applyDiagramState,
+                commandContext,
+                currentDiagram,
                 events,
-                setNotes,
                 resetRedoStack,
                 resetUndoStack,
             ]

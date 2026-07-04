@@ -617,7 +617,7 @@ batch: 批次 A
 type: CODE
 priority: P1
 title: diff 合并和 loadDiagram 不再绕过 Command 系统
-status: queued
+status: done
 depends_on:
     - CHARTDB-A-002
 owner_lane: core
@@ -642,6 +642,23 @@ acceptance:
     - diff 合并的变更经过 command 管道
     - loadDiagram 有 validation 或走 command
     - 出错时状态不会处于不一致的中间态
+completion:
+    completed_at: 2026-07-04
+    result:
+        - 新增 `diagram.replace` 与 `diagram.mergeDiff` schema-core 命令，统一返回 `CommandResult`，并在替换或合并前校验重复实体 ID。
+        - `loadDiagramFromData()` 改为通过 `diagram.replace` 原子化应用整张图；验证失败时不写入半截 state。
+        - diff 合并改为通过 `diagram.mergeDiff` 生成最终 diagram 后再应用，并写入 commandHistory，undo/redo replay 可恢复或重放该次合并。
+        - `HistoryProvider` 支持 replay `diagram.replace` / `diagram.mergeDiff`，并避免 replay 时重置 undo/redo 栈。
+    verification:
+        - npm run test:ci -- src/schema-core/commands/__tests__/diagram-commands.test.ts
+        - npm run test:ci -- src/context/chartdb-context/__tests__/chartdb-provider-structure.test.ts
+        - npm run test:ci -- src/context/history-context/__tests__/history-provider.test.tsx
+        - npm run lint
+        - npm run test:ci
+        - npm run build
+        - git diff --check
+next:
+    - 进入 `CHARTDB-A-005`：checkConstraint 补齐 Command。
 ```
 
 #### CHARTDB-A-005：checkConstraint 补齐 Command
@@ -2258,7 +2275,7 @@ npm run test:ci
 | A-001 | schema-core model 独立 | A | P0 | done | - |
 | A-002 | 统一 undo/redo | A | P1 | done | A-001 |
 | A-003 | Provider 拆分 | A | P1 | done | A-002 |
-| A-004 | diff/load 走 command | A | P1 | queued | A-002 |
+| A-004 | diff/load 走 command | A | P1 | done | A-002 |
 | A-005 | checkConstraint command | A | P2 | queued | A-002 |
 | A-006 | dialects 迁移 parser | A | P2 | queued | A-001 |
 | P-001 | Clear local diagrams | P | P1 | queued | - |

@@ -18,7 +18,13 @@ import type {
 } from '@/schema-core/model';
 import type {
     CommandHistoryBatch,
+    DiagramDiffAdditions,
     SchemaCoreCommand,
+} from '@/schema-core/commands';
+import {
+    applyDiagramCommand,
+    createMergeDiagramDiffCommand,
+    createReplaceDiagramCommand,
 } from '@/schema-core/commands';
 
 type CommandReplayDirection = 'redo' | 'undo';
@@ -64,12 +70,21 @@ export const HistoryProvider: React.FC<React.PropsWithChildren> = ({
         addNotes,
         removeNotes,
         updateNote,
+        currentDiagram,
+        loadDiagramFromData,
     } = useChartDB();
 
     const redoActionHandlers = useMemo(
         (): RedoUndoActionHandlers => ({
             updateDiagramName: ({ redoData: { name } }) => {
                 return updateDiagramName(name, { updateHistory: false });
+            },
+            loadDiagramFromData: ({ redoData: { diagram } }) => {
+                loadDiagramFromData(diagram, {
+                    emitEvent: false,
+                    resetHistory: false,
+                });
+                return Promise.resolve();
             },
             addTables: ({ redoData: { tables } }) => {
                 return addTables(tables, { updateHistory: false });
@@ -224,6 +239,7 @@ export const HistoryProvider: React.FC<React.PropsWithChildren> = ({
             addNotes,
             removeNotes,
             updateNote,
+            loadDiagramFromData,
         ]
     );
 
@@ -231,6 +247,13 @@ export const HistoryProvider: React.FC<React.PropsWithChildren> = ({
         (): RedoUndoActionHandlers => ({
             updateDiagramName: ({ undoData: { name } }) => {
                 return updateDiagramName(name, { updateHistory: false });
+            },
+            loadDiagramFromData: ({ undoData: { diagram } }) => {
+                loadDiagramFromData(diagram, {
+                    emitEvent: false,
+                    resetHistory: false,
+                });
+                return Promise.resolve();
             },
             addTables: ({ undoData: { tableIds } }) => {
                 return removeTables(tableIds, { updateHistory: false });
@@ -404,6 +427,7 @@ export const HistoryProvider: React.FC<React.PropsWithChildren> = ({
             addNotes,
             removeNotes,
             updateNote,
+            loadDiagramFromData,
         ]
     );
 
@@ -432,6 +456,8 @@ export const HistoryProvider: React.FC<React.PropsWithChildren> = ({
             case 'custom_type.add':
             case 'custom_type.update':
             case 'custom_type.delete':
+            case 'diagram.replace':
+            case 'diagram.mergeDiff':
                 return true;
             default:
                 return false;
@@ -645,6 +671,58 @@ export const HistoryProvider: React.FC<React.PropsWithChildren> = ({
                     });
                     return;
                 }
+                case 'diagram.replace': {
+                    const commandResult = applyDiagramCommand({
+                        command: createReplaceDiagramCommand({
+                            context: {
+                                now: () => new Date(command.createdAt),
+                                generateId: () => command.id,
+                            },
+                            diagram: (
+                                command.payload as {
+                                    diagram: typeof currentDiagram;
+                                }
+                            ).diagram,
+                        }),
+                        context: {
+                            now: () => new Date(command.createdAt),
+                            generateId: () => command.id,
+                        },
+                        state: { diagram: currentDiagram },
+                    });
+                    if (commandResult.status === 'success') {
+                        loadDiagramFromData(commandResult.state.diagram, {
+                            emitEvent: false,
+                            resetHistory: false,
+                        });
+                    }
+                    return;
+                }
+                case 'diagram.mergeDiff': {
+                    const commandContext = {
+                        now: () => new Date(command.createdAt),
+                        generateId: () => command.id,
+                    };
+                    const commandResult = applyDiagramCommand({
+                        command: createMergeDiagramDiffCommand({
+                            context: commandContext,
+                            additions: (
+                                command.payload as {
+                                    additions: DiagramDiffAdditions;
+                                }
+                            ).additions,
+                        }),
+                        context: commandContext,
+                        state: { diagram: currentDiagram },
+                    });
+                    if (commandResult.status === 'success') {
+                        loadDiagramFromData(commandResult.state.diagram, {
+                            emitEvent: false,
+                            resetHistory: false,
+                        });
+                    }
+                    return;
+                }
                 default:
                     return;
             }
@@ -672,6 +750,8 @@ export const HistoryProvider: React.FC<React.PropsWithChildren> = ({
             addCustomTypes,
             updateCustomType,
             removeCustomTypes,
+            currentDiagram,
+            loadDiagramFromData,
         ]
     );
 
