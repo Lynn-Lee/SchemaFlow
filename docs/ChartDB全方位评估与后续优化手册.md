@@ -1370,7 +1370,7 @@ batch: 批次 T
 type: CODE
 priority: P2
 title: 统一到 lucide-react，移除 @radix-ui/react-icons
-status: queued
+status: done
 depends_on: []
 owner_lane: tech-debt
 branch: codex/chartdb-t-unify-icons
@@ -1396,6 +1396,21 @@ acceptance:
     - 全项目无 @radix-ui/react-icons import
     - package.json 不包含该依赖
     - 图标显示正常
+completion:
+    completed_at: 2026-07-04
+    result:
+        - 新增 `src/components/__tests__/icon-library-contract.test.ts`，锁定 `package.json` 和源码 import 不再依赖 Radix icon 包。
+        - 将基础 UI 组件、菜单、分页、选择器、侧边栏等剩余 Radix icon import 替换为 `lucide-react` 对应图标或语义接近图标。
+        - 通过 `npm uninstall @radix-ui/react-icons` 从 `package.json` 和 `package-lock.json` 移除冗余图标依赖。
+    verification:
+        - npm run test:ci -- src/components/__tests__/icon-library-contract.test.ts
+        - npm run lint
+        - npm run test:ci
+        - npm run build
+        - git diff --check
+        - rg -n "@radix-ui/react-icons" src
+    next:
+        - 进入 `CHARTDB-T-005`：精简 hooks 库。
 ```
 
 #### CHARTDB-T-005：精简 hooks 库
@@ -2542,7 +2557,7 @@ npm run test:ci
 | T-001 | i18n 懒加载 | T | P1 | done | - |
 | T-002 | 模板懒加载完善 | T | P1 | done | - |
 | T-003 | PNG 转 WebP | T | P2 | done | - |
-| T-004 | 统一图标库 | T | P2 | queued | - |
+| T-004 | 统一图标库 | T | P2 | done | - |
 | T-005 | 精简 hooks 库 | T | P2 | queued | F-001a |
 | T-006 | Monaco config 惰性 | T | P2 | queued | - |
 | T-007 | canvas 拆分 | T | P2 | queued | A-003 |

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronDownIcon } from '@radix-ui/react-icons';
+import { ChevronDown as ChevronDownIcon } from 'lucide-react';
 import { Slot } from '@radix-ui/react-slot';
 import { type VariantProps } from 'class-variance-authority';
 

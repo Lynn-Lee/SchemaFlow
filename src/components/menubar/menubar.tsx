@@ -1,9 +1,9 @@
 import React from 'react';
 import {
-    CheckIcon,
-    ChevronRightIcon,
-    DotFilledIcon,
-} from '@radix-ui/react-icons';
+    Check as CheckIcon,
+    ChevronRight as ChevronRightIcon,
+    Dot as DotFilledIcon,
+} from 'lucide-react';
 import * as MenubarPrimitive from '@radix-ui/react-menubar';
 
 import { cn } from '@/lib/utils';

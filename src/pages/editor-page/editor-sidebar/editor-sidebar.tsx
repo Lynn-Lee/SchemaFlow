@@ -17,12 +17,13 @@ import {
     Plus,
     FolderOpen,
     CodeXml,
+    MessageCircle,
     Settings,
+    AtSign,
 } from 'lucide-react';
 import { Table, Workflow } from 'lucide-react';
 import { useLayout } from '@/hooks/use-layout';
 import { useTranslation } from 'react-i18next';
-import { DiscordLogoIcon, TwitterLogoIcon } from '@radix-ui/react-icons';
 import { useBreakpoint } from '@/hooks/use-breakpoint';
 import ChartDBLogo from '@/assets/logo-light.png';
 import ChartDBDarkLogo from '@/assets/logo-dark.png';
@@ -149,13 +150,13 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = () => {
         () => [
             {
                 title: 'Discord',
-                icon: DiscordLogoIcon,
+                icon: MessageCircle,
                 onClick: () => safeOpenUrl('https://discord.gg/QeFwyWSKwC'),
                 active: false,
             },
             {
                 title: 'Twitter',
-                icon: TwitterLogoIcon,
+                icon: AtSign,
                 onClick: () =>
                     safeOpenUrl(
                         'https://x.com/intent/follow?screen_name=jonathanfishner'

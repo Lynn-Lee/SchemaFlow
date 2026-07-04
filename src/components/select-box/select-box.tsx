@@ -1,4 +1,8 @@
-import { CaretSortIcon, CheckIcon, Cross2Icon } from '@radix-ui/react-icons';
+import {
+    Check as CheckIcon,
+    ChevronsUpDown as CaretSortIcon,
+    X as Cross2Icon,
+} from 'lucide-react';
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';

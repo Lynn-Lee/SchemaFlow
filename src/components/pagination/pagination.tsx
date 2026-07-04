@@ -3,10 +3,10 @@ import { cn } from '@/lib/utils';
 import type { ButtonProps } from '../button/button';
 import { buttonVariants } from '../button/button-variants';
 import {
-    ChevronLeftIcon,
-    ChevronRightIcon,
-    DotsHorizontalIcon,
-} from '@radix-ui/react-icons';
+    ChevronLeft as ChevronLeftIcon,
+    ChevronRight as ChevronRightIcon,
+    Ellipsis as DotsHorizontalIcon,
+} from 'lucide-react';
 
 const Pagination = ({ className, ...props }: React.ComponentProps<'nav'>) => (
     <nav

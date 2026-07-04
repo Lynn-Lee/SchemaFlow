@@ -1,6 +1,6 @@
 import React from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
-import { Cross2Icon } from '@radix-ui/react-icons';
+import { X as Cross2Icon } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '../scroll-area/scroll-area';

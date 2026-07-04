@@ -1,10 +1,10 @@
 import * as React from 'react';
 import * as ContextMenuPrimitive from '@radix-ui/react-context-menu';
 import {
-    CheckIcon,
-    ChevronRightIcon,
-    DotFilledIcon,
-} from '@radix-ui/react-icons';
+    Check as CheckIcon,
+    ChevronRight as ChevronRightIcon,
+    Dot as DotFilledIcon,
+} from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 

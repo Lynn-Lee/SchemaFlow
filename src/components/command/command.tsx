@@ -1,6 +1,6 @@
 import React from 'react';
 import { type DialogProps } from '@radix-ui/react-dialog';
-import { MagnifyingGlassIcon } from '@radix-ui/react-icons';
+import { Search as MagnifyingGlassIcon } from 'lucide-react';
 import { Command as CommandPrimitive } from 'cmdk';
 
 import { cn } from '@/lib/utils';
