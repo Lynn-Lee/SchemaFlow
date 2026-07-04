@@ -1569,6 +1569,9 @@ progress:
     - 2026-07-04：完成第五段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-floating-edge.ts`，将临时 cursor node 和 floating edge 组装逻辑从 `canvas.tsx` 抽出为可独立测试的纯函数层。
     - 新增 `src/pages/editor-page/canvas/__tests__/canvas-floating-edge.test.ts`，红灯先失败于缺失 `../canvas-floating-edge`，绿灯覆盖无 cursor 时保持原引用、临时 cursor node、cursor target、hover target 和 source table fallback。
     - `canvas.tsx` 从 1490 行降到 1454 行；本轮仍不标记 done，下一步继续拆 `eventConsumer` / `CanvasViewport` / drag / zoom hooks 或其它事件 handler，直到主体低于 500 行。
+    - 2026-07-04：完成第六段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-chartdb-events.ts`，将 `eventConsumer` 中 ChartDB 事件到 overlap graph / measured node 更新的计算逻辑抽出为可独立测试的 helper。
+    - 新增 `src/pages/editor-page/canvas/__tests__/canvas-chartdb-events.test.ts`，红灯先失败于缺失 `../canvas-chartdb-events`，绿灯覆盖 remove_tables 事件清理 overlap graph 顶点和邻接引用。
+    - `canvas.tsx` 从 1454 行降到 1364 行；本轮仍不标记 done，下一步继续拆 `CanvasViewport` / drag / zoom hooks / ReactFlow controls 或其它事件 handler，直到主体低于 500 行。
 ```
 
 ### 批次 Q：代码质量

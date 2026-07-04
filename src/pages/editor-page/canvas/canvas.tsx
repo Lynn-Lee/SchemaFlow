@@ -57,13 +57,8 @@ import {
 import { MarkerDefinitions } from './marker-definitions';
 import { CanvasContextMenu } from './canvas-context-menu';
 import { areFieldTypesCompatible } from '@/lib/data/data-types/data-types';
-import {
-    calcTableHeight,
-    findOverlappingTables,
-    findTableOverlapping,
-} from './canvas-utils';
+import { findOverlappingTables, findTableOverlapping } from './canvas-utils';
 import type { Graph } from '@/lib/graph';
-import { removeVertex } from '@/lib/graph';
 import type { ChartDBEvent } from '@/context/chartdb-context/chartdb-context';
 import { cn, debounce, getOperatingSystem } from '@/lib/utils';
 import type { DependencyEdgeType } from './dependency-edge/dependency-edge';
@@ -121,6 +116,7 @@ import {
     buildCanvasEdgesWithFloatingEdge,
     buildCanvasNodesWithCursor,
 } from './canvas-floating-edge';
+import { buildCanvasEventUpdate } from './canvas-chartdb-events';
 
 export type { EdgeType, NodeType } from './canvas-model';
 
@@ -907,118 +903,32 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
 
     const eventConsumer = useCallback(
         (event: ChartDBEvent) => {
-            let newOverlappingGraph: Graph<string> = overlapGraph;
-            if (event.action === 'add_tables') {
-                for (const table of event.data.tables) {
-                    newOverlappingGraph = findTableOverlapping(
-                        { node: getNode(table.id) as TableNodeType },
-                        {
-                            nodes: nodes.filter(
-                                (node) => !node.hidden && node.type === 'table'
-                            ) as TableNodeType[],
-                        },
-                        overlapGraph
-                    );
-                }
+            const update = buildCanvasEventUpdate({
+                event,
+                overlapGraph,
+                nodes,
+                getNode,
+                filter,
+                databaseType,
+                showDBViews,
+            });
 
-                setOverlapGraph(newOverlappingGraph);
-            } else if (event.action === 'remove_tables') {
-                for (const tableId of event.data.tableIds) {
-                    newOverlappingGraph = removeVertex(
-                        newOverlappingGraph,
-                        tableId
-                    );
-                }
+            setOverlapGraph(update.overlapGraph);
 
-                setOverlapGraph(newOverlappingGraph);
-            } else if (
-                event.action === 'update_table' &&
-                event.data.table.width
-            ) {
-                const node = getNode(event.data.id) as TableNodeType;
-
-                const measured = {
-                    ...node.measured,
-                    width: event.data.table.width,
-                };
-
-                newOverlappingGraph = findTableOverlapping(
-                    {
-                        node: {
-                            ...node,
-                            measured,
-                        },
-                    },
-                    {
-                        nodes: nodes.filter(
-                            (node) => !node.hidden && node.type === 'table'
-                        ) as TableNodeType[],
-                    },
-                    overlapGraph
-                );
-                setOverlapGraph(newOverlappingGraph);
-
+            if (update.measuredNodeUpdate) {
                 setTimeout(() => {
                     setNodes((prevNodes) =>
-                        prevNodes.map((n) => {
-                            if (n.id === event.data.id) {
-                                return {
-                                    ...n,
-                                    measured,
-                                };
-                            }
-
-                            return n;
-                        })
+                        prevNodes.map((node) =>
+                            node.id === update.measuredNodeUpdate?.id
+                                ? {
+                                      ...node,
+                                      measured:
+                                          update.measuredNodeUpdate.measured,
+                                  }
+                                : node
+                        )
                     );
                 }, 0);
-            } else if (
-                event.action === 'add_field' ||
-                event.action === 'remove_field'
-            ) {
-                const node = getNode(event.data.tableId) as TableNodeType;
-
-                const measured = {
-                    ...(node.measured ?? {}),
-                    height: calcTableHeight({
-                        ...node.data.table,
-                        fields: event.data.fields,
-                    }),
-                };
-
-                newOverlappingGraph = findTableOverlapping(
-                    {
-                        node: {
-                            ...node,
-                            measured,
-                        },
-                    },
-                    {
-                        nodes: nodes.filter(
-                            (node) => !node.hidden && node.type === 'table'
-                        ) as TableNodeType[],
-                    },
-                    overlapGraph
-                );
-                setOverlapGraph(newOverlappingGraph);
-            } else if (event.action === 'load_diagram') {
-                const diagramTables = event.data.diagram.tables ?? [];
-                const overlappingTablesInDiagram = findOverlappingTables({
-                    tables: diagramTables.filter(
-                        (table) =>
-                            filterTable({
-                                table: {
-                                    id: table.id,
-                                    schema: table.schema,
-                                },
-                                filter,
-                                options: {
-                                    defaultSchema: defaultSchemas[databaseType],
-                                },
-                            }) && (showDBViews ? true : !table.isView)
-                    ),
-                });
-                setOverlapGraph(overlappingTablesInDiagram);
             }
         },
         [
