@@ -1395,7 +1395,7 @@ npm run build
 
 - [x] 构建对比 templates chunk。
 
-本轮结果：新增 `TemplateManifest` 和 `templateManifests`，列表、featured 和 tag 筛选只读取 slug、名称、描述、标签、数据库类型、预览图和 featured 标记。`templates-data.ts` 移除全部模板模块静态 import，保留 `Template` 类型、`loadTemplates()` 和 `loadTemplateBySlug()` 兼容出口；路由详情页和 clone 页通过 `template-manifest` 的 `loadTemplateBySlug()` 按需加载单个完整 diagram。新增契约测试确认列表路径不再导入完整模板聚合模块，且完整模板只能通过 per-template dynamic import 加载。`npm run build` 输出已拆出 `employee-db-*`、`wordpress-db-*`、`monica-db-*` 等独立模板 chunk；入口 `index` 约 `2,609.63 kB` / gzip `513.32 kB`，`editor-page` 约 `11,472.80 kB` / gzip `1,806.46 kB`，后续进入 `CHARTDB-P6-003`。
+本轮结果：新增 `TemplateManifest` 和 `templateManifests`，列表、featured 和 tag 筛选只读取 slug、名称、描述、标签、数据库类型、预览图和 featured 标记。`templates-data.ts` 移除全部模板模块静态 import，并在后续 `CHARTDB-T-002` 中删除 `loadTemplates()` 全量加载出口，仅保留 `Template` 类型和 `loadTemplateBySlug()` re-export；路由详情页和 clone 页通过 `template-manifest` 的 `loadTemplateBySlug()` 按需加载单个完整 diagram。契约测试确认列表路径不再导入完整模板聚合模块，且 50 个完整模板只能通过 per-template dynamic import 加载。`npm run build` 输出已拆出 `employee-db-*`、`wordpress-db-*`、`monica-db-*` 等独立模板 chunk；入口 `index` 约 `2,609.63 kB` / gzip `513.32 kB`，`editor-page` 约 `11,472.80 kB` / gzip `1,806.46 kB`，后续进入 `CHARTDB-P6-003`。
 
 ### Task 6.3：Worker 化 parser/layout
 

@@ -1396,9 +1396,9 @@ acceptance:
 完成记录：
 
 - 新增 `src/templates-data/template-manifest.ts`，把模板列表需要的 slug、名称、描述、标签、数据库类型、预览图和 featured 标记拆成 metadata-only manifest。
-- `src/templates-data/templates-data.ts` 不再静态 import 全部 `src/templates-data/templates/*` 大 diagram；详情和 clone loader 改为通过 `loadTemplateBySlug()` 动态加载单个完整模板。
+- `src/templates-data/templates-data.ts` 不再静态 import 全部 `src/templates-data/templates/*` 大 diagram，也不再保留 `loadTemplates()` 全量加载出口；详情和 clone loader 改为通过 `loadTemplateBySlug()` 动态加载单个完整模板。
 - `src/templates-data/template-utils.ts`、`src/pages/templates-page/templates-page.tsx` 和模板卡片改为消费 `TemplateManifest`，列表筛选不访问 `template.diagram`。
-- 新增 `src/templates-data/__tests__/template-lazy-registry.test.ts`，锁定列表 loader 不回退到完整模板聚合模块，且完整模板模块只能经 per-template dynamic import 加载。
+- 新增并强化 `src/templates-data/__tests__/template-lazy-registry.test.ts`，锁定列表 loader 不回退到完整模板聚合模块，且 50 个完整模板模块只能经 per-template dynamic import 加载。
 - build 输出已拆出每个模板的独立 JS chunk，例如 `employee-db-romprqJV.js`、`wordpress-db-B8pCH5_j.js`、`monica-db-Bj9lUCcR.js`；入口 `index` 保持约 `2,609.63 kB` / gzip `513.32 kB`，`editor-page` 仍约 `11,472.80 kB` / gzip `1,806.46 kB`，继续进入 `CHARTDB-P6-003`。
 - 下一项进入 `CHARTDB-P6-003`，Parser 和 layout worker 化。
 

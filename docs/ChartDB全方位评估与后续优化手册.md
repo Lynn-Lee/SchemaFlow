@@ -1269,7 +1269,7 @@ batch: 批次 T
 type: CODE
 priority: P1
 title: 确保所有模板数据通过 import() 动态加载
-status: queued
+status: done
 depends_on: []
 owner_lane: performance
 branch: codex/chartdb-t-template-lazy-verify
@@ -1293,6 +1293,21 @@ acceptance:
     - 所有模板数据通过 import() 动态加载
     - 列表页不加载完整 diagram
     - build 中每个模板是独立 chunk
+completion:
+    completed_at: 2026-07-04
+    result:
+        - 强化 `src/templates-data/__tests__/template-lazy-registry.test.ts`，逐一确认 50 个 `src/templates-data/templates/*.ts` 文件都只通过 `template-manifest.ts` 的 per-template dynamic import 注册。
+        - 测试锁定 `templates-data.ts` 不再暴露 `loadTemplates()` 这种全量加载所有模板 diagram 的兼容出口，也不再运行时导入 `templateManifests`。
+        - `templates-data.ts` 仅保留 `Template` 类型和 `loadTemplateBySlug` re-export；列表页仍只消费 metadata-only `TemplateManifest`，详情页和 clone loader 仍按 slug 加载单个完整模板。
+    verification:
+        - npm run test:ci -- src/templates-data/__tests__/template-lazy-registry.test.ts
+        - npm run test:ci -- src/templates-data/__tests__/
+        - npm run lint
+        - npm run test:ci
+        - npm run build
+        - git diff --check
+    next:
+        - 进入 `CHARTDB-T-003`：模板图片 PNG 转 WebP。
 ```
 
 #### CHARTDB-T-003：模板图片 PNG 转 WebP
@@ -2508,7 +2523,7 @@ npm run test:ci
 | S-002 | innerHTML 修复 | S | P2 | done | - |
 | S-003 | Monaco 升级评估 | S | P2 | queued | - |
 | T-001 | i18n 懒加载 | T | P1 | done | - |
-| T-002 | 模板懒加载完善 | T | P1 | queued | - |
+| T-002 | 模板懒加载完善 | T | P1 | done | - |
 | T-003 | PNG 转 WebP | T | P2 | queued | - |
 | T-004 | 统一图标库 | T | P2 | queued | - |
 | T-005 | 精简 hooks 库 | T | P2 | queued | F-001a |

@@ -1,5 +1,5 @@
 import type { Diagram } from '@/lib/domain/diagram';
-import { templateManifests, loadTemplateBySlug } from './template-manifest';
+export { loadTemplateBySlug } from './template-manifest';
 
 export interface Template {
     slug: string;
@@ -13,8 +13,3 @@ export interface Template {
     featured: boolean;
     url?: string;
 }
-
-export { loadTemplateBySlug };
-
-export const loadTemplates = async (): Promise<Template[]> =>
-    Promise.all(templateManifests.map((template) => template.loadTemplate()));
