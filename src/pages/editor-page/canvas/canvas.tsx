@@ -30,10 +30,6 @@ import {
 import '@xyflow/react/dist/style.css';
 import equal from 'fast-deep-equal';
 import type { TableNodeType } from './table-node/table-node';
-import {
-    TABLE_RELATIONSHIP_SOURCE_HANDLE_ID_PREFIX,
-    TABLE_RELATIONSHIP_TARGET_HANDLE_ID_PREFIX,
-} from './table-node/table-node';
 import type { RelationshipEdgeType } from './relationship-edge/relationship-edge';
 import { useChartDB } from '@/hooks/use-chartdb';
 import { Toolbar } from './toolbar/toolbar';
@@ -77,13 +73,6 @@ import {
 } from './table-node/table-node-dependency-indicator';
 import { useCanvas } from '@/hooks/use-canvas';
 import type { AreaNodeType } from './area-node/area-node';
-import type { TempCursorNodeType } from './temp-cursor-node/temp-cursor-node';
-import {
-    TEMP_CURSOR_HANDLE_ID,
-    TEMP_CURSOR_NODE_ID,
-} from './temp-cursor-node/temp-cursor-node';
-import type { TempFloatingEdgeType } from './temp-floating-edge/temp-floating-edge';
-import { TEMP_FLOATING_EDGE_ID } from './temp-floating-edge/temp-floating-edge';
 import { ConnectionLine } from './connection-line/connection-line';
 import {
     updateTablesParentAreas,
@@ -128,6 +117,10 @@ import {
     buildNoteStorageChanges,
     buildTableStorageChanges,
 } from './canvas-node-storage-updates';
+import {
+    buildCanvasEdgesWithFloatingEdge,
+    buildCanvasNodesWithCursor,
+} from './canvas-floating-edge';
 
 export type { EdgeType, NodeType } from './canvas-model';
 
@@ -1159,49 +1152,20 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
 
     // Add temporary invisible node at cursor position and edge
     const nodesWithCursor = useMemo(() => {
-        if (!tempFloatingEdge || !cursorPosition) {
-            return nodes;
-        }
-
-        const tempNode: TempCursorNodeType = {
-            id: TEMP_CURSOR_NODE_ID,
-            type: 'temp-cursor',
-            position: cursorPosition,
-            data: {},
-            draggable: false,
-            selectable: false,
-        };
-
-        return [...nodes, tempNode];
+        return buildCanvasNodesWithCursor({
+            nodes,
+            tempFloatingEdge,
+            cursorPosition,
+        });
     }, [nodes, tempFloatingEdge, cursorPosition]);
 
     const edgesWithFloating = useMemo(() => {
-        if (!tempFloatingEdge || !cursorPosition) return edges;
-
-        let target = TEMP_CURSOR_NODE_ID;
-        let targetHandle: string | undefined = TEMP_CURSOR_HANDLE_ID;
-
-        if (tempFloatingEdge.targetNodeId) {
-            target = tempFloatingEdge.targetNodeId;
-            targetHandle = `${TABLE_RELATIONSHIP_TARGET_HANDLE_ID_PREFIX}${tempFloatingEdge.targetNodeId}`;
-        } else if (
-            hoveringTableId &&
-            hoveringTableId !== tempFloatingEdge.sourceNodeId
-        ) {
-            target = hoveringTableId;
-            targetHandle = `${TABLE_RELATIONSHIP_TARGET_HANDLE_ID_PREFIX}${hoveringTableId}`;
-        }
-
-        const tempEdge: TempFloatingEdgeType = {
-            id: TEMP_FLOATING_EDGE_ID,
-            source: tempFloatingEdge.sourceNodeId,
-            sourceHandle: `${TABLE_RELATIONSHIP_SOURCE_HANDLE_ID_PREFIX}${tempFloatingEdge.sourceNodeId}`,
-            target,
-            targetHandle,
-            type: 'temp-floating-edge',
-        };
-
-        return [...edges, tempEdge];
+        return buildCanvasEdgesWithFloatingEdge({
+            edges,
+            tempFloatingEdge,
+            cursorPosition,
+            hoveringTableId,
+        });
     }, [edges, tempFloatingEdge, cursorPosition, hoveringTableId]);
 
     const onPaneClickHandler = useCallback(

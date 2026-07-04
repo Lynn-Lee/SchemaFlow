@@ -1566,6 +1566,9 @@ progress:
     - 2026-07-04：完成第四段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-node-storage-updates.ts`，将 `onNodesChangeHandler` 中 table/area/note storage update 计算抽出为可独立测试的纯函数层。
     - 新增 `src/pages/editor-page/canvas/__tests__/canvas-node-storage-updates.test.ts`，红灯先失败于缺失 `../canvas-node-storage-updates`，绿灯覆盖 table position/width/remove、area remove 清理 parentAreaId、area/note update/remove 输出。
     - `canvas.tsx` 从 1604 行降到 1490 行；本轮仍不标记 done，下一步继续拆 `CanvasViewport` / drag / zoom hooks 或其它事件 handler，直到主体低于 500 行。
+    - 2026-07-04：完成第五段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-floating-edge.ts`，将临时 cursor node 和 floating edge 组装逻辑从 `canvas.tsx` 抽出为可独立测试的纯函数层。
+    - 新增 `src/pages/editor-page/canvas/__tests__/canvas-floating-edge.test.ts`，红灯先失败于缺失 `../canvas-floating-edge`，绿灯覆盖无 cursor 时保持原引用、临时 cursor node、cursor target、hover target 和 source table fallback。
+    - `canvas.tsx` 从 1490 行降到 1454 行；本轮仍不标记 done，下一步继续拆 `eventConsumer` / `CanvasViewport` / drag / zoom hooks 或其它事件 handler，直到主体低于 500 行。
 ```
 
 ### 批次 Q：代码质量
