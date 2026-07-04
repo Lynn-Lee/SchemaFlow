@@ -1608,6 +1608,9 @@ progress:
     - 2026-07-05：完成第十八段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-node-change-handler.ts`，将 React Flow node changes 到 table/area/note storage 更新、overlap graph 更新和 React Flow apply 的 orchestration 从 `canvas.tsx` 抽出为独立 hook。
     - 新增 `src/pages/editor-page/canvas/__tests__/canvas-node-change-handler.test.ts`，红灯先失败于缺失 `../canvas-node-change-handler`，绿灯覆盖 table/area/note 变更持久化、overlap graph 更新和 changesToApply 透传。
     - `canvas.tsx` 从 818 行降到 711 行；本轮仍不标记 done，下一步继续拆 `CanvasViewport` / drag / zoom hooks / keyboard handler 或其它事件 handler，直到主体低于 500 行。
+    - 2026-07-05：完成第十九段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-keyboard-handler.ts`，将 canvas 容器 Delete/Backspace/Arrow 键处理从 `canvas.tsx` 抽出为独立 hook。
+    - 新增 `src/pages/editor-page/canvas/__tests__/canvas-keyboard-handler.test.ts`，红灯先失败于缺失 `../canvas-keyboard-handler`，绿灯覆盖键盘事件转 node changes、阻止默认行为、输入控件目标和非动作键忽略。
+    - `canvas.tsx` 从 711 行降到 687 行；本轮仍不标记 done，下一步继续拆 `CanvasViewport` / drag / zoom hooks / selection highlight effect 或其它事件 handler，直到主体低于 500 行。
 ```
 
 ### 批次 Q：代码质量

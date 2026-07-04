@@ -10,7 +10,6 @@ import type {
     NodePositionChange,
     NodeDimensionChange,
     OnEdgesChange,
-    NodeChange,
 } from '@xyflow/react';
 import {
     useEdgesState,
@@ -42,11 +41,6 @@ import { defaultSchemas } from '@/lib/data/default-schemas';
 import { useDiff } from '@/context/diff-context/use-diff';
 import { useClickAway } from '@/hooks/use-click-away';
 import {
-    getCanvasKeyboardNodeChanges,
-    isCanvasKeyboardActionKey,
-    isCanvasKeyboardInputTarget,
-} from './canvas-keyboard-actions';
-import {
     initialEdges,
     tableToTableNode,
     type EdgeType,
@@ -75,6 +69,7 @@ import { buildParentAreaUpdates } from './canvas-parent-areas';
 import { buildCanvasEdgeChangeSet } from './canvas-edge-changes';
 import { buildCanvasConnectAction } from './canvas-connect';
 import { useCanvasNodeChangeHandler } from './canvas-node-change-handler';
+import { useCanvasKeyboardHandler } from './canvas-keyboard-handler';
 
 export type { EdgeType, NodeType } from './canvas-model';
 
@@ -499,31 +494,11 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
         removeNote,
     });
 
-    const onCanvasKeyDownHandler = useCallback(
-        (event: React.KeyboardEvent<HTMLDivElement>) => {
-            if (
-                event.defaultPrevented ||
-                !isCanvasKeyboardActionKey(event.key) ||
-                isCanvasKeyboardInputTarget(event.target)
-            ) {
-                return;
-            }
-
-            const keyboardChanges = getCanvasKeyboardNodeChanges({
-                key: event.key,
-                nodes,
-                readonly: !!readonly,
-            }) as NodeChange<NodeType>[];
-
-            if (keyboardChanges.length === 0) {
-                return;
-            }
-
-            event.preventDefault();
-            onNodesChangeHandler(keyboardChanges);
-        },
-        [nodes, readonly, onNodesChangeHandler]
-    );
+    const onCanvasKeyDownHandler = useCanvasKeyboardHandler({
+        nodes,
+        readonly: !!readonly,
+        onNodesChange: onNodesChangeHandler,
+    });
 
     const eventConsumer = useCallback(
         (event: ChartDBEvent) => {
