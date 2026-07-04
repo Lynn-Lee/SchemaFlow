@@ -1525,7 +1525,7 @@ batch: 批次 T
 type: CODE
 priority: P2
 title: 将 canvas.tsx 拆分为子组件和 hooks
-status: queued
+status: in_progress
 depends_on:
     - CHARTDB-A-003
 owner_lane: tech-debt
@@ -1553,6 +1553,10 @@ acceptance:
     - canvas.tsx 主体不超过 500 行
     - 子组件和 hooks 在独立文件中
     - 无行为回归
+progress:
+    - 2026-07-04：完成第一段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-model.ts`，将 React Flow node/edge type map、`tableToTableNode()`、`areaToAreaNode()`、`noteToNoteNode()` 从 `canvas.tsx` 抽出为可独立测试的模型映射层。
+    - 新增 `src/pages/editor-page/canvas/__tests__/canvas-model.test.ts`，红灯先失败于缺失 `../canvas-model`，绿灯覆盖 table 过滤隐藏、forceShow、area/note zIndex 和 node/edge type map。
+    - `canvas.tsx` 从 1944 行降到 1796 行；尚未达到本任务完整验收的 500 行目标，后续继续拆 `CanvasViewport` / selection / drag / zoom hooks 后再标记 done。
 ```
 
 ### 批次 Q：代码质量
@@ -2606,7 +2610,7 @@ npm run test:ci
 | T-004 | 统一图标库 | T | P2 | done | - |
 | T-005 | 精简 hooks 库 | T | P2 | done | F-001a |
 | T-006 | Monaco config 惰性 | T | P2 | done | - |
-| T-007 | canvas 拆分 | T | P2 | queued | A-003 |
+| T-007 | canvas 拆分 | T | P2 | in_progress | A-003 |
 | Q-001 | migration 测试 | Q | P2 | queued | - |
 | Q-002 | deepCopy 修复 | Q | P3 | queued | A-001 |
 | Q-003 | UI 测试覆盖 | Q | P2 | queued | A-003, T-007 |

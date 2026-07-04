@@ -12,8 +12,6 @@ import type {
     NodeDimensionChange,
     OnEdgesChange,
     OnNodesChange,
-    NodeTypes,
-    EdgeTypes,
     NodeChange,
 } from '@xyflow/react';
 import {
@@ -35,10 +33,8 @@ import type { TableNodeType } from './table-node/table-node';
 import {
     TABLE_RELATIONSHIP_SOURCE_HANDLE_ID_PREFIX,
     TABLE_RELATIONSHIP_TARGET_HANDLE_ID_PREFIX,
-    TableNode,
 } from './table-node/table-node';
 import type { RelationshipEdgeType } from './relationship-edge/relationship-edge';
-import { RelationshipEdge } from './relationship-edge/relationship-edge';
 import { useChartDB } from '@/hooks/use-chartdb';
 import {
     LEFT_HANDLE_ID_PREFIX,
@@ -60,7 +56,6 @@ import { Badge } from '@/components/badge/badge';
 import { useTheme } from '@/hooks/use-theme';
 import { useTranslation } from 'react-i18next';
 import type { DBTable } from '@/lib/domain/db-table';
-import { MIN_TABLE_SIZE } from '@/lib/domain/db-table';
 import { useLocalConfig } from '@/hooks/use-local-config';
 import {
     Tooltip,
@@ -80,33 +75,22 @@ import { removeVertex } from '@/lib/graph';
 import type { ChartDBEvent } from '@/context/chartdb-context/chartdb-context';
 import { cn, debounce, getOperatingSystem } from '@/lib/utils';
 import type { DependencyEdgeType } from './dependency-edge/dependency-edge';
-import { DependencyEdge } from './dependency-edge/dependency-edge';
 import {
     BOTTOM_SOURCE_HANDLE_ID_PREFIX,
     TARGET_DEP_PREFIX,
     TOP_SOURCE_HANDLE_ID_PREFIX,
 } from './table-node/table-node-dependency-indicator';
-import type { DatabaseType } from '@/lib/domain/database-type';
 import { useCanvas } from '@/hooks/use-canvas';
 import type { AreaNodeType } from './area-node/area-node';
-import { AreaNode } from './area-node/area-node';
 import type { Area } from '@/lib/domain/area';
-import type { NoteNodeType } from './note-node/note-node';
-import { NoteNode } from './note-node/note-node';
 import type { Note } from '@/lib/domain/note';
 import type { TempCursorNodeType } from './temp-cursor-node/temp-cursor-node';
 import {
     TEMP_CURSOR_HANDLE_ID,
     TEMP_CURSOR_NODE_ID,
-    TempCursorNode,
 } from './temp-cursor-node/temp-cursor-node';
 import type { TempFloatingEdgeType } from './temp-floating-edge/temp-floating-edge';
-import {
-    TEMP_FLOATING_EDGE_ID,
-    TempFloatingEdge,
-} from './temp-floating-edge/temp-floating-edge';
-import type { CreateRelationshipNodeType } from './create-relationship-node/create-relationship-node';
-import { CreateRelationshipNode } from './create-relationship-node/create-relationship-node';
+import { TEMP_FLOATING_EDGE_ID } from './temp-floating-edge/temp-floating-edge';
 import { ConnectionLine } from './connection-line/connection-line';
 import {
     updateTablesParentAreas,
@@ -127,152 +111,23 @@ import {
     isCanvasKeyboardActionKey,
     isCanvasKeyboardInputTarget,
 } from './canvas-keyboard-actions';
+import {
+    areaToAreaNode,
+    edgeTypes,
+    initialEdges,
+    nodeTypes,
+    noteToNoteNode,
+    tableToTableNode,
+    type EdgeType,
+    type NodeType,
+} from './canvas-model';
+
+export type { EdgeType, NodeType } from './canvas-model';
 
 const HIGHLIGHTED_EDGE_Z_INDEX = 1;
 const DEFAULT_EDGE_Z_INDEX = 0;
 
-export type EdgeType =
-    | RelationshipEdgeType
-    | DependencyEdgeType
-    | TempFloatingEdgeType;
-
-export type NodeType =
-    | TableNodeType
-    | AreaNodeType
-    | NoteNodeType
-    | TempCursorNodeType
-    | CreateRelationshipNodeType;
-
 type AddEdgeParams = Parameters<typeof addEdge<EdgeType>>[0];
-
-const edgeTypes: EdgeTypes = {
-    'relationship-edge': RelationshipEdge,
-    'dependency-edge': DependencyEdge,
-    'temp-floating-edge': TempFloatingEdge,
-};
-
-const nodeTypes: NodeTypes = {
-    table: TableNode,
-    area: AreaNode,
-    note: NoteNode,
-    'temp-cursor': TempCursorNode,
-    'create-relationship': CreateRelationshipNode,
-};
-
-const initialEdges: EdgeType[] = [];
-
-const tableToTableNode = (
-    table: DBTable,
-    {
-        filter,
-        databaseType,
-        filterLoading,
-        showDBViews,
-        forceShow,
-        isRelationshipCreatingTarget = false,
-        targetEdgeCounts,
-    }: {
-        filter?: DiagramFilter;
-        databaseType: DatabaseType;
-        filterLoading: boolean;
-        showDBViews?: boolean;
-        forceShow?: boolean;
-        isRelationshipCreatingTarget?: boolean;
-        targetEdgeCounts?: Record<string, number>;
-    }
-): TableNodeType => {
-    // Always use absolute position for now
-    const position = { x: table.x, y: table.y };
-
-    let hidden = false;
-
-    if (forceShow) {
-        hidden = false;
-    } else {
-        hidden =
-            !filterTable({
-                table: { id: table.id, schema: table.schema },
-                filter,
-                options: { defaultSchema: defaultSchemas[databaseType] },
-            }) ||
-            filterLoading ||
-            (!showDBViews && table.isView);
-    }
-
-    return {
-        id: table.id,
-        type: 'table',
-        position,
-        data: {
-            table,
-            isOverlapping: false,
-            isRelationshipCreatingTarget,
-            targetEdgeCounts,
-        },
-        width: table.width ?? MIN_TABLE_SIZE,
-        hidden,
-    };
-};
-
-const areaToAreaNode = (
-    area: Area,
-    {
-        tables,
-        filter,
-        databaseType,
-        filterLoading,
-    }: {
-        tables: DBTable[];
-        filter?: DiagramFilter;
-        databaseType: DatabaseType;
-        filterLoading: boolean;
-    }
-): AreaNodeType => {
-    // Get all tables in this area
-    const tablesInArea = tables.filter((t) => t.parentAreaId === area.id);
-
-    // Check if at least one table in the area is visible
-    const hasVisibleTable =
-        tablesInArea.length === 0 ||
-        tablesInArea.some((table) =>
-            filterTable({
-                table: { id: table.id, schema: table.schema },
-                filter,
-                options: {
-                    defaultSchema: defaultSchemas[databaseType],
-                },
-            })
-        );
-
-    return {
-        id: area.id,
-        type: 'area',
-        position: { x: area.x, y: area.y },
-        data: { area },
-        width: area.width,
-        height: area.height,
-        zIndex: -10,
-        style: {
-            zIndex: -10,
-        },
-        hidden: !hasVisibleTable || filterLoading,
-    };
-};
-
-const noteToNoteNode = (note: Note): NoteNodeType => {
-    return {
-        id: note.id,
-        type: 'note',
-        position: { x: note.x, y: note.y },
-        data: { note },
-        width: note.width,
-        height: note.height,
-        zIndex: 50,
-        style: {
-            zIndex: 50,
-        },
-    };
-};
 
 export interface CanvasProps {
     initialTables: DBTable[];
