@@ -1477,7 +1477,7 @@ batch: 批次 T
 type: CODE
 priority: P2
 title: Monaco config.ts 改为完全惰性初始化
-status: queued
+status: done
 depends_on: []
 owner_lane: performance
 branch: codex/chartdb-t-monaco-config-lazy
@@ -1500,6 +1500,21 @@ acceptance:
     - config.ts 不再静态 import monaco-editor
     - Monaco core 不进入首屏 bundle
     - 编辑器功能正常
+completion:
+    completed_at: 2026-07-04
+    result:
+        - `src/components/code-snippet/config.ts` 改为导出缓存式 `ensureMonaco()`，仅在首次实际渲染编辑器时动态 import `monaco-editor` 和各语言 worker。
+        - `src/components/code-snippet/code-snippet-editor.tsx` 移除旧的 `import './config.ts'` 副作用初始化，渲染 Monaco Editor 前等待 `ensureMonaco()` 完成，保持主题设置和 autoScroll 行为不变。
+        - `src/components/code-snippet/code-editor.ts` 不再负责加载配置，避免懒加载组件模块导入时立即触发 Monaco runtime setup。
+        - 扩展 `src/components/code-snippet/__tests__/monaco-lazy-loading.test.ts`，锁定 `config.ts` 不再静态 import Monaco runtime / worker，并确认编辑器组件通过 `ensureMonaco()` 初始化。
+    verification:
+        - npm run test:ci -- src/components/code-snippet/__tests__/monaco-lazy-loading.test.ts
+        - npm run lint
+        - npm run test:ci
+        - npm run build
+        - git diff --check
+    next:
+        - 进入 `CHARTDB-T-007`：canvas.tsx 拆分；若需先补更小的产品切片，可按手册并行策略选择 `CHARTDB-P-010`。
 ```
 
 #### CHARTDB-T-007：canvas.tsx 拆分
@@ -2576,7 +2591,7 @@ npm run test:ci
 | T-003 | PNG 转 WebP | T | P2 | done | - |
 | T-004 | 统一图标库 | T | P2 | done | - |
 | T-005 | 精简 hooks 库 | T | P2 | done | F-001a |
-| T-006 | Monaco config 惰性 | T | P2 | queued | - |
+| T-006 | Monaco config 惰性 | T | P2 | done | - |
 | T-007 | canvas 拆分 | T | P2 | queued | A-003 |
 | Q-001 | migration 测试 | Q | P2 | queued | - |
 | Q-002 | deepCopy 修复 | Q | P3 | queued | A-001 |

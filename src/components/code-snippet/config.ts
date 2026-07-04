@@ -1,28 +1,49 @@
 import { loader } from '@monaco-editor/react';
 
-import * as monaco from 'monaco-editor';
-import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
-import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
-import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker';
-import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker';
-import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
+type MonacoWorker = new () => Worker;
 
-self.MonacoEnvironment = {
-    getWorker(_, label) {
-        if (label === 'json') {
-            return new jsonWorker();
+let monacoSetupPromise: Promise<void> | undefined;
+
+export const ensureMonaco = (): Promise<void> => {
+    monacoSetupPromise ??= Promise.all([
+        import('monaco-editor'),
+        import('monaco-editor/esm/vs/editor/editor.worker?worker'),
+        import('monaco-editor/esm/vs/language/json/json.worker?worker'),
+        import('monaco-editor/esm/vs/language/css/css.worker?worker'),
+        import('monaco-editor/esm/vs/language/html/html.worker?worker'),
+        import('monaco-editor/esm/vs/language/typescript/ts.worker?worker'),
+    ]).then(
+        ([
+            monaco,
+            { default: EditorWorker },
+            { default: JsonWorker },
+            { default: CssWorker },
+            { default: HtmlWorker },
+            { default: TsWorker },
+        ]) => {
+            const workerByLabel: Record<string, MonacoWorker> = {
+                json: JsonWorker,
+                css: CssWorker,
+                scss: CssWorker,
+                less: CssWorker,
+                html: HtmlWorker,
+                handlebars: HtmlWorker,
+                razor: HtmlWorker,
+                typescript: TsWorker,
+                javascript: TsWorker,
+            };
+
+            globalThis.MonacoEnvironment = {
+                getWorker(_, label) {
+                    const WorkerConstructor =
+                        workerByLabel[label] ?? EditorWorker;
+                    return new WorkerConstructor();
+                },
+            };
+
+            loader.config({ monaco });
         }
-        if (label === 'css' || label === 'scss' || label === 'less') {
-            return new cssWorker();
-        }
-        if (label === 'html' || label === 'handlebars' || label === 'razor') {
-            return new htmlWorker();
-        }
-        if (label === 'typescript' || label === 'javascript') {
-            return new tsWorker();
-        }
-        return new editorWorker();
-    },
+    );
+
+    return monacoSetupPromise;
 };
-
-loader.config({ monaco });

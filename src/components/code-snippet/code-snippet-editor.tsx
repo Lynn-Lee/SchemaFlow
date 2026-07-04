@@ -1,11 +1,11 @@
-import React, { lazy, useEffect } from 'react';
+import React, { lazy, useEffect, useState } from 'react';
 import type { EditorProps } from '@monaco-editor/react';
 import { useMonaco } from '@monaco-editor/react';
 import { useTheme } from '@/hooks/use-theme';
 import { Spinner } from '../spinner/spinner';
 import { DarkTheme } from './themes/dark';
 import { LightTheme } from './themes/light';
-import './config.ts';
+import { ensureMonaco } from './config';
 
 const MonacoEditor = lazy(() =>
     import('./code-editor').then((module) => ({
@@ -37,8 +37,23 @@ export const CodeSnippetEditor: React.FC<CodeSnippetEditorProps> = ({
 }) => {
     const monaco = useMonaco();
     const { effectiveTheme } = useTheme();
+    const [isMonacoReady, setIsMonacoReady] = useState(false);
     const editorAriaLabel =
         editorProps?.options?.ariaLabel ?? editorAriaLabelByLanguage[language];
+
+    useEffect(() => {
+        let isMounted = true;
+
+        ensureMonaco().then(() => {
+            if (isMounted) {
+                setIsMonacoReady(true);
+            }
+        });
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
 
     useEffect(() => {
         monaco?.editor?.defineTheme?.(
@@ -57,6 +72,10 @@ export const CodeSnippetEditor: React.FC<CodeSnippetEditorProps> = ({
         const lineCount = editor.getLineCount();
         monaco.editor.getEditors()[0]?.revealLine(lineCount);
     }, [code, monaco, autoScroll]);
+
+    if (!isMonacoReady) {
+        return <Spinner />;
+    }
 
     return (
         <MonacoEditor

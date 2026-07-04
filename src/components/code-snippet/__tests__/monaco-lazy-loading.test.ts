@@ -33,4 +33,31 @@ describe('CodeSnippet Monaco lazy loading', () => {
             /^import\s+(?!type\b).*from ['"]monaco-editor['"]/m
         );
     });
+
+    it('keeps Monaco runtime and workers behind ensureMonaco', () => {
+        const source = fs.readFileSync(
+            path.join(process.cwd(), 'src/components/code-snippet/config.ts'),
+            'utf8'
+        );
+
+        expect(source).toContain('ensureMonaco');
+        expect(source).not.toMatch(/^import\s+\*\s+as\s+monaco/m);
+        expect(source).not.toMatch(
+            /^import\s+(?!type\b).*from ['"]monaco-editor['"]/m
+        );
+        expect(source).not.toMatch(/\?worker['"];?$/m);
+    });
+
+    it('initializes Monaco only when the editor component is rendered', () => {
+        const source = fs.readFileSync(
+            path.join(
+                process.cwd(),
+                'src/components/code-snippet/code-snippet-editor.tsx'
+            ),
+            'utf8'
+        );
+
+        expect(source).toContain('ensureMonaco');
+        expect(source).not.toContain("import './config.ts'");
+    });
 });
