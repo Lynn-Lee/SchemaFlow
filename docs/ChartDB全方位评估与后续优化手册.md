@@ -725,7 +725,7 @@ batch: 批次 A
 type: CODE
 priority: P2
 title: 将 SQL parser 逻辑从 lib/data/sql-import 迁移到 dialects 子包
-status: queued
+status: done
 depends_on:
     - CHARTDB-A-001
 owner_lane: dialect
@@ -751,6 +751,22 @@ acceptance:
     - 至少 PostgreSQL parser 逻辑迁移到 src/dialects/postgresql/parser/
     - 旧路径通过 re-export 兼容
     - regression 测试通过
+completion:
+    completed_at: 2026-07-04
+    result:
+        - 已将 PostgreSQL parser 核心实现从 `src/lib/data/sql-import/dialect-importers/postgresql/` 迁入 `src/dialects/postgresql/parser/`。
+        - 旧路径 `postgresql.ts`、`postgresql-dump.ts`、`postgresql-common.ts` 保留为兼容 re-export，现有旧测试和调用点无需立即批量改动。
+        - `src/dialects/postgresql/parser/legacy-parser.ts` 改为直接调用 dialect 包内 parser，避免 PostgreSQL dialect importer 继续反向依赖旧 importer 实现。
+        - 新增 parser migration 结构测试，锁定 PostgreSQL parser 实现位置和旧路径兼容层。
+    verification:
+        - npm run test:ci -- src/dialects/postgresql/__tests__/parser-migration.test.ts
+        - npm run test:ci -- src/dialects/postgresql/__tests__/importer.test.ts src/lib/data/sql-import/dialect-importers/postgresql/__tests__/postgresql-core.test.ts src/lib/data/sql-import/dialect-importers/postgresql/__tests__/postgresql-parser.test.ts
+        - npm run lint
+        - npm run test:ci
+        - npm run build
+        - git diff --check
+next:
+    - 进入 `CHARTDB-P-001`：实现 Clear local diagrams 功能；或按批次 A 继续独立插入 `CHARTDB-A-010` 元数据导入校验补齐。
 ```
 
 ### 批次 P：产品功能补齐
@@ -2296,7 +2312,7 @@ npm run test:ci
 | A-003 | Provider 拆分 | A | P1 | done | A-002 |
 | A-004 | diff/load 走 command | A | P1 | done | A-002 |
 | A-005 | checkConstraint command | A | P2 | done | A-002 |
-| A-006 | dialects 迁移 parser | A | P2 | queued | A-001 |
+| A-006 | dialects 迁移 parser | A | P2 | done | A-001 |
 | P-001 | Clear local diagrams | P | P1 | queued | - |
 | P-002 | BYOK key 输入 | P | P1 | queued | - |
 | P-003 | 导出 warning | P | P1 | queued | - |
