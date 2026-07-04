@@ -6,6 +6,14 @@ import { mariadbCapabilities, mariadbSchemaImporter } from '../mariadb';
 import { sqliteCapabilities, sqliteSchemaImporter } from '../sqlite';
 import { sqlServerCapabilities, sqlServerSchemaImporter } from '../sqlserver';
 import { oracleCapabilities, oracleSchemaImporter } from '../oracle';
+import {
+    cockroachDBCapabilities,
+    cockroachDBSchemaImporter,
+} from '../cockroachdb';
+import {
+    clickHouseCapabilities,
+    clickHouseSchemaImporter,
+} from '../clickhouse';
 
 describe('sql dialect schema importers', () => {
     it('wraps MySQL in the dialect import result contract', async () => {
@@ -148,5 +156,69 @@ describe('sql dialect schema importers', () => {
         expect(
             getCapabilitySupport(oracleCapabilities, 'import', 'tables')
         ).toBe('full');
+    });
+
+    it('wraps CockroachDB through the PostgreSQL fallback with explicit warning metadata', async () => {
+        const result = await cockroachDBSchemaImporter.importSchema({
+            sql: `
+                CREATE TABLE accounts (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    region STRING NOT NULL
+                ) LOCALITY REGIONAL BY ROW;
+                ALTER TABLE accounts SET LOCALITY REGIONAL BY ROW;
+                CREATE CHANGEFEED FOR TABLE accounts INTO 'kafka://example';
+            `,
+        });
+
+        expect(result.sourceDialect).toBe(DatabaseType.COCKROACHDB);
+        expect(result.diagram.databaseType).toBe(DatabaseType.COCKROACHDB);
+        expect(result.diagram.tables?.map((table) => table.name)).toContain(
+            'accounts'
+        );
+        expect(result.warnings.map((warning) => warning.code)).toEqual(
+            expect.arrayContaining([
+                'cockroachdb.postgresql_fallback',
+                'cockroachdb.locality_unsupported',
+                'cockroachdb.changefeed_unsupported',
+            ])
+        );
+        expect(
+            getCapabilitySupport(cockroachDBCapabilities, 'import', 'tables')
+        ).toBe('experimental');
+    });
+
+    it('wraps ClickHouse as Smart Query only and reports DDL import as unsupported', async () => {
+        const result = await clickHouseSchemaImporter.importSchema({
+            sql: `
+                CREATE TABLE events (
+                    id UInt64,
+                    created_at DateTime
+                ) ENGINE = MergeTree()
+                PARTITION BY toYYYYMM(created_at)
+                ORDER BY id;
+            `,
+        });
+
+        expect(result.sourceDialect).toBe(DatabaseType.CLICKHOUSE);
+        expect(result.diagram.databaseType).toBe(DatabaseType.CLICKHOUSE);
+        expect(result.diagram.tables).toEqual([]);
+        expect(result.warnings.map((warning) => warning.code)).toEqual(
+            expect.arrayContaining([
+                'clickhouse.ddl_import_unsupported',
+                'clickhouse.engine_unsupported',
+            ])
+        );
+        expect(result.unsupportedObjects).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    objectType: 'table',
+                    name: 'events',
+                    ignored: true,
+                }),
+            ])
+        );
+        expect(
+            getCapabilitySupport(clickHouseCapabilities, 'import', 'tables')
+        ).toBe('unsupported');
     });
 });

@@ -1030,7 +1030,7 @@ batch: 批次 P
 type: CODE
 priority: P2
 title: 补充 CockroachDB 和 ClickHouse dialect wrapper
-status: queued
+status: done
 depends_on:
     - CHARTDB-F-005
 owner_lane: dialect
@@ -1056,6 +1056,16 @@ acceptance:
     - src/dialects/ 包含 cockroachdb 和 clickhouse 目录
     - 两者有 capabilities 声明
     - fallback 或 unsupported 有明确 warning
+done:
+    date: 2026-07-04
+    summary:
+        - 已新增 `src/dialects/cockroachdb/` wrapper，复用 PostgreSQL parser fallback，并声明 experimental capability。
+        - 已新增 `src/dialects/clickhouse/` wrapper，明确 ClickHouse DDL import unsupported / Smart Query only，不伪装解析 DDL。
+        - CockroachDB locality / changefeed / interleave / zone config 和 ClickHouse engine / partition / order by 等语义会输出结构化 warnings / unsupportedObjects。
+    verification:
+        - `npm run test:ci -- src/dialects/__tests__/sql-dialect-importers.test.ts`
+    next:
+        - 进入 `CHARTDB-S-001`：CSP connect-src 收紧。
 ```
 
 ### 批次 S：安全加固
@@ -2445,7 +2455,7 @@ npm run test:ci
 | P-003 | 导出 warning | P | P1 | done | - |
 | P-004 | ImportResult confidence | P | P2 | done | - |
 | P-005 | Backup 恢复预览 | P | P2 | done | - |
-| P-006 | 缺失 dialect wrapper | P | P2 | queued | F-005 |
+| P-006 | 缺失 dialect wrapper | P | P2 | done | F-005 |
 | S-001 | CSP 收紧 | S | P1 | queued | - |
 | S-002 | innerHTML 修复 | S | P2 | queued | - |
 | S-003 | Monaco 升级评估 | S | P2 | queued | - |

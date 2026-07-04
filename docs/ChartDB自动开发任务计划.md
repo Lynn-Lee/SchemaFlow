@@ -1083,7 +1083,7 @@ acceptance:
 - 每个方言输出 capability metadata；MariaDB 明确标注 MySQL fallback 与 experimental 支持等级。
 - MySQL ENGINE/charset、MariaDB sequence/engine、SQLite virtual table、SQL Server procedure、Oracle sequence/package 等 unsupported 或降级语义进入结构化 `warnings` / `unsupportedObjects`。
 - 新增 `src/dialects/__tests__/sql-dialect-importers.test.ts` 覆盖五个 wrapper；现有 MySQL、SQLite、SQL Server 和 Oracle regression 继续通过。
-- 下一项进入 `CHARTDB-P4-004`，DBML 进入 dialect pipeline。
+- 下一项进入 `CHARTDB-P4-004`，DBML 进入 dialect pipeline。后续全方位优化手册 `CHARTDB-P-006` 已补齐 CockroachDB 和 ClickHouse dialect wrapper。
 
 ### CHARTDB-P4-004：DBML 进入 dialect pipeline
 

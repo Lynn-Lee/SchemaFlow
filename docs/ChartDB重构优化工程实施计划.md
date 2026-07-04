@@ -1154,7 +1154,7 @@ export type SupportLevel = 'full' | 'partial' | 'experimental' | 'unsupported';
 
 - [x] 新增 unsupported statement warnings。
 
-本轮结果：已新增 MySQL、MariaDB、SQLite、SQL Server 和 Oracle dialect wrapper，并通过 `src/dialects/common/legacy-sql-importer.ts` 复用旧 SQL parser 到 `Diagram` 的转换、排序和 primary key index normalize。五个方言均输出 capability metadata；MariaDB 明确通过 MySQL fallback 进入统一 `ImportResult`，并标注 experimental 支持等级。MySQL ENGINE/charset、MariaDB sequence/engine、SQLite virtual table、SQL Server procedure、Oracle sequence/package 等语义会进入结构化 `warnings` / `unsupportedObjects`。新增 wrapper 测试和旧 importer regression 均通过。下一项进入 `CHARTDB-P4-004`，DBML import/export 统一走 dialect contract。
+本轮结果：已新增 MySQL、MariaDB、SQLite、SQL Server 和 Oracle dialect wrapper，并通过 `src/dialects/common/legacy-sql-importer.ts` 复用旧 SQL parser 到 `Diagram` 的转换、排序和 primary key index normalize。五个方言均输出 capability metadata；MariaDB 明确通过 MySQL fallback 进入统一 `ImportResult`，并标注 experimental 支持等级。MySQL ENGINE/charset、MariaDB sequence/engine、SQLite virtual table、SQL Server procedure、Oracle sequence/package 等语义会进入结构化 `warnings` / `unsupportedObjects`。后续全方位优化手册 `CHARTDB-P-006` 已补齐 CockroachDB 和 ClickHouse wrapper：CockroachDB 通过 PostgreSQL fallback 输出 experimental warning，ClickHouse 明确 DDL import unsupported / Smart Query only。新增 wrapper 测试和旧 importer regression 均通过。下一项进入 `CHARTDB-P4-004`，DBML import/export 统一走 dialect contract。
 
 ### Task 4.4：DBML 进入 dialect pipeline
 
