@@ -112,4 +112,23 @@ describe('ChartDBProvider structure', () => {
             'const updateCheckConstraint'
         );
     });
+
+    it('moves index operations into a domain hook', () => {
+        const hookPath = path.join(
+            chartDBContextDir,
+            'use-index-operations.ts'
+        );
+        expect(fs.existsSync(hookPath)).toBe(true);
+
+        const providerValuePath = path.join(
+            chartDBContextDir,
+            'use-chartdb-provider-value.tsx'
+        );
+        const providerValueSource = fs.readFileSync(providerValuePath, 'utf8');
+
+        expect(providerValueSource).toContain('useIndexOperations');
+        expect(providerValueSource).not.toContain('const createIndex');
+        expect(providerValueSource).not.toContain('const updateIndex');
+        expect(providerValueSource).not.toContain('const getIndex');
+    });
 });

@@ -3,11 +3,11 @@ import type { DBTable } from '@/lib/domain/db-table';
 import { generateId } from '@/lib/utils';
 import type { ChartDBContext, ChartDBEvent } from './chartdb-context';
 import { useDependencyOperations } from './use-dependency-operations';
+import { useIndexOperations } from './use-index-operations';
 import { useRelationshipConstraintOperations } from './use-relationship-constraint-operations';
 import { useTableFieldOperations } from './use-table-field-operations';
 import { useVisualOperations } from './use-visual-operations';
 import { DatabaseType } from '@/lib/domain/database-type';
-import type { DBIndex } from '@/lib/domain/db-index';
 import type { DBRelationship } from '@/lib/domain/db-relationship';
 import { useStorage } from '@/hooks/use-storage';
 import { useRedoUndoStack } from '@/hooks/use-redo-undo-stack';
@@ -27,18 +27,6 @@ import { storageInitialValue } from '../storage-context/storage-context';
 import { useDiff } from '../diff-context/use-diff';
 import type { DiffCalculatedEvent } from '../diff-context/diff-context';
 import type { DBCustomType } from '@/lib/domain/db-custom-type';
-import {
-    applyIndexCommand,
-    createCommandHistoryBatch,
-    createCommandHistoryEntry,
-    createAddIndexCommand,
-    createDeleteIndexCommand,
-    createUpdateIndexCommand,
-    type DiagramFieldIndexRelationshipCommandState,
-    type CommandHistoryBatch,
-    type CommandResult,
-    type DiagramCommand,
-} from '@/schema-core/commands';
 
 export interface ChartDBProviderValueProps {
     diagram?: Diagram;
@@ -344,252 +332,20 @@ export const useChartDBProviderValue = ({
         tables,
     });
 
-    const getIndex: ChartDBContext['getIndex'] = useCallback(
-        (tableId: string, indexId: string) => {
-            const table = getTable(tableId);
-            return table?.indexes.find((i) => i.id === indexId) ?? null;
-        },
-        [getTable]
-    );
-
-    const addIndex: ChartDBContext['addIndex'] = useCallback(
-        async (
-            tableId: string,
-            index: DBIndex,
-            options = { updateHistory: true }
-        ) => {
-            const command = createAddIndexCommand({
-                context: commandContext,
-                tableId,
-                index,
-            });
-            const result = applyIndexCommand({
-                context: commandContext,
-                state: {
-                    databaseType,
-                    tables,
-                    relationships,
-                } satisfies DiagramFieldIndexRelationshipCommandState,
-                command,
-            });
-            if (result.status !== 'success') {
-                return;
-            }
-
-            setTables(result.state.tables);
-
-            const dbTable = await db.getTable({ diagramId, id: tableId });
-            if (!dbTable) {
-                return;
-            }
-            const updatedTable = result.state.tables.find(
-                (table) => table.id === tableId
-            );
-            if (!updatedTable) {
-                return;
-            }
-
-            const updatedAt = new Date();
-            setDiagramUpdatedAt(updatedAt);
-            await Promise.all([
-                db.updateDiagram({ id: diagramId, attributes: { updatedAt } }),
-                db.updateTable({
-                    id: tableId,
-                    attributes: updatedTable,
-                }),
-            ]);
-
-            if (options.updateHistory) {
-                addUndoAction({
-                    action: 'addIndex',
-                    redoData: { tableId, index },
-                    undoData: { tableId, indexId: index.id },
-                    commandHistory: createSingleCommandHistory(command, result),
-                });
-                resetRedoStack();
-            }
-        },
-        [
+    const { addIndex, createIndex, getIndex, removeIndex, updateIndex } =
+        useIndexOperations({
+            addUndoAction,
+            commandContext,
+            databaseType,
             db,
             diagramId,
-            setTables,
-            addUndoAction,
-            resetRedoStack,
-            tables,
+            getTable,
             relationships,
-            databaseType,
-            commandContext,
-        ]
-    );
-
-    const removeIndex: ChartDBContext['removeIndex'] = useCallback(
-        async (
-            tableId: string,
-            indexId: string,
-            options = { updateHistory: true }
-        ) => {
-            const prevIndex = getIndex(tableId, indexId);
-            const command = createDeleteIndexCommand({
-                context: commandContext,
-                tableId,
-                indexId,
-            });
-            const result = applyIndexCommand({
-                context: commandContext,
-                state: {
-                    databaseType,
-                    tables,
-                    relationships,
-                } satisfies DiagramFieldIndexRelationshipCommandState,
-                command,
-            });
-            if (result.status !== 'success') {
-                return;
-            }
-
-            setTables(result.state.tables);
-
-            const dbTable = await db.getTable({
-                diagramId,
-                id: tableId,
-            });
-
-            if (!dbTable) {
-                return;
-            }
-            const updatedTable = result.state.tables.find(
-                (table) => table.id === tableId
-            );
-            if (!updatedTable) {
-                return;
-            }
-
-            const updatedAt = new Date();
-            setDiagramUpdatedAt(updatedAt);
-            await Promise.all([
-                db.updateDiagram({ id: diagramId, attributes: { updatedAt } }),
-                db.updateTable({
-                    id: tableId,
-                    attributes: updatedTable,
-                }),
-            ]);
-
-            if (!!prevIndex && options.updateHistory) {
-                addUndoAction({
-                    action: 'removeIndex',
-                    redoData: { indexId, tableId },
-                    undoData: { tableId, index: prevIndex },
-                    commandHistory: createSingleCommandHistory(command, result),
-                });
-                resetRedoStack();
-            }
-        },
-        [
-            db,
-            diagramId,
-            setTables,
-            addUndoAction,
             resetRedoStack,
-            getIndex,
-            tables,
-            relationships,
-            databaseType,
-            commandContext,
-        ]
-    );
-
-    const createIndex: ChartDBContext['createIndex'] = useCallback(
-        async (tableId: string) => {
-            const table = getTable(tableId);
-            const index: DBIndex = {
-                id: generateId(),
-                name: `index_${(table?.indexes?.length ?? 0) + 1}`,
-                fieldIds: [],
-                unique: false,
-                createdAt: Date.now(),
-            };
-
-            await addIndex(tableId, index);
-
-            return index;
-        },
-        [addIndex, getTable]
-    );
-
-    const updateIndex: ChartDBContext['updateIndex'] = useCallback(
-        async (
-            tableId: string,
-            indexId: string,
-            index: Partial<DBIndex>,
-            options = { updateHistory: true }
-        ) => {
-            const prevIndex = getIndex(tableId, indexId);
-            const command = createUpdateIndexCommand({
-                context: commandContext,
-                tableId,
-                indexId,
-                index,
-            });
-            const result = applyIndexCommand({
-                context: commandContext,
-                state: {
-                    databaseType,
-                    tables,
-                    relationships,
-                } satisfies DiagramFieldIndexRelationshipCommandState,
-                command,
-            });
-            if (result.status !== 'success') {
-                return;
-            }
-
-            setTables(result.state.tables);
-
-            const dbTable = await db.getTable({ diagramId, id: tableId });
-
-            if (!dbTable) {
-                return;
-            }
-            const updatedTable = result.state.tables.find(
-                (table) => table.id === tableId
-            );
-            if (!updatedTable) {
-                return;
-            }
-
-            const updatedAt = new Date();
-            setDiagramUpdatedAt(updatedAt);
-            await Promise.all([
-                db.updateDiagram({ id: diagramId, attributes: { updatedAt } }),
-                db.updateTable({
-                    id: tableId,
-                    attributes: updatedTable,
-                }),
-            ]);
-
-            if (!!prevIndex && options.updateHistory) {
-                addUndoAction({
-                    action: 'updateIndex',
-                    redoData: { tableId, indexId, index },
-                    undoData: { tableId, indexId, index: prevIndex },
-                    commandHistory: createSingleCommandHistory(command, result),
-                });
-                resetRedoStack();
-            }
-        },
-        [
-            db,
-            diagramId,
+            setDiagramUpdatedAt,
             setTables,
-            addUndoAction,
-            resetRedoStack,
-            getIndex,
             tables,
-            relationships,
-            databaseType,
-            commandContext,
-        ]
-    );
+        });
 
     const {
         addCheckConstraint,
@@ -837,12 +593,3 @@ export const useChartDBProviderValue = ({
         updateNote,
     };
 };
-
-function createSingleCommandHistory<TState>(
-    redoCommand: DiagramCommand,
-    result: CommandResult<TState>
-): CommandHistoryBatch | undefined {
-    return createCommandHistoryBatch([
-        createCommandHistoryEntry({ redoCommand, result }),
-    ]);
-}

@@ -554,7 +554,7 @@ batch: 批次 A
 type: CODE
 priority: P1
 title: 将 ChartDBProvider 拆分为多个领域 hook
-status: in_progress
+status: done
 depends_on:
     - CHARTDB-A-002
 owner_lane: core
@@ -592,7 +592,21 @@ progress:
     - 2026-07-04：已完成第三段结构切片：Area / Note / CustomType 操作和 custom type 高亮状态组装迁入 `src/context/chartdb-context/use-visual-operations.ts`，Provider value 继续保持对外 context API 不变。
     - 2026-07-04：已完成第四段结构切片：Table / Field 操作迁入 `src/context/chartdb-context/use-table-field-operations.ts`，包括 add/create/get/remove/update table、updateTablesState 和 add/create/get/remove/update field；Provider value 继续保持对外 context API 不变。
     - 2026-07-04：已完成第五段结构切片：Relationship / CheckConstraint 操作迁入 `src/context/chartdb-context/use-relationship-constraint-operations.ts`，包括 add/create/get/remove/update relationship 和 add/create/remove/update check constraint；Provider value 继续保持对外 context API 不变。
-    - 本切片尚未把 Index 操作继续拆成独立领域 hook，下一轮继续完成该 acceptance 后再关闭 `CHARTDB-A-003`。
+    - 2026-07-04：已完成第六段结构切片：Index 操作迁入 `src/context/chartdb-context/use-index-operations.ts`，包括 add/create/get/remove/update index；结构测试锁定 Index 操作不再回退到 Provider value 内联实现。
+completion:
+    completed_at: 2026-07-04
+    result:
+        - `ChartDBProvider` 保持薄包装，`useChartDBProviderValue()` 只负责状态、diagram 级操作和领域 hook 组装。
+        - Dependency、Area / Note / CustomType、Table / Field、Relationship / CheckConstraint 和 Index 操作已分别迁入独立 hook。
+        - 对外 `useChartDB()` context API 保持不变。
+    verification:
+        - npm run test:ci -- src/context/chartdb-context/__tests__/chartdb-provider-structure.test.ts
+        - npm run lint
+        - npm run test:ci
+        - npm run build
+        - git diff --check
+next:
+    - 进入 `CHARTDB-A-004`：diff 合并和 loadDiagram 走 Command 管道。
 ```
 
 #### CHARTDB-A-004：diff 合并和 loadDiagram 走 Command 管道
@@ -2243,7 +2257,7 @@ npm run test:ci
 | F-006 | Vite manualChunks | F | P0 | done | - |
 | A-001 | schema-core model 独立 | A | P0 | done | - |
 | A-002 | 统一 undo/redo | A | P1 | done | A-001 |
-| A-003 | Provider 拆分 | A | P1 | in_progress | A-002 |
+| A-003 | Provider 拆分 | A | P1 | done | A-002 |
 | A-004 | diff/load 走 command | A | P1 | queued | A-002 |
 | A-005 | checkConstraint command | A | P2 | queued | A-002 |
 | A-006 | dialects 迁移 parser | A | P2 | queued | A-001 |
