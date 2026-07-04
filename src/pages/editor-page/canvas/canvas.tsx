@@ -77,8 +77,6 @@ import {
 } from './table-node/table-node-dependency-indicator';
 import { useCanvas } from '@/hooks/use-canvas';
 import type { AreaNodeType } from './area-node/area-node';
-import type { Area } from '@/lib/domain/area';
-import type { Note } from '@/lib/domain/note';
 import type { TempCursorNodeType } from './temp-cursor-node/temp-cursor-node';
 import {
     TEMP_CURSOR_HANDLE_ID,
@@ -125,6 +123,11 @@ import {
     getAreaDragChildTablePositionChanges,
     getRelevantCanvasNodeChanges,
 } from './canvas-node-changes';
+import {
+    buildAreaStorageChanges,
+    buildNoteStorageChanges,
+    buildTableStorageChanges,
+} from './canvas-node-storage-updates';
 
 export type { EdgeType, NodeType } from './canvas-model';
 
@@ -796,7 +799,6 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
                 });
             }
 
-            // Apply all table updates in a single call
             if (
                 positionChanges.length > 0 ||
                 removeChanges.length > 0 ||
@@ -804,92 +806,26 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
                 childTableMovements.size > 0 ||
                 areaRemoveChanges.length > 0
             ) {
+                const tableStorageChanges = buildTableStorageChanges({
+                    tables,
+                    positionChanges,
+                    removeChanges,
+                    sizeChanges,
+                    areaRemoveChanges,
+                    childTableMovements,
+                });
+
                 updateTablesState(
-                    (currentTables) => {
-                        const updatedTables = currentTables
-                            .map((currentTable) => {
-                                // Handle area removal - clear parentAreaId
-                                const removedArea = areaRemoveChanges.find(
-                                    (change) =>
-                                        change.id === currentTable.parentAreaId
-                                );
-                                if (removedArea) {
-                                    return {
-                                        ...currentTable,
-                                        parentAreaId: null,
-                                    };
-                                }
-
-                                // Handle direct table changes
-                                const positionChange = positionChanges.find(
-                                    (change) => change.id === currentTable.id
-                                );
-                                const sizeChange = sizeChanges.find(
-                                    (change) => change.id === currentTable.id
-                                );
-
-                                // Handle child table movement from area drag
-                                const areaMovement = childTableMovements.get(
-                                    currentTable.id
-                                );
-
-                                if (
-                                    positionChange ||
-                                    sizeChange ||
-                                    areaMovement
-                                ) {
-                                    const x = positionChange?.position?.x;
-                                    const y = positionChange?.position?.y;
-
-                                    return {
-                                        ...currentTable,
-                                        ...(positionChange &&
-                                        x !== undefined &&
-                                        y !== undefined &&
-                                        !isNaN(x) &&
-                                        !isNaN(y)
-                                            ? {
-                                                  x,
-                                                  y,
-                                              }
-                                            : {}),
-                                        ...(areaMovement && !positionChange
-                                            ? {
-                                                  x:
-                                                      currentTable.x +
-                                                      areaMovement.deltaX,
-                                                  y:
-                                                      currentTable.y +
-                                                      areaMovement.deltaY,
-                                              }
-                                            : {}),
-                                        ...(sizeChange
-                                            ? {
-                                                  width:
-                                                      sizeChange.dimensions
-                                                          ?.width ??
-                                                      currentTable.width,
-                                              }
-                                            : {}),
-                                    };
-                                }
-                                return currentTable;
-                            })
-                            .filter(
-                                (table) =>
-                                    !removeChanges.some(
-                                        (change) => change.id === table.id
-                                    )
-                            );
-
-                        return updatedTables;
-                    },
-                    {
-                        updateHistory:
-                            positionChanges.length > 0 ||
-                            removeChanges.length > 0 ||
-                            sizeChanges.length > 0,
-                    }
+                    (currentTables) =>
+                        buildTableStorageChanges({
+                            tables: currentTables,
+                            positionChanges,
+                            removeChanges,
+                            sizeChanges,
+                            areaRemoveChanges,
+                            childTableMovements,
+                        }).tables,
+                    { updateHistory: tableStorageChanges.updateHistory }
                 );
             }
 
@@ -903,41 +839,16 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
                 areaRemoveChanges.length > 0 ||
                 areaSizeChanges.length > 0
             ) {
-                const areasUpdates: Record<string, Partial<Area>> = {};
-                // Handle area position changes (child tables already moved above)
-                areaPositionChanges.forEach((change) => {
-                    if (change.type === 'position' && change.position) {
-                        areasUpdates[change.id] = {
-                            ...areasUpdates[change.id],
-                            x: change.position.x,
-                            y: change.position.y,
-                        };
-                    }
+                const areaStorageChanges = buildAreaStorageChanges({
+                    positionChanges: areaPositionChanges,
+                    removeChanges: areaRemoveChanges,
+                    sizeChanges: areaSizeChanges,
                 });
 
-                // Handle area size changes
-                areaSizeChanges.forEach((change) => {
-                    if (change.type === 'dimensions' && change.dimensions) {
-                        areasUpdates[change.id] = {
-                            ...areasUpdates[change.id],
-                            width: change.dimensions.width,
-                            height: change.dimensions.height,
-                        };
-                    }
-                });
-
-                // Handle area removal (child tables parentAreaId already cleared above)
-                areaRemoveChanges.forEach((change) => {
-                    removeArea(change.id);
-                    delete areasUpdates[change.id];
-                });
-
-                // Apply area updates to storage
-                if (Object.keys(areasUpdates).length > 0) {
-                    for (const [id, updates] of Object.entries(areasUpdates)) {
-                        updateArea(id, updates);
-                    }
-                }
+                areaStorageChanges.removeIds.forEach((id) => removeArea(id));
+                areaStorageChanges.updates.forEach(({ id, updates }) =>
+                    updateArea(id, updates)
+                );
             }
 
             // Handle note changes
@@ -946,41 +857,16 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
                 noteRemoveChanges.length > 0 ||
                 noteSizeChanges.length > 0
             ) {
-                const notesUpdates: Record<string, Partial<Note>> = {};
-                // Handle note position changes
-                notePositionChanges.forEach((change) => {
-                    if (change.type === 'position' && change.position) {
-                        notesUpdates[change.id] = {
-                            ...notesUpdates[change.id],
-                            x: change.position.x,
-                            y: change.position.y,
-                        };
-                    }
+                const noteStorageChanges = buildNoteStorageChanges({
+                    positionChanges: notePositionChanges,
+                    removeChanges: noteRemoveChanges,
+                    sizeChanges: noteSizeChanges,
                 });
 
-                // Handle note size changes
-                noteSizeChanges.forEach((change) => {
-                    if (change.type === 'dimensions' && change.dimensions) {
-                        notesUpdates[change.id] = {
-                            ...notesUpdates[change.id],
-                            width: change.dimensions.width,
-                            height: change.dimensions.height,
-                        };
-                    }
-                });
-
-                // Handle note removal
-                noteRemoveChanges.forEach((change) => {
-                    removeNote(change.id);
-                    delete notesUpdates[change.id];
-                });
-
-                // Apply note updates to storage
-                if (Object.keys(notesUpdates).length > 0) {
-                    for (const [id, updates] of Object.entries(notesUpdates)) {
-                        updateNote(id, updates);
-                    }
-                }
+                noteStorageChanges.removeIds.forEach((id) => removeNote(id));
+                noteStorageChanges.updates.forEach(({ id, updates }) =>
+                    updateNote(id, updates)
+                );
             }
 
             return onNodesChange(changesToApply);

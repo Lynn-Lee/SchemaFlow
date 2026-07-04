@@ -1563,6 +1563,9 @@ progress:
     - 2026-07-04：完成第三段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-selection.ts` 和 `src/pages/editor-page/canvas/canvas-node-changes.ts`，将选中 id 映射、节点变更分类、area 拖拽时子表视觉移动逻辑从 `canvas.tsx` 抽出为可独立测试的纯函数层。
     - 新增 `src/pages/editor-page/canvas/__tests__/canvas-selection.test.ts` 和 `src/pages/editor-page/canvas/__tests__/canvas-node-changes.test.ts`，红灯先分别失败于缺失 `../canvas-selection` / `../canvas-node-changes`，绿灯覆盖 selection 映射、节点变更分类和 area 拖拽子表位移。
     - `canvas.tsx` 从 1677 行降到 1604 行；本轮仍不标记 done，下一步继续拆 `onNodesChangeHandler` 的 table/area/note storage update 或 `CanvasViewport`，直到主体低于 500 行。
+    - 2026-07-04：完成第四段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-node-storage-updates.ts`，将 `onNodesChangeHandler` 中 table/area/note storage update 计算抽出为可独立测试的纯函数层。
+    - 新增 `src/pages/editor-page/canvas/__tests__/canvas-node-storage-updates.test.ts`，红灯先失败于缺失 `../canvas-node-storage-updates`，绿灯覆盖 table position/width/remove、area remove 清理 parentAreaId、area/note update/remove 输出。
+    - `canvas.tsx` 从 1604 行降到 1490 行；本轮仍不标记 done，下一步继续拆 `CanvasViewport` / drag / zoom hooks 或其它事件 handler，直到主体低于 500 行。
 ```
 
 ### 批次 Q：代码质量
