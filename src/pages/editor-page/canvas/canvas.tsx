@@ -36,10 +36,6 @@ import {
 } from './table-node/table-node';
 import type { RelationshipEdgeType } from './relationship-edge/relationship-edge';
 import { useChartDB } from '@/hooks/use-chartdb';
-import {
-    LEFT_HANDLE_ID_PREFIX,
-    TARGET_ID_PREFIX,
-} from './table-node/table-node-field';
 import { Toolbar } from './toolbar/toolbar';
 import { useToast } from '@/components/toast/use-toast';
 import {
@@ -77,7 +73,6 @@ import { cn, debounce, getOperatingSystem } from '@/lib/utils';
 import type { DependencyEdgeType } from './dependency-edge/dependency-edge';
 import {
     BOTTOM_SOURCE_HANDLE_ID_PREFIX,
-    TARGET_DEP_PREFIX,
     TOP_SOURCE_HANDLE_ID_PREFIX,
 } from './table-node/table-node-dependency-indicator';
 import { useCanvas } from '@/hooks/use-canvas';
@@ -121,11 +116,9 @@ import {
     type EdgeType,
     type NodeType,
 } from './canvas-model';
+import { buildCanvasEdges, getHighlightedCanvasEdges } from './canvas-edges';
 
 export type { EdgeType, NodeType } from './canvas-model';
-
-const HIGHLIGHTED_EDGE_Z_INDEX = 1;
-const DEFAULT_EDGE_Z_INDEX = 0;
 
 type AddEdgeParams = Parameters<typeof addEdge<EdgeType>>[0];
 
@@ -274,69 +267,13 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
 
         // Delay edge creation to ensure handles are registered
         const timeoutId = setTimeout(() => {
-            const targetIndexes: Record<string, number> = relationships.reduce(
-                (acc, relationship) => {
-                    acc[
-                        `${relationship.targetTableId}${relationship.targetFieldId}`
-                    ] = 0;
-                    return acc;
-                },
-                {} as Record<string, number>
-            );
-
-            const targetDepIndexes: Record<string, number> =
-                dependencies.reduce(
-                    (acc, dep) => {
-                        acc[dep.tableId] = 0;
-                        return acc;
-                    },
-                    {} as Record<string, number>
-                );
-
             setEdges((prevEdges) => {
-                // Create a map of previous edge states to preserve selection
-                const prevEdgeStates = new Map(
-                    prevEdges.map((edge) => [
-                        edge.id,
-                        { selected: edge.selected, animated: edge.animated },
-                    ])
-                );
-
-                return [
-                    ...relationships.map(
-                        (relationship): RelationshipEdgeType => {
-                            const prevState = prevEdgeStates.get(
-                                relationship.id
-                            );
-                            return {
-                                id: relationship.id,
-                                source: relationship.sourceTableId,
-                                target: relationship.targetTableId,
-                                sourceHandle: `${LEFT_HANDLE_ID_PREFIX}${relationship.sourceFieldId}`,
-                                targetHandle: `${TARGET_ID_PREFIX}${targetIndexes[`${relationship.targetTableId}${relationship.targetFieldId}`]++}_${relationship.targetFieldId}`,
-                                type: 'relationship-edge',
-                                data: { relationship },
-                                selected: prevState?.selected ?? false,
-                                animated: prevState?.animated ?? false,
-                            };
-                        }
-                    ),
-                    ...dependencies.map((dep): DependencyEdgeType => {
-                        const prevState = prevEdgeStates.get(dep.id);
-                        return {
-                            id: dep.id,
-                            source: dep.dependentTableId,
-                            target: dep.tableId,
-                            sourceHandle: `${TOP_SOURCE_HANDLE_ID_PREFIX}${dep.dependentTableId}`,
-                            targetHandle: `${TARGET_DEP_PREFIX}${targetDepIndexes[dep.tableId]++}_${dep.tableId}`,
-                            type: 'dependency-edge',
-                            data: { dependency: dep },
-                            hidden: !showDBViews,
-                            selected: prevState?.selected ?? false,
-                            animated: prevState?.animated ?? false,
-                        };
-                    }),
-                ];
+                return buildCanvasEdges({
+                    relationships,
+                    dependencies,
+                    previousEdges: prevEdges,
+                    showDBViews,
+                });
             });
         }, 100); // Delay to let handles register after updateNodeInternals
 
@@ -375,71 +312,12 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
     }, [edges, setSelectedRelationshipIds, selectedRelationshipIds]);
 
     useEffect(() => {
-        const selectedTableIdsSet = new Set(selectedTableIds);
-        const selectedRelationshipIdsSet = new Set(selectedRelationshipIds);
-
         setEdges((prevEdges) => {
-            // Check if any edge needs updating
-            let hasChanges = false;
-
-            const newEdges = prevEdges
-                .filter((e) => e.type !== 'temp-floating-edge')
-                .map((edge): EdgeType => {
-                    const shouldBeHighlighted =
-                        selectedRelationshipIdsSet.has(edge.id) ||
-                        selectedTableIdsSet.has(edge.source) ||
-                        selectedTableIdsSet.has(edge.target);
-
-                    const currentHighlighted =
-                        (edge as Exclude<EdgeType, TempFloatingEdgeType>).data
-                            ?.highlighted ?? false;
-                    const currentAnimated = edge.animated ?? false;
-                    const currentZIndex = edge.zIndex ?? 0;
-
-                    // Skip if no changes needed
-                    if (
-                        currentHighlighted === shouldBeHighlighted &&
-                        currentAnimated === shouldBeHighlighted &&
-                        currentZIndex ===
-                            (shouldBeHighlighted
-                                ? HIGHLIGHTED_EDGE_Z_INDEX
-                                : DEFAULT_EDGE_Z_INDEX)
-                    ) {
-                        return edge;
-                    }
-
-                    hasChanges = true;
-
-                    if (edge.type === 'dependency-edge') {
-                        const dependencyEdge = edge as DependencyEdgeType;
-                        return {
-                            ...dependencyEdge,
-                            data: {
-                                ...dependencyEdge.data!,
-                                highlighted: shouldBeHighlighted,
-                            },
-                            animated: shouldBeHighlighted,
-                            zIndex: shouldBeHighlighted
-                                ? HIGHLIGHTED_EDGE_Z_INDEX
-                                : DEFAULT_EDGE_Z_INDEX,
-                        };
-                    } else {
-                        const relationshipEdge = edge as RelationshipEdgeType;
-                        return {
-                            ...relationshipEdge,
-                            data: {
-                                ...relationshipEdge.data!,
-                                highlighted: shouldBeHighlighted,
-                            },
-                            animated: shouldBeHighlighted,
-                            zIndex: shouldBeHighlighted
-                                ? HIGHLIGHTED_EDGE_Z_INDEX
-                                : DEFAULT_EDGE_Z_INDEX,
-                        };
-                    }
-                });
-
-            return hasChanges ? newEdges : prevEdges;
+            return getHighlightedCanvasEdges({
+                edges: prevEdges,
+                selectedRelationshipIds,
+                selectedTableIds,
+            });
         });
     }, [selectedRelationshipIds, selectedTableIds, setEdges]);
 
