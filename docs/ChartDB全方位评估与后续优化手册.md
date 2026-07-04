@@ -1560,6 +1560,9 @@ progress:
     - 2026-07-04：完成第二段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-edges.ts`，将关系边/依赖边生成、previous selected/animated 状态保留、选中节点/边高亮计算从 `canvas.tsx` 抽出为可独立测试的 edge 映射层。
     - 新增 `src/pages/editor-page/canvas/__tests__/canvas-edges.test.ts`，红灯先失败于缺失 `../canvas-edges`，绿灯覆盖 relationship/dependency handle 映射、showDBViews 隐藏依赖边、previous edge state 保留和高亮幂等返回。
     - `canvas.tsx` 从 1799 行降到 1677 行；本轮仍不标记 done，下一步继续拆 `CanvasSelection` / drag / zoom hooks 或 `CanvasViewport`，直到主体低于 500 行。
+    - 2026-07-04：完成第三段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-selection.ts` 和 `src/pages/editor-page/canvas/canvas-node-changes.ts`，将选中 id 映射、节点变更分类、area 拖拽时子表视觉移动逻辑从 `canvas.tsx` 抽出为可独立测试的纯函数层。
+    - 新增 `src/pages/editor-page/canvas/__tests__/canvas-selection.test.ts` 和 `src/pages/editor-page/canvas/__tests__/canvas-node-changes.test.ts`，红灯先分别失败于缺失 `../canvas-selection` / `../canvas-node-changes`，绿灯覆盖 selection 映射、节点变更分类和 area 拖拽子表位移。
+    - `canvas.tsx` 从 1677 行降到 1604 行；本轮仍不标记 done，下一步继续拆 `onNodesChangeHandler` 的 table/area/note storage update 或 `CanvasViewport`，直到主体低于 500 行。
 ```
 
 ### 批次 Q：代码质量

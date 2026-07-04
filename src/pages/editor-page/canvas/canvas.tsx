@@ -117,6 +117,14 @@ import {
     type NodeType,
 } from './canvas-model';
 import { buildCanvasEdges, getHighlightedCanvasEdges } from './canvas-edges';
+import {
+    getSelectedCanvasEdgeIds,
+    getSelectedCanvasNodeIds,
+} from './canvas-selection';
+import {
+    getAreaDragChildTablePositionChanges,
+    getRelevantCanvasNodeChanges,
+} from './canvas-node-changes';
 
 export type { EdgeType, NodeType } from './canvas-model';
 
@@ -288,9 +296,7 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
     ]);
 
     useEffect(() => {
-        const selectedNodesIds = nodes
-            .filter((node) => node.selected)
-            .map((node) => node.id);
+        const selectedNodesIds = getSelectedCanvasNodeIds(nodes);
 
         if (equal(selectedNodesIds, selectedTableIds)) {
             return;
@@ -300,9 +306,7 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
     }, [nodes, setSelectedTableIds, selectedTableIds]);
 
     useEffect(() => {
-        const selectedEdgesIds = edges
-            .filter((edge) => edge.selected)
-            .map((edge) => edge.id);
+        const selectedEdgesIds = getSelectedCanvasEdgeIds(edges);
 
         if (equal(selectedEdgesIds, selectedRelationshipIds)) {
             return;
@@ -707,62 +711,6 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
         200
     );
 
-    const findRelevantNodesChanges = useCallback(
-        (changes: NodeChange<NodeType>[], type: NodeType['type']) => {
-            const relevantChanges = changes.filter((change) => {
-                if (
-                    (change.type === 'position' &&
-                        !change.dragging &&
-                        change.position?.x !== undefined &&
-                        change.position?.y !== undefined &&
-                        !isNaN(change.position.x) &&
-                        !isNaN(change.position.y)) ||
-                    (change.type === 'dimensions' && change.resizing) ||
-                    change.type === 'remove'
-                ) {
-                    const node = getNode(change.id);
-                    if (!node) {
-                        return false;
-                    }
-
-                    if (node.type !== type) {
-                        return false;
-                    }
-
-                    return true;
-                }
-
-                return false;
-            });
-
-            const positionChanges: NodePositionChange[] =
-                relevantChanges.filter(
-                    (change) =>
-                        change.type === 'position' &&
-                        !change.dragging &&
-                        change.position?.x !== undefined &&
-                        change.position?.y !== undefined &&
-                        !isNaN(change.position.x) &&
-                        !isNaN(change.position.y)
-                ) as NodePositionChange[];
-
-            const removeChanges: NodeRemoveChange[] = relevantChanges.filter(
-                (change) => change.type === 'remove'
-            ) as NodeRemoveChange[];
-
-            const sizeChanges: NodeDimensionChange[] = relevantChanges.filter(
-                (change) => change.type === 'dimensions' && change.resizing
-            ) as NodeDimensionChange[];
-
-            return {
-                positionChanges,
-                removeChanges,
-                sizeChanges,
-            };
-        },
-        [getNode]
-    );
-
     const onNodesChangeHandler: OnNodesChange<NodeType> = useCallback(
         (changes) => {
             let changesToApply = changes;
@@ -774,46 +722,14 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
             }
 
             // Handle area drag changes - add child table movements for visual feedback only
-            const areaDragChanges = changesToApply.filter((change) => {
-                if (change.type === 'position') {
-                    const node = getNode(change.id);
-                    return node?.type === 'area' && change.dragging;
-                }
-                return false;
-            }) as NodePositionChange[];
+            const additionalChanges = getAreaDragChildTablePositionChanges({
+                changes: changesToApply,
+                areas,
+                tables,
+                getNode: (id) => getNode(id) as NodeType | undefined,
+            });
 
-            // Add visual position changes for child tables during area dragging
-            if (areaDragChanges.length > 0) {
-                const additionalChanges: NodePositionChange[] = [];
-
-                areaDragChanges.forEach((areaChange) => {
-                    const currentArea = areas.find(
-                        (a) => a.id === areaChange.id
-                    );
-                    if (currentArea && areaChange.position) {
-                        const deltaX = areaChange.position.x - currentArea.x;
-                        const deltaY = areaChange.position.y - currentArea.y;
-
-                        // Find child tables and create visual position changes
-                        const childTables = tables.filter(
-                            (table) => table.parentAreaId === areaChange.id
-                        );
-
-                        childTables.forEach((table) => {
-                            additionalChanges.push({
-                                id: table.id,
-                                type: 'position',
-                                position: {
-                                    x: table.x + deltaX,
-                                    y: table.y + deltaY,
-                                },
-                                dragging: true,
-                            });
-                        });
-                    }
-                });
-
-                // Add visual changes to React Flow
+            if (additionalChanges.length > 0) {
                 changesToApply = [...changesToApply, ...additionalChanges];
             }
 
@@ -822,18 +738,30 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
                 positionChanges: areaPositionChanges,
                 removeChanges: areaRemoveChanges,
                 sizeChanges: areaSizeChanges,
-            } = findRelevantNodesChanges(changesToApply, 'area');
+            } = getRelevantCanvasNodeChanges(
+                changesToApply,
+                'area',
+                (id) => getNode(id) as NodeType | undefined
+            );
 
             // Then, detect note changes
             const {
                 positionChanges: notePositionChanges,
                 removeChanges: noteRemoveChanges,
                 sizeChanges: noteSizeChanges,
-            } = findRelevantNodesChanges(changesToApply, 'note');
+            } = getRelevantCanvasNodeChanges(
+                changesToApply,
+                'note',
+                (id) => getNode(id) as NodeType | undefined
+            );
 
             // Then, detect table changes
             const { positionChanges, removeChanges, sizeChanges } =
-                findRelevantNodesChanges(changesToApply, 'table');
+                getRelevantCanvasNodeChanges(
+                    changesToApply,
+                    'table',
+                    (id) => getNode(id) as NodeType | undefined
+                );
 
             // Calculate child table movements from area position changes
             const childTableMovements: Map<
@@ -1061,7 +989,6 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
             onNodesChange,
             updateTablesState,
             updateOverlappingGraphOnChangesDebounced,
-            findRelevantNodesChanges,
             updateArea,
             removeArea,
             updateNote,

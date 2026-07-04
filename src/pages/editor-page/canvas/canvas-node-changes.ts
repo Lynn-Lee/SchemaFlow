@@ -1,0 +1,102 @@
+import type {
+    NodeChange,
+    NodeDimensionChange,
+    NodePositionChange,
+    NodeRemoveChange,
+} from '@xyflow/react';
+import type { Area } from '@/lib/domain/area';
+import type { DBTable } from '@/lib/domain/db-table';
+import type { NodeType } from './canvas-model';
+
+type GetCanvasNode = (id: string) => NodeType | undefined;
+
+export const getRelevantCanvasNodeChanges = (
+    changes: NodeChange<NodeType>[],
+    type: NodeType['type'],
+    getNode: GetCanvasNode
+) => {
+    const relevantChanges = changes.filter((change) => {
+        if (
+            (change.type === 'position' &&
+                !change.dragging &&
+                change.position?.x !== undefined &&
+                change.position?.y !== undefined &&
+                !isNaN(change.position.x) &&
+                !isNaN(change.position.y)) ||
+            (change.type === 'dimensions' && change.resizing) ||
+            change.type === 'remove'
+        ) {
+            return getNode(change.id)?.type === type;
+        }
+
+        return false;
+    });
+
+    const positionChanges = relevantChanges.filter(
+        (change) =>
+            change.type === 'position' &&
+            !change.dragging &&
+            change.position?.x !== undefined &&
+            change.position?.y !== undefined &&
+            !isNaN(change.position.x) &&
+            !isNaN(change.position.y)
+    ) as NodePositionChange[];
+
+    const removeChanges = relevantChanges.filter(
+        (change) => change.type === 'remove'
+    ) as NodeRemoveChange[];
+
+    const sizeChanges = relevantChanges.filter(
+        (change) => change.type === 'dimensions' && change.resizing
+    ) as NodeDimensionChange[];
+
+    return {
+        positionChanges,
+        removeChanges,
+        sizeChanges,
+    };
+};
+
+export const getAreaDragChildTablePositionChanges = ({
+    changes,
+    areas,
+    tables,
+    getNode,
+}: {
+    changes: NodeChange<NodeType>[];
+    areas: Area[];
+    tables: DBTable[];
+    getNode: GetCanvasNode;
+}): NodePositionChange[] => {
+    const areaDragChanges = changes.filter((change) => {
+        if (change.type !== 'position') {
+            return false;
+        }
+
+        return getNode(change.id)?.type === 'area' && change.dragging;
+    }) as NodePositionChange[];
+
+    return areaDragChanges.flatMap((areaChange) => {
+        const currentArea = areas.find((area) => area.id === areaChange.id);
+        if (!currentArea || !areaChange.position) {
+            return [];
+        }
+
+        const deltaX = areaChange.position.x - currentArea.x;
+        const deltaY = areaChange.position.y - currentArea.y;
+
+        return tables
+            .filter((table) => table.parentAreaId === areaChange.id)
+            .map(
+                (table): NodePositionChange => ({
+                    id: table.id,
+                    type: 'position',
+                    position: {
+                        x: table.x + deltaX,
+                        y: table.y + deltaY,
+                    },
+                    dragging: true,
+                })
+            );
+    });
+};
