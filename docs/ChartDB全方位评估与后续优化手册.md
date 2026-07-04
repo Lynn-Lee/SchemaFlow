@@ -781,7 +781,7 @@ batch: 批次 P
 type: CODE
 priority: P1
 title: 实现设置中心的清除本地数据功能
-status: queued
+status: done
 depends_on: []
 owner_lane: product
 branch: codex/chartdb-p-clear-local-diagrams
@@ -810,6 +810,21 @@ acceptance:
     - 有二次确认
     - 删除后 diagram 列表刷新
     - 删除失败有错误提示
+completion:
+    completed_at: 2026-07-04
+    result:
+        - `StorageContext` 新增 `clearAllDiagrams()`，由 `StorageProvider` 调用 repository 批量清除全部本地图表，并清空 `defaultDiagramId`，避免后续启动指向已删除 diagram。
+        - `DiagramTransactionService` 新增 `clearAllDiagramsWithChildren()`，在同一 transaction 中遍历全部 diagram 并删除 tables、relationships、dependencies、areas、customTypes、notes 和 filters。
+        - 设置中心的 `Clear local diagrams` 从占位警告改为 destructive AlertDialog 二次确认；确认后执行删除，显示处理中、成功和失败反馈。
+        - 新增设置页交互测试和 repository 级联删除测试，覆盖确认后调用清除 API、成功反馈，以及批量删除父/子记录。
+    verification:
+        - npm run test:ci -- src/features/settings/__tests__/settings-dialog.test.tsx src/storage/repositories/__tests__/chartdb-repositories.test.ts
+        - npm run lint
+        - npm run test:ci
+        - npm run build
+        - git diff --check
+next:
+    - 进入 `CHARTDB-P-002`：BYOK key 输入入口。
 ```
 
 #### CHARTDB-P-002：BYOK key 输入入口
@@ -2373,7 +2388,7 @@ npm run test:ci
 | A-004 | diff/load 走 command | A | P1 | done | A-002 |
 | A-005 | checkConstraint command | A | P2 | done | A-002 |
 | A-006 | dialects 迁移 parser | A | P2 | done | A-001 |
-| P-001 | Clear local diagrams | P | P1 | queued | - |
+| P-001 | Clear local diagrams | P | P1 | done | - |
 | P-002 | BYOK key 输入 | P | P1 | queued | - |
 | P-003 | 导出 warning | P | P1 | queued | - |
 | P-004 | ImportResult confidence | P | P2 | queued | - |

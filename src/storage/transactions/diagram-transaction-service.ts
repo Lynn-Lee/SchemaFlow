@@ -97,6 +97,16 @@ export const createDiagramTransactionService = (db: ChartDBDexie) => {
                 await deleteDiagramChildren(diagramId);
             });
         },
+        clearAllDiagramsWithChildren: async () => {
+            await runDiagramTransaction(async () => {
+                const diagrams = await db.diagrams.toArray();
+
+                for (const diagram of diagrams) {
+                    await db.diagrams.delete(diagram.id);
+                    await deleteDiagramChildren(diagram.id);
+                }
+            });
+        },
         replaceDiagramData: async ({ diagram }: { diagram: Diagram }) => {
             await runDiagramTransaction(async () => {
                 await db.diagrams.delete(diagram.id);

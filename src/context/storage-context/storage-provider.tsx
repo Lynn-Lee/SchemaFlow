@@ -27,6 +27,12 @@ export const StorageProvider: React.FC<React.PropsWithChildren> = ({
             getDiagram: repositories.diagrams.get,
             updateDiagram: repositories.diagrams.update,
             deleteDiagram: repositories.diagrams.delete,
+            clearAllDiagrams: async () => {
+                await repositories.diagrams.clearAll();
+                await repositories.config.update({
+                    defaultDiagramId: undefined,
+                });
+            },
 
             addTable: ({ diagramId, table }) =>
                 repositories.tables.add({ diagramId, item: table }),

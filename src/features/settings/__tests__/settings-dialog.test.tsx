@@ -1,9 +1,17 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { LocalConfigProvider } from '@/context/local-config-context/local-config-provider';
 import { SettingsDialog } from '../settings-dialog';
+
+const clearAllDiagramsMock = vi.fn();
+
+vi.mock('@/hooks/use-storage', () => ({
+    useStorage: () => ({
+        clearAllDiagrams: clearAllDiagramsMock,
+    }),
+}));
 
 const renderSettings = () =>
     render(
@@ -13,6 +21,10 @@ const renderSettings = () =>
     );
 
 describe('SettingsDialog', () => {
+    beforeEach(() => {
+        clearAllDiagramsMock.mockReset();
+    });
+
     it('centralizes display, AI mode, export, and local data controls', () => {
         renderSettings();
 
@@ -110,6 +122,32 @@ describe('SettingsDialog', () => {
             screen.getByText(
                 'Browser settings are unavailable. Changes work for this session only.'
             )
+        ).toBeInTheDocument();
+    });
+
+    it('confirms before clearing local diagrams and reports success', async () => {
+        const user = userEvent.setup();
+        renderSettings();
+
+        await user.click(
+            screen.getByRole('button', { name: 'Clear local diagrams' })
+        );
+
+        expect(
+            screen.getByRole('alertdialog', {
+                name: 'Delete all local diagrams?',
+            })
+        ).toBeInTheDocument();
+
+        await user.click(
+            screen.getByRole('button', { name: 'Delete local diagrams' })
+        );
+
+        await waitFor(() =>
+            expect(clearAllDiagramsMock).toHaveBeenCalledOnce()
+        );
+        expect(
+            screen.getByText('All local diagrams have been deleted.')
         ).toBeInTheDocument();
     });
 });

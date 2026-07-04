@@ -246,6 +246,33 @@ describe('ChartDB repositories', () => {
         ).resolves.toBeUndefined();
     });
 
+    it('clears all diagrams and child entity records', async () => {
+        const repositories = createChartDBRepositories(createTestDb());
+
+        await repositories.diagrams.add({
+            diagram: {
+                ...createDiagram('diagram-1'),
+                tables: [createTable('table-1', 'users')],
+            },
+        });
+        await repositories.diagrams.add({
+            diagram: {
+                ...createDiagram('diagram-2'),
+                tables: [createTable('table-2', 'orders')],
+            },
+        });
+
+        await repositories.diagrams.clearAll();
+
+        await expect(repositories.diagrams.list()).resolves.toHaveLength(0);
+        await expect(
+            repositories.tables.list('diagram-1')
+        ).resolves.toHaveLength(0);
+        await expect(
+            repositories.tables.list('diagram-2')
+        ).resolves.toHaveLength(0);
+    });
+
     it('keeps StorageProvider behind repository APIs instead of Dexie tables', () => {
         const provider = fs.readFileSync(
             'src/context/storage-context/storage-provider.tsx',

@@ -215,6 +215,9 @@ export const createChartDBRepositories = (db: ChartDBDexie) => {
         delete: async (id: string) => {
             await diagramTransactions.deleteDiagramWithChildren(id);
         },
+        clearAll: async () => {
+            await diagramTransactions.clearAllDiagramsWithChildren();
+        },
     };
 
     return {

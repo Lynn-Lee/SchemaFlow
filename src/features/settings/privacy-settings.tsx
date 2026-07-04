@@ -2,8 +2,21 @@ import React from 'react';
 import { AlertTriangle, Database, KeyRound } from 'lucide-react';
 import { Button } from '@/components/button/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/alert/alert';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/alert-dialog/alert-dialog';
 import { useDialog } from '@/hooks/use-dialog';
 import { useLocalConfig } from '@/hooks/use-local-config';
+import { useStorage } from '@/hooks/use-storage';
+
+type ClearStatus = 'idle' | 'clearing' | 'success' | 'error';
 
 export const PrivacySettings: React.FC = () => {
     const {
@@ -16,7 +29,28 @@ export const PrivacySettings: React.FC = () => {
         setAIGatewayModelName,
     } = useLocalConfig();
     const { openExportDiagramDialog, openImportDiagramDialog } = useDialog();
-    const [showClearWarning, setShowClearWarning] = React.useState(false);
+    const { clearAllDiagrams } = useStorage();
+    const [clearDialogOpen, setClearDialogOpen] = React.useState(false);
+    const [clearStatus, setClearStatus] = React.useState<ClearStatus>('idle');
+    const [clearError, setClearError] = React.useState<string | undefined>();
+
+    const handleClearLocalDiagrams = React.useCallback(async () => {
+        setClearStatus('clearing');
+        setClearError(undefined);
+
+        try {
+            await clearAllDiagrams();
+            setClearStatus('success');
+            setClearDialogOpen(false);
+        } catch (error) {
+            setClearStatus('error');
+            setClearError(
+                error instanceof Error
+                    ? error.message
+                    : 'Local diagrams could not be deleted.'
+            );
+        }
+    }, [clearAllDiagrams]);
 
     return (
         <section className="grid gap-5" aria-labelledby="privacy-settings">
@@ -132,24 +166,68 @@ export const PrivacySettings: React.FC = () => {
                     <Button
                         type="button"
                         variant="destructive"
-                        onClick={() => setShowClearWarning(true)}
+                        disabled={clearStatus === 'clearing'}
+                        onClick={() => setClearDialogOpen(true)}
                     >
                         Clear local diagrams
                     </Button>
                 </div>
-                {showClearWarning ? (
-                    <Alert variant="destructive">
-                        <AlertTriangle className="size-4" />
-                        <AlertTitle>
-                            Clear local data needs confirmation
-                        </AlertTitle>
+                {clearStatus === 'success' ? (
+                    <Alert>
+                        <Database className="size-4" />
+                        <AlertTitle>Local diagrams cleared</AlertTitle>
                         <AlertDescription>
-                            Export a backup first. Bulk clearing local diagrams
-                            will be implemented as a separate destructive action
-                            with repository-level confirmation.
+                            All local diagrams have been deleted.
                         </AlertDescription>
                     </Alert>
                 ) : null}
+                {clearStatus === 'error' ? (
+                    <Alert variant="destructive">
+                        <AlertTriangle className="size-4" />
+                        <AlertTitle>Could not clear local diagrams</AlertTitle>
+                        <AlertDescription>
+                            {clearError ??
+                                'Local diagrams could not be deleted.'}
+                        </AlertDescription>
+                    </Alert>
+                ) : null}
+                <AlertDialog
+                    open={clearDialogOpen}
+                    onOpenChange={setClearDialogOpen}
+                >
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>
+                                Delete all local diagrams?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                                This deletes every diagram stored in this
+                                browser, including tables, relationships, notes,
+                                areas, custom types, and filters. Export a
+                                backup first if you need to keep a copy.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel
+                                disabled={clearStatus === 'clearing'}
+                            >
+                                Cancel
+                            </AlertDialogCancel>
+                            <AlertDialogAction
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                disabled={clearStatus === 'clearing'}
+                                onClick={(event) => {
+                                    event.preventDefault();
+                                    void handleClearLocalDiagrams();
+                                }}
+                            >
+                                {clearStatus === 'clearing'
+                                    ? 'Deleting...'
+                                    : 'Delete local diagrams'}
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             </div>
         </section>
     );
