@@ -35,8 +35,6 @@ import { useLocalConfig } from '@/hooks/use-local-config';
 import { MarkerDefinitions } from './marker-definitions';
 import { CanvasContextMenu } from './canvas-context-menu';
 import { areFieldTypesCompatible } from '@/lib/data/data-types/data-types';
-import { findOverlappingTables, findTableOverlapping } from './canvas-utils';
-import type { Graph } from '@/lib/graph';
 import type { ChartDBEvent } from '@/context/chartdb-context/chartdb-context';
 import { debounce, getOperatingSystem } from '@/lib/utils';
 import type { DependencyEdgeType } from './dependency-edge/dependency-edge';
@@ -88,6 +86,10 @@ import { CanvasControls } from './canvas-controls';
 import { CanvasFilterLayer } from './canvas-filter-layer';
 import { CanvasFlow } from './canvas-flow';
 import { useCanvasPointerActions } from './canvas-pointer-actions';
+import {
+    buildUpdatedOverlapGraphForNodeChanges,
+    buildVisibleTableOverlapGraph,
+} from './canvas-overlap-updates';
 
 export type { EdgeType, NodeType } from './canvas-model';
 
@@ -421,21 +423,13 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
             showDBViews !== prevShowDBViews.current
         ) {
             debounce(() => {
-                const overlappingTablesInDiagram = findOverlappingTables({
-                    tables: tables.filter(
-                        (table) =>
-                            filterTable({
-                                table: {
-                                    id: table.id,
-                                    schema: table.schema,
-                                },
-                                filter,
-                                options: {
-                                    defaultSchema: defaultSchemas[databaseType],
-                                },
-                            }) && (showDBViews ? true : !table.isView)
-                    ),
-                });
+                const overlappingTablesInDiagram =
+                    buildVisibleTableOverlapGraph({
+                        tables,
+                        filter,
+                        databaseType,
+                        showDBViews,
+                    });
                 setOverlapGraph(overlappingTablesInDiagram);
                 fitView({
                     duration: 500,
@@ -619,51 +613,15 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
             sizeChanges: NodeDimensionChange[];
         }) => {
             if (positionChanges.length > 0 || sizeChanges.length > 0) {
-                let newOverlappingGraph: Graph<string> = overlapGraph;
-
-                for (const change of positionChanges) {
-                    const node = getNode(change.id) as NodeType;
-                    if (!node) {
-                        continue;
-                    }
-
-                    if (node.type !== 'table') {
-                        continue;
-                    }
-
-                    newOverlappingGraph = findTableOverlapping(
-                        { node: node as TableNodeType },
-                        {
-                            nodes: nodes.filter(
-                                (node) => !node.hidden && node.type === 'table'
-                            ) as TableNodeType[],
-                        },
-                        newOverlappingGraph
-                    );
-                }
-
-                for (const change of sizeChanges) {
-                    const node = getNode(change.id) as NodeType;
-                    if (!node) {
-                        continue;
-                    }
-
-                    if (node.type !== 'table') {
-                        continue;
-                    }
-
-                    newOverlappingGraph = findTableOverlapping(
-                        { node: node as TableNodeType },
-                        {
-                            nodes: nodes.filter(
-                                (node) => !node.hidden && node.type === 'table'
-                            ) as TableNodeType[],
-                        },
-                        newOverlappingGraph
-                    );
-                }
-
-                setOverlapGraph(newOverlappingGraph);
+                setOverlapGraph(
+                    buildUpdatedOverlapGraphForNodeChanges({
+                        overlapGraph,
+                        nodes,
+                        positionChanges,
+                        sizeChanges,
+                        getNode: (id) => getNode(id) as NodeType | undefined,
+                    })
+                );
             }
         },
         [nodes, overlapGraph, setOverlapGraph, getNode]

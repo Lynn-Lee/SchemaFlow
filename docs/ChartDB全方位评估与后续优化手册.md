@@ -1590,6 +1590,9 @@ progress:
     - 2026-07-05：完成第十二段最小拆分切片，在 `src/pages/editor-page/canvas/canvas-node-changes.ts` 中新增 `buildCanvasNodeChangeSet()`，将 `onNodesChangeHandler` 的 readonly 过滤、area 拖拽视觉位移、area/note/table 变更分类和子表持久化位移计算收敛为可独立测试的 change set helper。
     - 扩展 `src/pages/editor-page/canvas/__tests__/canvas-node-changes.test.ts`，红灯先失败于 `buildCanvasNodeChangeSet is not a function`，绿灯覆盖 readonly remove 过滤、area 拖拽视觉 child table movement 和提交 area position 后的 child table 持久化 delta。
     - `canvas.tsx` 从 1065 行降到 1008 行；本轮仍不标记 done，下一步继续拆 `CanvasViewport` / drag / zoom hooks / overlap graph update 或其它事件 handler，直到主体低于 500 行。
+    - 2026-07-05：完成第十三段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-overlap-updates.ts`，将 filter/showDBViews 触发的全量 overlap graph 重算、position/dimension 变更触发的局部 overlap graph 更新从 `canvas.tsx` 抽出为可独立测试的纯函数层。
+    - 新增 `src/pages/editor-page/canvas/__tests__/canvas-overlap-updates.test.ts`，红灯先失败于缺失 `../canvas-overlap-updates`，绿灯覆盖过滤/视图隐藏后的 overlap graph 生成，以及仅对变更的可见 table node 局部重算 overlap graph。
+    - `canvas.tsx` 从 1008 行降到 960 行；本轮仍不标记 done，下一步继续拆 `CanvasViewport` / drag / zoom hooks / parent area update 或其它事件 handler，直到主体低于 500 行。
 ```
 
 ### 批次 Q：代码质量
