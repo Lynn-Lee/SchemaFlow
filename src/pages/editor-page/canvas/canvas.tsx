@@ -18,8 +18,6 @@ import {
     ReactFlow,
     useEdgesState,
     useNodesState,
-    Background,
-    BackgroundVariant,
     useReactFlow,
     useKeyPress,
     SelectionMode,
@@ -55,7 +53,6 @@ import {
     updateTablesParentAreas,
     getTablesInArea,
 } from '@/lib/utils/area-utils';
-import { CanvasFilter } from './canvas-filter/canvas-filter';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useIsLostInCanvas } from './hooks/use-is-lost-in-canvas';
 import type { DiagramFilter } from '@/lib/domain/diagram-filter/diagram-filter';
@@ -99,7 +96,7 @@ import {
 } from './canvas-floating-edge';
 import { buildCanvasEventUpdate } from './canvas-chartdb-events';
 import { CanvasControls } from './canvas-controls';
-import { CanvasEmptyFilterOverlay } from './canvas-empty-filter-overlay';
+import { CanvasFilterLayer } from './canvas-filter-layer';
 
 export type { EdgeType, NodeType } from './canvas-model';
 
@@ -1160,17 +1157,12 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
                         onPulseOverlappingTables={pulseOverlappingTables}
                         showSidePanel={showSidePanel}
                     />
-                    <Background
-                        variant={BackgroundVariant.Dots}
-                        gap={16}
-                        size={1}
+                    <CanvasFilterLayer
+                        allTablesHiddenByFilter={allTablesHiddenByFilter}
+                        showFilter={showFilter}
+                        onResetFilter={resetFilter}
+                        onCloseFilter={() => setShowFilter(false)}
                     />
-                    {allTablesHiddenByFilter && (
-                        <CanvasEmptyFilterOverlay onResetFilter={resetFilter} />
-                    )}
-                    {showFilter ? (
-                        <CanvasFilter onClose={() => setShowFilter(false)} />
-                    ) : null}
                 </ReactFlow>
                 <MarkerDefinitions />
             </div>
