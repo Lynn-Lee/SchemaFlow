@@ -1,7 +1,7 @@
 import { DatabaseType } from '@/lib/domain/database-type';
 import type { Template } from '../templates-data';
-import image from '@/assets/templates/ticketit-db.png';
-import imageDark from '@/assets/templates/ticketit-db-dark.png';
+import image from '@/assets/templates/ticketit-db.webp';
+import imageDark from '@/assets/templates/ticketit-db-dark.webp';
 
 const now = Date.now();
 

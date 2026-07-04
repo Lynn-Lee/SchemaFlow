@@ -1,7 +1,7 @@
 import { DatabaseType } from '@/lib/domain/database-type';
 import type { Template } from '../templates-data';
-import image from '@/assets/templates/bookstack-db.png';
-import imageDark from '@/assets/templates/bookstack-db-dark.png';
+import image from '@/assets/templates/bookstack-db.webp';
+import imageDark from '@/assets/templates/bookstack-db-dark.webp';
 
 const now = Date.now();
 

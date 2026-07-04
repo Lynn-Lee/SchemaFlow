@@ -1,7 +1,7 @@
 import { DatabaseType } from '@/lib/domain/database-type';
 import type { Template } from '../templates-data';
-import image from '@/assets/templates/visual-novel-db.png';
-import imageDark from '@/assets/templates/visual-novel-db-dark.png';
+import image from '@/assets/templates/visual-novel-db.webp';
+import imageDark from '@/assets/templates/visual-novel-db-dark.webp';
 
 const now = Date.now();
 

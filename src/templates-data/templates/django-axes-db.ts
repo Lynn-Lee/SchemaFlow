@@ -1,7 +1,7 @@
 import { DatabaseType } from '@/lib/domain/database-type';
 import type { Template } from '../templates-data';
-import image from '@/assets/templates/django-axes-db.png';
-import imageDark from '@/assets/templates/django-axes-db-dark.png';
+import image from '@/assets/templates/django-axes-db.webp';
+import imageDark from '@/assets/templates/django-axes-db-dark.webp';
 
 const now = Date.now();
 

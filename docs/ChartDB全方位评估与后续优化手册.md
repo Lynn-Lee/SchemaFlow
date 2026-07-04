@@ -1318,7 +1318,7 @@ batch: 批次 T
 type: CODE
 priority: P2
 title: 模板缩略图 PNG 转换为 WebP 格式
-status: queued
+status: done
 depends_on: []
 owner_lane: performance
 branch: codex/chartdb-t-webp-conversion
@@ -1343,6 +1343,23 @@ acceptance:
     - 模板缩略图为 WebP 格式
     - 图片体积下降 40%+
     - 亮色和暗色主题正常显示
+completion:
+    completed_at: 2026-07-04
+    result:
+        - 使用 `cwebp -q 82` 为 `src/assets/templates/` 下 100 张模板亮色/暗色 PNG 生成同名 WebP，并保留原 PNG 作为备份。
+        - `src/templates-data/template-manifest.ts` 改为引用 WebP 缩略图，模板列表和卡片首屏不再加载 PNG 缩略图。
+        - `src/templates-data/templates/*.ts` 的动态模板模块同步改为 WebP 引用，避免详情页和 clone loader 的 template chunk 继续携带 PNG。
+        - 新增 WebP 资产契约测试，锁定 manifest 和完整模板模块都只引用存在的 WebP 模板缩略图。
+        - PNG 总体积 39,573,744 bytes；WebP 总体积 12,004,866 bytes；缩减 69.7%。
+    verification:
+        - npm run test:ci -- src/templates-data/__tests__/template-lazy-registry.test.ts
+        - npm run test:ci -- src/templates-data/__tests__/
+        - npm run lint
+        - npm run test:ci
+        - npm run build
+        - git diff --check
+    next:
+        - 进入 `CHARTDB-T-004`：统一图标库。
 ```
 
 #### CHARTDB-T-004：统一图标库
@@ -2524,7 +2541,7 @@ npm run test:ci
 | S-003 | Monaco 升级评估 | S | P2 | queued | - |
 | T-001 | i18n 懒加载 | T | P1 | done | - |
 | T-002 | 模板懒加载完善 | T | P1 | done | - |
-| T-003 | PNG 转 WebP | T | P2 | queued | - |
+| T-003 | PNG 转 WebP | T | P2 | done | - |
 | T-004 | 统一图标库 | T | P2 | queued | - |
 | T-005 | 精简 hooks 库 | T | P2 | queued | F-001a |
 | T-006 | Monaco config 惰性 | T | P2 | queued | - |

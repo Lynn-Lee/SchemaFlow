@@ -1,7 +1,7 @@
 import { DatabaseType } from '@/lib/domain/database-type';
 import type { Template } from '../templates-data';
-import image from '@/assets/templates/akaunting.png';
-import imageDark from '@/assets/templates/akaunting-dark.png';
+import image from '@/assets/templates/akaunting.webp';
+import imageDark from '@/assets/templates/akaunting-dark.webp';
 
 const now = Date.now();
 

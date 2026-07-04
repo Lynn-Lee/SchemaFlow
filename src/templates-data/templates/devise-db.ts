@@ -1,7 +1,7 @@
 import { DatabaseType } from '@/lib/domain/database-type';
 import type { Template } from '../templates-data';
-import image from '@/assets/templates/devise-db.png';
-import imageDark from '@/assets/templates/devise-db-dark.png';
+import image from '@/assets/templates/devise-db.webp';
+import imageDark from '@/assets/templates/devise-db-dark.webp';
 
 const now = Date.now();
 

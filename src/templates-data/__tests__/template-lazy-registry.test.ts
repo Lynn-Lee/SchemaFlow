@@ -84,4 +84,39 @@ describe('template lazy registry', () => {
             expect(source).not.toMatch(dynamicImport);
         }
     });
+
+    it('uses WebP template thumbnails in the manifest and full template modules', () => {
+        const sourceFiles = [
+            'src/templates-data/template-manifest.ts',
+            ...listTemplateModules().map(
+                (fileName) => `src/templates-data/templates/${fileName}`
+            ),
+        ];
+        const imageImportPattern =
+            /@\/assets\/templates\/([^'"]+\.(?:png|webp))/g;
+
+        for (const sourceFile of sourceFiles) {
+            const source = readSource(sourceFile);
+            const imageImports = [...source.matchAll(imageImportPattern)].map(
+                (match) => match[1]
+            );
+
+            expect(imageImports.length).toBeGreaterThan(0);
+            expect(imageImports).toEqual(
+                imageImports.filter((imagePath) => imagePath.endsWith('.webp'))
+            );
+
+            for (const imagePath of imageImports) {
+                expect(
+                    fs.existsSync(
+                        path.join(
+                            process.cwd(),
+                            'src/assets/templates',
+                            imagePath
+                        )
+                    )
+                ).toBe(true);
+            }
+        }
+    });
 });

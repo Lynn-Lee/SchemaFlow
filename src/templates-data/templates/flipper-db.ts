@@ -1,7 +1,7 @@
 import { DatabaseType } from '@/lib/domain/database-type';
 import type { Template } from '../templates-data';
-import image from '@/assets/templates/flipper-db.png';
-import imageDark from '@/assets/templates/flipper-db-dark.png';
+import image from '@/assets/templates/flipper-db.webp';
+import imageDark from '@/assets/templates/flipper-db-dark.webp';
 
 const now = Date.now();
 
