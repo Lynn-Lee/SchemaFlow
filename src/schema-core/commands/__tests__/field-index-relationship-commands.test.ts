@@ -2,18 +2,23 @@ import { describe, expect, it } from 'vitest';
 
 import type { CommandContext, DiagramCommand } from '@/schema-core/commands';
 import {
+    applyCheckConstraintCommand,
     applyFieldCommand,
     applyIndexCommand,
     applyRelationshipCommand,
+    createAddCheckConstraintCommand,
     createAddFieldCommand,
     createAddIndexCommand,
     createAddRelationshipCommand,
+    createDeleteCheckConstraintCommand,
     createDeleteFieldCommand,
+    createUpdateCheckConstraintCommand,
     createUpdateIndexCommand,
     createUpdateRelationshipCommand,
     type DiagramFieldIndexRelationshipCommandState,
 } from '@/schema-core/commands';
 import type {
+    DBCheckConstraint,
     DBField,
     DBIndex,
     DBRelationship,
@@ -362,5 +367,129 @@ describe('schema-core field, index, and relationship commands', () => {
             type: 'field.delete',
             payload: { tableId: 'users', fieldId: 'email' },
         });
+    });
+
+    it('adds, updates, and deletes check constraints through commands', () => {
+        const table = createTable({ id: 'users' });
+        const constraint: DBCheckConstraint = {
+            id: 'chk-users-age',
+            expression: 'age > 0',
+            createdAt: 1,
+        };
+
+        const addResult = applyCheckConstraintCommand({
+            command: createAddCheckConstraintCommand({
+                context,
+                tableId: 'users',
+                constraint,
+            }),
+            context,
+            state: baseState({ tables: [table] }),
+        });
+
+        expect(addResult.status).toBe('success');
+        expect(addResult.state.tables[0].checkConstraints).toEqual([
+            constraint,
+        ]);
+        expect(addResult.undoCommand).toMatchObject({
+            type: 'check_constraint.delete',
+            payload: { tableId: 'users', constraintId: 'chk-users-age' },
+        });
+
+        const updateResult = applyCheckConstraintCommand({
+            command: createUpdateCheckConstraintCommand({
+                context,
+                tableId: 'users',
+                constraintId: 'chk-users-age',
+                constraint: { expression: 'age >= 0' },
+            }),
+            context,
+            state: addResult.state,
+        });
+
+        expect(updateResult.status).toBe('success');
+        expect(updateResult.state.tables[0].checkConstraints).toEqual([
+            { ...constraint, expression: 'age >= 0' },
+        ]);
+        expect(updateResult.undoCommand).toMatchObject({
+            type: 'check_constraint.update',
+            payload: {
+                tableId: 'users',
+                constraintId: 'chk-users-age',
+                constraint,
+            },
+        });
+
+        const deleteResult = applyCheckConstraintCommand({
+            command: createDeleteCheckConstraintCommand({
+                context,
+                tableId: 'users',
+                constraintId: 'chk-users-age',
+            }),
+            context,
+            state: updateResult.state,
+        });
+
+        expect(deleteResult.status).toBe('success');
+        expect(deleteResult.state.tables[0].checkConstraints).toEqual([]);
+        expect(deleteResult.undoCommand).toMatchObject({
+            type: 'check_constraint.add',
+            payload: {
+                tableId: 'users',
+                constraint: { ...constraint, expression: 'age >= 0' },
+            },
+        });
+    });
+
+    it('validates check constraint parent table and duplicate ids', () => {
+        const constraint: DBCheckConstraint = {
+            id: 'chk-users-age',
+            expression: 'age > 0',
+            createdAt: 1,
+        };
+        const table = createTable({
+            id: 'users',
+            checkConstraints: [constraint],
+        });
+
+        const missingTableResult = applyCheckConstraintCommand({
+            command: createAddCheckConstraintCommand({
+                context,
+                tableId: 'missing-table',
+                constraint,
+            }),
+            context,
+            state: baseState({ tables: [table] }),
+        });
+
+        expect(missingTableResult.status).toBe('validation_error');
+        expect(missingTableResult.validationErrors).toEqual([
+            {
+                code: 'table.not_found',
+                message: 'Table was not found.',
+                entityId: 'missing-table',
+                path: ['tables', 'missing-table'],
+            },
+        ]);
+
+        const duplicateResult = applyCheckConstraintCommand({
+            command: createAddCheckConstraintCommand({
+                context,
+                tableId: 'users',
+                constraint,
+            }),
+            context,
+            state: baseState({ tables: [table] }),
+        });
+
+        expect(duplicateResult.status).toBe('validation_error');
+        expect(duplicateResult.validationErrors).toEqual([
+            {
+                code: 'check_constraint.duplicate_id',
+                message: 'Check constraint already exists.',
+                entityId: 'chk-users-age',
+                path: ['tables', 'users', 'checkConstraints', 'chk-users-age'],
+            },
+        ]);
     });
 });

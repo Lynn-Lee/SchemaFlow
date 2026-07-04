@@ -8,6 +8,7 @@ import type {
 } from './redo-undo-action';
 import type {
     Area,
+    DBCheckConstraint,
     DBCustomType,
     DBDependency,
     DBField,
@@ -444,6 +445,9 @@ export const HistoryProvider: React.FC<React.PropsWithChildren> = ({
             case 'index.add':
             case 'index.update':
             case 'index.delete':
+            case 'check_constraint.add':
+            case 'check_constraint.update':
+            case 'check_constraint.delete':
             case 'relationship.add':
             case 'relationship.update':
             case 'relationship.delete':
@@ -574,6 +578,43 @@ export const HistoryProvider: React.FC<React.PropsWithChildren> = ({
                         indexId: string;
                     };
                     await removeIndex(tableId, indexId, {
+                        updateHistory: false,
+                    });
+                    return;
+                }
+                case 'check_constraint.add': {
+                    const { tableId, constraint } = command.payload as {
+                        tableId: string;
+                        constraint: DBCheckConstraint;
+                    };
+                    await addCheckConstraint(tableId, constraint, {
+                        updateHistory: false,
+                    });
+                    return;
+                }
+                case 'check_constraint.update': {
+                    const { tableId, constraintId, constraint } =
+                        command.payload as {
+                            tableId: string;
+                            constraintId: string;
+                            constraint: Partial<DBCheckConstraint>;
+                        };
+                    await updateCheckConstraint(
+                        tableId,
+                        constraintId,
+                        constraint,
+                        {
+                            updateHistory: false,
+                        }
+                    );
+                    return;
+                }
+                case 'check_constraint.delete': {
+                    const { tableId, constraintId } = command.payload as {
+                        tableId: string;
+                        constraintId: string;
+                    };
+                    await removeCheckConstraint(tableId, constraintId, {
                         updateHistory: false,
                     });
                     return;
@@ -739,6 +780,9 @@ export const HistoryProvider: React.FC<React.PropsWithChildren> = ({
             addIndex,
             updateIndex,
             removeIndex,
+            addCheckConstraint,
+            updateCheckConstraint,
+            removeCheckConstraint,
             updateRelationship,
             removeRelationships,
             addAreas,

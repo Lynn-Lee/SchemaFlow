@@ -9,11 +9,15 @@ import type { DBTable } from '@/lib/domain/db-table';
 import type { DatabaseType } from '@/lib/domain/database-type';
 import { generateId } from '@/lib/utils';
 import {
+    applyCheckConstraintCommand,
     applyRelationshipCommand,
+    createAddCheckConstraintCommand,
     createAddRelationshipCommand,
     createCommandHistoryBatch,
     createCommandHistoryEntry,
+    createDeleteCheckConstraintCommand,
     createDeleteRelationshipCommand,
+    createUpdateCheckConstraintCommand,
     createUpdateRelationshipCommand,
     type CommandContext,
     type CommandHistoryBatch,
@@ -72,22 +76,34 @@ export function useRelationshipConstraintOperations({
                 constraint: DBCheckConstraint,
                 options = { updateHistory: true }
             ) => {
-                setTables((tables) =>
-                    tables.map((t) =>
-                        t.id === tableId
-                            ? {
-                                  ...t,
-                                  checkConstraints: [
-                                      ...(t.checkConstraints ?? []),
-                                      constraint,
-                                  ],
-                              }
-                            : t
-                    )
-                );
+                const command = createAddCheckConstraintCommand({
+                    context: commandContext,
+                    tableId,
+                    constraint,
+                });
+                const result = applyCheckConstraintCommand({
+                    context: commandContext,
+                    state: createCommandState({
+                        databaseType,
+                        tables,
+                        relationships,
+                    }),
+                    command,
+                });
+                if (result.status !== 'success') {
+                    return;
+                }
+
+                setTables(result.state.tables);
 
                 const dbTable = await db.getTable({ diagramId, id: tableId });
                 if (!dbTable) {
+                    return;
+                }
+                const updatedTable = result.state.tables.find(
+                    (table) => table.id === tableId
+                );
+                if (!updatedTable) {
                     return;
                 }
 
@@ -100,13 +116,7 @@ export function useRelationshipConstraintOperations({
                     }),
                     db.updateTable({
                         id: tableId,
-                        attributes: {
-                            ...dbTable,
-                            checkConstraints: [
-                                ...(dbTable.checkConstraints ?? []),
-                                constraint,
-                            ],
-                        },
+                        attributes: { ...dbTable, ...updatedTable },
                     }),
                 ]);
 
@@ -115,6 +125,10 @@ export function useRelationshipConstraintOperations({
                         action: 'addCheckConstraint',
                         redoData: { tableId, constraint },
                         undoData: { tableId, constraintId: constraint.id },
+                        commandHistory: createSingleCommandHistory(
+                            command,
+                            result
+                        ),
                     });
                     resetRedoStack();
                 }
@@ -126,6 +140,10 @@ export function useRelationshipConstraintOperations({
                 setDiagramUpdatedAt,
                 addUndoAction,
                 resetRedoStack,
+                tables,
+                relationships,
+                databaseType,
+                commandContext,
             ]
         );
 
@@ -156,22 +174,34 @@ export function useRelationshipConstraintOperations({
                 const prevConstraint = table?.checkConstraints?.find(
                     (c) => c.id === constraintId
                 );
+                const command = createDeleteCheckConstraintCommand({
+                    context: commandContext,
+                    tableId,
+                    constraintId,
+                });
+                const result = applyCheckConstraintCommand({
+                    context: commandContext,
+                    state: createCommandState({
+                        databaseType,
+                        tables,
+                        relationships,
+                    }),
+                    command,
+                });
+                if (result.status !== 'success') {
+                    return;
+                }
 
-                setTables((tables) =>
-                    tables.map((t) =>
-                        t.id === tableId
-                            ? {
-                                  ...t,
-                                  checkConstraints: (
-                                      t.checkConstraints ?? []
-                                  ).filter((c) => c.id !== constraintId),
-                              }
-                            : t
-                    )
-                );
+                setTables(result.state.tables);
 
                 const dbTable = await db.getTable({ diagramId, id: tableId });
                 if (!dbTable) {
+                    return;
+                }
+                const updatedTable = result.state.tables.find(
+                    (currentTable) => currentTable.id === tableId
+                );
+                if (!updatedTable) {
                     return;
                 }
 
@@ -184,12 +214,7 @@ export function useRelationshipConstraintOperations({
                     }),
                     db.updateTable({
                         id: tableId,
-                        attributes: {
-                            ...dbTable,
-                            checkConstraints: (
-                                dbTable.checkConstraints ?? []
-                            ).filter((c) => c.id !== constraintId),
-                        },
+                        attributes: { ...dbTable, ...updatedTable },
                     }),
                 ]);
 
@@ -198,6 +223,10 @@ export function useRelationshipConstraintOperations({
                         action: 'removeCheckConstraint',
                         redoData: { tableId, constraintId },
                         undoData: { tableId, constraint: prevConstraint },
+                        commandHistory: createSingleCommandHistory(
+                            command,
+                            result
+                        ),
                     });
                     resetRedoStack();
                 }
@@ -210,6 +239,10 @@ export function useRelationshipConstraintOperations({
                 addUndoAction,
                 resetRedoStack,
                 getTable,
+                tables,
+                relationships,
+                databaseType,
+                commandContext,
             ]
         );
 
@@ -225,26 +258,35 @@ export function useRelationshipConstraintOperations({
                 const prevConstraint = table?.checkConstraints?.find(
                     (c) => c.id === constraintId
                 );
+                const command = createUpdateCheckConstraintCommand({
+                    context: commandContext,
+                    tableId,
+                    constraintId,
+                    constraint,
+                });
+                const result = applyCheckConstraintCommand({
+                    context: commandContext,
+                    state: createCommandState({
+                        databaseType,
+                        tables,
+                        relationships,
+                    }),
+                    command,
+                });
+                if (result.status !== 'success') {
+                    return;
+                }
 
-                setTables((tables) =>
-                    tables.map((t) =>
-                        t.id === tableId
-                            ? {
-                                  ...t,
-                                  checkConstraints: (
-                                      t.checkConstraints ?? []
-                                  ).map((c) =>
-                                      c.id === constraintId
-                                          ? { ...c, ...constraint }
-                                          : c
-                                  ),
-                              }
-                            : t
-                    )
-                );
+                setTables(result.state.tables);
 
                 const dbTable = await db.getTable({ diagramId, id: tableId });
                 if (!dbTable) {
+                    return;
+                }
+                const updatedTable = result.state.tables.find(
+                    (currentTable) => currentTable.id === tableId
+                );
+                if (!updatedTable) {
                     return;
                 }
 
@@ -257,16 +299,7 @@ export function useRelationshipConstraintOperations({
                     }),
                     db.updateTable({
                         id: tableId,
-                        attributes: {
-                            ...dbTable,
-                            checkConstraints: (
-                                dbTable.checkConstraints ?? []
-                            ).map((c) =>
-                                c.id === constraintId
-                                    ? { ...c, ...constraint }
-                                    : c
-                            ),
-                        },
+                        attributes: { ...dbTable, ...updatedTable },
                     }),
                 ]);
 
@@ -279,6 +312,10 @@ export function useRelationshipConstraintOperations({
                             constraintId,
                             constraint: prevConstraint,
                         },
+                        commandHistory: createSingleCommandHistory(
+                            command,
+                            result
+                        ),
                     });
                     resetRedoStack();
                 }
@@ -291,6 +328,10 @@ export function useRelationshipConstraintOperations({
                 addUndoAction,
                 resetRedoStack,
                 getTable,
+                tables,
+                relationships,
+                databaseType,
+                commandContext,
             ]
         );
 
@@ -629,4 +670,20 @@ function createBatchedCommandHistory(
     entries: Array<CommandHistoryEntry | null>
 ): CommandHistoryBatch | undefined {
     return createCommandHistoryBatch(entries);
+}
+
+function createCommandState({
+    databaseType,
+    tables,
+    relationships,
+}: {
+    databaseType: DatabaseType;
+    tables: DBTable[];
+    relationships: DBRelationship[];
+}): DiagramFieldIndexRelationshipCommandState {
+    return {
+        databaseType,
+        tables,
+        relationships,
+    };
 }

@@ -11,6 +11,8 @@ export * from './index-commands';
 export * from './apply-index-command';
 export * from './relationship-commands';
 export * from './apply-relationship-command';
+export * from './check-constraint-commands';
+export * from './apply-check-constraint-command';
 export * from './area-commands';
 export * from './apply-area-command';
 export * from './note-commands';
