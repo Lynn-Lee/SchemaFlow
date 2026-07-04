@@ -1743,7 +1743,7 @@ batch: 批次 A
 type: CODE
 priority: P0
 title: 在应用根级新增 React ErrorBoundary，避免未捕获异常导致整页白屏
-status: queued
+status: done
 depends_on: []
 owner_lane: core
 branch: codex/chartdb-a-error-boundary
@@ -1982,7 +1982,7 @@ batch: 批次 P
 type: CODE
 priority: P2
 title: 为 canvas 核心交互（节点选中、删除、平移）补充最小键盘路径，并在可访问性文档中显式记录范围边界
-status: queued
+status: done
 depends_on: []
 owner_lane: product
 branch: codex/chartdb-p-canvas-a11y-baseline
@@ -2007,6 +2007,11 @@ acceptance:
     - 选中节点后可用键盘删除和方向键微调
     - 可访问性文档显式记录画布本体键盘操作的范围边界
     - 无行为回归
+completion:
+    - 2026-07-04：新增 `src/pages/editor-page/canvas/canvas-keyboard-actions.ts`，把可测试的画布键盘动作收敛为纯函数；选中 table/area/note 后支持 Delete/Backspace 删除和方向键按 20px 微调位置，readonly 状态不会变更节点。
+    - `src/pages/editor-page/canvas/canvas.tsx` 为画布容器补充 `role="application"`、`aria-label="Diagram canvas"` 和 `tabIndex=0`，并在容器 keydown 中接入键盘动作；输入框、按钮、textarea、textbox 等交互控件内的按键不会被画布拦截。
+    - 新增 `src/pages/editor-page/canvas/__tests__/canvas-keyboard-actions.test.ts`，红灯先失败于缺失 helper 模块，绿灯覆盖方向键移动、Delete 删除和 readonly 禁用。
+    - `docs/可访问性与核心流程验收.md` 已显式记录：画布节点/连线完整键盘等价操作仍属于已知限制，本轮只交付选中节点后的最小键盘路径。
 ```
 
 #### CHARTDB-P-011：路由增加 errorElement
@@ -2585,7 +2590,7 @@ npm run test:ci
 | P-006 | 缺失 dialect wrapper | P | P2 | done | F-005 |
 | S-001 | CSP 收紧 | S | P1 | done | - |
 | S-002 | innerHTML 修复 | S | P2 | done | - |
-| S-003 | Monaco 升级评估 | S | P2 | queued | - |
+| S-003 | Monaco 升级评估 | S | P2 | done | - |
 | T-001 | i18n 懒加载 | T | P1 | done | - |
 | T-002 | 模板懒加载完善 | T | P1 | done | - |
 | T-003 | PNG 转 WebP | T | P2 | done | - |
@@ -2603,7 +2608,7 @@ npm run test:ci
 | A-009 | Diagram version 字段 | A | P2 | done | A-001 |
 | A-010 | 元数据导入校验补齐 | A | P1 | done | - |
 | A-011 | Worker 超时保护 | A | P2 | done | - |
-| P-010 | Canvas 键盘可访问性基线 | P | P2 | queued | - |
+| P-010 | Canvas 键盘可访问性基线 | P | P2 | done | - |
 | P-011 | 路由 errorElement | P | P2 | queued | - |
 | P-012 | Onboarding 数据库选择延续 | P | P3 | queued | - |
 | P-013 | 存储错误处理 | P | P1 | done | - |

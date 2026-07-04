@@ -122,6 +122,11 @@ import { filterTable } from '@/lib/domain/diagram-filter/filter';
 import { defaultSchemas } from '@/lib/data/default-schemas';
 import { useDiff } from '@/context/diff-context/use-diff';
 import { useClickAway } from '@/hooks/use-click-away';
+import {
+    getCanvasKeyboardNodeChanges,
+    isCanvasKeyboardActionKey,
+    isCanvasKeyboardInputTarget,
+} from './canvas-keyboard-actions';
 
 const HIGHLIGHTED_EDGE_Z_INDEX = 1;
 const DEFAULT_EDGE_Z_INDEX = 0;
@@ -1335,6 +1340,32 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
         ]
     );
 
+    const onCanvasKeyDownHandler = useCallback(
+        (event: React.KeyboardEvent<HTMLDivElement>) => {
+            if (
+                event.defaultPrevented ||
+                !isCanvasKeyboardActionKey(event.key) ||
+                isCanvasKeyboardInputTarget(event.target)
+            ) {
+                return;
+            }
+
+            const keyboardChanges = getCanvasKeyboardNodeChanges({
+                key: event.key,
+                nodes,
+                readonly: !!readonly,
+            }) as NodeChange<NodeType>[];
+
+            if (keyboardChanges.length === 0) {
+                return;
+            }
+
+            event.preventDefault();
+            onNodesChangeHandler(keyboardChanges);
+        },
+        [nodes, readonly, onNodesChangeHandler]
+    );
+
     const eventConsumer = useCallback(
         (event: ChartDBEvent) => {
             let newOverlappingGraph: Graph<string> = overlapGraph;
@@ -1668,6 +1699,10 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
                 id="canvas"
                 ref={containerRef}
                 onMouseMove={handleMouseMove}
+                onKeyDown={onCanvasKeyDownHandler}
+                role="application"
+                aria-label="Diagram canvas"
+                tabIndex={0}
             >
                 <ReactFlow
                     onlyRenderVisibleElements
@@ -1697,6 +1732,7 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
                     snapToGrid={shiftPressed || snapToGridEnabled}
                     snapGrid={[20, 20]}
                     selectionMode={SelectionMode.Full}
+                    nodesFocusable
                     onPaneClick={onPaneClickHandler}
                     connectionLineComponent={ConnectionLine}
                     deleteKeyCode={['Backspace', 'Delete']}
