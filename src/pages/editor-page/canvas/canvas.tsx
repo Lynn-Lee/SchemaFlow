@@ -15,12 +15,10 @@ import type {
     NodeChange,
 } from '@xyflow/react';
 import {
-    ReactFlow,
     useEdgesState,
     useNodesState,
     useReactFlow,
     useKeyPress,
-    SelectionMode,
     useUpdateNodeInternals,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -40,7 +38,7 @@ import { areFieldTypesCompatible } from '@/lib/data/data-types/data-types';
 import { findOverlappingTables, findTableOverlapping } from './canvas-utils';
 import type { Graph } from '@/lib/graph';
 import type { ChartDBEvent } from '@/context/chartdb-context/chartdb-context';
-import { cn, debounce, getOperatingSystem } from '@/lib/utils';
+import { debounce, getOperatingSystem } from '@/lib/utils';
 import type { DependencyEdgeType } from './dependency-edge/dependency-edge';
 import {
     BOTTOM_SOURCE_HANDLE_ID_PREFIX,
@@ -48,7 +46,6 @@ import {
 } from './table-node/table-node-dependency-indicator';
 import { useCanvas } from '@/hooks/use-canvas';
 import type { AreaNodeType } from './area-node/area-node';
-import { ConnectionLine } from './connection-line/connection-line';
 import {
     updateTablesParentAreas,
     getTablesInArea,
@@ -68,9 +65,7 @@ import {
 } from './canvas-keyboard-actions';
 import {
     areaToAreaNode,
-    edgeTypes,
     initialEdges,
-    nodeTypes,
     noteToNoteNode,
     tableToTableNode,
     type EdgeType,
@@ -97,6 +92,7 @@ import {
 import { buildCanvasEventUpdate } from './canvas-chartdb-events';
 import { CanvasControls } from './canvas-controls';
 import { CanvasFilterLayer } from './canvas-filter-layer';
+import { CanvasFlow } from './canvas-flow';
 
 export type { EdgeType, NodeType } from './canvas-model';
 
@@ -1103,39 +1099,17 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
                 aria-label="Diagram canvas"
                 tabIndex={0}
             >
-                <ReactFlow
-                    onlyRenderVisibleElements
+                <CanvasFlow
                     colorMode={effectiveTheme}
-                    className={cn('nodes-animated', {
-                        'canvas-cursor-multi-select': shiftPressed,
-                        'canvas-cursor-default': !shiftPressed,
-                    })}
                     nodes={nodesWithCursor}
                     edges={edgesWithFloating}
                     onNodesChange={onNodesChangeHandler}
                     onEdgesChange={onEdgesChangeHandler}
-                    maxZoom={5}
-                    minZoom={0.1}
                     onConnect={onConnectHandler}
-                    proOptions={{
-                        hideAttribution: true,
-                    }}
-                    fitView={false}
-                    nodeTypes={nodeTypes}
-                    edgeTypes={edgeTypes}
-                    defaultEdgeOptions={{
-                        animated: false,
-                        type: 'relationship-edge',
-                    }}
                     panOnScroll={scrollAction === 'pan'}
                     snapToGrid={shiftPressed || snapToGridEnabled}
-                    snapGrid={[20, 20]}
-                    selectionMode={SelectionMode.Full}
-                    nodesFocusable
                     onPaneClick={onPaneClickHandler}
-                    connectionLineComponent={ConnectionLine}
-                    deleteKeyCode={['Backspace', 'Delete']}
-                    multiSelectionKeyCode={['Shift', 'Meta', 'Control']}
+                    shiftPressed={shiftPressed}
                 >
                     <CanvasControls
                         readonly={readonly}
@@ -1163,7 +1137,7 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
                         onResetFilter={resetFilter}
                         onCloseFilter={() => setShowFilter(false)}
                     />
-                </ReactFlow>
+                </CanvasFlow>
                 <MarkerDefinitions />
             </div>
         </CanvasContextMenu>
