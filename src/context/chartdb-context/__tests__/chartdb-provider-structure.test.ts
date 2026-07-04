@@ -86,4 +86,30 @@ describe('ChartDBProvider structure', () => {
         expect(providerValueSource).not.toContain('const createField');
         expect(providerValueSource).not.toContain('const updateField');
     });
+
+    it('moves relationship and check constraint operations into a domain hook', () => {
+        const hookPath = path.join(
+            chartDBContextDir,
+            'use-relationship-constraint-operations.ts'
+        );
+        expect(fs.existsSync(hookPath)).toBe(true);
+
+        const providerValuePath = path.join(
+            chartDBContextDir,
+            'use-chartdb-provider-value.tsx'
+        );
+        const providerValueSource = fs.readFileSync(providerValuePath, 'utf8');
+
+        expect(providerValueSource).toContain(
+            'useRelationshipConstraintOperations'
+        );
+        expect(providerValueSource).not.toContain('const createRelationship');
+        expect(providerValueSource).not.toContain('const updateRelationship');
+        expect(providerValueSource).not.toContain(
+            'const createCheckConstraint'
+        );
+        expect(providerValueSource).not.toContain(
+            'const updateCheckConstraint'
+        );
+    });
 });

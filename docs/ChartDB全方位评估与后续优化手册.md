@@ -591,7 +591,8 @@ progress:
     - 2026-07-04：已完成第二段结构切片：Dependency 操作迁入 `src/context/chartdb-context/use-dependency-operations.ts`，Provider value 只负责组装该领域 hook 返回的 context API。
     - 2026-07-04：已完成第三段结构切片：Area / Note / CustomType 操作和 custom type 高亮状态组装迁入 `src/context/chartdb-context/use-visual-operations.ts`，Provider value 继续保持对外 context API 不变。
     - 2026-07-04：已完成第四段结构切片：Table / Field 操作迁入 `src/context/chartdb-context/use-table-field-operations.ts`，包括 add/create/get/remove/update table、updateTablesState 和 add/create/get/remove/update field；Provider value 继续保持对外 context API 不变。
-    - 本切片尚未把 relationship/check constraint 操作继续拆成独立领域 hook，下一轮继续完成该 acceptance。
+    - 2026-07-04：已完成第五段结构切片：Relationship / CheckConstraint 操作迁入 `src/context/chartdb-context/use-relationship-constraint-operations.ts`，包括 add/create/get/remove/update relationship 和 add/create/remove/update check constraint；Provider value 继续保持对外 context API 不变。
+    - 本切片尚未把 Index 操作继续拆成独立领域 hook，下一轮继续完成该 acceptance 后再关闭 `CHARTDB-A-003`。
 ```
 
 #### CHARTDB-A-004：diff 合并和 loadDiagram 走 Command 管道
