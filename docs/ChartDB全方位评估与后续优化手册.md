@@ -2059,7 +2059,7 @@ batch: 批次 P
 type: CODE
 priority: P3
 title: 用户在 onboarding 选择数据库类型后，导入路径应保留该选择而非重置为 SELECT_DATABASE/GENERIC
-status: queued
+status: done
 depends_on: []
 owner_lane: product
 branch: codex/chartdb-p-onboarding-db-carryover
@@ -2084,6 +2084,11 @@ acceptance:
     - onboarding 选择的数据库类型在导入路径中被保留
     - 未经 onboarding 直接打开 CreateDiagramDialog 时行为不变（仍默认 SELECT_DATABASE/GENERIC）
     - 无行为回归
+completion:
+    - 2026-07-04：`openCreateDiagramDialog()` 支持接收 `initialDatabaseType` 和 `initialStep`，`CreateDiagramDialog` 打开时会按传入值初始化并重置数据库类型与步骤。
+    - `OnboardingDialog` 在用户选择 import 路径时传入已选数据库类型，并直接进入 `IMPORT_DATABASE` 步骤，避免 MySQL/PostgreSQL 等选择被重置为 `GENERIC`。
+    - 未传初始参数的普通新建入口保持原行为：仍从 `SELECT_DATABASE` 和 `DatabaseType.GENERIC` 开始。
+    - 扩展 onboarding 聚焦测试，红灯先确认 import 路径未传参数，绿灯验证已传入所选数据库与导入步骤。
 ```
 
 #### CHARTDB-P-013：应用启动与打开图表流程补充错误处理
@@ -2614,7 +2619,7 @@ npm run test:ci
 | A-011 | Worker 超时保护 | A | P2 | done | - |
 | P-010 | Canvas 键盘可访问性基线 | P | P2 | done | - |
 | P-011 | 路由 errorElement | P | P2 | done | - |
-| P-012 | Onboarding 数据库选择延续 | P | P3 | queued | - |
+| P-012 | Onboarding 数据库选择延续 | P | P3 | done | - |
 | P-013 | 存储错误处理 | P | P1 | done | - |
 | P-014 | 移动端 canvas 护栏提示 | P | P3 | queued | - |
 | S-004 | AI Gateway URL 校验 | S | P2 | queued | - |

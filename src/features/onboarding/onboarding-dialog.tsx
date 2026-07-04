@@ -24,6 +24,7 @@ import {
     databaseSecondaryLogoMap,
     databaseTypeToLabelMap,
 } from '@/lib/databases';
+import { CreateDiagramDialogStep } from '@/dialogs/create-diagram-dialog/create-diagram-dialog-step';
 import { DatabaseType } from '@/lib/domain/database-type';
 import { CURRENT_DIAGRAM_VERSION, type Diagram } from '@/lib/domain/diagram';
 import { cn, generateDiagramId } from '@/lib/utils';
@@ -157,7 +158,10 @@ export const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
         }
 
         onClose();
-        openCreateDiagramDialog();
+        openCreateDiagramDialog({
+            initialDatabaseType: databaseType,
+            initialStep: CreateDiagramDialogStep.IMPORT_DATABASE,
+        });
     }, [
         createBlankDiagram,
         databaseType,

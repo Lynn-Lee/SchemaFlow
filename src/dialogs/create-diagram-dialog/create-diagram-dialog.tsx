@@ -33,7 +33,10 @@ import {
     type ParsedImportPreview,
 } from '@/features/import/import-preview';
 
-export interface CreateDiagramDialogProps extends BaseDialogProps {}
+export interface CreateDiagramDialogProps extends BaseDialogProps {
+    initialDatabaseType?: DatabaseType;
+    initialStep?: CreateDiagramDialogStep;
+}
 
 function countMetadataTablesAndViews(metadata?: DatabaseMetadata): number {
     if (!metadata) {
@@ -45,12 +48,14 @@ function countMetadataTablesAndViews(metadata?: DatabaseMetadata): number {
 
 export const CreateDiagramDialog: React.FC<CreateDiagramDialogProps> = ({
     dialog,
+    initialDatabaseType,
+    initialStep,
 }) => {
     const { diagramId } = useChartDB();
     const { t } = useTranslation();
     const [importMethod, setImportMethod] = useState<ImportMethod>('query');
     const [databaseType, setDatabaseType] = useState<DatabaseType>(
-        DatabaseType.GENERIC
+        initialDatabaseType ?? DatabaseType.GENERIC
     );
     const { closeCreateDiagramDialog } = useDialog();
     const { updateConfig } = useConfig();
@@ -59,7 +64,7 @@ export const CreateDiagramDialog: React.FC<CreateDiagramDialogProps> = ({
         DatabaseEdition | undefined
     >();
     const [step, setStep] = useState<CreateDiagramDialogStep>(
-        CreateDiagramDialogStep.SELECT_DATABASE
+        initialStep ?? CreateDiagramDialogStep.SELECT_DATABASE
     );
     const { listDiagrams, addDiagram } = useStorage();
     const [diagramNumber, setDiagramNumber] = useState<number>(1);
@@ -94,8 +99,8 @@ export const CreateDiagramDialog: React.FC<CreateDiagramDialogProps> = ({
     }, [listDiagrams, setDiagramNumber, dialog.open]);
 
     useEffect(() => {
-        setStep(CreateDiagramDialogStep.SELECT_DATABASE);
-        setDatabaseType(DatabaseType.GENERIC);
+        setStep(initialStep ?? CreateDiagramDialogStep.SELECT_DATABASE);
+        setDatabaseType(initialDatabaseType ?? DatabaseType.GENERIC);
         setDatabaseEdition(undefined);
         setScriptResult('');
         setImportMethod('query');
@@ -106,7 +111,7 @@ export const CreateDiagramDialog: React.FC<CreateDiagramDialogProps> = ({
         setImportPreviewProgress(null);
         previewAbortControllerRef.current?.abort();
         previewAbortControllerRef.current = null;
-    }, [dialog.open]);
+    }, [dialog.open, initialDatabaseType, initialStep]);
 
     const hasExistingDiagram = (diagramId ?? '').trim().length !== 0;
 

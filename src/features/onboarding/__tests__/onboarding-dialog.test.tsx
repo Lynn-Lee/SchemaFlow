@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DatabaseType } from '@/lib/domain/database-type';
+import { CreateDiagramDialogStep } from '@/dialogs/create-diagram-dialog/create-diagram-dialog-step';
 import { OnboardingDialog } from '../onboarding-dialog';
 
 const addDiagram = vi.fn();
@@ -125,21 +126,33 @@ describe('OnboardingDialog', () => {
         );
     });
 
-    it('opens the import and template paths without creating a diagram', async () => {
+    it('opens the import path with the selected database ready for import', async () => {
+        renderDialog();
+        const user = userEvent.setup();
+
+        await user.click(screen.getByRole('radio', { name: /MySQL/i }));
+        await user.click(
+            screen.getByRole('button', { name: /Import existing database/i })
+        );
+        await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+        expect(openCreateDiagramDialog).toHaveBeenCalledWith({
+            initialDatabaseType: DatabaseType.MYSQL,
+            initialStep: CreateDiagramDialogStep.IMPORT_DATABASE,
+        });
+        expect(addDiagram).not.toHaveBeenCalled();
+    });
+
+    it('opens the template path without creating a diagram', async () => {
         renderDialog();
         const user = userEvent.setup();
 
         await user.click(screen.getByRole('radio', { name: /PostgreSQL/i }));
         await user.click(
-            screen.getByRole('button', { name: /Import existing database/i })
-        );
-        await user.click(screen.getByRole('button', { name: 'Continue' }));
-        expect(openCreateDiagramDialog).toHaveBeenCalled();
-
-        await user.click(
             screen.getByRole('button', { name: /Browse templates/i })
         );
         await user.click(screen.getByRole('button', { name: 'Continue' }));
+
         expect(navigate).toHaveBeenCalledWith('/templates/featured');
         expect(addDiagram).not.toHaveBeenCalled();
     });
