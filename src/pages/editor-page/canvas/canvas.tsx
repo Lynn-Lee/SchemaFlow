@@ -59,9 +59,7 @@ import {
     isCanvasKeyboardInputTarget,
 } from './canvas-keyboard-actions';
 import {
-    areaToAreaNode,
     initialEdges,
-    noteToNoteNode,
     tableToTableNode,
     type EdgeType,
     type NodeType,
@@ -90,6 +88,7 @@ import {
     buildUpdatedOverlapGraphForNodeChanges,
     buildVisibleTableOverlapGraph,
 } from './canvas-overlap-updates';
+import { buildCanvasNodes } from './canvas-nodes';
 
 export type { EdgeType, NodeType } from './canvas-model';
 
@@ -291,74 +290,22 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
     }, [selectedRelationshipIds, selectedTableIds, setEdges]);
 
     useEffect(() => {
-        // Compute target edge counts per field (same logic as edge creation)
-        // This ensures handle creation is synchronized with edge indices
-        const targetEdgeCountsByField: Record<string, number> = {};
-        relationships.forEach((rel) => {
-            const fieldId = rel.targetFieldId;
-            targetEdgeCountsByField[fieldId] =
-                (targetEdgeCountsByField[fieldId] || 0) + 1;
-        });
-
         setNodes((prevNodes) => {
-            const newNodes = [
-                ...tables.map((table) => {
-                    const isOverlapping =
-                        (overlapGraph.graph.get(table.id) ?? []).length > 0;
-
-                    // Get target edge counts for this table's fields
-                    const tableTargetEdgeCounts: Record<string, number> = {};
-                    table.fields.forEach((field) => {
-                        if (targetEdgeCountsByField[field.id]) {
-                            tableTargetEdgeCounts[field.id] =
-                                targetEdgeCountsByField[field.id];
-                        }
-                    });
-
-                    const node = tableToTableNode(table, {
-                        filter,
-                        databaseType,
-                        filterLoading,
-                        showDBViews,
-                        forceShow: shouldForceShowTable(table.id),
-                        isRelationshipCreatingTarget: false,
-                        targetEdgeCounts: tableTargetEdgeCounts,
-                    });
-
-                    // Check if table uses the highlighted custom type
-                    let hasHighlightedCustomType = false;
-                    if (highlightedCustomType) {
-                        hasHighlightedCustomType = table.fields.some(
-                            (field) =>
-                                field.type.name === highlightedCustomType.name
-                        );
-                    }
-
-                    return {
-                        ...node,
-                        data: {
-                            ...node.data,
-                            isOverlapping,
-                            highlightOverlappingTables,
-                            hasHighlightedCustomType,
-                        },
-                    };
-                }),
-                ...areas.map((area) =>
-                    areaToAreaNode(area, {
-                        tables,
-                        filter,
-                        databaseType,
-                        filterLoading,
-                    })
-                ),
-                ...notes.map((note) => noteToNoteNode(note)),
-                ...prevNodes.filter(
-                    (n) =>
-                        n.type === 'temp-cursor' ||
-                        n.type === 'create-relationship'
-                ),
-            ];
+            const newNodes = buildCanvasNodes({
+                tables,
+                areas,
+                notes,
+                previousNodes: prevNodes,
+                relationships,
+                overlapGraph,
+                filter,
+                databaseType,
+                filterLoading,
+                showDBViews,
+                shouldForceShowTable,
+                highlightOverlappingTables,
+                highlightedCustomType,
+            });
 
             // Check if nodes actually changed
             if (equal(prevNodes, newNodes)) {
@@ -374,8 +321,7 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
         setNodes,
         filter,
         databaseType,
-        overlapGraph.lastUpdated,
-        overlapGraph.graph,
+        overlapGraph,
         highlightOverlappingTables,
         highlightedCustomType,
         filterLoading,

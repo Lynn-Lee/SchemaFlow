@@ -1593,6 +1593,9 @@ progress:
     - 2026-07-05：完成第十三段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-overlap-updates.ts`，将 filter/showDBViews 触发的全量 overlap graph 重算、position/dimension 变更触发的局部 overlap graph 更新从 `canvas.tsx` 抽出为可独立测试的纯函数层。
     - 新增 `src/pages/editor-page/canvas/__tests__/canvas-overlap-updates.test.ts`，红灯先失败于缺失 `../canvas-overlap-updates`，绿灯覆盖过滤/视图隐藏后的 overlap graph 生成，以及仅对变更的可见 table node 局部重算 overlap graph。
     - `canvas.tsx` 从 1008 行降到 960 行；本轮仍不标记 done，下一步继续拆 `CanvasViewport` / drag / zoom hooks / parent area update 或其它事件 handler，直到主体低于 500 行。
+    - 2026-07-05：完成第十四段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-nodes.ts`，将 table/area/note React Flow node 组装、target edge count、overlap/custom type 标记和临时节点保留逻辑从 `canvas.tsx` 抽出为可独立测试的纯函数层。
+    - 新增 `src/pages/editor-page/canvas/__tests__/canvas-nodes.test.ts`，红灯先失败于缺失 `../canvas-nodes`，绿灯覆盖 table/area/note 节点组装、字段 target edge count、overlap/highlighted custom type 状态和 transient node 保留。
+    - `canvas.tsx` 从 960 行降到 907 行；本轮仍不标记 done，下一步继续拆 `CanvasViewport` / drag / zoom hooks / parent area update 或其它事件 handler，直到主体低于 500 行。
 ```
 
 ### 批次 Q：代码质量
