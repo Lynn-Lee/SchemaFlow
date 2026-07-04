@@ -939,7 +939,7 @@ batch: 批次 P
 type: CODE
 priority: P2
 title: 为 ImportResult 补充 confidence 和 diagnostics 字段
-status: queued
+status: done
 depends_on: []
 owner_lane: product
 branch: codex/chartdb-p-import-confidence
@@ -965,6 +965,16 @@ acceptance:
     - ImportResult 包含 confidence 和 diagnostics 字段
     - preview panel 展示可信度
     - 旧 wrapper 默认 confidence 为 medium
+done:
+    date: 2026-07-04
+    summary:
+        - `ImportResult` 新增 `confidence` 与 `diagnostics`，`createImportResult()` 默认输出 `medium` 和空 diagnostics，兼容旧 wrapper。
+        - `buildImportPreview()` 将 confidence / diagnostics 汇总进 preview，`ImportPreviewPanel` 展示可信度等级和诊断提示。
+        - 新增 `src/dialects/__tests__/import-confidence.test.tsx` 覆盖 contract 默认值、preview 透传和 panel 展示。
+    verification:
+        - `npm run test:ci -- src/dialects/__tests__/import-confidence.test.tsx src/features/import/__tests__/import-preview.test.ts src/features/import/__tests__/import-preview-worker-routing.test.ts`
+    next:
+        - 进入 `CHARTDB-P-005`：Backup 恢复预览。
 ```
 
 #### CHARTDB-P-005：Backup 恢复预览
@@ -2423,7 +2433,7 @@ npm run test:ci
 | P-001 | Clear local diagrams | P | P1 | done | - |
 | P-002 | BYOK key 输入 | P | P1 | done | - |
 | P-003 | 导出 warning | P | P1 | done | - |
-| P-004 | ImportResult confidence | P | P2 | queued | - |
+| P-004 | ImportResult confidence | P | P2 | done | - |
 | P-005 | Backup 恢复预览 | P | P2 | queued | - |
 | P-006 | 缺失 dialect wrapper | P | P2 | queued | F-005 |
 | S-001 | CSP 收紧 | S | P1 | queued | - |

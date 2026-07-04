@@ -8,6 +8,7 @@ describe('buildImportPreview', () => {
     it('summarizes import objects and dialect warnings before data is written', () => {
         const result: ImportResult = {
             sourceDialect: DatabaseType.POSTGRESQL,
+            confidence: 'medium',
             diagram: {
                 id: 'preview',
                 name: 'Preview',
@@ -49,6 +50,7 @@ describe('buildImportPreview', () => {
                     },
                 ],
             },
+            diagnostics: [],
             warnings: [
                 {
                     code: 'postgresql.policy_unsupported',
@@ -70,6 +72,7 @@ describe('buildImportPreview', () => {
 
         expect(buildImportPreview(result)).toEqual({
             sourceDialect: DatabaseType.POSTGRESQL,
+            confidence: 'medium',
             counts: {
                 tables: 1,
                 relationships: 1,
@@ -77,6 +80,7 @@ describe('buildImportPreview', () => {
                 warnings: 1,
                 unsupportedObjects: 1,
             },
+            diagnostics: [],
             warnings: [
                 {
                     code: 'postgresql.policy_unsupported',

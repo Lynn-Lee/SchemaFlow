@@ -4,6 +4,7 @@ import type { Diagram } from '@/lib/domain/diagram';
 export type DialectType = DatabaseType | 'dbml';
 export type DialectWarningSeverity = 'info' | 'warning' | 'error';
 export type DialectRiskLevel = 'low' | 'medium' | 'high';
+export type ImportConfidence = 'high' | 'medium' | 'low';
 
 export interface DialectSourceRange {
     startLine: number;
@@ -13,6 +14,14 @@ export interface DialectSourceRange {
 }
 
 export interface DialectWarning {
+    code: string;
+    severity: DialectWarningSeverity;
+    message: string;
+    statementType?: string;
+    sourceRange?: DialectSourceRange;
+}
+
+export interface ImportDiagnostic {
     code: string;
     severity: DialectWarningSeverity;
     message: string;
@@ -42,6 +51,8 @@ export interface DialectSourceMap {
 export interface ImportResult {
     diagram: Diagram;
     sourceDialect: DialectType;
+    confidence: ImportConfidence;
+    diagnostics: ImportDiagnostic[];
     warnings: DialectWarning[];
     unsupportedObjects: UnsupportedDialectObject[];
     sourceMap: DialectSourceMap;
@@ -54,12 +65,16 @@ export interface SchemaImporter<TInput> {
 export function createImportResult({
     diagram,
     sourceDialect,
+    confidence = 'medium',
+    diagnostics = [],
     warnings = [],
     unsupportedObjects = [],
     sourceMap = {},
 }: {
     diagram: Diagram;
     sourceDialect: DialectType;
+    confidence?: ImportConfidence;
+    diagnostics?: ImportDiagnostic[];
     warnings?: DialectWarning[];
     unsupportedObjects?: UnsupportedDialectObject[];
     sourceMap?: DialectSourceMap;
@@ -67,6 +82,8 @@ export function createImportResult({
     return {
         diagram,
         sourceDialect,
+        confidence,
+        diagnostics,
         warnings,
         unsupportedObjects,
         sourceMap,

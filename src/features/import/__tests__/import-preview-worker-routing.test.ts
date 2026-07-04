@@ -27,12 +27,15 @@ describe('parseImportPreview worker routing', () => {
                     relationships: [],
                     customTypes: [],
                 },
+                confidence: 'medium',
+                diagnostics: [],
                 warnings: [],
                 unsupportedObjects: [],
                 sourceMap: {},
             },
             preview: {
                 sourceDialect: DatabaseType.POSTGRESQL,
+                confidence: 'medium',
                 counts: {
                     tables: 0,
                     relationships: 0,
@@ -40,6 +43,7 @@ describe('parseImportPreview worker routing', () => {
                     warnings: 0,
                     unsupportedObjects: 0,
                 },
+                diagnostics: [],
                 warnings: [],
                 unsupportedObjects: [],
                 hasImportableObjects: false,

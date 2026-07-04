@@ -17,6 +17,7 @@ export const ImportPreviewPanel: React.FC<ImportPreviewPanelProps> = ({
                 <div className="min-w-0 flex-1">
                     <div className="font-medium">Import preview ready</div>
                     <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs">
+                        <span>Confidence: {preview.confidence}</span>
                         <span>{preview.counts.tables} tables</span>
                         <span>
                             {preview.counts.relationships} relationships
@@ -27,11 +28,23 @@ export const ImportPreviewPanel: React.FC<ImportPreviewPanelProps> = ({
                 </div>
             </div>
 
-            {preview.warnings.length > 0 ||
+            {preview.diagnostics.length > 0 ||
+            preview.warnings.length > 0 ||
             preview.unsupportedObjects.length > 0 ? (
                 <div className="mt-3 rounded-md border border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950">
                     <ScrollArea className="h-fit max-h-28">
                         <div className="space-y-2 p-2 text-xs text-amber-800 dark:text-amber-200">
+                            {preview.diagnostics
+                                .slice(0, 4)
+                                .map((diagnostic) => (
+                                    <div
+                                        key={`${diagnostic.code}-${diagnostic.message}`}
+                                        className="flex items-start gap-2"
+                                    >
+                                        <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
+                                        <span>{diagnostic.message}</span>
+                                    </div>
+                                ))}
                             {preview.warnings.slice(0, 4).map((warning) => (
                                 <div
                                     key={`${warning.code}-${warning.message}`}

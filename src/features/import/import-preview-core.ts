@@ -23,6 +23,7 @@ export interface ImportPreviewWarning {
 
 export interface ImportPreviewSummary {
     sourceDialect: ImportResult['sourceDialect'];
+    confidence: ImportResult['confidence'];
     counts: {
         tables: number;
         relationships: number;
@@ -30,6 +31,7 @@ export interface ImportPreviewSummary {
         warnings: number;
         unsupportedObjects: number;
     };
+    diagnostics: ImportResult['diagnostics'];
     warnings: ImportPreviewWarning[];
     unsupportedObjects: ImportResult['unsupportedObjects'];
     hasImportableObjects: boolean;
@@ -68,6 +70,7 @@ export function buildImportPreview(result: ImportResult): ImportPreviewSummary {
 
     return {
         sourceDialect: result.sourceDialect,
+        confidence: result.confidence,
         counts: {
             tables: tableCount,
             relationships: relationshipCount,
@@ -75,6 +78,7 @@ export function buildImportPreview(result: ImportResult): ImportPreviewSummary {
             warnings: result.warnings.length,
             unsupportedObjects: result.unsupportedObjects.length,
         },
+        diagnostics: result.diagnostics,
         warnings: result.warnings.map((warning) => ({
             code: warning.code,
             severity: warning.severity,
