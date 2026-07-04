@@ -1572,6 +1572,9 @@ progress:
     - 2026-07-04：完成第六段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-chartdb-events.ts`，将 `eventConsumer` 中 ChartDB 事件到 overlap graph / measured node 更新的计算逻辑抽出为可独立测试的 helper。
     - 新增 `src/pages/editor-page/canvas/__tests__/canvas-chartdb-events.test.ts`，红灯先失败于缺失 `../canvas-chartdb-events`，绿灯覆盖 remove_tables 事件清理 overlap graph 顶点和邻接引用。
     - `canvas.tsx` 从 1454 行降到 1364 行；本轮仍不标记 done，下一步继续拆 `CanvasViewport` / drag / zoom hooks / ReactFlow controls 或其它事件 handler，直到主体低于 500 行。
+    - 2026-07-04：完成第七段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-controls.tsx`，将 React Flow Controls / MiniMap / Toolbar / loading / lost-in-canvas / mobile side panel 控件组装从 `canvas.tsx` 抽出为独立组件。
+    - 新增 `src/pages/editor-page/canvas/__tests__/canvas-controls.test.tsx`，红灯先失败于缺失 `../canvas-controls`，绿灯覆盖桌面控件、MiniMap 尺寸、loading badge 和移动侧栏入口渲染。
+    - `canvas.tsx` 从 1364 行降到 1197 行；本轮仍不标记 done，下一步继续拆 `CanvasViewport` / drag / zoom hooks / empty/filter overlay 或其它事件 handler，直到主体低于 500 行。
 ```
 
 ### 批次 Q：代码质量

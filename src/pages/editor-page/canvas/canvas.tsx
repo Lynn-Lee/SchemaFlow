@@ -20,8 +20,6 @@ import {
     useNodesState,
     Background,
     BackgroundVariant,
-    MiniMap,
-    Controls,
     useReactFlow,
     useKeyPress,
     SelectionMode,
@@ -32,28 +30,15 @@ import equal from 'fast-deep-equal';
 import type { TableNodeType } from './table-node/table-node';
 import type { RelationshipEdgeType } from './relationship-edge/relationship-edge';
 import { useChartDB } from '@/hooks/use-chartdb';
-import { Toolbar } from './toolbar/toolbar';
 import { useToast } from '@/components/toast/use-toast';
-import {
-    Pencil,
-    Magnet,
-    AlertTriangle,
-    Highlighter,
-    EyeOff,
-} from 'lucide-react';
+import { EyeOff } from 'lucide-react';
 import { Button } from '@/components/button/button';
 import { useLayout } from '@/hooks/use-layout';
 import { useBreakpoint } from '@/hooks/use-breakpoint';
-import { Badge } from '@/components/badge/badge';
 import { useTheme } from '@/hooks/use-theme';
 import { useTranslation } from 'react-i18next';
 import type { DBTable } from '@/lib/domain/db-table';
 import { useLocalConfig } from '@/hooks/use-local-config';
-import {
-    Tooltip,
-    TooltipTrigger,
-    TooltipContent,
-} from '@/components/tooltip/tooltip';
 import { MarkerDefinitions } from './marker-definitions';
 import { CanvasContextMenu } from './canvas-context-menu';
 import { areFieldTypesCompatible } from '@/lib/data/data-types/data-types';
@@ -75,7 +60,6 @@ import {
 } from '@/lib/utils/area-utils';
 import { CanvasFilter } from './canvas-filter/canvas-filter';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { ShowAllButton } from './show-all-button';
 import { useIsLostInCanvas } from './hooks/use-is-lost-in-canvas';
 import type { DiagramFilter } from '@/lib/domain/diagram-filter/diagram-filter';
 import { useDiagramFilter } from '@/context/diagram-filter-context/use-diagram-filter';
@@ -117,6 +101,7 @@ import {
     buildCanvasNodesWithCursor,
 } from './canvas-floating-edge';
 import { buildCanvasEventUpdate } from './canvas-chartdb-events';
+import { CanvasControls } from './canvas-controls';
 
 export type { EdgeType, NodeType } from './canvas-model';
 
@@ -1158,178 +1143,26 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
                     deleteKeyCode={['Backspace', 'Delete']}
                     multiSelectionKeyCode={['Shift', 'Meta', 'Control']}
                 >
-                    <Controls
-                        position="top-left"
-                        showZoom={false}
-                        showFitView={false}
-                        showInteractive={false}
-                        className="!shadow-none"
-                    >
-                        <div className="flex flex-col items-center gap-2 md:flex-row">
-                            {!readonly ? (
-                                <>
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <span>
-                                                <Button
-                                                    variant="secondary"
-                                                    className={cn(
-                                                        'size-8 p-1 shadow-none',
-                                                        snapToGridEnabled ||
-                                                            shiftPressed
-                                                            ? 'bg-pink-600 text-white hover:bg-pink-500 dark:hover:bg-pink-700 hover:text-white'
-                                                            : ''
-                                                    )}
-                                                    onClick={() =>
-                                                        setSnapToGridEnabled(
-                                                            (prev) => !prev
-                                                        )
-                                                    }
-                                                >
-                                                    <Magnet className="size-4" />
-                                                </Button>
-                                            </span>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            {t('snap_to_grid_tooltip', {
-                                                key:
-                                                    operatingSystem === 'mac'
-                                                        ? '⇧'
-                                                        : 'Shift',
-                                            })}
-                                        </TooltipContent>
-                                    </Tooltip>
-                                    {highlightedCustomType ? (
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <span>
-                                                    <Button
-                                                        variant="secondary"
-                                                        className="size-8 border border-yellow-400 bg-yellow-200 p-1 shadow-none hover:bg-yellow-300 dark:border-yellow-700 dark:bg-yellow-800 dark:hover:bg-yellow-700"
-                                                        onClick={() =>
-                                                            highlightCustomTypeId(
-                                                                undefined
-                                                            )
-                                                        }
-                                                    >
-                                                        <Highlighter className="size-4" />
-                                                    </Button>
-                                                </span>
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                                {t(
-                                                    'toolbar.custom_type_highlight_tooltip',
-                                                    {
-                                                        typeName:
-                                                            highlightedCustomType.name,
-                                                    }
-                                                )}
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    ) : null}
-                                </>
-                            ) : null}
-
-                            <div
-                                className={`transition-opacity duration-300 ease-in-out ${
-                                    hasOverlappingTables
-                                        ? 'opacity-100'
-                                        : 'opacity-0'
-                                }`}
-                            >
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <span>
-                                            <Button
-                                                variant="default"
-                                                className="size-8 p-1 shadow-none"
-                                                onClick={pulseOverlappingTables}
-                                            >
-                                                <AlertTriangle className="size-4 text-white" />
-                                            </Button>
-                                        </span>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        {t(
-                                            'toolbar.highlight_overlapping_tables'
-                                        )}
-                                    </TooltipContent>
-                                </Tooltip>
-                            </div>
-                        </div>
-                    </Controls>
-                    {isLoadingDOM ? (
-                        <Controls
-                            position="top-center"
-                            orientation="horizontal"
-                            showZoom={false}
-                            showFitView={false}
-                            showInteractive={false}
-                            className="!shadow-none"
-                        >
-                            <Badge
-                                variant="default"
-                                className="bg-pink-600 text-white"
-                            >
-                                {t('loading_diagram')}
-                            </Badge>
-                        </Controls>
-                    ) : null}
-
-                    {!isDesktop && !readonly ? (
-                        <Controls
-                            position="bottom-left"
-                            orientation="horizontal"
-                            showZoom={false}
-                            showFitView={false}
-                            showInteractive={false}
-                            className="!shadow-none"
-                        >
-                            <Button
-                                className="size-11 bg-pink-600 p-2 hover:bg-pink-500"
-                                onClick={showSidePanel}
-                            >
-                                <Pencil />
-                            </Button>
-                        </Controls>
-                    ) : null}
-                    {isLostInCanvas ? (
-                        <Controls
-                            position={
-                                isDesktop ? 'bottom-center' : 'top-center'
-                            }
-                            orientation="horizontal"
-                            showZoom={false}
-                            showFitView={false}
-                            showInteractive={false}
-                            className="!shadow-none"
-                            style={{
-                                [isDesktop ? 'bottom' : 'top']: isDesktop
-                                    ? '70px'
-                                    : '70px',
-                            }}
-                        >
-                            <ShowAllButton />
-                        </Controls>
-                    ) : null}
-                    <Controls
-                        position={isDesktop ? 'bottom-center' : 'top-center'}
-                        orientation="horizontal"
-                        showZoom={false}
-                        showFitView={false}
-                        showInteractive={false}
-                        className="!shadow-none"
-                    >
-                        <Toolbar readonly={readonly} />
-                    </Controls>
-                    {showMiniMapOnCanvas && (
-                        <MiniMap
-                            style={{
-                                width: isDesktop ? 100 : 60,
-                                height: isDesktop ? 100 : 60,
-                            }}
-                        />
-                    )}
+                    <CanvasControls
+                        readonly={readonly}
+                        isDesktop={isDesktop}
+                        isLoadingDOM={isLoadingDOM}
+                        isLostInCanvas={isLostInCanvas}
+                        showMiniMapOnCanvas={showMiniMapOnCanvas}
+                        snapToGridEnabled={snapToGridEnabled}
+                        shiftPressed={shiftPressed}
+                        operatingSystem={operatingSystem}
+                        hasOverlappingTables={hasOverlappingTables}
+                        highlightedCustomType={highlightedCustomType}
+                        onToggleSnapToGrid={() =>
+                            setSnapToGridEnabled((prev) => !prev)
+                        }
+                        onClearCustomTypeHighlight={() =>
+                            highlightCustomTypeId(undefined)
+                        }
+                        onPulseOverlappingTables={pulseOverlappingTables}
+                        showSidePanel={showSidePanel}
+                    />
                     <Background
                         variant={BackgroundVariant.Dots}
                         gap={16}
