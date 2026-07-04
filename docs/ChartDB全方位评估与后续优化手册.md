@@ -1575,6 +1575,9 @@ progress:
     - 2026-07-04：完成第七段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-controls.tsx`，将 React Flow Controls / MiniMap / Toolbar / loading / lost-in-canvas / mobile side panel 控件组装从 `canvas.tsx` 抽出为独立组件。
     - 新增 `src/pages/editor-page/canvas/__tests__/canvas-controls.test.tsx`，红灯先失败于缺失 `../canvas-controls`，绿灯覆盖桌面控件、MiniMap 尺寸、loading badge 和移动侧栏入口渲染。
     - `canvas.tsx` 从 1364 行降到 1197 行；本轮仍不标记 done，下一步继续拆 `CanvasViewport` / drag / zoom hooks / empty/filter overlay 或其它事件 handler，直到主体低于 500 行。
+    - 2026-07-04：完成第八段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-empty-filter-overlay.tsx`，将 all-tables-hidden filter overlay 从 `canvas.tsx` 抽出为独立组件。
+    - 新增 `src/pages/editor-page/canvas/__tests__/canvas-empty-filter-overlay.test.tsx`，红灯先失败于缺失 `../canvas-empty-filter-overlay`，绿灯覆盖隐藏表提示和 reset filter 点击行为。
+    - `canvas.tsx` 从 1197 行降到 1181 行；本轮仍不标记 done，下一步继续拆 `CanvasViewport` / drag / zoom hooks / filter 面板挂载或其它事件 handler，直到主体低于 500 行。
 ```
 
 ### 批次 Q：代码质量

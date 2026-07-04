@@ -31,12 +31,9 @@ import type { TableNodeType } from './table-node/table-node';
 import type { RelationshipEdgeType } from './relationship-edge/relationship-edge';
 import { useChartDB } from '@/hooks/use-chartdb';
 import { useToast } from '@/components/toast/use-toast';
-import { EyeOff } from 'lucide-react';
-import { Button } from '@/components/button/button';
 import { useLayout } from '@/hooks/use-layout';
 import { useBreakpoint } from '@/hooks/use-breakpoint';
 import { useTheme } from '@/hooks/use-theme';
-import { useTranslation } from 'react-i18next';
 import type { DBTable } from '@/lib/domain/db-table';
 import { useLocalConfig } from '@/hooks/use-local-config';
 import { MarkerDefinitions } from './marker-definitions';
@@ -102,6 +99,7 @@ import {
 } from './canvas-floating-edge';
 import { buildCanvasEventUpdate } from './canvas-chartdb-events';
 import { CanvasControls } from './canvas-controls';
+import { CanvasEmptyFilterOverlay } from './canvas-empty-filter-overlay';
 
 export type { EdgeType, NodeType } from './canvas-model';
 
@@ -119,7 +117,6 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
         string[]
     >([]);
     const { toast } = useToast();
-    const { t } = useTranslation();
     const { isLostInCanvas } = useIsLostInCanvas();
     const {
         tables,
@@ -1168,23 +1165,8 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
                         gap={16}
                         size={1}
                     />
-                    {/* Empty state when all tables are hidden by filter */}
                     {allTablesHiddenByFilter && (
-                        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-                            <div className="pointer-events-auto flex items-center gap-3 rounded-lg border bg-background/90 px-4 py-3 shadow-sm backdrop-blur-sm">
-                                <EyeOff className="size-5 text-muted-foreground" />
-                                <span className="text-sm text-muted-foreground">
-                                    {t('canvas.all_tables_hidden')}
-                                </span>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => resetFilter()}
-                                >
-                                    {t('canvas.show_all_tables')}
-                                </Button>
-                            </div>
-                        </div>
+                        <CanvasEmptyFilterOverlay onResetFilter={resetFilter} />
                     )}
                     {showFilter ? (
                         <CanvasFilter onClose={() => setShowFilter(false)} />
