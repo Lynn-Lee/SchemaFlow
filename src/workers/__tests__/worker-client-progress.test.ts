@@ -75,4 +75,30 @@ describe('runWorkerTask progress and cancellation', () => {
         );
         expect(terminate).toHaveBeenCalledTimes(1);
     });
+
+    it('terminates a stalled worker and uses the fallback after timeout', async () => {
+        vi.useFakeTimers();
+        const terminate = vi.fn();
+        const fallback = vi.fn(async () => ({ mode: 'timeout-fallback' }));
+
+        class StalledWorker extends EventTarget {
+            postMessage() {}
+            terminate = terminate;
+        }
+
+        const promise = runWorkerTask({
+            type: 'import-preview',
+            payload: { sql: 'create table users (id int);' },
+            createWorker: () => new StalledWorker() as unknown as Worker,
+            fallback,
+            timeoutMs: 10,
+        });
+
+        await vi.advanceTimersByTimeAsync(10);
+
+        await expect(promise).resolves.toEqual({ mode: 'timeout-fallback' });
+        expect(fallback).toHaveBeenCalledTimes(1);
+        expect(terminate).toHaveBeenCalledTimes(1);
+        vi.useRealTimers();
+    });
 });

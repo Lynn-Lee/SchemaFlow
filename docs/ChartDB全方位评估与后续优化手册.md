@@ -1731,7 +1731,7 @@ batch: 批次 A
 type: CODE
 priority: P2
 title: 为 worker-client 的任务执行增加超时保护，避免 worker 挂起导致调用方永久等待
-status: queued
+status: done
 depends_on: []
 owner_lane: core
 branch: codex/chartdb-a-worker-timeout
@@ -1752,6 +1752,22 @@ acceptance:
     - worker 任务有超时保护
     - 超时后正确 fallback，不留下永久 pending 的 Promise
     - 正常路径无行为回归
+completion:
+    completed_at: 2026-07-04
+    result:
+        - `runWorkerTask()` 新增默认 15 秒 timeout，可通过 `timeoutMs` 覆盖；worker 长时间不返回时会清理监听、终止 worker，并进入 fallback。
+        - fallback 新增可选 `WorkerTaskFallbackContext`，可区分 `worker-unavailable`、`worker-error` 和 `worker-timeout`，供上层按需标记 `timeout-fallback` 来源。
+        - 新增 stalled worker 回归测试，先确认旧实现会永久 pending，再验证 timeout 后 fallback resolve 且 worker 被 terminate。
+    scope_note:
+        - 任务卡 allowed_files 未列出文档，但 dispatcher done 定义要求同步本手册和阶段验收记录；本轮文档越界仅更新任务状态与验收结果。
+    verification:
+        - npm run test:ci -- src/workers/__tests__/
+        - npm run lint
+        - npm run test:ci
+        - npm run build
+        - git diff --check
+next:
+    - 进入 `CHARTDB-P-001`：实现 Clear local diagrams 功能。
 ```
 
 #### CHARTDB-P-010：Canvas 键盘可访问性 —— 记录已知限制并补最小改进
@@ -2382,7 +2398,7 @@ npm run test:ci
 | A-008 | Context selector | A | P2 | done | A-003 |
 | A-009 | Diagram version 字段 | A | P2 | done | A-001 |
 | A-010 | 元数据导入校验补齐 | A | P1 | done | - |
-| A-011 | Worker 超时保护 | A | P2 | queued | - |
+| A-011 | Worker 超时保护 | A | P2 | done | - |
 | P-010 | Canvas 键盘可访问性基线 | P | P2 | queued | - |
 | P-011 | 路由 errorElement | P | P2 | queued | - |
 | P-012 | Onboarding 数据库选择延续 | P | P3 | queued | - |

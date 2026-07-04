@@ -41,6 +41,17 @@ export class WorkerTaskError extends Error {
 
 export type WorkerFactory = () => Worker;
 
+export type WorkerTaskFallbackReason =
+    | 'worker-unavailable'
+    | 'worker-error'
+    | 'worker-timeout';
+
+export interface WorkerTaskFallbackContext {
+    reason: WorkerTaskFallbackReason;
+}
+
+const DEFAULT_WORKER_TASK_TIMEOUT_MS = 15_000;
+
 export function createModuleWorkerFactory(workerUrl: URL): WorkerFactory {
     return () => new Worker(workerUrl, { type: 'module' });
 }
@@ -60,13 +71,15 @@ export async function runWorkerTask<TPayload, TResult>({
     fallback,
     onProgress,
     signal,
+    timeoutMs = DEFAULT_WORKER_TASK_TIMEOUT_MS,
 }: {
     type: string;
     payload: TPayload;
     createWorker?: WorkerFactory;
-    fallback: () => Promise<TResult>;
+    fallback: (context?: WorkerTaskFallbackContext) => Promise<TResult>;
     onProgress?: (progress: WorkerTaskProgress) => void;
     signal?: AbortSignal;
+    timeoutMs?: number;
 }): Promise<TResult> {
     if (signal?.aborted) {
         throw new WorkerTaskError({
@@ -76,7 +89,7 @@ export async function runWorkerTask<TPayload, TResult>({
     }
 
     if (!createWorker) {
-        return fallback();
+        return fallback({ reason: 'worker-unavailable' });
     }
 
     const id = createWorkerTaskId(type);
@@ -85,11 +98,17 @@ export async function runWorkerTask<TPayload, TResult>({
     try {
         worker = createWorker();
     } catch {
-        return fallback();
+        return fallback({ reason: 'worker-unavailable' });
     }
 
     return new Promise<TResult>((resolve, reject) => {
+        const timeoutId = window.setTimeout(() => {
+            cleanup();
+            fallback({ reason: 'worker-timeout' }).then(resolve, reject);
+        }, timeoutMs);
+
         const cleanup = () => {
+            window.clearTimeout(timeoutId);
             worker.removeEventListener('message', handleMessage);
             worker.removeEventListener('error', handleError);
             signal?.removeEventListener('abort', handleAbort);
@@ -108,7 +127,7 @@ export async function runWorkerTask<TPayload, TResult>({
                 return;
             }
 
-            fallback().then(resolve, reject);
+            fallback({ reason: 'worker-error' }).then(resolve, reject);
         };
 
         const handleAbort = () => {
