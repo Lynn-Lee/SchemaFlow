@@ -1126,7 +1126,7 @@ batch: 批次 S
 type: CODE
 priority: P2
 title: 用 DOM API 替换 export-image-provider 中的 innerHTML 赋值
-status: queued
+status: done
 depends_on: []
 owner_lane: security
 branch: codex/chartdb-s-inner-html-fix
@@ -1148,6 +1148,15 @@ verification:
 acceptance:
     - 不再使用 innerHTML 赋值
     - SVG marker 复制行为不变
+completion:
+    date: 2026-07-04
+    summary:
+        - `export-image-provider.tsx` 不再用 `defs.innerHTML = markerDefs.innerHTML` 复制 SVG marker 定义，改为遍历 `markerDefs.childNodes` 并通过 `cloneNode(true)` 写入临时 defs。
+        - 新增 `src/context/export-image-context/__tests__/export-image-provider.test.tsx`，在测试中禁止 `innerHTML` setter，验证 SVG 导出仍能复制 marker 且不触发 innerHTML 赋值。
+    verification:
+        - `npm run test:ci -- src/context/export-image-context/__tests__/export-image-provider.test.tsx`
+    next:
+        - 进入 `CHARTDB-S-003`：Monaco dompurify 升级评估，或按手册批次继续选择下一个可本地验证的 queued 项。
 ```
 
 #### CHARTDB-S-003：Monaco dompurify 升级评估
@@ -2467,7 +2476,7 @@ npm run test:ci
 | P-005 | Backup 恢复预览 | P | P2 | done | - |
 | P-006 | 缺失 dialect wrapper | P | P2 | done | F-005 |
 | S-001 | CSP 收紧 | S | P1 | done | - |
-| S-002 | innerHTML 修复 | S | P2 | queued | - |
+| S-002 | innerHTML 修复 | S | P2 | done | - |
 | S-003 | Monaco 升级评估 | S | P2 | queued | - |
 | T-001 | i18n 懒加载 | T | P1 | queued | - |
 | T-002 | 模板懒加载完善 | T | P1 | queued | - |

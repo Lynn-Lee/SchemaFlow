@@ -154,9 +154,9 @@ export const ExportImageProvider: React.FC<React.PropsWithChildren> = ({
                     text.style.fill = computedStyle.fill;
                 });
 
-                if (markerDefs) {
-                    defs.innerHTML = markerDefs.innerHTML;
-                }
+                markerDefs?.childNodes.forEach((node) => {
+                    defs.appendChild(node.cloneNode(true));
+                });
 
                 // Restore original marker styles
                 originalMarkerStyles.forEach(({ element, fill, stroke }) => {
