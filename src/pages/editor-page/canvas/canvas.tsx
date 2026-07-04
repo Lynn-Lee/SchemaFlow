@@ -46,10 +46,7 @@ import {
 } from './table-node/table-node-dependency-indicator';
 import { useCanvas } from '@/hooks/use-canvas';
 import type { AreaNodeType } from './area-node/area-node';
-import {
-    updateTablesParentAreas,
-    getTablesInArea,
-} from '@/lib/utils/area-utils';
+import { updateTablesParentAreas } from '@/lib/utils/area-utils';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useIsLostInCanvas } from './hooks/use-is-lost-in-canvas';
 import type { DiagramFilter } from '@/lib/domain/diagram-filter/diagram-filter';
@@ -76,10 +73,7 @@ import {
     getSelectedCanvasEdgeIds,
     getSelectedCanvasNodeIds,
 } from './canvas-selection';
-import {
-    getAreaDragChildTablePositionChanges,
-    getRelevantCanvasNodeChanges,
-} from './canvas-node-changes';
+import { buildCanvasNodeChangeSet } from './canvas-node-changes';
 import {
     buildAreaStorageChanges,
     buildNoteStorageChanges,
@@ -682,88 +676,31 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
 
     const onNodesChangeHandler: OnNodesChange<NodeType> = useCallback(
         (changes) => {
-            let changesToApply = changes;
+            const { changesToApply, areaChanges, noteChanges, tableChanges } =
+                buildCanvasNodeChangeSet({
+                    changes,
+                    readonly: !!readonly,
+                    areas,
+                    tables,
+                    getNode: (id) => getNode(id) as NodeType | undefined,
+                });
 
-            if (readonly) {
-                changesToApply = changesToApply.filter(
-                    (change) => change.type !== 'remove'
-                );
-            }
-
-            // Handle area drag changes - add child table movements for visual feedback only
-            const additionalChanges = getAreaDragChildTablePositionChanges({
-                changes: changesToApply,
-                areas,
-                tables,
-                getNode: (id) => getNode(id) as NodeType | undefined,
-            });
-
-            if (additionalChanges.length > 0) {
-                changesToApply = [...changesToApply, ...additionalChanges];
-            }
-
-            // First, detect area changes
+            const {
+                positionChanges,
+                removeChanges,
+                sizeChanges,
+                childTableMovements,
+            } = tableChanges;
             const {
                 positionChanges: areaPositionChanges,
                 removeChanges: areaRemoveChanges,
                 sizeChanges: areaSizeChanges,
-            } = getRelevantCanvasNodeChanges(
-                changesToApply,
-                'area',
-                (id) => getNode(id) as NodeType | undefined
-            );
-
-            // Then, detect note changes
+            } = areaChanges;
             const {
                 positionChanges: notePositionChanges,
                 removeChanges: noteRemoveChanges,
                 sizeChanges: noteSizeChanges,
-            } = getRelevantCanvasNodeChanges(
-                changesToApply,
-                'note',
-                (id) => getNode(id) as NodeType | undefined
-            );
-
-            // Then, detect table changes
-            const { positionChanges, removeChanges, sizeChanges } =
-                getRelevantCanvasNodeChanges(
-                    changesToApply,
-                    'table',
-                    (id) => getNode(id) as NodeType | undefined
-                );
-
-            // Calculate child table movements from area position changes
-            const childTableMovements: Map<
-                string,
-                { deltaX: number; deltaY: number }
-            > = new Map();
-            if (
-                areaPositionChanges.length > 0 &&
-                areaSizeChanges.length === 0
-            ) {
-                areaPositionChanges.forEach((change) => {
-                    if (change.type === 'position' && change.position) {
-                        const currentArea = areas.find(
-                            (a) => a.id === change.id
-                        );
-                        if (currentArea) {
-                            const deltaX = change.position.x - currentArea.x;
-                            const deltaY = change.position.y - currentArea.y;
-
-                            const childTables = getTablesInArea(
-                                change.id,
-                                tables
-                            );
-                            childTables.forEach((table) => {
-                                childTableMovements.set(table.id, {
-                                    deltaX,
-                                    deltaY,
-                                });
-                            });
-                        }
-                    }
-                });
-            }
+            } = noteChanges;
 
             if (
                 positionChanges.length > 0 ||

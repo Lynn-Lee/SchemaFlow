@@ -1587,6 +1587,9 @@ progress:
     - 2026-07-05：完成第十一段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-pointer-actions.ts`，将 floating edge 鼠标坐标更新、Pane click 关闭和 Escape 关闭逻辑从 `canvas.tsx` 抽出为独立 hook。
     - 新增 `src/pages/editor-page/canvas/__tests__/canvas-pointer-actions.test.ts`，红灯先失败于缺失 `../canvas-pointer-actions`，绿灯覆盖鼠标移动、无 floating edge 忽略、Pane click 关闭与 Escape 关闭行为。
     - `canvas.tsx` 从 1145 行降到 1065 行；本轮仍不标记 done，下一步继续拆 `CanvasViewport` / drag / zoom hooks / 节点变更 orchestration 或其它事件 handler，直到主体低于 500 行。
+    - 2026-07-05：完成第十二段最小拆分切片，在 `src/pages/editor-page/canvas/canvas-node-changes.ts` 中新增 `buildCanvasNodeChangeSet()`，将 `onNodesChangeHandler` 的 readonly 过滤、area 拖拽视觉位移、area/note/table 变更分类和子表持久化位移计算收敛为可独立测试的 change set helper。
+    - 扩展 `src/pages/editor-page/canvas/__tests__/canvas-node-changes.test.ts`，红灯先失败于 `buildCanvasNodeChangeSet is not a function`，绿灯覆盖 readonly remove 过滤、area 拖拽视觉 child table movement 和提交 area position 后的 child table 持久化 delta。
+    - `canvas.tsx` 从 1065 行降到 1008 行；本轮仍不标记 done，下一步继续拆 `CanvasViewport` / drag / zoom hooks / overlap graph update 或其它事件 handler，直到主体低于 500 行。
 ```
 
 ### 批次 Q：代码质量

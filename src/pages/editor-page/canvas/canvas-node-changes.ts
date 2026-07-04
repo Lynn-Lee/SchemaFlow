@@ -6,6 +6,7 @@ import type {
 } from '@xyflow/react';
 import type { Area } from '@/lib/domain/area';
 import type { DBTable } from '@/lib/domain/db-table';
+import { getTablesInArea } from '@/lib/utils/area-utils';
 import type { NodeType } from './canvas-model';
 
 type GetCanvasNode = (id: string) => NodeType | undefined;
@@ -99,4 +100,88 @@ export const getAreaDragChildTablePositionChanges = ({
                 })
             );
     });
+};
+
+export const buildCanvasNodeChangeSet = ({
+    changes,
+    readonly,
+    areas,
+    tables,
+    getNode,
+}: {
+    changes: NodeChange<NodeType>[];
+    readonly: boolean;
+    areas: Area[];
+    tables: DBTable[];
+    getNode: GetCanvasNode;
+}) => {
+    let changesToApply = changes;
+
+    if (readonly) {
+        changesToApply = changesToApply.filter(
+            (change) => change.type !== 'remove'
+        );
+    }
+
+    const additionalChanges = getAreaDragChildTablePositionChanges({
+        changes: changesToApply,
+        areas,
+        tables,
+        getNode,
+    });
+
+    if (additionalChanges.length > 0) {
+        changesToApply = [...changesToApply, ...additionalChanges];
+    }
+
+    const areaChanges = getRelevantCanvasNodeChanges(
+        changesToApply,
+        'area',
+        getNode
+    );
+    const noteChanges = getRelevantCanvasNodeChanges(
+        changesToApply,
+        'note',
+        getNode
+    );
+    const tableChanges = getRelevantCanvasNodeChanges(
+        changesToApply,
+        'table',
+        getNode
+    );
+    const childTableMovements: Map<string, { deltaX: number; deltaY: number }> =
+        new Map();
+
+    if (
+        areaChanges.positionChanges.length > 0 &&
+        areaChanges.sizeChanges.length === 0
+    ) {
+        areaChanges.positionChanges.forEach((change) => {
+            if (change.type !== 'position' || !change.position) {
+                return;
+            }
+
+            const currentArea = areas.find((area) => area.id === change.id);
+            if (!currentArea) {
+                return;
+            }
+
+            const deltaX = change.position.x - currentArea.x;
+            const deltaY = change.position.y - currentArea.y;
+
+            getTablesInArea(change.id, tables).forEach((table) => {
+                childTableMovements.set(table.id, { deltaX, deltaY });
+            });
+        });
+    }
+
+    return {
+        changesToApply,
+        areaChanges,
+        noteChanges,
+        tableChanges: {
+            ...tableChanges,
+            childTableMovements,
+        },
+    };
 };

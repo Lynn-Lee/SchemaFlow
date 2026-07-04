@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type { Area } from '@/lib/domain/area';
 import type { DBTable } from '@/lib/domain/db-table';
 import {
+    buildCanvasNodeChangeSet,
     getAreaDragChildTablePositionChanges,
     getRelevantCanvasNodeChanges,
 } from '../canvas-node-changes';
@@ -73,5 +74,87 @@ describe('canvas node changes', () => {
                 dragging: true,
             },
         ]);
+    });
+
+    it('filters readonly removals while keeping allowed changes', () => {
+        const nodes = [{ id: 'table-1', type: 'table' }] as NodeType[];
+
+        const result = buildCanvasNodeChangeSet({
+            changes: [
+                { id: 'table-1', type: 'remove' },
+                {
+                    id: 'table-1',
+                    type: 'position',
+                    position: { x: 10, y: 20 },
+                    dragging: false,
+                },
+            ] as NodeChange<NodeType>[],
+            readonly: true,
+            areas: [],
+            tables: [],
+            getNode: getNode(nodes),
+        });
+
+        expect(result.changesToApply).toEqual([
+            {
+                id: 'table-1',
+                type: 'position',
+                position: { x: 10, y: 20 },
+                dragging: false,
+            },
+        ]);
+        expect(result.tableChanges.removeChanges).toEqual([]);
+    });
+
+    it('collects area child movements for visual and persisted table updates', () => {
+        const area = { id: 'area-1', x: 100, y: 100 } as Area;
+        const tables = [
+            { id: 'table-1', x: 10, y: 10, parentAreaId: 'area-1' },
+            { id: 'table-2', x: 20, y: 20, parentAreaId: null },
+        ] as DBTable[];
+        const nodes = [
+            { id: 'area-1', type: 'area' },
+            { id: 'table-1', type: 'table' },
+        ] as NodeType[];
+
+        const result = buildCanvasNodeChangeSet({
+            changes: [
+                {
+                    id: 'area-1',
+                    type: 'position',
+                    position: { x: 120, y: 130 },
+                    dragging: true,
+                },
+                {
+                    id: 'area-1',
+                    type: 'position',
+                    position: { x: 125, y: 140 },
+                    dragging: false,
+                },
+            ] as NodeChange<NodeType>[],
+            readonly: false,
+            areas: [area],
+            tables,
+            getNode: getNode(nodes),
+        });
+
+        expect(result.changesToApply).toContainEqual({
+            id: 'table-1',
+            type: 'position',
+            position: { x: 30, y: 40 },
+            dragging: true,
+        });
+        expect(result.areaChanges.positionChanges).toEqual([
+            {
+                id: 'area-1',
+                type: 'position',
+                position: { x: 125, y: 140 },
+                dragging: false,
+            },
+        ]);
+        expect(result.tableChanges.childTableMovements.get('table-1')).toEqual({
+            deltaX: 25,
+            deltaY: 40,
+        });
     });
 });
