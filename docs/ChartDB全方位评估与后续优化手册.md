@@ -1167,14 +1167,14 @@ batch: 批次 S
 type: SPIKE
 priority: P2
 title: 评估 Monaco Editor 升级路径以消除 dompurify advisory
-status: queued
+status: done
 depends_on: []
 owner_lane: security
 branch: codex/chartdb-s-monaco-upgrade-spike
 allowed_files:
     - docs/安全风险登记.md
 entry_context:
-    - monaco-editor 间接依赖 dompurify@3.3.1，有 16 个 moderate advisory
+    - monaco-editor 间接依赖 dompurify@3.2.7，npm audit 当前报告 1 个 low + 1 个 moderate 生产 advisory
     - 包括 SAFE_FOR_TEMPLATES 绕过、FORBID_TAGS 绕过等
     - 当前 CodeSnippetEditor 仅用于 readOnly 语法高亮，风险较低
 implementation_contract:
@@ -1189,6 +1189,21 @@ acceptance:
     - 有明确的升级或替代方案结论
     - 有破坏性变化评估
     - 结论记录在安全风险登记中
+completion:
+    date: 2026-07-04
+    summary:
+        - 已在 `docs/安全风险登记.md` 记录 Monaco / dompurify 当前事实：`monaco-editor@0.55.1` 仍声明 `dompurify@3.2.7`，`npm view monaco-editor@latest` 暂无可直接升级的 stable 版本清除此 advisory。
+        - `npm audit --omit=dev --json` 的自动修复建议是调整到 `monaco-editor@0.53.0`，该路径属于编辑器主版本回退，需要单独浏览器 smoke 和 DBML/SQL 高亮回归，不作为本轮安全 spike 直接执行。
+        - CodeMirror 6 可作为长期替代方案，但会牵涉 `CodeSnippet`、DBML language setup、completion provider、theme、worker 和可访问性契约重写，需独立产品/性能迁移任务承接。
+        - 本轮结论：暂不变更依赖；保留当前 Monaco，继续依赖 Markdown raw HTML 禁用、CSP、ErrorBoundary 和 Monaco lazy 边界降低实际可利用面。
+    scope_note:
+        - 任务卡 allowed_files 只列出 `docs/安全风险登记.md`；dispatcher done 定义要求同步本手册状态，因此本轮最小越界更新了当前任务卡。
+    verification:
+        - rg -n "Monaco|dompurify|CodeMirror|CHARTDB-S-003" docs/安全风险登记.md
+        - npm audit --omit=dev --json
+        - git diff --check
+    next:
+        - 进入 `CHARTDB-T-001`：i18n locale 文件改为按需动态加载。
 ```
 
 ### 批次 T：技术栈优化
