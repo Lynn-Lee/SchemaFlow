@@ -1631,7 +1631,7 @@ batch: 批次 A
 type: CODE
 priority: P2
 title: 为 Diagram 数据结构补充显式 version 字段，预留字段"改形状"时的迁移钩子
-status: queued
+status: done
 depends_on:
     - CHARTDB-A-001
 owner_lane: core
@@ -1657,6 +1657,20 @@ acceptance:
     - Diagram 具有 version 字段
     - 旧数据（无 version）可被正确识别和迁移
     - 版本不兼容时报错信息可读、可操作
+completion:
+    completed_at: 2026-07-04
+    result:
+        - 在 `src/schema-core/model/diagram.ts` 新增 `CURRENT_DIAGRAM_VERSION = 1`，并将 `diagramSchema` 扩展为可补全当前版本的 schema。
+        - `diagramFromJSONInput()` 新增裸 diagram JSON 迁移入口：无 `version` 的旧数据按 v0 识别并补全到当前版本；高于当前支持版本的输入会抛出包含 detected/expected version 的可读错误。
+        - 新建、onboarding、metadata import、SQL import 和当前 context diagram 构造路径写入当前 version，避免仅在导入时补字段。
+        - `Diagram.version` 在 TypeScript 类型层保持可选，以兼容大量历史模板数据和测试 fixture；运行时 schema 与新建入口会写入/补全当前版本。
+    scope_note:
+        - 任务卡 allowed_files 未列出若干真实新建入口，但验收要求"新建 diagram 时写入当前版本号"；本轮最小越界仅补充实际 diagram 构造路径。
+    verification:
+        - npm run test:ci -- src/lib/__tests__/export-import-utils.test.ts
+        - npm run build
+next:
+    - 继续批次 A 中剩余 queued 项，优先 `CHARTDB-A-011`：Worker 任务增加超时/deadline；也可进入批次 P 的 `CHARTDB-P-001`。
 ```
 
 #### CHARTDB-A-010：数据库元数据导入热路径接入 Zod 校验
@@ -2366,7 +2380,7 @@ npm run test:ci
 | Q-005 | 浏览器依赖拆分 | Q | P3 | queued | A-001 |
 | A-007 | 全局 ErrorBoundary | A | P0 | done | - |
 | A-008 | Context selector | A | P2 | done | A-003 |
-| A-009 | Diagram version 字段 | A | P2 | queued | A-001 |
+| A-009 | Diagram version 字段 | A | P2 | done | A-001 |
 | A-010 | 元数据导入校验补齐 | A | P1 | done | - |
 | A-011 | Worker 超时保护 | A | P2 | queued | - |
 | P-010 | Canvas 键盘可访问性基线 | P | P2 | queued | - |

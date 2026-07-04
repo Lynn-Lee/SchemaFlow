@@ -2,6 +2,7 @@ import { createContext, useContext, useSyncExternalStore } from 'react';
 import type { DBTable } from '@/lib/domain/db-table';
 import { emptyFn } from '@/lib/utils';
 import { DatabaseType } from '@/lib/domain/database-type';
+import { CURRENT_DIAGRAM_VERSION } from '@/lib/domain/diagram';
 import type { DBField } from '@/lib/domain/db-field';
 import type { DBIndex } from '@/lib/domain/db-index';
 import type { DBCheckConstraint } from '@/lib/domain/db-check-constraint';
@@ -347,6 +348,7 @@ export const initialChartDBContext: ChartDBContext = {
     highlightCustomTypeId: emptyFn,
     currentDiagram: {
         id: '',
+        version: CURRENT_DIAGRAM_VERSION,
         name: '',
         databaseType: DatabaseType.GENERIC,
         createdAt: new Date(),

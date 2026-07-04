@@ -1,5 +1,9 @@
 import { cloneDiagram } from './clone';
-import { diagramSchema, type Diagram } from './domain/diagram';
+import {
+    CURRENT_DIAGRAM_VERSION,
+    diagramSchema,
+    type Diagram,
+} from './domain/diagram';
 import { generateDiagramId } from './utils';
 import {
     CHARTDB_BACKUP_FORMAT,
@@ -29,6 +33,38 @@ const cloneDiagramWithIds = (diagram: Diagram): Diagram => ({
     id: generateDiagramId(),
 });
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+    typeof value === 'object' && value !== null && !Array.isArray(value);
+
+const migrateDiagramJsonInput = (
+    loadedDiagram: unknown
+): Record<string, unknown> => {
+    if (!isRecord(loadedDiagram)) {
+        throw new Error('Invalid diagram JSON');
+    }
+
+    const detectedVersion = loadedDiagram.version ?? 0;
+
+    if (typeof detectedVersion !== 'number') {
+        throw new Error(
+            `Invalid diagram version: detected ${String(
+                detectedVersion
+            )}, expected ${CURRENT_DIAGRAM_VERSION}`
+        );
+    }
+
+    if (detectedVersion > CURRENT_DIAGRAM_VERSION) {
+        throw new Error(
+            `Unsupported diagram version: detected ${detectedVersion}, expected ${CURRENT_DIAGRAM_VERSION}`
+        );
+    }
+
+    return {
+        ...loadedDiagram,
+        version: CURRENT_DIAGRAM_VERSION,
+    };
+};
+
 export const diagramToJSONOutput = (diagram: Diagram): string => {
     return JSON.stringify(
         createChartDBBackup({
@@ -55,7 +91,7 @@ export const diagramFromJSONInput = (json: string): Diagram => {
     }
 
     const diagram = diagramSchema.parse({
-        ...loadedDiagram,
+        ...migrateDiagramJsonInput(loadedDiagram),
         createdAt: new Date(),
         updatedAt: new Date(),
     });

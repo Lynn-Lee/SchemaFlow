@@ -25,7 +25,7 @@ import {
     databaseTypeToLabelMap,
 } from '@/lib/databases';
 import { DatabaseType } from '@/lib/domain/database-type';
-import type { Diagram } from '@/lib/domain/diagram';
+import { CURRENT_DIAGRAM_VERSION, type Diagram } from '@/lib/domain/diagram';
 import { cn, generateDiagramId } from '@/lib/utils';
 
 type StartOption = 'import' | 'blank' | 'template';
@@ -102,6 +102,7 @@ export const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
 
         const diagram: Diagram = {
             id: generateDiagramId(),
+            version: CURRENT_DIAGRAM_VERSION,
             name: 'Diagram 1',
             databaseType,
             createdAt: new Date(),

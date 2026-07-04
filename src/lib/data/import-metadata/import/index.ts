@@ -1,6 +1,7 @@
 import type { DatabaseEdition, Diagram } from '@/lib/domain';
 import {
     adjustTablePositions,
+    CURRENT_DIAGRAM_VERSION,
     DatabaseType,
     getTableIndexesWithPrimaryKey,
 } from '@/lib/domain';
@@ -72,6 +73,7 @@ export const loadFromDatabaseMetadata = async ({
 
     const diagram: Diagram = {
         id: generateDiagramId(),
+        version: CURRENT_DIAGRAM_VERSION,
         name: databaseMetadata.database_name
             ? `${databaseMetadata.database_name}`
             : diagramNumber

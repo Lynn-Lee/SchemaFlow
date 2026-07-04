@@ -11,7 +11,7 @@ import { DatabaseType } from '@/lib/domain/database-type';
 import type { DBRelationship } from '@/lib/domain/db-relationship';
 import { useStorage } from '@/hooks/use-storage';
 import { useRedoUndoStack } from '@/hooks/use-redo-undo-stack';
-import type { Diagram } from '@/lib/domain/diagram';
+import { CURRENT_DIAGRAM_VERSION, type Diagram } from '@/lib/domain/diagram';
 import type { DatabaseEdition } from '@/lib/domain/database-edition';
 import type { DBSchema } from '@/lib/domain/db-schema';
 import {
@@ -131,6 +131,7 @@ export const useChartDBProviderValue = ({
     const currentDiagram: Diagram = useMemo(
         () => ({
             id: diagramId,
+            version: CURRENT_DIAGRAM_VERSION,
             name: diagramName,
             createdAt: diagramCreatedAt,
             updatedAt: diagramUpdatedAt,

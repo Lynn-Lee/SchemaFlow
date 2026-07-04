@@ -1,4 +1,5 @@
 import type { Diagram } from '@/lib/domain/diagram';
+import { CURRENT_DIAGRAM_VERSION } from '@/lib/domain/diagram';
 import { generateDiagramId, generateId } from '@/lib/utils';
 import type { DBTable } from '@/lib/domain/db-table';
 import type { Cardinality, DBRelationship } from '@/lib/domain/db-relationship';
@@ -1059,8 +1060,9 @@ export function convertToChartDBDiagram(
         });
     }
 
-    const diagram = {
+    const diagram: Diagram = {
         id: generateDiagramId(),
+        version: CURRENT_DIAGRAM_VERSION,
         name: `SQL Import (${sourceDatabaseType})`,
         databaseType: targetDatabaseType,
         tables,

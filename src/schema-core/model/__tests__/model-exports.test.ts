@@ -9,6 +9,7 @@ import {
     dbIndexSchema,
     dbRelationshipSchema,
     dbTableSchema,
+    CURRENT_DIAGRAM_VERSION,
     diagramSchema,
     noteSchema,
     type Diagram,
@@ -29,7 +30,10 @@ describe('schema-core model exports', () => {
             updatedAt: createdAt,
         };
 
-        expect(diagramSchema.parse(diagram)).toEqual(diagram);
+        expect(diagramSchema.parse(diagram)).toEqual({
+            ...diagram,
+            version: CURRENT_DIAGRAM_VERSION,
+        });
         expect(
             dbFieldSchema.safeParse({
                 id: 'field-1',
