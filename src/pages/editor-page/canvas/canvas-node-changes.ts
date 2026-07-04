@@ -9,7 +9,7 @@ import type { DBTable } from '@/lib/domain/db-table';
 import { getTablesInArea } from '@/lib/utils/area-utils';
 import type { NodeType } from './canvas-model';
 
-type GetCanvasNode = (id: string) => NodeType | undefined;
+export type GetCanvasNode = (id: string) => NodeType | undefined;
 
 export const getRelevantCanvasNodeChanges = (
     changes: NodeChange<NodeType>[],

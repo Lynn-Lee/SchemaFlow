@@ -1605,6 +1605,9 @@ progress:
     - 2026-07-05：完成第十七段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-connect.ts`，将 React Flow connect params 到 dependency / relationship / incompatible / none action 的决策从 `canvas.tsx` 抽出为可独立测试的纯函数层。
     - 新增 `src/pages/editor-page/canvas/__tests__/canvas-connect.test.ts`，红灯先失败于缺失 `../canvas-connect`，绿灯覆盖 dependency handle、缺字段忽略、不兼容字段提示和兼容字段 relationship 创建。
     - `canvas.tsx` 从 856 行降到 818 行；本轮仍不标记 done，下一步继续拆 `CanvasViewport` / drag / zoom hooks / remaining node change orchestration 或其它事件 handler，直到主体低于 500 行。
+    - 2026-07-05：完成第十八段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-node-change-handler.ts`，将 React Flow node changes 到 table/area/note storage 更新、overlap graph 更新和 React Flow apply 的 orchestration 从 `canvas.tsx` 抽出为独立 hook。
+    - 新增 `src/pages/editor-page/canvas/__tests__/canvas-node-change-handler.test.ts`，红灯先失败于缺失 `../canvas-node-change-handler`，绿灯覆盖 table/area/note 变更持久化、overlap graph 更新和 changesToApply 透传。
+    - `canvas.tsx` 从 818 行降到 711 行；本轮仍不标记 done，下一步继续拆 `CanvasViewport` / drag / zoom hooks / keyboard handler 或其它事件 handler，直到主体低于 500 行。
 ```
 
 ### 批次 Q：代码质量

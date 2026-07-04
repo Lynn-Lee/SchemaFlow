@@ -10,7 +10,6 @@ import type {
     NodePositionChange,
     NodeDimensionChange,
     OnEdgesChange,
-    OnNodesChange,
     NodeChange,
 } from '@xyflow/react';
 import {
@@ -58,12 +57,6 @@ import {
     getSelectedCanvasEdgeIds,
     getSelectedCanvasNodeIds,
 } from './canvas-selection';
-import { buildCanvasNodeChangeSet } from './canvas-node-changes';
-import {
-    buildAreaStorageChanges,
-    buildNoteStorageChanges,
-    buildTableStorageChanges,
-} from './canvas-node-storage-updates';
 import {
     buildCanvasEdgesWithFloatingEdge,
     buildCanvasNodesWithCursor,
@@ -81,6 +74,7 @@ import { buildCanvasNodes } from './canvas-nodes';
 import { buildParentAreaUpdates } from './canvas-parent-areas';
 import { buildCanvasEdgeChangeSet } from './canvas-edge-changes';
 import { buildCanvasConnectAction } from './canvas-connect';
+import { useCanvasNodeChangeHandler } from './canvas-node-change-handler';
 
 export type { EdgeType, NodeType } from './canvas-model';
 
@@ -490,120 +484,20 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
         200
     );
 
-    const onNodesChangeHandler: OnNodesChange<NodeType> = useCallback(
-        (changes) => {
-            const { changesToApply, areaChanges, noteChanges, tableChanges } =
-                buildCanvasNodeChangeSet({
-                    changes,
-                    readonly: !!readonly,
-                    areas,
-                    tables,
-                    getNode: (id) => getNode(id) as NodeType | undefined,
-                });
-
-            const {
-                positionChanges,
-                removeChanges,
-                sizeChanges,
-                childTableMovements,
-            } = tableChanges;
-            const {
-                positionChanges: areaPositionChanges,
-                removeChanges: areaRemoveChanges,
-                sizeChanges: areaSizeChanges,
-            } = areaChanges;
-            const {
-                positionChanges: notePositionChanges,
-                removeChanges: noteRemoveChanges,
-                sizeChanges: noteSizeChanges,
-            } = noteChanges;
-
-            if (
-                positionChanges.length > 0 ||
-                removeChanges.length > 0 ||
-                sizeChanges.length > 0 ||
-                childTableMovements.size > 0 ||
-                areaRemoveChanges.length > 0
-            ) {
-                const tableStorageChanges = buildTableStorageChanges({
-                    tables,
-                    positionChanges,
-                    removeChanges,
-                    sizeChanges,
-                    areaRemoveChanges,
-                    childTableMovements,
-                });
-
-                updateTablesState(
-                    (currentTables) =>
-                        buildTableStorageChanges({
-                            tables: currentTables,
-                            positionChanges,
-                            removeChanges,
-                            sizeChanges,
-                            areaRemoveChanges,
-                            childTableMovements,
-                        }).tables,
-                    { updateHistory: tableStorageChanges.updateHistory }
-                );
-            }
-
-            updateOverlappingGraphOnChangesDebounced({
-                positionChanges,
-                sizeChanges,
-            });
-
-            if (
-                areaPositionChanges.length > 0 ||
-                areaRemoveChanges.length > 0 ||
-                areaSizeChanges.length > 0
-            ) {
-                const areaStorageChanges = buildAreaStorageChanges({
-                    positionChanges: areaPositionChanges,
-                    removeChanges: areaRemoveChanges,
-                    sizeChanges: areaSizeChanges,
-                });
-
-                areaStorageChanges.removeIds.forEach((id) => removeArea(id));
-                areaStorageChanges.updates.forEach(({ id, updates }) =>
-                    updateArea(id, updates)
-                );
-            }
-
-            // Handle note changes
-            if (
-                notePositionChanges.length > 0 ||
-                noteRemoveChanges.length > 0 ||
-                noteSizeChanges.length > 0
-            ) {
-                const noteStorageChanges = buildNoteStorageChanges({
-                    positionChanges: notePositionChanges,
-                    removeChanges: noteRemoveChanges,
-                    sizeChanges: noteSizeChanges,
-                });
-
-                noteStorageChanges.removeIds.forEach((id) => removeNote(id));
-                noteStorageChanges.updates.forEach(({ id, updates }) =>
-                    updateNote(id, updates)
-                );
-            }
-
-            return onNodesChange(changesToApply);
-        },
-        [
-            onNodesChange,
-            updateTablesState,
+    const onNodesChangeHandler = useCanvasNodeChangeHandler({
+        readonly: !!readonly,
+        tables,
+        areas,
+        getNode: (id) => getNode(id) as NodeType | undefined,
+        onNodesChange,
+        updateTablesState,
+        updateOverlappingGraphOnChanges:
             updateOverlappingGraphOnChangesDebounced,
-            updateArea,
-            removeArea,
-            updateNote,
-            removeNote,
-            readonly,
-            tables,
-            areas,
-            getNode,
-        ]
-    );
+        updateArea,
+        removeArea,
+        updateNote,
+        removeNote,
+    });
 
     const onCanvasKeyDownHandler = useCallback(
         (event: React.KeyboardEvent<HTMLDivElement>) => {
