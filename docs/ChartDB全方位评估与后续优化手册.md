@@ -1080,7 +1080,7 @@ batch: 批次 S
 type: CODE
 priority: P1
 title: 收紧 CSP connect-src 策略
-status: queued
+status: done
 depends_on: []
 owner_lane: security
 branch: codex/chartdb-s-csp-connect-src
@@ -1106,6 +1106,16 @@ acceptance:
     - connect-src 不再允许任意 http: 连接
     - 安全测试通过
     - 部署文档更新
+completion:
+    date: 2026-07-04
+    summary:
+        - `default.conf.template` 的静态页面与 `/config.js` CSP 均已从 `connect-src 'self' http: https:` 收紧为 `connect-src 'self' https:`。
+        - `src/lib/security/__tests__/nginx-security-headers.test.ts` 增加回归断言，防止重新允许通配 `http:`。
+        - `docs/部署与安全配置.md` 已说明默认发布模板要求 HTTPS gateway；明文 HTTP、本地开发端口或 WebSocket 需自托管者显式审查并调整 CSP。
+    verification:
+        - `npm run test:ci -- src/lib/security/__tests__/nginx-security-headers.test.ts`
+    next:
+        - 进入 `CHARTDB-S-002`：export-image-provider innerHTML 修复。
 ```
 
 #### CHARTDB-S-002：export-image-provider innerHTML 修复
@@ -2456,7 +2466,7 @@ npm run test:ci
 | P-004 | ImportResult confidence | P | P2 | done | - |
 | P-005 | Backup 恢复预览 | P | P2 | done | - |
 | P-006 | 缺失 dialect wrapper | P | P2 | done | F-005 |
-| S-001 | CSP 收紧 | S | P1 | queued | - |
+| S-001 | CSP 收紧 | S | P1 | done | - |
 | S-002 | innerHTML 修复 | S | P2 | queued | - |
 | S-003 | Monaco 升级评估 | S | P2 | queued | - |
 | T-001 | i18n 懒加载 | T | P1 | queued | - |

@@ -32,7 +32,7 @@ describe('Nginx security headers', () => {
         );
     });
 
-    it('keeps the CSP compatible with Vite assets and self-hosted gateways', () => {
+    it('keeps the CSP compatible with Vite assets and HTTPS self-hosted gateways', () => {
         const nginxConfig = readProjectFile('default.conf.template');
 
         expect(nginxConfig).toContain("default-src 'self'");
@@ -40,7 +40,8 @@ describe('Nginx security headers', () => {
         expect(nginxConfig).toContain("style-src 'self' 'unsafe-inline'");
         expect(nginxConfig).toContain("img-src 'self' data: blob:");
         expect(nginxConfig).toContain("font-src 'self' data:");
-        expect(nginxConfig).toContain("connect-src 'self' http: https:");
+        expect(nginxConfig).toContain("connect-src 'self' https:");
+        expect(nginxConfig).not.toContain("connect-src 'self' http: https:");
         expect(nginxConfig).toContain("worker-src 'self' blob:");
         expect(nginxConfig).toContain("object-src 'none'");
         expect(nginxConfig).toContain("base-uri 'self'");
