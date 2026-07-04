@@ -2022,7 +2022,7 @@ batch: 批次 P
 type: CODE
 priority: P2
 title: 为 React Router 路由配置增加 errorElement，避免 loader 报错或 chunk 加载失败时显示无样式默认错误页
-status: queued
+status: done
 depends_on: []
 owner_lane: product
 branch: codex/chartdb-p-router-error-element
@@ -2045,6 +2045,10 @@ acceptance:
     - 全部路由配置 errorElement
     - loader 报错时展示带 ChartDB 视觉和重试入口的错误页
     - 无行为回归
+completion:
+    - 2026-07-04：新增 `src/components/route-error-boundary/route-error-boundary.tsx`，在 loader 报错或 route chunk 加载失败时展示 ChartDB 风格恢复页，提供“返回首页”和“重试”入口。
+    - `src/router.tsx` 导出 `routes` 并为全部应用路由配置统一 `errorElement`，避免 React Router 默认无样式错误页暴露给用户。
+    - 新增 `src/components/route-error-boundary/__tests__/route-error-boundary.test.tsx`，红灯先失败于缺失 route error boundary 模块，绿灯覆盖全部 route 配置和 loader 抛错渲染自定义错误页。
 ```
 
 #### CHARTDB-P-012：Onboarding 数据库选择在导入路径中保持一致
@@ -2609,7 +2613,7 @@ npm run test:ci
 | A-010 | 元数据导入校验补齐 | A | P1 | done | - |
 | A-011 | Worker 超时保护 | A | P2 | done | - |
 | P-010 | Canvas 键盘可访问性基线 | P | P2 | done | - |
-| P-011 | 路由 errorElement | P | P2 | queued | - |
+| P-011 | 路由 errorElement | P | P2 | done | - |
 | P-012 | Onboarding 数据库选择延续 | P | P3 | queued | - |
 | P-013 | 存储错误处理 | P | P1 | done | - |
 | P-014 | 移动端 canvas 护栏提示 | P | P3 | queued | - |

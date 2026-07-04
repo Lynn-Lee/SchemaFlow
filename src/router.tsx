@@ -1,13 +1,17 @@
 import React from 'react';
 import type { RouteObject } from 'react-router-dom';
 import { createBrowserRouter } from 'react-router-dom';
+import { RouteErrorBoundary } from './components/route-error-boundary/route-error-boundary';
 import type { TemplatePageLoaderData } from './pages/template-page/template-page';
 import type { TemplatesPageLoaderData } from './pages/templates-page/templates-page';
 import { getTemplatesAndAllTags } from './templates-data/template-utils';
 
-const routes: RouteObject[] = [
+const routeErrorElement = <RouteErrorBoundary />;
+
+export const routes: RouteObject[] = [
     ...['', 'diagrams/:diagramId'].map((path) => ({
         path,
+        errorElement: routeErrorElement,
         async lazy() {
             const { EditorPage } =
                 await import('./pages/editor-page/editor-page');
@@ -19,6 +23,7 @@ const routes: RouteObject[] = [
     })),
     {
         path: 'examples',
+        errorElement: routeErrorElement,
         async lazy() {
             const { ExamplesPage } =
                 await import('./pages/examples-page/examples-page');
@@ -30,6 +35,7 @@ const routes: RouteObject[] = [
     {
         id: 'templates',
         path: 'templates',
+        errorElement: routeErrorElement,
         async lazy() {
             const { TemplatesPage } =
                 await import('./pages/templates-page/templates-page');
@@ -50,6 +56,7 @@ const routes: RouteObject[] = [
     {
         id: 'templates_featured',
         path: 'templates/featured',
+        errorElement: routeErrorElement,
         async lazy() {
             const { TemplatesPage } =
                 await import('./pages/templates-page/templates-page');
@@ -71,6 +78,7 @@ const routes: RouteObject[] = [
     {
         id: 'templates_tags',
         path: 'templates/tags/:tag',
+        errorElement: routeErrorElement,
         async lazy() {
             const { TemplatesPage } =
                 await import('./pages/templates-page/templates-page');
@@ -92,6 +100,7 @@ const routes: RouteObject[] = [
     {
         id: 'templates_templateSlug',
         path: 'templates/:templateSlug',
+        errorElement: routeErrorElement,
         async lazy() {
             const { TemplatePage } =
                 await import('./pages/template-page/template-page');
@@ -112,6 +121,7 @@ const routes: RouteObject[] = [
     {
         id: 'templates_load',
         path: 'templates/clone/:templateSlug',
+        errorElement: routeErrorElement,
         async lazy() {
             const { CloneTemplatePage } =
                 await import('./pages/clone-template-page/clone-template-page');
@@ -131,6 +141,7 @@ const routes: RouteObject[] = [
     },
     {
         path: '*',
+        errorElement: routeErrorElement,
         async lazy() {
             const { NotFoundPage } =
                 await import('./pages/not-found-page/not-found-page');
