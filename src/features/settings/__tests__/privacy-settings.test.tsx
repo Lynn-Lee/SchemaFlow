@@ -26,9 +26,19 @@ vi.mock('@/hooks/use-local-config', () => ({
 
 vi.mock('@/hooks/use-storage', () => ({
     useStorage: () => ({
+        addDiagram: vi.fn(),
         clearAllDiagrams: vi.fn(),
     }),
 }));
+
+vi.mock('react-router-dom', async () => {
+    const actual = await vi.importActual('react-router-dom');
+
+    return {
+        ...actual,
+        useNavigate: () => vi.fn(),
+    };
+});
 
 describe('PrivacySettings', () => {
     beforeEach(() => {

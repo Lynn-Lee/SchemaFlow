@@ -1,5 +1,6 @@
 import React from 'react';
-import { AlertTriangle, Database, KeyRound } from 'lucide-react';
+import { AlertTriangle, Database, KeyRound, Upload } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/button/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/alert/alert';
 import {
@@ -16,8 +17,38 @@ import { useDialog } from '@/hooks/use-dialog';
 import { useLocalConfig } from '@/hooks/use-local-config';
 import { useStorage } from '@/hooks/use-storage';
 import { getBYOKSessionKey, setBYOKSessionKey } from '@/lib/ai/ai-mode';
+import {
+    parseBackupSummary,
+    parseChartDBBackup,
+    restoreDiagramFromBackup,
+    type ChartDBBackupSummary,
+} from '@/storage/backup';
 
 type ClearStatus = 'idle' | 'clearing' | 'success' | 'error';
+type RestoreStatus =
+    | 'idle'
+    | 'reading'
+    | 'ready'
+    | 'restoring'
+    | 'success'
+    | 'error';
+
+const readFileAsText = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const result = event.target?.result;
+            if (typeof result === 'string') {
+                resolve(result);
+                return;
+            }
+
+            reject(new Error('Backup file could not be read.'));
+        };
+        reader.onerror = () =>
+            reject(new Error('Backup file could not be read.'));
+        reader.readAsText(file);
+    });
 
 export const PrivacySettings: React.FC = () => {
     const {
@@ -29,11 +60,24 @@ export const PrivacySettings: React.FC = () => {
         aiGatewayModelName,
         setAIGatewayModelName,
     } = useLocalConfig();
-    const { openExportDiagramDialog, openImportDiagramDialog } = useDialog();
-    const { clearAllDiagrams } = useStorage();
+    const { openExportDiagramDialog } = useDialog();
+    const { addDiagram, clearAllDiagrams } = useStorage();
+    const navigate = useNavigate();
+    const restoreFileInputId = React.useId();
+    const restoreFileInputRef = React.useRef<HTMLInputElement | null>(null);
     const [clearDialogOpen, setClearDialogOpen] = React.useState(false);
     const [clearStatus, setClearStatus] = React.useState<ClearStatus>('idle');
     const [clearError, setClearError] = React.useState<string | undefined>();
+    const [restoreDialogOpen, setRestoreDialogOpen] = React.useState(false);
+    const [restoreStatus, setRestoreStatus] =
+        React.useState<RestoreStatus>('idle');
+    const [restoreError, setRestoreError] = React.useState<
+        string | undefined
+    >();
+    const [restoreJson, setRestoreJson] = React.useState<string | undefined>();
+    const [restoreSummary, setRestoreSummary] = React.useState<
+        ChartDBBackupSummary | undefined
+    >();
     const [byokSessionKey, setByokSessionKey] = React.useState(
         () => getBYOKSessionKey() ?? ''
     );
@@ -64,6 +108,75 @@ export const PrivacySettings: React.FC = () => {
             );
         }
     }, [clearAllDiagrams]);
+
+    const handleRestoreBackupFileChange = React.useCallback(
+        async (event: React.ChangeEvent<HTMLInputElement>) => {
+            const file = event.target.files?.[0];
+            event.target.value = '';
+
+            if (!file) return;
+
+            setRestoreStatus('reading');
+            setRestoreError(undefined);
+
+            try {
+                const json = await readFileAsText(file);
+                const summary = parseBackupSummary(json);
+                setRestoreJson(json);
+                setRestoreSummary(summary);
+                setRestoreStatus('ready');
+                setRestoreDialogOpen(true);
+            } catch (error) {
+                setRestoreJson(undefined);
+                setRestoreSummary(undefined);
+                setRestoreStatus('error');
+                setRestoreError(
+                    error instanceof Error
+                        ? error.message
+                        : 'Backup file could not be previewed.'
+                );
+            }
+        },
+        []
+    );
+
+    const handleRestoreBackup = React.useCallback(async () => {
+        if (!restoreJson) return;
+
+        setRestoreStatus('restoring');
+        setRestoreError(undefined);
+
+        try {
+            const backup = parseChartDBBackup(restoreJson);
+            const restoredDiagrams = backup.diagrams.map((_, diagramIndex) =>
+                restoreDiagramFromBackup({
+                    backup,
+                    diagramIndex,
+                })
+            );
+
+            await Promise.all(
+                restoredDiagrams.map((diagram) => addDiagram({ diagram }))
+            );
+
+            setRestoreStatus('success');
+            setRestoreDialogOpen(false);
+            setRestoreJson(undefined);
+            setRestoreSummary(undefined);
+
+            const firstDiagram = restoredDiagrams[0];
+            if (firstDiagram) {
+                navigate(`/diagrams/${firstDiagram.id}`);
+            }
+        } catch (error) {
+            setRestoreStatus('error');
+            setRestoreError(
+                error instanceof Error
+                    ? error.message
+                    : 'Backup file could not be restored.'
+            );
+        }
+    }, [addDiagram, navigate, restoreJson]);
 
     return (
         <section className="grid gap-5" aria-labelledby="privacy-settings">
@@ -192,10 +305,20 @@ export const PrivacySettings: React.FC = () => {
                     <Button
                         type="button"
                         variant="secondary"
-                        onClick={() => openImportDiagramDialog({})}
+                        onClick={() => restoreFileInputRef.current?.click()}
                     >
+                        <Upload className="mr-2 size-4" />
                         Restore from backup
                     </Button>
+                    <input
+                        ref={restoreFileInputRef}
+                        id={restoreFileInputId}
+                        className="sr-only"
+                        type="file"
+                        accept=".json,application/json"
+                        aria-label="Backup file"
+                        onChange={handleRestoreBackupFileChange}
+                    />
                     <Button
                         type="button"
                         variant="destructive"
@@ -205,6 +328,35 @@ export const PrivacySettings: React.FC = () => {
                         Clear local diagrams
                     </Button>
                 </div>
+                {restoreStatus === 'reading' ? (
+                    <Alert>
+                        <Upload className="size-4" />
+                        <AlertTitle>Reading backup</AlertTitle>
+                        <AlertDescription>
+                            ChartDB is building a restore preview.
+                        </AlertDescription>
+                    </Alert>
+                ) : null}
+                {restoreStatus === 'success' ? (
+                    <Alert>
+                        <Database className="size-4" />
+                        <AlertTitle>Backup restored</AlertTitle>
+                        <AlertDescription>
+                            The selected backup has been restored as local
+                            diagram data.
+                        </AlertDescription>
+                    </Alert>
+                ) : null}
+                {restoreStatus === 'error' ? (
+                    <Alert variant="destructive">
+                        <AlertTriangle className="size-4" />
+                        <AlertTitle>Could not restore backup</AlertTitle>
+                        <AlertDescription>
+                            {restoreError ??
+                                'Backup file could not be restored.'}
+                        </AlertDescription>
+                    </Alert>
+                ) : null}
                 {clearStatus === 'success' ? (
                     <Alert>
                         <Database className="size-4" />
@@ -257,6 +409,79 @@ export const PrivacySettings: React.FC = () => {
                                 {clearStatus === 'clearing'
                                     ? 'Deleting...'
                                     : 'Delete local diagrams'}
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+                <AlertDialog
+                    open={restoreDialogOpen}
+                    onOpenChange={setRestoreDialogOpen}
+                >
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>
+                                Restore backup preview?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Review the diagrams in this backup before
+                                restoring them into local browser storage.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        {restoreSummary ? (
+                            <div className="grid gap-3 text-sm">
+                                <p className="text-muted-foreground">
+                                    {restoreSummary.diagramCount}{' '}
+                                    {restoreSummary.diagramCount === 1
+                                        ? 'diagram'
+                                        : 'diagrams'}{' '}
+                                    in this backup.
+                                </p>
+                                <ul className="grid max-h-48 gap-2 overflow-auto rounded-md border border-border p-3">
+                                    {restoreSummary.diagrams.map(
+                                        (diagram, index) => (
+                                            <li
+                                                key={`${diagram.name}-${index}`}
+                                                className="grid gap-1"
+                                            >
+                                                <span className="font-medium">
+                                                    {diagram.name}
+                                                </span>
+                                                <span className="text-xs text-muted-foreground">
+                                                    {`${diagram.tableCount} ${
+                                                        diagram.tableCount === 1
+                                                            ? 'table'
+                                                            : 'tables'
+                                                    } · ${
+                                                        diagram.relationshipCount
+                                                    } ${
+                                                        diagram.relationshipCount ===
+                                                        1
+                                                            ? 'relationship'
+                                                            : 'relationships'
+                                                    }`}
+                                                </span>
+                                            </li>
+                                        )
+                                    )}
+                                </ul>
+                            </div>
+                        ) : null}
+                        <AlertDialogFooter>
+                            <AlertDialogCancel
+                                disabled={restoreStatus === 'restoring'}
+                            >
+                                Cancel
+                            </AlertDialogCancel>
+                            <AlertDialogAction
+                                disabled={restoreStatus === 'restoring'}
+                                onClick={(event) => {
+                                    event.preventDefault();
+                                    void handleRestoreBackup();
+                                }}
+                            >
+                                {restoreStatus === 'restoring'
+                                    ? 'Restoring...'
+                                    : 'Restore backup'}
                             </AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>

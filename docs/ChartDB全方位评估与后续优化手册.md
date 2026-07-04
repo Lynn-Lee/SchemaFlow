@@ -985,7 +985,7 @@ batch: 批次 P
 type: CODE
 priority: P2
 title: 恢复 backup 前展示 diagram 摘要预览
-status: queued
+status: done
 depends_on: []
 owner_lane: product
 branch: codex/chartdb-p-backup-preview
@@ -1010,6 +1010,16 @@ acceptance:
     - 恢复前展示 diagram 摘要
     - 用户确认后才执行恢复
     - 不兼容文件有明确错误
+done:
+    date: 2026-07-04
+    summary:
+        - `parseBackupSummary()` 可在恢复前解析 `chartdb.backup` metadata、diagram 数量、名称、table count 和 relationship count。
+        - 设置中心的 `Restore from backup` 入口改为选择文件后先展示摘要预览；用户确认前不会调用 `addDiagram()` 写入 IndexedDB。
+        - 确认恢复后按 backup payload 逐个恢复 diagram，并跳转到第一个恢复出的 diagram；不兼容或损坏文件展示可读错误。
+    verification:
+        - `npm run test:ci -- src/storage/backup/__tests__/backup-restore.test.ts src/features/settings/__tests__/settings-dialog.test.tsx`
+    next:
+        - 进入 `CHARTDB-P-006`：CockroachDB 和 ClickHouse dialect wrapper。
 ```
 
 #### CHARTDB-P-006：CockroachDB 和 ClickHouse dialect wrapper
@@ -2434,7 +2444,7 @@ npm run test:ci
 | P-002 | BYOK key 输入 | P | P1 | done | - |
 | P-003 | 导出 warning | P | P1 | done | - |
 | P-004 | ImportResult confidence | P | P2 | done | - |
-| P-005 | Backup 恢复预览 | P | P2 | queued | - |
+| P-005 | Backup 恢复预览 | P | P2 | done | - |
 | P-006 | 缺失 dialect wrapper | P | P2 | queued | F-005 |
 | S-001 | CSP 收紧 | S | P1 | queued | - |
 | S-002 | innerHTML 修复 | S | P2 | queued | - |

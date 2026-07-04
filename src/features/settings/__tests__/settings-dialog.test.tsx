@@ -3,16 +3,31 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { LocalConfigProvider } from '@/context/local-config-context/local-config-provider';
+import { DatabaseType } from '@/lib/domain/database-type';
+import type { Diagram } from '@/lib/domain/diagram';
 import { clearBYOKSessionKey } from '@/lib/ai/ai-mode';
+import { createChartDBBackup } from '@/storage/backup';
 import { SettingsDialog } from '../settings-dialog';
 
 const clearAllDiagramsMock = vi.fn();
+const addDiagramMock = vi.fn();
+const navigateMock = vi.fn();
 
 vi.mock('@/hooks/use-storage', () => ({
     useStorage: () => ({
         clearAllDiagrams: clearAllDiagramsMock,
+        addDiagram: addDiagramMock,
     }),
 }));
+
+vi.mock('react-router-dom', async () => {
+    const actual = await vi.importActual('react-router-dom');
+
+    return {
+        ...actual,
+        useNavigate: () => navigateMock,
+    };
+});
 
 const renderSettings = () =>
     render(
@@ -21,9 +36,38 @@ const renderSettings = () =>
         </LocalConfigProvider>
     );
 
+const createDiagram = (): Diagram => ({
+    id: 'diagram-1',
+    name: 'Storefront',
+    databaseType: DatabaseType.POSTGRESQL,
+    createdAt: new Date('2026-07-01T10:00:00.000Z'),
+    updatedAt: new Date('2026-07-01T10:05:00.000Z'),
+    tables: [
+        {
+            id: 'table-1',
+            name: 'customers',
+            x: 10,
+            y: 20,
+            fields: [],
+            indexes: [],
+            color: '#f8fafc',
+            isView: false,
+            createdAt: 1782938400000,
+        },
+    ],
+    relationships: [],
+    dependencies: [],
+    areas: [],
+    customTypes: [],
+    notes: [],
+});
+
 describe('SettingsDialog', () => {
     beforeEach(() => {
         clearAllDiagramsMock.mockReset();
+        addDiagramMock.mockReset();
+        addDiagramMock.mockResolvedValue(undefined);
+        navigateMock.mockReset();
         clearBYOKSessionKey();
         localStorage.removeItem('chartdb.ai.mode');
         localStorage.removeItem('chartdb.ai.byok.key');
@@ -154,5 +198,41 @@ describe('SettingsDialog', () => {
         expect(
             screen.getByText('All local diagrams have been deleted.')
         ).toBeInTheDocument();
+    });
+
+    it('previews a backup summary before restoring diagrams', async () => {
+        const user = userEvent.setup();
+        renderSettings();
+        const backup = createChartDBBackup({
+            diagrams: [createDiagram()],
+            now: new Date('2026-07-01T12:00:00.000Z'),
+            appVersion: '1.20.1-test',
+        });
+
+        await user.upload(
+            screen.getByLabelText('Backup file'),
+            new File([JSON.stringify(backup)], 'chartdb-backup.json', {
+                type: 'application/json',
+            })
+        );
+
+        expect(
+            await screen.findByRole('alertdialog', {
+                name: 'Restore backup preview?',
+            })
+        ).toBeInTheDocument();
+        expect(screen.getByText('Storefront')).toBeInTheDocument();
+        expect(screen.getByText(/1 table/)).toBeInTheDocument();
+        expect(screen.getByText(/0 relationships/)).toBeInTheDocument();
+        expect(addDiagramMock).not.toHaveBeenCalled();
+
+        await user.click(
+            screen.getByRole('button', { name: 'Restore backup' })
+        );
+
+        await waitFor(() => expect(addDiagramMock).toHaveBeenCalledOnce());
+        expect(navigateMock).toHaveBeenCalledWith(
+            expect.stringMatching(/^\/diagrams\//)
+        );
     });
 });

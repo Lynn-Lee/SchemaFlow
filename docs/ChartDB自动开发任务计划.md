@@ -1296,7 +1296,7 @@ acceptance:
     - 数据导出、清理、恢复入口集中
 ```
 
-本轮结果：已新增 `src/features/settings` 设置中心，并通过左侧 Sidebar 的 `Settings` 入口打开。设置中心集中展示 theme、language、minimap、field attributes、scroll action、AI mode、Self-hosted Gateway endpoint/model、导出 backup、恢复 backup 和清理本地 diagram 的危险操作入口；BYOK key 仍只允许 session-only，不写入 localStorage。`LocalConfigProvider` 已为 localStorage 读写增加 try/catch 容错，浏览器存储不可用时设置中心会显示 session-only 降级说明。下一项进入 `CHARTDB-P6-000`，定义 Phase 6 性能优化执行清单。
+本轮结果：已新增 `src/features/settings` 设置中心，并通过左侧 Sidebar 的 `Settings` 入口打开。设置中心集中展示 theme、language、minimap、field attributes、scroll action、AI mode、Self-hosted Gateway endpoint/model、导出 backup、恢复 backup 和清理本地 diagram 的危险操作入口；后续 `CHARTDB-P-005` 已将恢复 backup 入口补齐为先展示 diagram 摘要预览、确认后再写入本地 storage。BYOK key 仍只允许 session-only，不写入 localStorage。`LocalConfigProvider` 已为 localStorage 读写增加 try/catch 容错，浏览器存储不可用时设置中心会显示 session-only 降级说明。下一项进入 `CHARTDB-P6-000`，定义 Phase 6 性能优化执行清单。
 
 ## 12. Phase 6：性能优化
 

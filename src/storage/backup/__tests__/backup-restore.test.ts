@@ -4,6 +4,7 @@ import type { Diagram } from '@/lib/domain/diagram';
 import {
     CURRENT_CHARTDB_BACKUP_FORMAT_VERSION,
     createChartDBBackup,
+    parseBackupSummary,
     parseChartDBBackup,
     restoreDiagramFromBackup,
 } from '@/storage/backup';
@@ -75,6 +76,93 @@ describe('ChartDB backup restore format', () => {
             new Date('2026-07-01T12:30:00.000Z')
         );
         expect(restored.tables).toHaveLength(1);
+    });
+
+    it('builds a restore preview summary without restoring diagrams', () => {
+        const backup = createChartDBBackup({
+            diagrams: [
+                createDiagram(),
+                createDiagram({
+                    id: 'diagram-2',
+                    name: 'Warehouse',
+                    tables: [
+                        {
+                            id: 'table-2',
+                            name: 'inventory',
+                            x: 0,
+                            y: 0,
+                            fields: [
+                                {
+                                    id: 'field-1',
+                                    name: 'id',
+                                    type: { id: 'int', name: 'int' },
+                                    primaryKey: true,
+                                    unique: false,
+                                    nullable: false,
+                                    createdAt: 1782938400000,
+                                },
+                            ],
+                            indexes: [],
+                            color: '#f8fafc',
+                            isView: false,
+                            createdAt: 1782938400000,
+                        },
+                        {
+                            id: 'table-3',
+                            name: 'shipments',
+                            x: 120,
+                            y: 0,
+                            fields: [
+                                {
+                                    id: 'field-2',
+                                    name: 'inventory_id',
+                                    type: { id: 'int', name: 'int' },
+                                    primaryKey: false,
+                                    unique: false,
+                                    nullable: false,
+                                    createdAt: 1782938400000,
+                                },
+                            ],
+                            indexes: [],
+                            color: '#f8fafc',
+                            isView: false,
+                            createdAt: 1782938400000,
+                        },
+                    ],
+                    relationships: [
+                        {
+                            id: 'relationship-1',
+                            name: 'inventory_shipments',
+                            sourceTableId: 'table-2',
+                            targetTableId: 'table-3',
+                            sourceFieldId: 'field-1',
+                            targetFieldId: 'field-2',
+                            sourceCardinality: 'one',
+                            targetCardinality: 'many',
+                            createdAt: 1782938400000,
+                        },
+                    ],
+                }),
+            ],
+            now: new Date('2026-07-01T12:00:00.000Z'),
+            appVersion: '1.20.1-test',
+        });
+
+        const summary = parseBackupSummary(JSON.stringify(backup));
+
+        expect(summary.diagramCount).toBe(2);
+        expect(summary.diagrams).toEqual([
+            {
+                name: 'Storefront',
+                tableCount: 1,
+                relationshipCount: 0,
+            },
+            {
+                name: 'Warehouse',
+                tableCount: 2,
+                relationshipCount: 1,
+            },
+        ]);
     });
 
     it('rejects incompatible backup format before restore', () => {

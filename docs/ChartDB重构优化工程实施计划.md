@@ -1056,7 +1056,7 @@ git switch -c codex/chartdb-phase-3-storage
 
 - [x] 恢复前校验格式。
 
-- [ ] 恢复前展示 diagram 摘要。
+- [x] 恢复前展示 diagram 摘要。
 
 - [x] 支持导入为新 diagram。
 

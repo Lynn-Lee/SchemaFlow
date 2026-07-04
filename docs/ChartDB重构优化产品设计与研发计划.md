@@ -1221,7 +1221,7 @@ Capability Matrix：
 - 抽 Dexie repositories。
 - 抽 migration runner。
 - diagram 删除和恢复使用 transaction。
-- 新增 backup/restore service。（已完成 versioned backup contract；恢复摘要 UI 后续在体验阶段补齐）
+- 新增 backup/restore service。（已完成 versioned backup contract；设置中心恢复入口已补齐 diagram 摘要预览）
 - 新增 storage health check。
 
 验收：
