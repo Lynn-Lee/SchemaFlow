@@ -150,6 +150,40 @@ const getQuotedFieldName = (
     return needsQuoting ? `"${fieldName}"` : fieldName;
 };
 
+const postgreSQLFallbackTargets = [
+    DatabaseType.ORACLE,
+    DatabaseType.CLICKHOUSE,
+    DatabaseType.COCKROACHDB,
+];
+
+const postgreSQLFallbackTargetLabels: Record<DatabaseType, string> = {
+    [DatabaseType.POSTGRESQL]: 'PostgreSQL',
+    [DatabaseType.MYSQL]: 'MySQL',
+    [DatabaseType.SQL_SERVER]: 'SQL Server',
+    [DatabaseType.MARIADB]: 'MariaDB',
+    [DatabaseType.SQLITE]: 'SQLite',
+    [DatabaseType.GENERIC]: 'Generic',
+    [DatabaseType.COCKROACHDB]: 'CockroachDB',
+    [DatabaseType.ORACLE]: 'Oracle',
+    [DatabaseType.CLICKHOUSE]: 'ClickHouse',
+};
+
+const isPostgreSQLFallbackTarget = (databaseType: DatabaseType): boolean =>
+    postgreSQLFallbackTargets.includes(databaseType);
+
+const createPostgreSQLFallbackWarning = (
+    databaseType: DatabaseType
+): string => {
+    const databaseName = postgreSQLFallbackTargetLabels[databaseType];
+
+    return [
+        `-- WARNING: ${databaseName} SQL export is not fully supported by deterministic export.`,
+        '-- Code: export.unsupported_dialect_fallback; Severity: warning.',
+        '-- Risk level: medium; generated SQL uses PostgreSQL fallback formatting.',
+        '',
+    ].join('\n');
+};
+
 export const exportBaseSQL = ({
     diagram,
     targetDatabaseType,
@@ -169,6 +203,11 @@ export const exportBaseSQL = ({
         return '';
     }
 
+    const fallbackWarning =
+        !isDBMLFlow && isPostgreSQLFallbackTarget(targetDatabaseType)
+            ? createPostgreSQLFallbackWarning(targetDatabaseType)
+            : '';
+
     if (!isDBMLFlow && diagram.databaseType === targetDatabaseType) {
         switch (diagram.databaseType) {
             case DatabaseType.SQL_SERVER:
@@ -181,7 +220,7 @@ export const exportBaseSQL = ({
             case DatabaseType.MARIADB:
                 return exportMySQL({ diagram, onlyRelationships });
             default:
-                return exportPostgreSQL({ diagram, onlyRelationships });
+                return `${fallbackWarning}${exportPostgreSQL({ diagram, onlyRelationships })}`;
         }
     }
 
@@ -716,7 +755,7 @@ export const exportBaseSQL = ({
         });
     }
 
-    return sqlScript;
+    return `${fallbackWarning}${sqlScript}`;
 };
 
 const hasDeterministicCrossDialectExport = (

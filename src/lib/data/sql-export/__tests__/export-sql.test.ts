@@ -163,6 +163,48 @@ describe('SQL Export Tests', () => {
         });
 
         describe('exportBaseSQL', () => {
+            it.each([
+                [DatabaseType.ORACLE, 'Oracle'],
+                [DatabaseType.CLICKHOUSE, 'ClickHouse'],
+                [DatabaseType.COCKROACHDB, 'CockroachDB'],
+            ])(
+                'adds a PostgreSQL fallback warning for unsupported %s exports',
+                (databaseType, databaseName) => {
+                    const diagram = createDiagram({
+                        databaseType,
+                        tables: [
+                            createTable({
+                                name: 'users',
+                                fields: [
+                                    createField({
+                                        name: 'id',
+                                        type: {
+                                            id: 'integer',
+                                            name: 'integer',
+                                        },
+                                        primaryKey: true,
+                                        nullable: false,
+                                    }),
+                                ],
+                            }),
+                        ],
+                    });
+
+                    const sql = exportBaseSQL({
+                        diagram,
+                        targetDatabaseType: databaseType,
+                    });
+
+                    expect(sql).toContain(
+                        `WARNING: ${databaseName} SQL export is not fully supported`
+                    );
+                    expect(sql).toContain(
+                        'Risk level: medium; generated SQL uses PostgreSQL fallback formatting.'
+                    );
+                    expect(sql).toContain('CREATE TABLE "users"');
+                }
+            );
+
             it('should export PRIMARY KEY without CONSTRAINT for PostgreSQL', () => {
                 const { diagram } = createTestDiagramWithPKIndex(
                     DatabaseType.POSTGRESQL

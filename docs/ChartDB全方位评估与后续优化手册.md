@@ -891,7 +891,7 @@ batch: 批次 P
 type: CODE
 priority: P1
 title: 不支持的方言导出时输出明确 warning 而非静默降级
-status: queued
+status: done
 depends_on: []
 owner_lane: product
 branch: codex/chartdb-p-export-warning
@@ -914,6 +914,21 @@ acceptance:
     - Oracle/ClickHouse/CockroachDB 导出有明确 warning
     - 输出 SQL 包含 fallback 格式注释
     - 不静默降级
+completion:
+    completed_at: 2026-07-04
+    result:
+        - `exportBaseSQL()` 对 Oracle、ClickHouse、CockroachDB deterministic export 输出 PostgreSQL fallback SQL 前新增 SQL 注释 warning。
+        - 注释包含 `export.unsupported_dialect_fallback` code、warning severity 和 medium riskLevel，避免用户误以为得到原生方言 DDL。
+        - 保持现有 string API 和导出对话框调用路径不变，不扩大到通用 dialect contract。
+        - 新增聚焦测试覆盖 Oracle、ClickHouse、CockroachDB 三种 unsupported target。
+    verification:
+        - npm run test:ci -- src/lib/data/sql-export/__tests__/export-sql.test.ts
+        - npm run lint
+        - npm run test:ci
+        - npm run build
+        - git diff --check
+next:
+    - 进入 `CHARTDB-P-004`：为 ImportResult 补充 confidence 和 diagnostics 字段。
 ```
 
 #### CHARTDB-P-004：ImportResult 补充 confidence 字段
@@ -2407,7 +2422,7 @@ npm run test:ci
 | A-006 | dialects 迁移 parser | A | P2 | done | A-001 |
 | P-001 | Clear local diagrams | P | P1 | done | - |
 | P-002 | BYOK key 输入 | P | P1 | done | - |
-| P-003 | 导出 warning | P | P1 | queued | - |
+| P-003 | 导出 warning | P | P1 | done | - |
 | P-004 | ImportResult confidence | P | P2 | queued | - |
 | P-005 | Backup 恢复预览 | P | P2 | queued | - |
 | P-006 | 缺失 dialect wrapper | P | P2 | queued | F-005 |
