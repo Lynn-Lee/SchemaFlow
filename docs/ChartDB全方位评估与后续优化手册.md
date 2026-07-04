@@ -835,7 +835,7 @@ batch: 批次 P
 type: CODE
 priority: P1
 title: 在设置中心或 SQL 导出对话框中添加 BYOK key 输入入口
-status: queued
+status: done
 depends_on: []
 owner_lane: product
 branch: codex/chartdb-p-byok-key-input
@@ -864,6 +864,23 @@ acceptance:
     - BYOK 模式下有 key 输入入口
     - key 仅在内存 session
     - 不持久化到任何存储
+completion:
+    completed_at: 2026-07-04
+    result:
+        - 设置中心的 BYOK Session 模式新增 `Session API key` password 输入框，用户可在设置中心直接输入临时 key。
+        - 输入框通过 `setBYOKSessionKey()` 写入 module memory；刷新页面后 key 丢失，不写入 localStorage、sessionStorage、IndexedDB、URL 或导出文件。
+        - `setBYOKSessionKey()` 对空白输入执行清除，设置页清空输入会同步清空内存 key。
+        - 新增 `PrivacySettings` 聚焦测试覆盖 key 输入、清除和不持久化；保留 `ai-mode` gate 测试覆盖 BYOK 请求构造。
+    verification:
+        - npm run test:ci -- src/features/settings/__tests__/settings-dialog.test.tsx src/features/settings/__tests__/privacy-settings.test.tsx src/lib/ai/__tests__/ai-mode.test.ts
+        - npm run lint
+        - npm run test:ci
+        - npm run build
+        - git diff --check
+        - npm audit --omit=dev --audit-level=high
+        - rg -n "VITE_OPENAI_API_KEY|OPENAI_API_KEY|window\\.env|rehype-raw|dangerouslySetInnerHTML" src Dockerfile default.conf.template .github
+next:
+    - 进入 `CHARTDB-P-003`：不支持的方言导出时输出明确 warning 而非静默降级。
 ```
 
 #### CHARTDB-P-003：Oracle/ClickHouse 导出 warning
@@ -2389,7 +2406,7 @@ npm run test:ci
 | A-005 | checkConstraint command | A | P2 | done | A-002 |
 | A-006 | dialects 迁移 parser | A | P2 | done | A-001 |
 | P-001 | Clear local diagrams | P | P1 | done | - |
-| P-002 | BYOK key 输入 | P | P1 | queued | - |
+| P-002 | BYOK key 输入 | P | P1 | done | - |
 | P-003 | 导出 warning | P | P1 | queued | - |
 | P-004 | ImportResult confidence | P | P2 | queued | - |
 | P-005 | Backup 恢复预览 | P | P2 | queued | - |

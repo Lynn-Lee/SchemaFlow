@@ -36,7 +36,8 @@ interface BuildAIExportRequestOptions {
 let byokSessionKey: string | undefined;
 
 export const setBYOKSessionKey = (apiKey: string) => {
-    byokSessionKey = apiKey;
+    const trimmedKey = apiKey.trim();
+    byokSessionKey = trimmedKey.length > 0 ? trimmedKey : undefined;
 };
 
 export const getBYOKSessionKey = () => byokSessionKey;

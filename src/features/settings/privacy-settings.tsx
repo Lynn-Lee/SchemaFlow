@@ -15,6 +15,7 @@ import {
 import { useDialog } from '@/hooks/use-dialog';
 import { useLocalConfig } from '@/hooks/use-local-config';
 import { useStorage } from '@/hooks/use-storage';
+import { getBYOKSessionKey, setBYOKSessionKey } from '@/lib/ai/ai-mode';
 
 type ClearStatus = 'idle' | 'clearing' | 'success' | 'error';
 
@@ -33,6 +34,18 @@ export const PrivacySettings: React.FC = () => {
     const [clearDialogOpen, setClearDialogOpen] = React.useState(false);
     const [clearStatus, setClearStatus] = React.useState<ClearStatus>('idle');
     const [clearError, setClearError] = React.useState<string | undefined>();
+    const [byokSessionKey, setByokSessionKey] = React.useState(
+        () => getBYOKSessionKey() ?? ''
+    );
+
+    const handleBYOKSessionKeyChange = React.useCallback(
+        (event: React.ChangeEvent<HTMLInputElement>) => {
+            const nextKey = event.target.value;
+            setByokSessionKey(nextKey);
+            setBYOKSessionKey(nextKey);
+        },
+        []
+    );
 
     const handleClearLocalDiagrams = React.useCallback(async () => {
         setClearStatus('clearing');
@@ -93,16 +106,36 @@ export const PrivacySettings: React.FC = () => {
                     </select>
                 </label>
                 {aiExportMode === 'byok-session' ? (
-                    <Alert>
-                        <KeyRound className="size-4" />
-                        <AlertTitle>Session-only BYOK</AlertTitle>
-                        <AlertDescription>
-                            <p>Paste the API key only when exporting SQL.</p>
-                            <p>
-                                BYOK keys are session-only and are never saved.
-                            </p>
-                        </AlertDescription>
-                    </Alert>
+                    <div className="grid gap-3 rounded-md border border-border p-3">
+                        <Alert>
+                            <KeyRound className="size-4" />
+                            <AlertTitle>Session-only BYOK</AlertTitle>
+                            <AlertDescription>
+                                <p>
+                                    Paste the API key only when exporting SQL.
+                                </p>
+                                <p>
+                                    BYOK keys are session-only and are never
+                                    saved.
+                                </p>
+                            </AlertDescription>
+                        </Alert>
+                        <label className="grid gap-1 text-sm">
+                            <span className="font-medium">Session API key</span>
+                            <input
+                                className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+                                type="password"
+                                autoComplete="off"
+                                value={byokSessionKey}
+                                onChange={handleBYOKSessionKeyChange}
+                                placeholder="sk-..."
+                            />
+                            <span className="text-xs text-muted-foreground">
+                                Stored in memory only. Refreshing the page
+                                clears this key.
+                            </span>
+                        </label>
+                    </div>
                 ) : (
                     <p className="text-sm text-muted-foreground">
                         BYOK keys are session-only and are never saved.

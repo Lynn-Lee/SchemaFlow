@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { LocalConfigProvider } from '@/context/local-config-context/local-config-provider';
+import { clearBYOKSessionKey } from '@/lib/ai/ai-mode';
 import { SettingsDialog } from '../settings-dialog';
 
 const clearAllDiagramsMock = vi.fn();
@@ -23,6 +24,10 @@ const renderSettings = () =>
 describe('SettingsDialog', () => {
     beforeEach(() => {
         clearAllDiagramsMock.mockReset();
+        clearBYOKSessionKey();
+        localStorage.removeItem('chartdb.ai.mode');
+        localStorage.removeItem('chartdb.ai.byok.key');
+        sessionStorage.removeItem('chartdb.ai.byok.key');
     });
 
     it('centralizes display, AI mode, export, and local data controls', () => {
