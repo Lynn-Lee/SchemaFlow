@@ -31,13 +31,8 @@ import type { DBTable } from '@/lib/domain/db-table';
 import { useLocalConfig } from '@/hooks/use-local-config';
 import { MarkerDefinitions } from './marker-definitions';
 import { CanvasContextMenu } from './canvas-context-menu';
-import { areFieldTypesCompatible } from '@/lib/data/data-types/data-types';
 import type { ChartDBEvent } from '@/context/chartdb-context/chartdb-context';
 import { debounce, getOperatingSystem } from '@/lib/utils';
-import {
-    BOTTOM_SOURCE_HANDLE_ID_PREFIX,
-    TOP_SOURCE_HANDLE_ID_PREFIX,
-} from './table-node/table-node-dependency-indicator';
 import { useCanvas } from '@/hooks/use-canvas';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useIsLostInCanvas } from './hooks/use-is-lost-in-canvas';
@@ -85,6 +80,7 @@ import {
 import { buildCanvasNodes } from './canvas-nodes';
 import { buildParentAreaUpdates } from './canvas-parent-areas';
 import { buildCanvasEdgeChangeSet } from './canvas-edge-changes';
+import { buildCanvasConnectAction } from './canvas-connect';
 
 export type { EdgeType, NodeType } from './canvas-model';
 
@@ -413,58 +409,24 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
 
     const onConnectHandler = useCallback(
         async (params: AddEdgeParams) => {
-            if (
-                params.sourceHandle?.startsWith?.(
-                    TOP_SOURCE_HANDLE_ID_PREFIX
-                ) ||
-                params.sourceHandle?.startsWith?.(
-                    BOTTOM_SOURCE_HANDLE_ID_PREFIX
-                )
-            ) {
-                const tableId = params.target;
-                const dependentTableId = params.source;
+            const action = buildCanvasConnectAction({
+                params,
+                databaseType,
+                getField,
+            });
 
-                createDependency({
-                    tableId,
-                    dependentTableId,
-                });
-
-                return;
-            }
-
-            const sourceTableId = params.source;
-            const targetTableId = params.target;
-            const sourceFieldId = params.sourceHandle?.split('_')?.pop() ?? '';
-            const targetFieldId = params.targetHandle?.split('_')?.pop() ?? '';
-            const sourceField = getField(sourceTableId, sourceFieldId);
-            const targetField = getField(targetTableId, targetFieldId);
-
-            if (!sourceField || !targetField) {
-                return;
-            }
-
-            if (
-                !areFieldTypesCompatible(
-                    sourceField.type,
-                    targetField.type,
-                    databaseType
-                )
-            ) {
+            if (action.type === 'create-dependency') {
+                createDependency(action);
+            } else if (action.type === 'incompatible-fields') {
                 toast({
                     title: 'Field types are not compatible',
                     variant: 'destructive',
                     description:
                         'Relationships can only be created between compatible field types',
                 });
-                return;
+            } else if (action.type === 'create-relationship') {
+                createRelationship(action);
             }
-
-            createRelationship({
-                sourceTableId,
-                targetTableId,
-                sourceFieldId,
-                targetFieldId,
-            });
         },
         [createRelationship, createDependency, getField, toast, databaseType]
     );

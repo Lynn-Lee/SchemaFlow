@@ -1602,6 +1602,9 @@ progress:
     - 2026-07-05：完成第十六段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-edge-changes.ts`，将 edge remove change 的 readonly 过滤、relationship/dependency 删除 ID 解析从 `canvas.tsx` 抽出为可独立测试的纯函数层。
     - 新增 `src/pages/editor-page/canvas/__tests__/canvas-edge-changes.test.ts`，红灯先失败于缺失 `../canvas-edge-changes`，绿灯覆盖 relationship/dependency edge 删除和 readonly 模式下过滤 remove change。
     - `canvas.tsx` 从 876 行降到 856 行；本轮仍不标记 done，下一步继续拆 `CanvasViewport` / drag / zoom hooks / onConnect handler 或其它事件 handler，直到主体低于 500 行。
+    - 2026-07-05：完成第十七段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-connect.ts`，将 React Flow connect params 到 dependency / relationship / incompatible / none action 的决策从 `canvas.tsx` 抽出为可独立测试的纯函数层。
+    - 新增 `src/pages/editor-page/canvas/__tests__/canvas-connect.test.ts`，红灯先失败于缺失 `../canvas-connect`，绿灯覆盖 dependency handle、缺字段忽略、不兼容字段提示和兼容字段 relationship 创建。
+    - `canvas.tsx` 从 856 行降到 818 行；本轮仍不标记 done，下一步继续拆 `CanvasViewport` / drag / zoom hooks / remaining node change orchestration 或其它事件 handler，直到主体低于 500 行。
 ```
 
 ### 批次 Q：代码质量
