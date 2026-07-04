@@ -1218,7 +1218,7 @@ batch: 批次 T
 type: CODE
 priority: P1
 title: i18n locale 文件改为按需动态加载
-status: queued
+status: done
 depends_on: []
 owner_lane: performance
 branch: codex/chartdb-t-i18n-lazy
@@ -1245,6 +1245,20 @@ acceptance:
     - 首屏只加载用户当前语言的 locale
     - 语言切换时动态加载
     - build 中 locale 分离到独立 chunk
+completion:
+    completed_at: 2026-07-04
+    result:
+        - `src/i18n/i18n.ts` 保留英文 fallback 同步资源，其余 locale 改由自定义 i18next backend 通过动态 import 按需加载。
+        - `languages` 元数据改为同步轻量列表，不再为了渲染语言选择器静态 import 21 个非英文翻译文件。
+        - 新增 `src/i18n/__tests__/i18n-lazy-loading.test.ts`，锁定非 fallback locale 不再静态 import，并验证切换到法语时才加载对应 resource bundle。
+    verification:
+        - npm run test:ci -- src/i18n/__tests__/i18n-lazy-loading.test.ts src/i18n/__tests__/language-metadata.test.ts
+        - npm run lint
+        - npm run test:ci
+        - npm run build
+        - git diff --check
+    next:
+        - 进入 `CHARTDB-T-002`：模板数据懒加载完善。
 ```
 
 #### CHARTDB-T-002：模板数据懒加载完善
@@ -2493,7 +2507,7 @@ npm run test:ci
 | S-001 | CSP 收紧 | S | P1 | done | - |
 | S-002 | innerHTML 修复 | S | P2 | done | - |
 | S-003 | Monaco 升级评估 | S | P2 | queued | - |
-| T-001 | i18n 懒加载 | T | P1 | queued | - |
+| T-001 | i18n 懒加载 | T | P1 | done | - |
 | T-002 | 模板懒加载完善 | T | P1 | queued | - |
 | T-003 | PNG 转 WebP | T | P2 | queued | - |
 | T-004 | 统一图标库 | T | P2 | queued | - |

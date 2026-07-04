@@ -1,29 +1,11 @@
 import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
+import type { BackendModule, ReadCallback } from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
-import type { LanguageMetadata } from './types';
-import { en, enMetadata } from './locales/en';
-import { es, esMetadata } from './locales/es';
-import { fr, frMetadata } from './locales/fr';
-import { de, deMetadata } from './locales/de';
-import { hi, hiMetadata } from './locales/hi';
-import { ja, jaMetadata } from './locales/ja';
-import { ko_KR, ko_KRMetadata } from './locales/ko_KR';
-import { pt_BR, pt_BRMetadata } from './locales/pt_BR';
-import { uk, ukMetadata } from './locales/uk';
-import { ru, ruMetadata } from './locales/ru';
-import { zh_CN, zh_CNMetadata } from './locales/zh_CN';
-import { zh_TW, zh_TWMetadata } from './locales/zh_TW';
-import { ne, neMetadata } from './locales/ne';
-import { mr, mrMetadata } from './locales/mr';
-import { tr, trMetadata } from './locales/tr';
-import { id_ID, id_IDMetadata } from './locales/id_ID';
-import { te, teMetadata } from './locales/te';
-import { bn, bnMetadata } from './locales/bn';
-import { gu, guMetadata } from './locales/gu';
-import { vi, viMetadata } from './locales/vi';
-import { ar, arMetadata } from './locales/ar';
-import { hr, hrMetadata } from './locales/hr';
+import { initReactI18next } from 'react-i18next';
+import type { LanguageMetadata, LanguageTranslation } from './types';
+import { en } from './locales/en';
+
+const fallbackLanguageCode = 'en';
 
 const experimentalLanguageCodes = new Set([
     'ar',
@@ -56,63 +38,111 @@ const withStatus = (metadata: LanguageMetadata): LanguageMetadata => ({
 });
 
 export const languages: LanguageMetadata[] = [
-    enMetadata,
-    frMetadata,
-    deMetadata,
-    esMetadata,
-    ukMetadata,
-    ruMetadata,
-    trMetadata,
-    hrMetadata,
-    pt_BRMetadata,
-    hiMetadata,
-    jaMetadata,
-    ko_KRMetadata,
-    zh_CNMetadata,
-    zh_TWMetadata,
-    neMetadata,
-    mrMetadata,
-    id_IDMetadata,
-    teMetadata,
-    bnMetadata,
-    guMetadata,
-    viMetadata,
-    arMetadata,
+    { name: 'English', nativeName: 'English', code: 'en' },
+    { name: 'French', nativeName: 'Français', code: 'fr' },
+    { name: 'German', nativeName: 'Deutsch', code: 'de' },
+    { name: 'Spanish', nativeName: 'Español', code: 'es' },
+    { name: 'Ukrainian', nativeName: 'Українська', code: 'uk' },
+    { name: 'Russian', nativeName: 'Русский', code: 'ru' },
+    { nativeName: 'Türkçe', name: 'Turkish', code: 'tr' },
+    { name: 'Croatian', nativeName: 'Hrvatski', code: 'hr' },
+    { name: 'Portuguese', nativeName: 'Português', code: 'pt_BR' },
+    { name: 'Hindi', nativeName: 'हिन्दी', code: 'hi' },
+    { name: 'Japanese', nativeName: '日本語', code: 'ja' },
+    { name: 'Korean', nativeName: '한국어', code: 'ko_KR' },
+    {
+        name: 'Chinese (Simplified)',
+        nativeName: '简体中文',
+        code: 'zh_CN',
+    },
+    {
+        nativeName: '繁體中文',
+        name: 'Chinese (Traditional)',
+        code: 'zh_TW',
+    },
+    { name: 'Nepali', nativeName: 'नेपाली', code: 'ne' },
+    { name: 'Marathi', nativeName: 'मराठी', code: 'mr' },
+    { name: 'Indonesian', nativeName: 'Indonesia', code: 'id_ID' },
+    { name: 'Telugu', nativeName: 'తెలుగు', code: 'te' },
+    { name: 'Bengali', nativeName: 'বাংলা', code: 'bn' },
+    { name: 'Gujarati', nativeName: 'ગુજરાતી', code: 'gu' },
+    { name: 'Vietnamese', nativeName: 'Tiếng Việt', code: 'vi' },
+    { name: 'Arabic', nativeName: 'العربية', code: 'ar' },
 ].map(withStatus);
 
-const resources = {
-    en,
-    es,
-    fr,
-    de,
-    hi,
-    ja,
-    ko_KR,
-    pt_BR,
-    uk,
-    ru,
-    zh_CN,
-    zh_TW,
-    ne,
-    mr,
-    tr,
-    id_ID,
-    te,
-    bn,
-    gu,
-    vi,
-    ar,
-    hr,
+const localeLoaders: Record<string, () => Promise<LanguageTranslation>> = {
+    ar: () => import('./locales/ar').then((module) => module.ar),
+    bn: () => import('./locales/bn').then((module) => module.bn),
+    de: () => import('./locales/de').then((module) => module.de),
+    es: () => import('./locales/es').then((module) => module.es),
+    fr: () => import('./locales/fr').then((module) => module.fr),
+    gu: () => import('./locales/gu').then((module) => module.gu),
+    hi: () => import('./locales/hi').then((module) => module.hi),
+    hr: () => import('./locales/hr').then((module) => module.hr),
+    id_ID: () => import('./locales/id_ID').then((module) => module.id_ID),
+    ja: () => import('./locales/ja').then((module) => module.ja),
+    ko_KR: () => import('./locales/ko_KR').then((module) => module.ko_KR),
+    mr: () => import('./locales/mr').then((module) => module.mr),
+    ne: () => import('./locales/ne').then((module) => module.ne),
+    pt_BR: () => import('./locales/pt_BR').then((module) => module.pt_BR),
+    ru: () => import('./locales/ru').then((module) => module.ru),
+    te: () => import('./locales/te').then((module) => module.te),
+    tr: () => import('./locales/tr').then((module) => module.tr),
+    uk: () => import('./locales/uk').then((module) => module.uk),
+    vi: () => import('./locales/vi').then((module) => module.vi),
+    zh_CN: () => import('./locales/zh_CN').then((module) => module.zh_CN),
+    zh_TW: () => import('./locales/zh_TW').then((module) => module.zh_TW),
 };
 
-i18n.use(LanguageDetector)
+const lazyLocaleBackend: BackendModule = {
+    type: 'backend',
+    init: () => undefined,
+    read: (language: string, namespace: string, callback: ReadCallback) => {
+        if (namespace !== 'translation') {
+            callback(null, {});
+            return;
+        }
+
+        if (language === fallbackLanguageCode) {
+            callback(null, en.translation);
+            return;
+        }
+
+        const loadLocale = localeLoaders[language];
+
+        if (!loadLocale) {
+            callback(`Unsupported language: ${language}`, null);
+            return;
+        }
+
+        loadLocale()
+            .then((resources) => callback(null, resources.translation))
+            .catch((error: unknown) =>
+                callback(
+                    error instanceof Error
+                        ? error
+                        : `Failed to load language: ${language}`,
+                    null
+                )
+            );
+    },
+};
+
+i18n.use(lazyLocaleBackend)
+    .use(LanguageDetector)
     .use(initReactI18next)
     .init({
-        resources,
+        resources: {
+            en,
+        },
+        partialBundledLanguages: true,
+        supportedLngs: languages.map((language) => language.code),
+        ns: ['translation'],
+        defaultNS: 'translation',
         interpolation: {
             escapeValue: false,
         },
-        fallbackLng: enMetadata.code,
+        fallbackLng: fallbackLanguageCode,
         debug: false,
     });
 
