@@ -1584,6 +1584,9 @@ progress:
     - 2026-07-05：完成第十段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-flow.tsx`，将 React Flow 固定配置、节点/边类型、connection line、快捷键配置和 cursor class 组装从 `canvas.tsx` 抽出为独立组件。
     - 新增 `src/pages/editor-page/canvas/__tests__/canvas-flow.test.tsx`，红灯先失败于缺失 `../canvas-flow`，绿灯覆盖固定 React Flow 配置、className、children 渲染和关键 handler 透传。
     - `canvas.tsx` 从 1171 行降到 1145 行；本轮仍不标记 done，下一步继续拆 `CanvasViewport` / drag / zoom hooks / 鼠标与 Escape 事件处理或其它事件 handler，直到主体低于 500 行。
+    - 2026-07-05：完成第十一段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-pointer-actions.ts`，将 floating edge 鼠标坐标更新、Pane click 关闭和 Escape 关闭逻辑从 `canvas.tsx` 抽出为独立 hook。
+    - 新增 `src/pages/editor-page/canvas/__tests__/canvas-pointer-actions.test.ts`，红灯先失败于缺失 `../canvas-pointer-actions`，绿灯覆盖鼠标移动、无 floating edge 忽略、Pane click 关闭与 Escape 关闭行为。
+    - `canvas.tsx` 从 1145 行降到 1065 行；本轮仍不标记 done，下一步继续拆 `CanvasViewport` / drag / zoom hooks / 节点变更 orchestration 或其它事件 handler，直到主体低于 500 行。
 ```
 
 ### 批次 Q：代码质量

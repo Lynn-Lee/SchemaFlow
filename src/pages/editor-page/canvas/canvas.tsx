@@ -93,6 +93,7 @@ import { buildCanvasEventUpdate } from './canvas-chartdb-events';
 import { CanvasControls } from './canvas-controls';
 import { CanvasFilterLayer } from './canvas-filter-layer';
 import { CanvasFlow } from './canvas-flow';
+import { useCanvasPointerActions } from './canvas-pointer-actions';
 
 export type { EdgeType, NodeType } from './canvas-model';
 
@@ -103,7 +104,8 @@ export interface CanvasProps {
 }
 
 export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
-    const { getEdge, getInternalNode, getNode } = useReactFlow();
+    const { getEdge, getInternalNode, getNode, screenToFlowPosition } =
+        useReactFlow();
     const updateNodeInternals = useUpdateNodeInternals();
     const [selectedTableIds, setSelectedTableIds] = useState<string[]>([]);
     const [selectedRelationshipIds, setSelectedRelationshipIds] = useState<
@@ -976,64 +978,16 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
         []
     );
 
-    // Handle mouse move to update cursor position for floating edge
-    const { screenToFlowPosition } = useReactFlow();
-    const rafIdRef = useRef<number>();
-    const handleMouseMove = useCallback(
-        (event: React.MouseEvent) => {
-            if (tempFloatingEdge) {
-                // Throttle using requestAnimationFrame
-                if (rafIdRef.current) {
-                    return;
-                }
-
-                rafIdRef.current = requestAnimationFrame(() => {
-                    const position = screenToFlowPosition({
-                        x: event.clientX,
-                        y: event.clientY,
-                    });
-                    setCursorPosition(position);
-                    rafIdRef.current = undefined;
-                });
-            }
-        },
-        [tempFloatingEdge, screenToFlowPosition]
-    );
-
-    // Cleanup RAF on unmount
-    useEffect(() => {
-        return () => {
-            if (rafIdRef.current) {
-                cancelAnimationFrame(rafIdRef.current);
-            }
-        };
-    }, []);
-
-    // Handle escape key to cancel floating edge creation, close relationship node, and close relationship popover
-    useEffect(() => {
-        const handleEscape = (event: KeyboardEvent) => {
-            if (event.key === 'Escape') {
-                if (tempFloatingEdge) {
-                    endFloatingEdgeCreation();
-                    setCursorPosition(null);
-                }
-                // Also close CreateRelationshipNode if present
-                hideCreateRelationshipNode();
-                // Exit edit table mode
-                exitEditTableMode();
-                // Close relationship edit popover
-                closeRelationshipPopover();
-            }
-        };
-        document.addEventListener('keydown', handleEscape);
-        return () => document.removeEventListener('keydown', handleEscape);
-    }, [
+    const { handleMouseMove, onPaneClickHandler } = useCanvasPointerActions({
         tempFloatingEdge,
         endFloatingEdgeCreation,
+        setCursorPosition,
         hideCreateRelationshipNode,
-        closeRelationshipPopover,
         exitEditTableMode,
-    ]);
+        closeRelationshipPopover,
+        screenToFlowPosition,
+        canvasEvents,
+    });
 
     // Add temporary invisible node at cursor position and edge
     const nodesWithCursor = useMemo(() => {
@@ -1052,40 +1006,6 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
             hoveringTableId,
         });
     }, [edges, tempFloatingEdge, cursorPosition, hoveringTableId]);
-
-    const onPaneClickHandler = useCallback(
-        (event: React.MouseEvent<Element, MouseEvent>) => {
-            if (tempFloatingEdge) {
-                endFloatingEdgeCreation();
-                setCursorPosition(null);
-            }
-
-            // Close CreateRelationshipNode if it exists
-            hideCreateRelationshipNode();
-
-            // Exit edit table mode
-            exitEditTableMode();
-
-            // Close relationship edit popover
-            closeRelationshipPopover();
-
-            canvasEvents.emit({
-                action: 'pan_click',
-                data: {
-                    x: event.clientX,
-                    y: event.clientY,
-                },
-            });
-        },
-        [
-            canvasEvents,
-            tempFloatingEdge,
-            exitEditTableMode,
-            endFloatingEdgeCreation,
-            hideCreateRelationshipNode,
-            closeRelationshipPopover,
-        ]
-    );
 
     return (
         <CanvasContextMenu>
