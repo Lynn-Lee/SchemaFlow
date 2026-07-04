@@ -1652,7 +1652,7 @@ batch: 批次 A
 type: CODE
 priority: P1
 title: 让 import-preview-core 和 create-diagram-dialog 的元数据导入路径实际调用 DatabaseMetadataSchema 校验
-status: queued
+status: done
 depends_on: []
 owner_lane: core
 branch: codex/chartdb-a-metadata-validation-gap
@@ -1677,6 +1677,21 @@ acceptance:
     - 两个热路径入口都对元数据 JSON 做 Zod 校验
     - 畸形输入有清晰错误提示，不产生深层 undefined 崩溃
     - 现有正常导入流程无回归
+completion:
+    completed_at: 2026-07-04
+    result:
+        - `loadDatabaseMetadata()` 不再对 `JSON.parse` 结果做 TypeScript 断言，改为调用 `DatabaseMetadataSchema.safeParse()`。
+        - schema 校验失败时返回 `Invalid database metadata JSON` 开头的清晰错误，并包含最多前三个字段问题，避免进入更深层 diagram 构建后 undefined 崩溃。
+        - `import-preview-core.ts` 和 `create-diagram-dialog.tsx` 的 query 热路径继续复用同一个 `loadDatabaseMetadata()` 入口，因此 preview、最终导入和选择表前的 metadata 缓存路径均会被拦截。
+        - 新增元数据 schema 与 import preview 聚焦测试，覆盖畸形 Smart Query JSON。
+    verification:
+        - npm run test:ci -- src/lib/data/import-metadata/__tests__/database-metadata-validation.test.ts src/lib/data/import-metadata/__tests__/import-preview-metadata-validation.test.ts
+        - npm run lint
+        - npm run test:ci
+        - npm run build
+        - git diff --check
+next:
+    - 继续批次 A 中剩余 queued 项，优先在 `CHARTDB-A-008`、`CHARTDB-A-009`、`CHARTDB-A-011` 中按依赖和可验证范围选择下一个最小切片。
 ```
 
 #### CHARTDB-A-011：Worker 任务增加超时/deadline
@@ -2337,7 +2352,7 @@ npm run test:ci
 | A-007 | 全局 ErrorBoundary | A | P0 | done | - |
 | A-008 | Context selector | A | P2 | queued | A-003 |
 | A-009 | Diagram version 字段 | A | P2 | queued | A-001 |
-| A-010 | 元数据导入校验补齐 | A | P1 | queued | - |
+| A-010 | 元数据导入校验补齐 | A | P1 | done | - |
 | A-011 | Worker 超时保护 | A | P2 | queued | - |
 | P-010 | Canvas 键盘可访问性基线 | P | P2 | queued | - |
 | P-011 | 路由 errorElement | P | P2 | queued | - |

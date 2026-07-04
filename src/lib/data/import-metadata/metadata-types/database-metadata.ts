@@ -53,9 +53,30 @@ export const isDatabaseMetadata = (obj: unknown): boolean => {
 
 export const loadDatabaseMetadata = (jsonString: string): DatabaseMetadata => {
     try {
-        const parsedData: DatabaseMetadata = JSON.parse(jsonString);
-        return parsedData;
+        const parsedData: unknown = JSON.parse(jsonString);
+        const parsedMetadata = DatabaseMetadataSchema.safeParse(parsedData);
+
+        if (!parsedMetadata.success) {
+            const issues = parsedMetadata.error.issues
+                .slice(0, 3)
+                .map((issue) => {
+                    const path =
+                        issue.path.length > 0 ? issue.path.join('.') : 'root';
+                    return `${path}: ${issue.message}`;
+                })
+                .join('; ');
+            throw new Error(`Invalid database metadata JSON: ${issues}`);
+        }
+
+        return parsedMetadata.data;
     } catch (parseError) {
+        if (
+            parseError instanceof Error &&
+            parseError.message.startsWith('Invalid database metadata JSON:')
+        ) {
+            throw parseError;
+        }
+
         throw new Error(`Error parsing JSON data: ${parseError}`);
     }
 };
