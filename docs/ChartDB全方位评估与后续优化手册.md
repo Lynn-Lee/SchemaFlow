@@ -1626,6 +1626,9 @@ progress:
     - 2026-07-05：完成第二十四段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-filter-viewport-sync.ts`，将 filter/showDBViews 变化后的 overlap graph 重建、debounce 和 `fitView()` orchestration 从 `canvas.tsx` 抽出为独立 hook。
     - 新增 `src/pages/editor-page/canvas/__tests__/canvas-filter-viewport-sync.test.ts`，红灯先失败于缺失 `../canvas-filter-viewport-sync`，绿灯覆盖 showDBViews 变化时重建可见 overlap graph 并重新 fit view。
     - `canvas.tsx` 从 612 行降到 594 行；本轮仍不标记 done，下一步继续拆 drag / zoom hooks / 其它 event/effect orchestration，直到主体低于 500 行。
+    - 2026-07-05：完成第二十五段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-initial-fit.ts`，将初始 nodes loading 判定、初始 table nodes 对齐检查和首次 `fitView()` orchestration 从 `canvas.tsx` 抽出为独立 hook。
+    - 新增 `src/pages/editor-page/canvas/__tests__/canvas-initial-fit.test.ts`，红灯先失败于缺失 `../canvas-initial-fit`，绿灯覆盖 React Flow nodes 与初始 tables 匹配后关闭 loading 并触发原有首次 fit view 参数。
+    - `canvas.tsx` 从 591 行降到 561 行；本轮仍不标记 done，下一步继续拆 relationship target highlight / onConnect / edge change / overlap debounce 等剩余 orchestration，直到主体低于 500 行。
 ```
 
 ### 批次 Q：代码质量

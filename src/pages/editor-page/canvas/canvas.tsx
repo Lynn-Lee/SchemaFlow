@@ -63,6 +63,7 @@ import { CanvasViewport } from './canvas-viewport';
 import { useCanvasParentAreaSync } from './canvas-parent-area-sync';
 import { useCanvasEdgeRefresh } from './canvas-edge-refresh';
 import { useCanvasFilterViewportSync } from './canvas-filter-viewport-sync';
+import { useCanvasInitialFit } from './canvas-initial-fit';
 
 export type { EdgeType, NodeType } from './canvas-model';
 
@@ -139,8 +140,6 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
         [checkIfNewTable]
     );
 
-    const [isInitialLoadingNodes, setIsInitialLoadingNodes] = useState(true);
-
     const [nodes, setNodes, onNodesChange] = useNodesState<NodeType>(
         initialTables.map((table) =>
             tableToTableNode(table, {
@@ -163,25 +162,7 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
         y: number;
     } | null>(null);
 
-    useEffect(() => {
-        setIsInitialLoadingNodes(true);
-    }, [initialTables]);
-
-    useEffect(() => {
-        const initialNodes = initialTables.map((table) =>
-            tableToTableNode(table, {
-                filter,
-                databaseType,
-                filterLoading,
-                showDBViews,
-                forceShow: shouldForceShowTable(table.id),
-                isRelationshipCreatingTarget: false,
-            })
-        );
-        if (equal(initialNodes, nodes)) {
-            setIsInitialLoadingNodes(false);
-        }
-    }, [
+    useCanvasInitialFit({
         initialTables,
         nodes,
         filter,
@@ -189,19 +170,8 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
         filterLoading,
         showDBViews,
         shouldForceShowTable,
-    ]);
-
-    useEffect(() => {
-        if (!isInitialLoadingNodes) {
-            debounce(() => {
-                fitView({
-                    duration: 200,
-                    padding: 0.1,
-                    maxZoom: 0.8,
-                });
-            }, 500)();
-        }
-    }, [isInitialLoadingNodes, fitView]);
+        fitView,
+    });
 
     useCanvasEdgeRefresh({
         tables,
