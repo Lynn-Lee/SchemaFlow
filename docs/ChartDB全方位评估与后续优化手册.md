@@ -1690,7 +1690,7 @@ batch: 批次 Q
 type: CODE
 priority: P3
 title: 修复 deepCopy 丢失 Date 类型的问题
-status: queued
+status: done
 depends_on:
     - CHARTDB-A-001
 owner_lane: tech-debt
@@ -1712,6 +1712,13 @@ verification:
 acceptance:
     - deepCopy 保留 Date 类型
     - 或明确标注 deepCopy 不用于含 Date 的对象
+completion:
+    - 2026-07-05：已将 `deepCopy` 从 JSON 序列化改为最小递归 clone，保留嵌套对象和数组中的 `Date` 实例。
+    - 新增 `src/lib/utils/__tests__/utils.test.ts` 覆盖 Diagram 风格对象中的 `createdAt`、`updatedAt` 和历史数组 Date 保留行为。
+    - 红灯确认旧实现会把 `Date` 序列化为字符串；绿灯后 `npm run test:ci -- src/lib/utils/__tests__/` 通过。
+    - 任务卡 allowed_files 未列出本手册和阶段验收记录，但 dispatcher done 定义要求同步任务状态和验收结果；本轮文档越界仅更新本任务状态、总览和验收记录。
+next:
+    - 进入 `CHARTDB-P-014`：移动端 canvas 护栏提示；或按安全优先级进入 `CHARTDB-S-004` AI Gateway URL 校验。
 ```
 
 #### CHARTDB-Q-003：核心 UI 测试覆盖
@@ -2698,9 +2705,9 @@ npm run test:ci
 | T-004 | 统一图标库 | T | P2 | done | - |
 | T-005 | 精简 hooks 库 | T | P2 | done | F-001a |
 | T-006 | Monaco config 惰性 | T | P2 | done | - |
-| T-007 | canvas 拆分 | T | P2 | in_progress | A-003 |
-| Q-001 | migration 测试 | Q | P2 | queued | - |
-| Q-002 | deepCopy 修复 | Q | P3 | queued | A-001 |
+| T-007 | canvas 拆分 | T | P2 | done | A-003 |
+| Q-001 | migration 测试 | Q | P2 | done | - |
+| Q-002 | deepCopy 修复 | Q | P3 | done | A-001 |
 | Q-003 | UI 测试覆盖 | Q | P2 | queued | A-003, T-007 |
 | Q-004 | Smart Query i18n | Q | P3 | queued | - |
 | Q-005 | 浏览器依赖拆分 | Q | P3 | queued | A-001 |

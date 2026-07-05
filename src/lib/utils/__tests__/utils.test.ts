@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { getWorkspaceId, safeOpenUrl } from '../utils';
+import { deepCopy, getWorkspaceId, safeOpenUrl } from '../utils';
 
 afterEach(() => {
     vi.restoreAllMocks();
@@ -27,5 +27,31 @@ describe('safeOpenUrl', () => {
             '_blank',
             'noopener,noreferrer'
         );
+    });
+});
+
+describe('deepCopy', () => {
+    it('preserves Date instances in nested objects and arrays', () => {
+        const createdAt = new Date('2026-07-05T04:00:00.000Z');
+        const updatedAt = new Date('2026-07-05T04:30:00.000Z');
+
+        const diagram = {
+            id: 'diagram-1',
+            createdAt,
+            metadata: {
+                updatedAt,
+                history: [createdAt],
+            },
+        };
+        const copy = deepCopy(diagram);
+
+        expect(copy).not.toBe(diagram);
+        expect(copy.metadata).not.toBe(diagram.metadata);
+        expect(copy.metadata.history).not.toBe(diagram.metadata.history);
+        expect(copy.createdAt).toBeInstanceOf(Date);
+        expect(copy.createdAt).not.toBe(createdAt);
+        expect(copy.createdAt.toISOString()).toBe(createdAt.toISOString());
+        expect(copy.metadata.updatedAt).toBeInstanceOf(Date);
+        expect(copy.metadata.history[0]).toBeInstanceOf(Date);
     });
 });
