@@ -1652,7 +1652,7 @@ batch: 批次 Q
 type: TEST
 priority: P2
 title: 为 Dexie schema 版本迁移路径补充测试
-status: queued
+status: done
 depends_on: []
 owner_lane: test
 branch: codex/chartdb-q-migration-tests
@@ -1673,6 +1673,13 @@ verification:
 acceptance:
     - 每个 migration 钩子有测试覆盖
     - 升级路径数据完整性验证通过
+completion:
+    - 2026-07-05：已为 v2 field type、v6 relationship cardinality、v9 field nullable、v12 config reset 四个数据迁移钩子补齐可执行测试。
+    - 将 Dexie upgrade 内联逻辑抽出为 `migrateV2FieldTypes`、`migrateV6RelationshipCardinalities`、`migrateV9FieldNullability`、`migrateV12ResetConfig`，真实注册路径与测试复用同一实现。
+    - 红灯先确认缺少 migration 函数时测试失败；绿灯后 `npm run test:ci -- src/storage/db/__tests__/` 通过，覆盖现有 Dexie schema 定义与 migration 行为。
+    - 任务卡 allowed_files 未列出本手册和阶段验收记录，但 dispatcher done 定义要求同步任务状态和验收结果；本轮文档越界仅更新本任务状态、验收记录和下一步。
+next:
+    - 进入 `CHARTDB-Q-002`：修复 `deepCopy` 丢失 Date 类型的问题。
 ```
 
 #### CHARTDB-Q-002：deepCopy 修复

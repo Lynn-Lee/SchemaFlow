@@ -124,6 +124,73 @@ export const CHARTDB_CURRENT_STORES =
 
 export const CHARTDB_STORE_NAMES = Object.keys(CHARTDB_CURRENT_STORES);
 
+type LegacyDBFieldType = {
+    id: string;
+    name: string;
+};
+
+type LegacyDBField = {
+    type: string | LegacyDBFieldType;
+    nullable?: boolean | string;
+};
+
+type LegacyDBTable = {
+    fields: LegacyDBField[];
+};
+
+type LegacyDBRelationship = {
+    type?: Parameters<typeof determineCardinalities>[0];
+    sourceCardinality?: DBRelationship['sourceCardinality'];
+    targetCardinality?: DBRelationship['targetCardinality'];
+};
+
+type LegacyDexieModifyRef<T> = {
+    value: T;
+};
+
+type ConfigMigrationTransaction = {
+    table: (name: 'config') => {
+        clear: () => unknown;
+    };
+};
+
+export const migrateV2FieldTypes = (table: LegacyDBTable) => {
+    for (const field of table.fields) {
+        if (typeof field.type !== 'string') continue;
+
+        field.type = {
+            id: field.type.split(' ').join('_'),
+            name: field.type,
+        };
+    }
+};
+
+export const migrateV6RelationshipCardinalities = (
+    relationship: LegacyDBRelationship,
+    ref: LegacyDexieModifyRef<LegacyDBRelationship>
+) => {
+    const { sourceCardinality, targetCardinality } = determineCardinalities(
+        relationship.type ?? 'one_to_one'
+    );
+
+    relationship.sourceCardinality = sourceCardinality;
+    relationship.targetCardinality = targetCardinality;
+
+    delete ref.value.type;
+};
+
+export const migrateV9FieldNullability = (table: LegacyDBTable) => {
+    for (const field of table.fields) {
+        if (typeof field.nullable === 'string') {
+            field.nullable = field.nullable.toLowerCase() === 'true';
+        }
+    }
+};
+
+export const migrateV12ResetConfig = (tx: ConfigMigrationTransaction) => {
+    tx.table('config').clear();
+};
+
 export const registerChartDBSchemaVersions = <T extends Dexie>(db: T): T => {
     db.version(1).stores(CHARTDB_STORES_BY_VERSION[1]);
 
@@ -131,16 +198,7 @@ export const registerChartDBSchemaVersions = <T extends Dexie>(db: T): T => {
         tx
             .table<DBTable & { diagramId: string }>('db_tables')
             .toCollection()
-            .modify((table) => {
-                for (const field of table.fields) {
-                    field.type = {
-                        // @ts-expect-error string before
-                        id: (field.type as string).split(' ').join('_'),
-                        // @ts-expect-error string before
-                        name: field.type,
-                    };
-                }
-            })
+            .modify(migrateV2FieldTypes)
     );
 
     db.version(3).stores(CHARTDB_STORES_BY_VERSION[3]);
@@ -151,19 +209,7 @@ export const registerChartDBSchemaVersions = <T extends Dexie>(db: T): T => {
         tx
             .table<DBRelationship & { diagramId: string }>('db_relationships')
             .toCollection()
-            .modify((relationship, ref) => {
-                const { sourceCardinality, targetCardinality } =
-                    determineCardinalities(
-                        // @ts-expect-error string before
-                        relationship.type ?? 'one_to_one'
-                    );
-
-                relationship.sourceCardinality = sourceCardinality;
-                relationship.targetCardinality = targetCardinality;
-
-                // @ts-expect-error string before
-                delete ref.value.type;
-            })
+            .modify(migrateV6RelationshipCardinalities)
     );
 
     db.version(7).stores(CHARTDB_STORES_BY_VERSION[7]);
@@ -173,23 +219,14 @@ export const registerChartDBSchemaVersions = <T extends Dexie>(db: T): T => {
         tx
             .table<DBTable & { diagramId: string }>('db_tables')
             .toCollection()
-            .modify((table) => {
-                for (const field of table.fields) {
-                    if (typeof field.nullable === 'string') {
-                        field.nullable =
-                            (field.nullable as string).toLowerCase() === 'true';
-                    }
-                }
-            })
+            .modify(migrateV9FieldNullability)
     );
 
     db.version(10).stores(CHARTDB_STORES_BY_VERSION[10]);
     db.version(11).stores(CHARTDB_STORES_BY_VERSION[11]);
     db.version(12)
         .stores(CHARTDB_STORES_BY_VERSION[12])
-        .upgrade((tx) => {
-            tx.table('config').clear();
-        });
+        .upgrade(migrateV12ResetConfig);
     db.version(CHARTDB_SCHEMA_VERSION).stores(CHARTDB_CURRENT_STORES);
 
     return db;
