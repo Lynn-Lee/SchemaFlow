@@ -2372,7 +2372,7 @@ batch: 批次 Q
 type: CODE
 priority: P3
 title: 将 export-sql-dialog 的 Deterministic/AI 切换按钮文案接入 i18n
-status: queued
+status: done
 depends_on: []
 owner_lane: i18n
 branch: codex/chartdb-q-export-dialog-toggle-i18n
@@ -2391,6 +2391,13 @@ verification:
 acceptance:
     - 切换按钮文案走 i18n
     - 无硬编码英文残留
+completion:
+    - 2026-07-05：`src/dialogs/export-sql-dialog/export-sql-dialog.tsx` 的 Deterministic / AI 模式切换按钮已改为 `export_sql_dialog.mode.*` i18n key。
+    - `src/i18n/locales/en.ts` 和 `src/i18n/locales/zh_CN.ts` 已补充 fallback 与简体中文文案；其它 locale 按现有 `LanguageTranslation = typeof en` 类型契约补英文 fallback，避免新增基准 key 后构建失败。
+    - 新增 `src/i18n/__tests__/export-sql-dialog-i18n.test.ts`，红灯先确认 `export_sql_dialog.mode` 缺失，绿灯覆盖 fallback locale 和简体中文 locale 的模式标签。
+    - 任务卡 allowed_files 未列出本手册、阶段验收记录、测试文件和其它 locale 文件；dispatcher done 定义要求同步文档，且 `LanguageTranslation = typeof en` 要求所有 locale 包含新增 key；本轮越界仅更新任务状态、验收记录、i18n 契约测试和其它 locale 的英文 fallback 文案。
+next:
+    - 进入 `CHARTDB-Q-004`：Smart Query i18n；或进入 `CHARTDB-Q-005`：lib/utils 浏览器依赖拆分。
 ```
 
 ## 5. 任务依赖图
@@ -2752,4 +2759,4 @@ npm run test:ci
 | P-014 | 移动端 canvas 护栏提示 | P | P3 | done | - |
 | S-004 | AI Gateway URL 校验 | S | P2 | done | - |
 | Q-006 | templates-page i18n | Q | P2 | done | - |
-| Q-007 | export dialog 切换按钮 i18n | Q | P3 | queued | - |
+| Q-007 | export dialog 切换按钮 i18n | Q | P3 | done | - |

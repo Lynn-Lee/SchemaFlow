@@ -364,6 +364,10 @@ export const zh_CN: LanguageTranslation = {
             title: '导出 SQL 语句',
             description: '将您的图表模式导出为 {{databaseType}} 脚本。',
             close: '关闭',
+            mode: {
+                deterministic: '确定性',
+                ai: 'AI',
+            },
             loading: {
                 text: 'AI 正在为 {{databaseType}} 生成 SQL 语句...',
                 description: '此操作最多需要 30 秒。',

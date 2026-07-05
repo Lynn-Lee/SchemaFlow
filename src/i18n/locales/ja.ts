@@ -372,6 +372,10 @@ export const ja: LanguageTranslation = {
             description:
                 'ダイアグラムスキーマを{{databaseType}}スクリプトにエクスポート',
             close: '閉じる',
+            mode: {
+                deterministic: 'Deterministic',
+                ai: 'AI',
+            },
             loading: {
                 text: 'AIが{{databaseType}}のSQLを生成中...',
                 description: 'これには最大30秒かかります。',

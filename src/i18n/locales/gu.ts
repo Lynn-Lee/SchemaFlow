@@ -371,6 +371,10 @@ export const gu: LanguageTranslation = {
             description:
                 '{{databaseType}} સ્ક્રિપ્ટ માટે તમારું ડાયાગ્રામ સ્કીમા નિકાસ કરો',
             close: 'બંધ કરો',
+            mode: {
+                deterministic: 'Deterministic',
+                ai: 'AI',
+            },
             loading: {
                 text: '{{databaseType}} માટે AI SQL બનાવી રહ્યું છે...',
                 description: 'તેને 30 સેકંડ સુધીનો સમય લાગી શકે છે.',

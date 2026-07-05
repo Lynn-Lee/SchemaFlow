@@ -371,6 +371,10 @@ export const ko_KR: LanguageTranslation = {
             title: 'SQL로 내보내기',
             description: '다이어그램 스키마를 {{databaseType}} SQL로 내보내기',
             close: '닫기',
+            mode: {
+                deterministic: 'Deterministic',
+                ai: 'AI',
+            },
             loading: {
                 text: '{{databaseType}} SQL을 AI가 생성하고 있습니다...',
                 description: '30초 정도 걸릴 수 있습니다.',

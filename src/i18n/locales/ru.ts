@@ -376,6 +376,10 @@ export const ru: LanguageTranslation = {
             description:
                 'Экспортируйте схему диаграммы в {{databaseType}} скрипт',
             close: 'Закрыть',
+            mode: {
+                deterministic: 'Deterministic',
+                ai: 'AI',
+            },
             loading: {
                 text: 'ИИ генерирует SQL для {{databaseType}}...',
                 description: 'Это должно занять до 30 секунд.',

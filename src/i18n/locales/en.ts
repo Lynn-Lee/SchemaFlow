@@ -370,6 +370,10 @@ export const en = {
             description:
                 'Export your diagram schema to {{databaseType}} script',
             close: 'Close',
+            mode: {
+                deterministic: 'Deterministic',
+                ai: 'AI',
+            },
             loading: {
                 text: 'AI is generating SQL for {{databaseType}}...',
                 description: 'This should take up to 30 seconds.',

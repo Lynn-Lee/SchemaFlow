@@ -374,6 +374,10 @@ export const hr: LanguageTranslation = {
             description:
                 'Izvezite shemu vašeg dijagrama u {{databaseType}} skriptu',
             close: 'Zatvori',
+            mode: {
+                deterministic: 'Deterministic',
+                ai: 'AI',
+            },
             loading: {
                 text: 'AI generira SQL za {{databaseType}}...',
                 description: 'Ovo bi trebalo potrajati do 30 sekundi.',

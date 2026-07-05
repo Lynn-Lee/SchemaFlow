@@ -369,6 +369,10 @@ export const ar: LanguageTranslation = {
             description:
                 '{{databaseType}} صدّر مخطط الرسم البياني إلى برنامج نصي لـ',
             close: 'إغلاق',
+            mode: {
+                deterministic: 'Deterministic',
+                ai: 'AI',
+            },
             loading: {
                 text: '...{{databaseType}} ل SQL يقوم الذكاء الاصطناعي بإنشاء',
                 description: 'هذا قد يستغرق 30 ثانية',

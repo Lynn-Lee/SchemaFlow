@@ -375,6 +375,10 @@ export const bn: LanguageTranslation = {
             description:
                 '{{databaseType}} স্ক্রিপ্টের জন্য আপনার ডায়াগ্রাম স্কিমা রপ্তানি করুন',
             close: 'বন্ধ করুন',
+            mode: {
+                deterministic: 'Deterministic',
+                ai: 'AI',
+            },
             loading: {
                 text: '{{databaseType}} এর জন্য AI SQL তৈরি হচ্ছে...',
                 description: 'এতে ৩০ সেকেন্ড পর্যন্ত সময় লাগতে পারে।',

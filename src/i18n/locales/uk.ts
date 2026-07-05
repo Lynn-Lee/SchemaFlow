@@ -374,6 +374,10 @@ export const uk: LanguageTranslation = {
             description:
                 'Експортуйте свою схему діаграми в {{databaseType}} сценарій',
             close: 'Закрити',
+            mode: {
+                deterministic: 'Deterministic',
+                ai: 'AI',
+            },
             loading: {
                 text: 'ШІ створює SQL для {{databaseType}}…',
                 description: 'Це має зайняти до 30 секунд.',

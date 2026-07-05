@@ -374,6 +374,10 @@ export const es: LanguageTranslation = {
             description:
                 'Exporta el esquema de tu diagrama a un script {{databaseType}}',
             close: 'Cerrar',
+            mode: {
+                deterministic: 'Deterministic',
+                ai: 'AI',
+            },
             loading: {
                 text: 'La IA está generando SQL para {{databaseType}}...',
                 description: 'Esto debería tomar hasta 30 segundos.',

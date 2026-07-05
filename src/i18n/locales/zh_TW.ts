@@ -364,6 +364,10 @@ export const zh_TW: LanguageTranslation = {
             title: '匯出 SQL',
             description: '將圖表 Schema 匯出為 {{databaseType}} 格式的腳本',
             close: '關閉',
+            mode: {
+                deterministic: 'Deterministic',
+                ai: 'AI',
+            },
             loading: {
                 text: 'AI 正在生成 {{databaseType}} 的 SQL...',
                 description: '最多需要 30 秒。',

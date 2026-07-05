@@ -374,6 +374,10 @@ export const ne: LanguageTranslation = {
             description:
                 'तलको विकल्पहरूबाट तपाईंको डायाग्राम स्कीम निर्यात गर्नुहोस्।',
             close: 'बन्द गर्नुहोस्',
+            mode: {
+                deterministic: 'Deterministic',
+                ai: 'AI',
+            },
             loading: {
                 text: 'AI ले {{databaseType}} को लागि SQL उत्पन्न गर्दैछ...',
                 description: 'यो ३० सेकेण्डसम्म समय लिन्छ।',

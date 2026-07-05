@@ -375,6 +375,10 @@ export const de: LanguageTranslation = {
             description:
                 'Exportieren Sie das Schema Ihres Diagramms in ein {{databaseType}} Skript',
             close: 'Schließen',
+            mode: {
+                deterministic: 'Deterministic',
+                ai: 'AI',
+            },
             loading: {
                 text: 'Die KI generiert SQL für {{databaseType}}...',
                 description: 'Dies sollte bis zu 30 Sekunden dauern.',

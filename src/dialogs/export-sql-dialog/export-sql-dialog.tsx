@@ -292,7 +292,7 @@ export const ExportSQLDialog: React.FC<ExportSQLDialogProps> = ({
                                     onClick={() => setUseAIExport(false)}
                                 >
                                     <Blocks className="size-3" />
-                                    Deterministic
+                                    {t('export_sql_dialog.mode.deterministic')}
                                 </button>
                                 <button
                                     type="button"
@@ -304,7 +304,7 @@ export const ExportSQLDialog: React.FC<ExportSQLDialogProps> = ({
                                     onClick={() => setUseAIExport(true)}
                                 >
                                     <Wand2 className="size-3" />
-                                    AI
+                                    {t('export_sql_dialog.mode.ai')}
                                 </button>
                             </div>
                         </div>

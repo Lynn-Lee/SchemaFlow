@@ -373,6 +373,10 @@ export const mr: LanguageTranslation = {
             description:
                 'तुमच्या आरेख स्कीमाला {{databaseType}} स्क्रिप्टमध्ये निर्यात करा',
             close: 'बंद करा',
+            mode: {
+                deterministic: 'Deterministic',
+                ai: 'AI',
+            },
             loading: {
                 text: 'AI {{databaseType}} साठी SQL तयार करत आहे...',
                 description: 'याला 30 सेकंद लागतील.',
