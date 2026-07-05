@@ -11,6 +11,7 @@ import { useLoaderData, useMatches, useParams } from 'react-router-dom';
 import type { TemplateManifest } from '@/templates-data/template-manifest';
 import { Spinner } from '@/components/spinner/spinner';
 import { TemplatesPageHelmet } from './templates-page-helmet';
+import { useTranslation } from 'react-i18next';
 
 export interface TemplatesPageLoaderData {
     templates: TemplateManifest[] | undefined;
@@ -18,6 +19,7 @@ export interface TemplatesPageLoaderData {
 }
 
 const TemplatesPageComponent: React.FC = () => {
+    const { t } = useTranslation();
     const { effectiveTheme } = useTheme();
     const data = useLoaderData() as TemplatesPageLoaderData;
 
@@ -70,24 +72,18 @@ const TemplatesPageComponent: React.FC = () => {
                 <div className="flex flex-col p-3 text-center md:px-28 md:text-left">
                     <h1 className="font-primary text-2xl font-bold">
                         {isFeatured
-                            ? 'Featured database schema templates'
+                            ? t('templates_page.heading_featured')
                             : tag
-                              ? `Database schema templates for ${tag}`
-                              : 'Database schema templates'}
+                              ? t('templates_page.heading_tagged', { tag })
+                              : t('templates_page.heading_all')}
                     </h1>
                     <h2 className="mt-1 font-primary text-base text-muted-foreground">
-                        Discover a collection of real-world database schema
-                        diagrams
-                        {tag ? (
-                            <>
-                                {' for '}
-                                <span className="font-semibold">{tag}</span>
-                            </>
-                        ) : (
-                            ''
+                        {t(
+                            tag
+                                ? 'templates_page.description_tagged'
+                                : 'templates_page.description',
+                            { tag }
                         )}
-                        , featuring example applications and popular open-source
-                        projects.
                     </h2>
                     {!templates ? (
                         <Spinner
@@ -100,13 +96,17 @@ const TemplatesPageComponent: React.FC = () => {
                                 <ListMenu
                                     items={[
                                         {
-                                            title: 'Featured',
+                                            title: t(
+                                                'templates_page.navigation.featured'
+                                            ),
                                             href: '/templates/featured',
                                             icon: Star,
                                             selected: isFeatured,
                                         },
                                         {
-                                            title: 'All Templates',
+                                            title: t(
+                                                'templates_page.navigation.all_templates'
+                                            ),
                                             href: '/templates',
                                             icon: Component,
                                             selected: isAllTemplates,
@@ -115,7 +115,7 @@ const TemplatesPageComponent: React.FC = () => {
                                 />
 
                                 <h4 className="mt-4 text-left text-sm font-semibold">
-                                    Tags
+                                    {t('templates_page.navigation.tags')}
                                 </h4>
                                 {allTags ? (
                                     <ListMenu

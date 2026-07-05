@@ -523,6 +523,21 @@ export const ko_KR: LanguageTranslation = {
             no_area: '영역 없음',
         },
 
+        templates_page: {
+            heading_featured: 'Featured database schema templates',
+            heading_tagged: 'Database schema templates for {{tag}}',
+            heading_all: 'Database schema templates',
+            description:
+                'Discover a collection of real-world database schema diagrams, featuring example applications and popular open-source projects.',
+            description_tagged:
+                'Discover a collection of real-world database schema diagrams for {{tag}}, featuring example applications and popular open-source projects.',
+            navigation: {
+                featured: 'Featured',
+                all_templates: 'All Templates',
+                tags: 'Tags',
+            },
+        },
+
         canvas: {
             all_tables_hidden: '모든 테이블이 숨겨져 있습니다',
             show_all_tables: '모두 표시',

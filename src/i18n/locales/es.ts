@@ -526,6 +526,21 @@ export const es: LanguageTranslation = {
             no_area: 'Sin Área',
         },
 
+        templates_page: {
+            heading_featured: 'Featured database schema templates',
+            heading_tagged: 'Database schema templates for {{tag}}',
+            heading_all: 'Database schema templates',
+            description:
+                'Discover a collection of real-world database schema diagrams, featuring example applications and popular open-source projects.',
+            description_tagged:
+                'Discover a collection of real-world database schema diagrams for {{tag}}, featuring example applications and popular open-source projects.',
+            navigation: {
+                featured: 'Featured',
+                all_templates: 'All Templates',
+                tags: 'Tags',
+            },
+        },
+
         canvas: {
             all_tables_hidden: 'Todas las tablas están ocultas',
             show_all_tables: 'Mostrar todo',

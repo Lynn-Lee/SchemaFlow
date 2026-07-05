@@ -2332,7 +2332,7 @@ batch: 批次 Q
 type: CODE
 priority: P2
 title: 将 templates-page.tsx 的硬编码英文文案接入 i18n
-status: queued
+status: done
 depends_on: []
 owner_lane: i18n
 branch: codex/chartdb-q-templates-page-i18n
@@ -2356,6 +2356,12 @@ acceptance:
     - templates-page 无硬编码英文文案
     - 中英文翻译完整
     - 页面渲染无回归
+completion:
+    - 2026-07-05：`src/pages/templates-page/templates-page.tsx` 已接入 `useTranslation()`，页面标题、tag 标题、描述、Featured / All Templates / Tags 导航文案均改为 `templates_page.*` i18n key。
+    - 新增 `src/i18n/__tests__/templates-page-i18n.test.ts`，红灯先确认 fallback locale 缺少 `templates_page` key，绿灯覆盖关键 key 存在和 tag heading 插值。
+    - `src/i18n/locales/en.ts` 和 `src/i18n/locales/zh_CN.ts` 已补中英文文案；其它 locale 按现有 `LanguageTranslation = typeof en` 类型契约补英文 fallback，避免懒加载语言构建失败。
+    - 任务卡 allowed_files 未列出本手册、阶段验收记录、测试文件和其它 locale 文件；dispatcher done 定义要求同步文档，且新增英文基准 key 会要求所有 locale 同形状，本轮越界仅限验收测试、文档状态和其它 locale fallback。
+    - 进入 `CHARTDB-Q-007`：export-sql-dialog 切换按钮文案接入 i18n；也可按状态表继续 `CHARTDB-Q-004` Smart Query i18n。
 ```
 
 #### CHARTDB-Q-007：export-sql-dialog 切换按钮文案接入 i18n
@@ -2745,5 +2751,5 @@ npm run test:ci
 | P-013 | 存储错误处理 | P | P1 | done | - |
 | P-014 | 移动端 canvas 护栏提示 | P | P3 | done | - |
 | S-004 | AI Gateway URL 校验 | S | P2 | done | - |
-| Q-006 | templates-page i18n | Q | P2 | queued | - |
+| Q-006 | templates-page i18n | Q | P2 | done | - |
 | Q-007 | export dialog 切换按钮 i18n | Q | P3 | queued | - |

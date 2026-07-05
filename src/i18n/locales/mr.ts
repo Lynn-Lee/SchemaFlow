@@ -529,6 +529,21 @@ export const mr: LanguageTranslation = {
             no_area: 'क्षेत्र नाही',
         },
 
+        templates_page: {
+            heading_featured: 'Featured database schema templates',
+            heading_tagged: 'Database schema templates for {{tag}}',
+            heading_all: 'Database schema templates',
+            description:
+                'Discover a collection of real-world database schema diagrams, featuring example applications and popular open-source projects.',
+            description_tagged:
+                'Discover a collection of real-world database schema diagrams for {{tag}}, featuring example applications and popular open-source projects.',
+            navigation: {
+                featured: 'Featured',
+                all_templates: 'All Templates',
+                tags: 'Tags',
+            },
+        },
+
         canvas: {
             all_tables_hidden: 'सर्व टेबल्स लपवलेले आहेत',
             show_all_tables: 'सर्व दाखवा',

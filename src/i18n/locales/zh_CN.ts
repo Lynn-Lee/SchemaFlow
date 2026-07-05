@@ -515,6 +515,21 @@ export const zh_CN: LanguageTranslation = {
             no_area: '无区域',
         },
 
+        templates_page: {
+            heading_featured: '精选数据库 schema 模板',
+            heading_tagged: '{{tag}} 数据库 schema 模板',
+            heading_all: '数据库 schema 模板',
+            description:
+                '浏览真实世界的数据库 schema 图集合，涵盖示例应用和热门开源项目。',
+            description_tagged:
+                '浏览 {{tag}} 的真实世界数据库 schema 图集合，涵盖示例应用和热门开源项目。',
+            navigation: {
+                featured: '精选',
+                all_templates: '全部模板',
+                tags: '标签',
+            },
+        },
+
         canvas: {
             all_tables_hidden: '所有表格已隐藏',
             show_all_tables: '显示全部',
