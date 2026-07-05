@@ -1525,7 +1525,7 @@ batch: 批次 T
 type: CODE
 priority: P2
 title: 将 canvas.tsx 拆分为子组件和 hooks
-status: in_progress
+status: done
 depends_on:
     - CHARTDB-A-003
 owner_lane: tech-debt
@@ -1632,6 +1632,12 @@ progress:
     - 2026-07-05：完成第二十六段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-relationship-target-highlight.ts`，将 relationship 创建期间的 target table 高亮 effect 从 `canvas.tsx` 抽出为独立 hook。
     - 新增 `src/pages/editor-page/canvas/__tests__/canvas-relationship-target-highlight.test.ts`，红灯先失败于缺失 `../canvas-relationship-target-highlight`，绿灯覆盖 active source table 以外的 target 标记和无 source 时清理旧 target 标记。
     - `canvas.tsx` 从 561 行降到 536 行；本轮仍不标记 done，下一步继续拆 onConnect / edge change / overlap debounce / loading/filter visibility 等剩余 orchestration，直到主体低于 500 行。
+    - 2026-07-05：完成第二十七段最小拆分切片并收口任务，新增 `src/pages/editor-page/canvas/canvas-visibility-state.ts`、`canvas-overlap-change-handler.ts`、`canvas-filter-hotkey.ts`，将 filter visibility、overlap debounce 和 filter hotkey registration 从 `canvas.tsx` 抽出。
+    - 新增 `src/pages/editor-page/canvas/__tests__/canvas-visibility-state.test.ts`、`canvas-overlap-change-handler.test.ts`、`canvas-filter-hotkey.test.ts`，红灯先分别失败于缺失对应模块，绿灯覆盖筛选隐藏状态、overlap debounce 和 macOS/非 macOS filter hotkey。
+    - `canvas.tsx` 从 536 行降到 497 行，达到“主体不超过 500 行”的验收线；canvas 目录回归通过，任务状态更新为 done。
+completion:
+    - 2026-07-05：`canvas.tsx` 主体已降至 497 行，CanvasViewport、CanvasFlow、CanvasControls、CanvasFilterLayer、selection/keyboard/node-change/viewport/filter/overlap 等子组件和 hooks 均已独立文件承载并配套测试。
+    - 完整门禁、合并后快速验证和 origin/main 推送确认见 docs/阶段验收记录.md。
 ```
 
 ### 批次 Q：代码质量

@@ -5,12 +5,7 @@ import React, {
     useRef,
     useState,
 } from 'react';
-import type {
-    addEdge,
-    NodePositionChange,
-    NodeDimensionChange,
-    OnEdgesChange,
-} from '@xyflow/react';
+import type { addEdge, OnEdgesChange } from '@xyflow/react';
 import {
     useEdgesState,
     useNodesState,
@@ -28,13 +23,10 @@ import { useTheme } from '@/hooks/use-theme';
 import type { DBTable } from '@/lib/domain/db-table';
 import { useLocalConfig } from '@/hooks/use-local-config';
 import type { ChartDBEvent } from '@/context/chartdb-context/chartdb-context';
-import { debounce, getOperatingSystem } from '@/lib/utils';
+import { getOperatingSystem } from '@/lib/utils';
 import { useCanvas } from '@/hooks/use-canvas';
-import { useHotkeys } from 'react-hotkeys-hook';
 import { useIsLostInCanvas } from './hooks/use-is-lost-in-canvas';
 import { useDiagramFilter } from '@/context/diagram-filter-context/use-diagram-filter';
-import { filterTable } from '@/lib/domain/diagram-filter/filter';
-import { defaultSchemas } from '@/lib/data/default-schemas';
 import { useDiff } from '@/context/diff-context/use-diff';
 import { useClickAway } from '@/hooks/use-click-away';
 import {
@@ -52,7 +44,6 @@ import { CanvasControls } from './canvas-controls';
 import { CanvasFilterLayer } from './canvas-filter-layer';
 import { CanvasFlow } from './canvas-flow';
 import { useCanvasPointerActions } from './canvas-pointer-actions';
-import { buildUpdatedOverlapGraphForNodeChanges } from './canvas-overlap-updates';
 import { buildCanvasNodes } from './canvas-nodes';
 import { buildCanvasEdgeChangeSet } from './canvas-edge-changes';
 import { buildCanvasConnectAction } from './canvas-connect';
@@ -65,6 +56,12 @@ import { useCanvasEdgeRefresh } from './canvas-edge-refresh';
 import { useCanvasFilterViewportSync } from './canvas-filter-viewport-sync';
 import { useCanvasInitialFit } from './canvas-initial-fit';
 import { useCanvasRelationshipTargetHighlight } from './canvas-relationship-target-highlight';
+import {
+    buildCanvasVisibilityState,
+    pulseOverlappingTablesHighlight,
+} from './canvas-visibility-state';
+import { useCanvasOverlapChangeHandler } from './canvas-overlap-change-handler';
+import { useCanvasFilterHotkey } from './canvas-filter-hotkey';
 
 export type { EdgeType, NodeType } from './canvas-model';
 
@@ -308,33 +305,13 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
         ]
     );
 
-    const updateOverlappingGraphOnChanges = useCallback(
-        ({
-            positionChanges,
-            sizeChanges,
-        }: {
-            positionChanges: NodePositionChange[];
-            sizeChanges: NodeDimensionChange[];
-        }) => {
-            if (positionChanges.length > 0 || sizeChanges.length > 0) {
-                setOverlapGraph(
-                    buildUpdatedOverlapGraphForNodeChanges({
-                        overlapGraph,
-                        nodes,
-                        positionChanges,
-                        sizeChanges,
-                        getNode: (id) => getNode(id) as NodeType | undefined,
-                    })
-                );
-            }
-        },
-        [nodes, overlapGraph, setOverlapGraph, getNode]
-    );
-
-    const updateOverlappingGraphOnChangesDebounced = debounce(
-        updateOverlappingGraphOnChanges,
-        200
-    );
+    const updateOverlappingGraphOnChangesDebounced =
+        useCanvasOverlapChangeHandler({
+            nodes,
+            overlapGraph,
+            setOverlapGraph,
+            getNode: (id) => getNode(id) as NodeType | undefined,
+        });
 
     const onNodesChangeHandler = useCanvasNodeChangeHandler({
         readonly: !!readonly,
@@ -404,34 +381,28 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
     const isLoadingDOM =
         tables.length > 0 ? !getInternalNode(tables[0].id) : false;
 
-    const hasOverlappingTables = useMemo(
+    const { hasOverlappingTables, allTablesHiddenByFilter } = useMemo(
         () =>
-            Array.from(overlapGraph.graph).some(
-                ([, value]) => value.length > 0
-            ),
-        [overlapGraph]
+            buildCanvasVisibilityState({
+                overlapGraph,
+                hasActiveFilter,
+                tables,
+                filter,
+                databaseType,
+                filterLoading,
+            }),
+        [
+            overlapGraph,
+            hasActiveFilter,
+            tables,
+            filter,
+            databaseType,
+            filterLoading,
+        ]
     );
 
-    // Check if all tables are hidden due to filtering
-    // Derived from filter state directly (not nodes) for better performance
-    const allTablesHiddenByFilter = useMemo(() => {
-        if (!hasActiveFilter || tables.length === 0 || filterLoading) {
-            return false;
-        }
-        // Check if any table passes the filter
-        const visibleTableCount = tables.filter((table) =>
-            filterTable({
-                table: { id: table.id, schema: table.schema },
-                filter,
-                options: { defaultSchema: defaultSchemas[databaseType] },
-            })
-        ).length;
-        return visibleTableCount === 0;
-    }, [hasActiveFilter, tables, filter, databaseType, filterLoading]);
-
     const pulseOverlappingTables = useCallback(() => {
-        setHighlightOverlappingTables(true);
-        setTimeout(() => setHighlightOverlappingTables(false), 600);
+        pulseOverlappingTablesHighlight({ setHighlightOverlappingTables });
     }, []);
 
     const containerRef = useRef<HTMLDivElement>(null);
@@ -445,17 +416,7 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
     const shiftPressed = useKeyPress('Shift');
     const operatingSystem = getOperatingSystem();
 
-    useHotkeys(
-        operatingSystem === 'mac' ? 'meta+f' : 'ctrl+f',
-        () => {
-            setShowFilter((prev) => !prev);
-        },
-        {
-            preventDefault: true,
-            enableOnFormTags: true,
-        },
-        []
-    );
+    useCanvasFilterHotkey({ operatingSystem, setShowFilter });
 
     const { handleMouseMove, onPaneClickHandler } = useCanvasPointerActions({
         tempFloatingEdge,
