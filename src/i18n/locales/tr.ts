@@ -413,6 +413,39 @@ export const tr: LanguageTranslation = {
                 cancel: 'İptal',
             },
         },
+        smart_query_wizard: {
+            title: 'Smart Query Wizard',
+            description:
+                'ChartDB never asks for your database password. You copy a read-only metadata query, run it locally, then paste the JSON output here.',
+            steps: {
+                choose_database: {
+                    title: 'Choose this database type',
+                    description:
+                        'The query is generated for the selected database and client.',
+                },
+                copy_query: {
+                    title: 'Copy the Smart Query',
+                    description:
+                        'Run it in your own database client. No database password is required in ChartDB.',
+                },
+                paste_json: {
+                    title: 'Paste the JSON result',
+                    description:
+                        'Only paste the metadata JSON returned by the query, not a connection string or secret.',
+                },
+                preview: {
+                    title: 'Preview tables, relationships, and warnings',
+                    description:
+                        'ChartDB summarizes objects and dialect limitations before writing to the diagram.',
+                },
+                confirm: {
+                    title: 'Confirm import',
+                    description:
+                        'Nothing is added to IndexedDB until you confirm the preview.',
+                },
+            },
+        },
+
         export_image_dialog: {
             title: 'Resmi Dışa Aktar',
             description: 'Dışa aktarım için ölçek faktörünü seçin:',

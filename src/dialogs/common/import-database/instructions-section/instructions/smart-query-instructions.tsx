@@ -73,29 +73,26 @@ export const SmartQueryInstructions: React.FC<SmartQueryInstructionsProps> = ({
 
     const wizardSteps = [
         {
-            title: 'Choose this database type',
-            description:
-                'The query is generated for the selected database and client.',
+            title: t('smart_query_wizard.steps.choose_database.title'),
+            description: t(
+                'smart_query_wizard.steps.choose_database.description'
+            ),
         },
         {
-            title: 'Copy the Smart Query',
-            description:
-                'Run it in your own database client. No database password is required in ChartDB.',
+            title: t('smart_query_wizard.steps.copy_query.title'),
+            description: t('smart_query_wizard.steps.copy_query.description'),
         },
         {
-            title: 'Paste the JSON result',
-            description:
-                'Only paste the metadata JSON returned by the query, not a connection string or secret.',
+            title: t('smart_query_wizard.steps.paste_json.title'),
+            description: t('smart_query_wizard.steps.paste_json.description'),
         },
         {
-            title: 'Preview tables, relationships, and warnings',
-            description:
-                'ChartDB summarizes objects and dialect limitations before writing to the diagram.',
+            title: t('smart_query_wizard.steps.preview.title'),
+            description: t('smart_query_wizard.steps.preview.description'),
         },
         {
-            title: 'Confirm import',
-            description:
-                'Nothing is added to IndexedDB until you confirm the preview.',
+            title: t('smart_query_wizard.steps.confirm.title'),
+            description: t('smart_query_wizard.steps.confirm.description'),
         },
     ];
 
@@ -103,12 +100,10 @@ export const SmartQueryInstructions: React.FC<SmartQueryInstructionsProps> = ({
         <>
             <div className="rounded-md border border-slate-200 bg-white p-3 text-sm text-slate-700 shadow-sm dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
                 <h3 className="font-medium text-slate-950 dark:text-slate-50">
-                    Smart Query Wizard
+                    {t('smart_query_wizard.title')}
                 </h3>
                 <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                    ChartDB never asks for your database password. You copy a
-                    read-only metadata query, run it locally, then paste the
-                    JSON output here.
+                    {t('smart_query_wizard.description')}
                 </p>
                 <ol className="mt-3 space-y-2">
                     {wizardSteps.map((step, index) => (

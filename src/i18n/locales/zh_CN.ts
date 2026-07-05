@@ -415,6 +415,36 @@ export const zh_CN: LanguageTranslation = {
             },
         },
 
+        smart_query_wizard: {
+            title: 'Smart Query 向导',
+            description:
+                'ChartDB 不会要求你的数据库密码。你只需复制只读元数据查询，在本地运行，然后将 JSON 输出粘贴到这里。',
+            steps: {
+                choose_database: {
+                    title: '选择当前数据库类型',
+                    description: '查询会根据已选择的数据库和客户端生成。',
+                },
+                copy_query: {
+                    title: '复制 Smart Query',
+                    description:
+                        '在你自己的数据库客户端中运行它。ChartDB 不需要数据库密码。',
+                },
+                paste_json: {
+                    title: '粘贴 JSON 结果',
+                    description:
+                        '只粘贴查询返回的元数据 JSON，不要粘贴连接串或密钥。',
+                },
+                preview: {
+                    title: '预览表、关系和警告',
+                    description: 'ChartDB 会在写入关系图前汇总对象和方言限制。',
+                },
+                confirm: {
+                    title: '确认导入',
+                    description: '只有确认预览后，内容才会写入 IndexedDB。',
+                },
+            },
+        },
+
         export_image_dialog: {
             title: '导出图片',
             description: '选择导出的缩放比例：',

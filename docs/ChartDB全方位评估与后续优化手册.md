@@ -1771,7 +1771,7 @@ batch: 批次 Q
 type: CODE
 priority: P3
 title: Smart Query wizard 关键安全提示纳入 i18n
-status: queued
+status: done
 depends_on: []
 owner_lane: i18n
 branch: codex/chartdb-q-smart-query-i18n
@@ -1797,6 +1797,23 @@ acceptance:
     - Smart Query wizard 文案走 i18n
     - 中英文翻译完整
     - 无硬编码英文
+completion:
+    completed_at: 2026-07-05
+    result:
+        - `smart-query-instructions.tsx` 的 wizard 标题、说明和五步流程改为使用 `smart_query_wizard.*` i18n key。
+        - `src/i18n/locales/en.ts` 与 `src/i18n/locales/zh_CN.ts` 补充 fallback 和简体中文文案，覆盖无数据库密码、只粘贴 metadata JSON、预览后确认导入等安全提示。
+        - 其它 locale 按 `LanguageTranslation = typeof en` 类型契约补英文 fallback，避免新增基准 key 后构建失败。
+        - 新增 `src/i18n/__tests__/smart-query-i18n.test.ts`，覆盖 fallback locale key 完整性和简体中文安全提示。
+    verification:
+        - npm run test:ci -- src/i18n/__tests__/smart-query-i18n.test.ts src/dialogs/common/import-database/instructions-section/instructions/__tests__/smart-query-instructions.test.tsx src/i18n/__tests__
+        - npm run lint
+        - npm run test:ci
+        - npm run build
+        - git diff --check
+    notes:
+        - 任务卡 allowed_files 未列出本手册、阶段验收记录、测试文件和其它 locale 文件；dispatcher done 定义要求同步文档，且新增英文基准 key 会要求所有 locale 同形状，本轮越界仅限验收测试、文档状态和其它 locale fallback。
+    next:
+        - 进入 `CHARTDB-Q-005`：lib/utils 浏览器依赖拆分。
 ```
 
 #### CHARTDB-Q-005：lib/utils 浏览器依赖拆分
@@ -2745,7 +2762,7 @@ npm run test:ci
 | Q-001 | migration 测试 | Q | P2 | done | - |
 | Q-002 | deepCopy 修复 | Q | P3 | done | A-001 |
 | Q-003 | UI 测试覆盖 | Q | P2 | done | A-003, T-007 |
-| Q-004 | Smart Query i18n | Q | P3 | queued | - |
+| Q-004 | Smart Query i18n | Q | P3 | done | - |
 | Q-005 | 浏览器依赖拆分 | Q | P3 | queued | A-001 |
 | A-007 | 全局 ErrorBoundary | A | P0 | done | - |
 | A-008 | Context selector | A | P2 | done | A-003 |
