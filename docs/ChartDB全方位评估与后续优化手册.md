@@ -1620,6 +1620,9 @@ progress:
     - 2026-07-05：完成第二十二段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-parent-area-sync.ts`，将 parent area 同步 effect / debounce / `updateTablesState(..., { updateHistory: false })` orchestration 从 `canvas.tsx` 抽出为独立 hook。
     - 新增 `src/pages/editor-page/canvas/__tests__/canvas-parent-area-sync.test.ts`，红灯先失败于缺失 `../canvas-parent-area-sync`，绿灯覆盖 parentAreaId 差异同步且不新增 history。
     - `canvas.tsx` 从 655 行降到 633 行；本轮仍不标记 done，下一步继续拆 drag / zoom hooks / 其它 event/effect orchestration，直到主体低于 500 行。
+    - 2026-07-05：完成第二十三段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-edge-refresh.ts`，将 React Flow table handle 重新注册、100ms 延迟 edge rebuild 和 timeout cleanup 从 `canvas.tsx` 抽出为独立 hook。
+    - 新增 `src/pages/editor-page/canvas/__tests__/canvas-edge-refresh.test.ts`，红灯先失败于缺失 `../canvas-edge-refresh`，绿灯覆盖 table handle re-register 和延迟 `buildCanvasEdges()` 刷新。
+    - `canvas.tsx` 从 633 行降到 612 行；本轮仍不标记 done，下一步继续拆 drag / zoom hooks / 其它 event/effect orchestration，直到主体低于 500 行。
 ```
 
 ### 批次 Q：代码质量

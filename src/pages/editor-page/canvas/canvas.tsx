@@ -44,7 +44,6 @@ import {
     type EdgeType,
     type NodeType,
 } from './canvas-model';
-import { buildCanvasEdges } from './canvas-edges';
 import {
     buildCanvasEdgesWithFloatingEdge,
     buildCanvasNodesWithCursor,
@@ -66,6 +65,7 @@ import { useCanvasKeyboardHandler } from './canvas-keyboard-handler';
 import { useCanvasSelectionSync } from './canvas-selection-sync';
 import { CanvasViewport } from './canvas-viewport';
 import { useCanvasParentAreaSync } from './canvas-parent-area-sync';
+import { useCanvasEdgeRefresh } from './canvas-edge-refresh';
 
 export type { EdgeType, NodeType } from './canvas-model';
 
@@ -206,35 +206,14 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
         }
     }, [isInitialLoadingNodes, fitView]);
 
-    useEffect(() => {
-        // Force React Flow to re-register handles for all table nodes
-        // This ensures handles exist before edges reference them
-        const tableNodeIds = tables.map((t) => t.id);
-        if (tableNodeIds.length > 0) {
-            updateNodeInternals(tableNodeIds);
-        }
-
-        // Delay edge creation to ensure handles are registered
-        const timeoutId = setTimeout(() => {
-            setEdges((prevEdges) => {
-                return buildCanvasEdges({
-                    relationships,
-                    dependencies,
-                    previousEdges: prevEdges,
-                    showDBViews,
-                });
-            });
-        }, 100); // Delay to let handles register after updateNodeInternals
-
-        return () => clearTimeout(timeoutId);
-    }, [
+    useCanvasEdgeRefresh({
+        tables,
         relationships,
         dependencies,
-        setEdges,
         showDBViews,
-        tables,
         updateNodeInternals,
-    ]);
+        setEdges,
+    });
 
     useCanvasSelectionSync({
         nodes,
