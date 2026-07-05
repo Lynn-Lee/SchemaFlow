@@ -1611,6 +1611,9 @@ progress:
     - 2026-07-05：完成第十九段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-keyboard-handler.ts`，将 canvas 容器 Delete/Backspace/Arrow 键处理从 `canvas.tsx` 抽出为独立 hook。
     - 新增 `src/pages/editor-page/canvas/__tests__/canvas-keyboard-handler.test.ts`，红灯先失败于缺失 `../canvas-keyboard-handler`，绿灯覆盖键盘事件转 node changes、阻止默认行为、输入控件目标和非动作键忽略。
     - `canvas.tsx` 从 711 行降到 687 行；本轮仍不标记 done，下一步继续拆 `CanvasViewport` / drag / zoom hooks / selection highlight effect 或其它事件 handler，直到主体低于 500 行。
+    - 2026-07-05：完成第二十段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-selection-sync.ts`，将 React Flow selected node/edge id 同步和 selected edge highlight 更新从 `canvas.tsx` 抽出为独立 hook。
+    - 新增 `src/pages/editor-page/canvas/__tests__/canvas-selection-sync.test.tsx`，红灯先失败于缺失 `../canvas-selection-sync`，绿灯覆盖选中节点/边同步、已同步状态不重复写入和 edge highlight updater 触发。
+    - `canvas.tsx` 从 687 行降到 664 行；本轮仍不标记 done，下一步继续拆 `CanvasViewport` / drag / zoom hooks / 其它 event/effect orchestration，直到主体低于 500 行。
 ```
 
 ### 批次 Q：代码质量

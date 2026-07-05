@@ -46,11 +46,7 @@ import {
     type EdgeType,
     type NodeType,
 } from './canvas-model';
-import { buildCanvasEdges, getHighlightedCanvasEdges } from './canvas-edges';
-import {
-    getSelectedCanvasEdgeIds,
-    getSelectedCanvasNodeIds,
-} from './canvas-selection';
+import { buildCanvasEdges } from './canvas-edges';
 import {
     buildCanvasEdgesWithFloatingEdge,
     buildCanvasNodesWithCursor,
@@ -70,6 +66,7 @@ import { buildCanvasEdgeChangeSet } from './canvas-edge-changes';
 import { buildCanvasConnectAction } from './canvas-connect';
 import { useCanvasNodeChangeHandler } from './canvas-node-change-handler';
 import { useCanvasKeyboardHandler } from './canvas-keyboard-handler';
+import { useCanvasSelectionSync } from './canvas-selection-sync';
 
 export type { EdgeType, NodeType } from './canvas-model';
 
@@ -240,35 +237,15 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
         updateNodeInternals,
     ]);
 
-    useEffect(() => {
-        const selectedNodesIds = getSelectedCanvasNodeIds(nodes);
-
-        if (equal(selectedNodesIds, selectedTableIds)) {
-            return;
-        }
-
-        setSelectedTableIds(selectedNodesIds);
-    }, [nodes, setSelectedTableIds, selectedTableIds]);
-
-    useEffect(() => {
-        const selectedEdgesIds = getSelectedCanvasEdgeIds(edges);
-
-        if (equal(selectedEdgesIds, selectedRelationshipIds)) {
-            return;
-        }
-
-        setSelectedRelationshipIds(selectedEdgesIds);
-    }, [edges, setSelectedRelationshipIds, selectedRelationshipIds]);
-
-    useEffect(() => {
-        setEdges((prevEdges) => {
-            return getHighlightedCanvasEdges({
-                edges: prevEdges,
-                selectedRelationshipIds,
-                selectedTableIds,
-            });
-        });
-    }, [selectedRelationshipIds, selectedTableIds, setEdges]);
+    useCanvasSelectionSync({
+        nodes,
+        edges,
+        selectedTableIds,
+        selectedRelationshipIds,
+        setSelectedTableIds,
+        setSelectedRelationshipIds,
+        setEdges,
+    });
 
     useEffect(() => {
         setNodes((prevNodes) => {
