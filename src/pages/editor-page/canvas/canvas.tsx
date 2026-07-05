@@ -27,8 +27,6 @@ import { useBreakpoint } from '@/hooks/use-breakpoint';
 import { useTheme } from '@/hooks/use-theme';
 import type { DBTable } from '@/lib/domain/db-table';
 import { useLocalConfig } from '@/hooks/use-local-config';
-import { MarkerDefinitions } from './marker-definitions';
-import { CanvasContextMenu } from './canvas-context-menu';
 import type { ChartDBEvent } from '@/context/chartdb-context/chartdb-context';
 import { debounce, getOperatingSystem } from '@/lib/utils';
 import { useCanvas } from '@/hooks/use-canvas';
@@ -67,6 +65,7 @@ import { buildCanvasConnectAction } from './canvas-connect';
 import { useCanvasNodeChangeHandler } from './canvas-node-change-handler';
 import { useCanvasKeyboardHandler } from './canvas-keyboard-handler';
 import { useCanvasSelectionSync } from './canvas-selection-sync';
+import { CanvasViewport } from './canvas-viewport';
 
 export type { EdgeType, NodeType } from './canvas-model';
 
@@ -607,58 +606,50 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
     }, [edges, tempFloatingEdge, cursorPosition, hoveringTableId]);
 
     return (
-        <CanvasContextMenu>
-            <div
-                className="relative flex h-full"
-                id="canvas"
-                ref={containerRef}
-                onMouseMove={handleMouseMove}
-                onKeyDown={onCanvasKeyDownHandler}
-                role="application"
-                aria-label="Diagram canvas"
-                tabIndex={0}
+        <CanvasViewport
+            containerRef={containerRef}
+            onMouseMove={handleMouseMove}
+            onKeyDown={onCanvasKeyDownHandler}
+        >
+            <CanvasFlow
+                colorMode={effectiveTheme}
+                nodes={nodesWithCursor}
+                edges={edgesWithFloating}
+                onNodesChange={onNodesChangeHandler}
+                onEdgesChange={onEdgesChangeHandler}
+                onConnect={onConnectHandler}
+                panOnScroll={scrollAction === 'pan'}
+                snapToGrid={shiftPressed || snapToGridEnabled}
+                onPaneClick={onPaneClickHandler}
+                shiftPressed={shiftPressed}
             >
-                <CanvasFlow
-                    colorMode={effectiveTheme}
-                    nodes={nodesWithCursor}
-                    edges={edgesWithFloating}
-                    onNodesChange={onNodesChangeHandler}
-                    onEdgesChange={onEdgesChangeHandler}
-                    onConnect={onConnectHandler}
-                    panOnScroll={scrollAction === 'pan'}
-                    snapToGrid={shiftPressed || snapToGridEnabled}
-                    onPaneClick={onPaneClickHandler}
+                <CanvasControls
+                    readonly={readonly}
+                    isDesktop={isDesktop}
+                    isLoadingDOM={isLoadingDOM}
+                    isLostInCanvas={isLostInCanvas}
+                    showMiniMapOnCanvas={showMiniMapOnCanvas}
+                    snapToGridEnabled={snapToGridEnabled}
                     shiftPressed={shiftPressed}
-                >
-                    <CanvasControls
-                        readonly={readonly}
-                        isDesktop={isDesktop}
-                        isLoadingDOM={isLoadingDOM}
-                        isLostInCanvas={isLostInCanvas}
-                        showMiniMapOnCanvas={showMiniMapOnCanvas}
-                        snapToGridEnabled={snapToGridEnabled}
-                        shiftPressed={shiftPressed}
-                        operatingSystem={operatingSystem}
-                        hasOverlappingTables={hasOverlappingTables}
-                        highlightedCustomType={highlightedCustomType}
-                        onToggleSnapToGrid={() =>
-                            setSnapToGridEnabled((prev) => !prev)
-                        }
-                        onClearCustomTypeHighlight={() =>
-                            highlightCustomTypeId(undefined)
-                        }
-                        onPulseOverlappingTables={pulseOverlappingTables}
-                        showSidePanel={showSidePanel}
-                    />
-                    <CanvasFilterLayer
-                        allTablesHiddenByFilter={allTablesHiddenByFilter}
-                        showFilter={showFilter}
-                        onResetFilter={resetFilter}
-                        onCloseFilter={() => setShowFilter(false)}
-                    />
-                </CanvasFlow>
-                <MarkerDefinitions />
-            </div>
-        </CanvasContextMenu>
+                    operatingSystem={operatingSystem}
+                    hasOverlappingTables={hasOverlappingTables}
+                    highlightedCustomType={highlightedCustomType}
+                    onToggleSnapToGrid={() =>
+                        setSnapToGridEnabled((prev) => !prev)
+                    }
+                    onClearCustomTypeHighlight={() =>
+                        highlightCustomTypeId(undefined)
+                    }
+                    onPulseOverlappingTables={pulseOverlappingTables}
+                    showSidePanel={showSidePanel}
+                />
+                <CanvasFilterLayer
+                    allTablesHiddenByFilter={allTablesHiddenByFilter}
+                    showFilter={showFilter}
+                    onResetFilter={resetFilter}
+                    onCloseFilter={() => setShowFilter(false)}
+                />
+            </CanvasFlow>
+        </CanvasViewport>
     );
 };

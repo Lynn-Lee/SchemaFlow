@@ -1614,6 +1614,9 @@ progress:
     - 2026-07-05：完成第二十段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-selection-sync.ts`，将 React Flow selected node/edge id 同步和 selected edge highlight 更新从 `canvas.tsx` 抽出为独立 hook。
     - 新增 `src/pages/editor-page/canvas/__tests__/canvas-selection-sync.test.tsx`，红灯先失败于缺失 `../canvas-selection-sync`，绿灯覆盖选中节点/边同步、已同步状态不重复写入和 edge highlight updater 触发。
     - `canvas.tsx` 从 687 行降到 664 行；本轮仍不标记 done，下一步继续拆 `CanvasViewport` / drag / zoom hooks / 其它 event/effect orchestration，直到主体低于 500 行。
+    - 2026-07-05：完成第二十一段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-viewport.tsx`，将 canvas context menu、application 容器、mouse/key handler 入口和 marker definitions 从 `canvas.tsx` 抽出为独立组件。
+    - 新增 `src/pages/editor-page/canvas/__tests__/canvas-viewport.test.tsx`，红灯先失败于缺失 `../canvas-viewport`，绿灯覆盖 accessible canvas container、context menu 包裹、ref/handler 透传和 marker definitions 渲染。
+    - `canvas.tsx` 从 664 行降到 655 行；本轮仍不标记 done，下一步继续拆 drag / zoom hooks / 其它 event/effect orchestration，直到主体低于 500 行。
 ```
 
 ### 批次 Q：代码质量
