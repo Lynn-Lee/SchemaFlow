@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { generateDBMLFromDiagram } from '../dbml-export';
 import { DatabaseType } from '@/lib/domain/database-type';
 import type { Diagram } from '@/lib/domain/diagram';
-import { generateId, generateDiagramId } from '@/lib/utils';
+import { generateDiagramId } from '@/lib/browser-utils';
+import { generateId } from '@/lib/utils';
 
 describe('DBML Export - Empty Tables', () => {
     it('should filter out tables with no fields', () => {

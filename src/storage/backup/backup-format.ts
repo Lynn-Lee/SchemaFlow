@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { cloneDiagram } from '@/lib/clone';
 import { diagramSchema, type Diagram } from '@/lib/domain/diagram';
-import { generateDiagramId } from '@/lib/utils';
+import { generateDiagramId } from '@/lib/browser-utils';
 
 export const CHARTDB_BACKUP_FORMAT = 'chartdb.backup';
 export const CURRENT_CHARTDB_BACKUP_FORMAT_VERSION = 1;

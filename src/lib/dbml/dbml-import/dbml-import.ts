@@ -1,6 +1,7 @@
 import { Parser } from '@dbml/core';
 import type { Diagram } from '@/lib/domain/diagram';
-import { generateDiagramId, generateId, isStringEmpty } from '@/lib/utils';
+import { generateDiagramId } from '@/lib/browser-utils';
+import { generateId, isStringEmpty } from '@/lib/utils';
 import type { DBTable } from '@/lib/domain/db-table';
 import { defaultSchemas } from '@/lib/data/default-schemas';
 import type { Cardinality, DBRelationship } from '@/lib/domain/db-relationship';

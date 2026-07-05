@@ -1824,7 +1824,7 @@ batch: 批次 Q
 type: CODE
 priority: P3
 title: 将浏览器 API 依赖从 lib/utils 拆分到 lib/browser-utils
-status: queued
+status: done
 depends_on:
     - CHARTDB-A-001
 owner_lane: tech-debt
@@ -1852,6 +1852,24 @@ acceptance:
     - lib/utils/utils.ts 不直接依赖 window 或 localStorage
     - 浏览器依赖函数在 lib/browser-utils.ts
     - import 路径更新
+completion:
+    completed_at: 2026-07-05
+    result:
+        - 新增 `src/lib/browser-utils.ts`，承接 `getWorkspaceId()`、`generateDiagramId()`、`getOperatingSystem()` 和 `safeOpenUrl()` 等浏览器 API 相关工具。
+        - `src/lib/utils/utils.ts` 移除 `window` 与 `localStorage` 依赖，只保留通用纯工具和环境无关 helper。
+        - 更新现有 `generateDiagramId`、`getOperatingSystem`、`safeOpenUrl` 调用点，让浏览器相关调用直接依赖 `@/lib/browser-utils`。
+        - 新增 `src/lib/browser-utils/__tests__/browser-utils.test.ts`，并在 `src/lib/utils/__tests__/utils.test.ts` 中加入 utils 纯度回归断言。
+    scope_note:
+        - 任务卡 allowed_files 未列出所有真实 import 调用点，但验收要求更新 import 路径；本轮最小越界仅替换迁出函数的 import 来源。
+    verification:
+        - npm run test:ci -- src/lib/utils/__tests__/utils.test.ts src/lib/browser-utils/__tests__/browser-utils.test.ts
+        - rg -n "window\\.|localStorage" src/lib/utils/utils.ts
+        - npm run lint
+        - npm run test:ci
+        - npm run build
+        - git diff --check
+next:
+    - 手册当前批次 Q 已全部完成；下一轮应重新按第 11 节任务状态表和新增复核项确认是否存在未完成任务，若无则转入新一轮评估或等待用户扩展手册。
 ```
 
 ### 4.6 批次追加：二次复核新增任务（2026-07-04）

@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useConfig } from '@/hooks/use-config';
 import type { DatabaseMetadata } from '@/lib/data/import-metadata/metadata-types/database-metadata';
 import { loadDatabaseMetadata } from '@/lib/data/import-metadata/metadata-types/database-metadata';
-import { generateDiagramId } from '@/lib/utils';
+import { generateDiagramId } from '@/lib/browser-utils';
 import { useChartDB } from '@/hooks/use-chartdb';
 import { useDialog } from '@/hooks/use-dialog';
 import type { DatabaseEdition } from '@/lib/domain/database-edition';

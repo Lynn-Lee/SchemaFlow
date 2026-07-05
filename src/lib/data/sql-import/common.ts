@@ -1,6 +1,7 @@
 import type { Diagram } from '@/lib/domain/diagram';
 import { CURRENT_DIAGRAM_VERSION } from '@/lib/domain/diagram';
-import { generateDiagramId, generateId } from '@/lib/utils';
+import { generateDiagramId } from '@/lib/browser-utils';
+import { generateId } from '@/lib/utils';
 import type { DBTable } from '@/lib/domain/db-table';
 import type { Cardinality, DBRelationship } from '@/lib/domain/db-relationship';
 import type { DBField } from '@/lib/domain/db-field';

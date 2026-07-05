@@ -27,7 +27,8 @@ import {
 import { CreateDiagramDialogStep } from '@/dialogs/create-diagram-dialog/create-diagram-dialog-step';
 import { DatabaseType } from '@/lib/domain/database-type';
 import { CURRENT_DIAGRAM_VERSION, type Diagram } from '@/lib/domain/diagram';
-import { cn, generateDiagramId } from '@/lib/utils';
+import { generateDiagramId } from '@/lib/browser-utils';
+import { cn } from '@/lib/utils';
 
 type StartOption = 'import' | 'blank' | 'template';
 

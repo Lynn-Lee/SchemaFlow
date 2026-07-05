@@ -23,7 +23,7 @@ import { useTheme } from '@/hooks/use-theme';
 import type { DBTable } from '@/lib/domain/db-table';
 import { useLocalConfig } from '@/hooks/use-local-config';
 import type { ChartDBEvent } from '@/context/chartdb-context/chartdb-context';
-import { getOperatingSystem } from '@/lib/utils';
+import { getOperatingSystem } from '@/lib/browser-utils';
 import { useCanvas } from '@/hooks/use-canvas';
 import { useIsLostInCanvas } from './hooks/use-is-lost-in-canvas';
 import { useDiagramFilter } from '@/context/diagram-filter-context/use-diagram-filter';

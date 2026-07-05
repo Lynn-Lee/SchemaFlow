@@ -28,7 +28,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useLocalConfig } from '@/hooks/use-local-config';
 import { useNavigate } from 'react-router-dom';
 import { useAlert } from '@/context/alert-context/alert-context';
-import { safeOpenUrl } from '@/lib/utils';
+import { safeOpenUrl } from '@/lib/browser-utils';
 
 export interface MenuProps {}
 

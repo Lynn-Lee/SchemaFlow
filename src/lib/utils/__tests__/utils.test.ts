@@ -1,32 +1,17 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { deepCopy, getWorkspaceId, safeOpenUrl } from '../utils';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
+import { deepCopy } from '../utils';
 
-afterEach(() => {
-    vi.restoreAllMocks();
-});
-
-describe('getWorkspaceId', () => {
-    it('creates and reuses a workspace id from localStorage', () => {
-        const firstWorkspaceId = getWorkspaceId();
-        const secondWorkspaceId = getWorkspaceId();
-
-        expect(firstWorkspaceId).toHaveLength(8);
-        expect(secondWorkspaceId).toBe(firstWorkspaceId);
-        expect(localStorage.getItem('uuid')).toBe(firstWorkspaceId);
-    });
-});
-
-describe('safeOpenUrl', () => {
-    it('opens external links in a new tab without opener access', () => {
-        const open = vi.spyOn(window, 'open').mockImplementation(() => null);
-
-        safeOpenUrl('https://docs.chartdb.io');
-
-        expect(open).toHaveBeenCalledWith(
-            'https://docs.chartdb.io',
-            '_blank',
-            'noopener,noreferrer'
+describe('utils module purity', () => {
+    it('does not depend on browser globals', () => {
+        const source = readFileSync(
+            join(process.cwd(), 'src/lib/utils/utils.ts'),
+            'utf8'
         );
+
+        expect(source).not.toMatch(/\bwindow\./);
+        expect(source).not.toMatch(/\blocalStorage\b/);
     });
 });
 

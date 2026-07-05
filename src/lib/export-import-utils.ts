@@ -4,7 +4,7 @@ import {
     diagramSchema,
     type Diagram,
 } from './domain/diagram';
-import { generateDiagramId } from './utils';
+import { generateDiagramId } from './browser-utils';
 import {
     CHARTDB_BACKUP_FORMAT,
     createChartDBBackup,

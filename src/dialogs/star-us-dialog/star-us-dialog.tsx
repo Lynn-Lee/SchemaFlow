@@ -15,7 +15,7 @@ import type { BaseDialogProps } from '../common/base-dialog-props';
 import { useTranslation } from 'react-i18next';
 import { ZoomableImage } from '@/components/zoomable-image/zoomable-image';
 import { useLocalConfig } from '@/hooks/use-local-config';
-import { safeOpenUrl } from '@/lib/utils';
+import { safeOpenUrl } from '@/lib/browser-utils';
 
 export interface StarUsDialogProps extends BaseDialogProps {}
 

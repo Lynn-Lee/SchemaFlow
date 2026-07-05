@@ -3,7 +3,8 @@ import { generateDBMLFromDiagram } from '../dbml-export';
 import { importDBMLToDiagram } from '../../dbml-import/dbml-import';
 import { DatabaseType } from '@/lib/domain/database-type';
 import type { Diagram } from '@/lib/domain/diagram';
-import { generateId, generateDiagramId } from '@/lib/utils';
+import { generateDiagramId } from '@/lib/browser-utils';
+import { generateId } from '@/lib/utils';
 
 describe('DBML Export - Timestamp with Time Zone', () => {
     it('should preserve "timestamp with time zone" type through export and reimport', async () => {

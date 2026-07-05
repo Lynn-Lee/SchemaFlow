@@ -26,7 +26,7 @@ import type {
 import { generateTreeDataByAreas, generateTreeDataBySchemas } from './utils';
 import { FilterItemActions } from './filter-item-actions';
 import { databasesWithSchemas } from '@/lib/domain';
-import { getOperatingSystem } from '@/lib/utils';
+import { getOperatingSystem } from '@/lib/browser-utils';
 import { useLocalConfig } from '@/hooks/use-local-config';
 import { useDiff } from '@/context/diff-context/use-diff';
 

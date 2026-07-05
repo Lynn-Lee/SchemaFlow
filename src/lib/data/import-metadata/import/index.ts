@@ -5,7 +5,7 @@ import {
     DatabaseType,
     getTableIndexesWithPrimaryKey,
 } from '@/lib/domain';
-import { generateDiagramId } from '@/lib/utils';
+import { generateDiagramId } from '@/lib/browser-utils';
 import type { DatabaseMetadata } from '../metadata-types/database-metadata';
 import { createCustomTypesFromMetadata } from './custom-types';
 import { createRelationshipsFromMetadata } from './relationships';

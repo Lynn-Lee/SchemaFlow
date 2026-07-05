@@ -32,7 +32,7 @@ import { useChartDB } from '@/hooks/use-chartdb';
 import { supportsCustomTypes } from '@/lib/domain/database-capabilities';
 import { useDialog } from '@/hooks/use-dialog';
 import { Separator } from '@/components/separator/separator';
-import { safeOpenUrl } from '@/lib/utils';
+import { safeOpenUrl } from '@/lib/browser-utils';
 
 export interface SidebarItem {
     title: string;
