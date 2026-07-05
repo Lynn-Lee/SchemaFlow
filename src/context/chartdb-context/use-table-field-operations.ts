@@ -1,9 +1,10 @@
 import { useCallback } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
+import { z } from 'zod';
 import type { ChartDBContext, ChartDBEvent } from './chartdb-context';
 import type { StorageContext } from '../storage-context/storage-context';
 import type { RedoUndoStackContext } from '../history-context/redo-undo-stack-context';
-import type { DBTable } from '@/lib/domain/db-table';
+import { dbTableSchema, type DBTable } from '@/lib/domain/db-table';
 import type { DBField } from '@/lib/domain/db-field';
 import type { DBRelationship } from '@/lib/domain/db-relationship';
 import type { DBDependency } from '@/lib/domain/db-dependency';
@@ -418,7 +419,15 @@ export function useTableFieldOperations({
             const updateTables = (prevTables: DBTable[]) => {
                 const updatedTables = updateFn(prevTables);
                 if (options.forceOverride) {
-                    return updatedTables as DBTable[];
+                    const parsedTables = z
+                        .array(dbTableSchema)
+                        .safeParse(updatedTables);
+                    if (!parsedTables.success) {
+                        throw new Error(
+                            `updateTablesState forceOverride received an invalid tables snapshot: ${parsedTables.error.message}`
+                        );
+                    }
+                    return parsedTables.data;
                 }
 
                 return prevTables

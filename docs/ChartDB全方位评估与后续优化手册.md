@@ -1,7 +1,7 @@
 # ChartDB 全方位评估与后续优化手册
 
-> 版本：v1.4（2026-07-04 四次修订：新增独立三路复核发现 13 项，覆盖架构可靠性、产品/无障碍、安全预防三个维度；已对 v1.3 全部具体断言逐条核对代码现状，结论：v1.3 记录准确，无需撤回）
-> 日期：2026-07-04
+> 版本：v1.5（2026-07-05 五次修订：`chartdb-roadmap-dispatcher` 自动化已把手册中全部 48 项问题（F/A/P/S/T/Q 全批次 + 二次复核新增 13 项）实现为代码并合入 `main`；逐条用 `rg`/`Read`/`npm run lint`/`npm run test:ci`/`npm run build`/`npm audit` 重新核实，确认为真实修复而非仅提交信息声称。核实中唯二发现从未生成任务卡、因此遗留的 L4、L10 已在本轮补齐修复：删除死代码 `export-sql-cache.ts`、为 `updateTablesState` 的 `forceOverride` 增加 Zod 校验兜底。至此手册记录的问题**全部关闭**）
+> 日期：2026-07-05
 > 本地路径：`/Users/lynn/SynologyDrive/SynologyDrive/Code/ChartDB`
 > 重构仓库：`https://github.com/Lynn-Lee/ChartDB`
 > 依据文档：`docs/ChartDB自动开发任务计划.md`、`docs/ChartDB重构优化产品设计与研发计划.md`、`docs/ChartDB重构优化工程实施计划.md`
@@ -105,13 +105,13 @@ ChartDB 已完成 Phase 0 到 Phase 8 的首轮重构，共 42 个任务全部 `
 | L1 | Dexie schema 版本迁移路径无测试覆盖 | 架构 | `storage/db/schema-versions.ts` |
 | L2 | `deepCopy` 用 JSON 序列化丢失 Date 类型 | 架构 | `lib/utils/utils.ts:45` |
 | L3 | `export-image-provider.tsx` 原始 innerHTML 赋值 | 安全 | `export-image-provider.tsx:158` |
-| L4 | SQL export 缓存显式使用 localStorage | 安全 | `sql-export/export-sql-cache.ts` |
+| L4 | ~~SQL export 缓存显式使用 localStorage~~（已修复 2026-07-05：`getFromCache`/`setInCache`/`generateCacheKey` 全项目零调用方，属死代码，已直接删除 `export-sql-cache.ts`，而非改造存储方式） | 安全 | `sql-export/export-sql-cache.ts`（已删除） |
 | L5 | 两套图标库并存 | 技术栈 | `@radix-ui/react-icons` + `lucide-react` |
 | L6 | 模板缩略图 PNG 过大（~50MB），无 WebP 转换 | 技术栈 | `src/assets/templates/*.png` |
 | L7 | `canvas.tsx` 1908 行，第二大组件 | 技术栈 | `src/pages/editor-page/canvas/canvas.tsx` |
 | L8 | Smart Query wizard 关键安全提示未纳入 i18n | 产品 | `smart-query-instructions.tsx:82-112` |
 | L9 | 测试覆盖率 20.6%，核心 UI 逻辑无测试 | 质量 | 139 测试 / 673 文件 |
-| L10 | `updateTablesState` 的 `forceOverride` 是危险通配操作 | 架构 | `chartdb-provider.tsx:679-810` |
+| L10 | ~~`updateTablesState` 的 `forceOverride` 是危险通配操作~~（已修复 2026-07-05：`forceOverride` 仅供 history-provider 撤销/重做重放使用，新增 `z.array(dbTableSchema).safeParse` 校验，畸形快照会抛出明确错误而不是静默替换整表状态；未收紧调用方类型可见性，因为 `ChartDBContext` 公开签名不变，靠校验兜底而非限制调用） | 架构 | `use-table-field-operations.ts`（原 `chartdb-provider.tsx:679-810`，Provider 拆分后已迁移） |
 | L11 | `export-sql-dialog.tsx` 的 Deterministic/AI 切换按钮文案硬编码，未走 i18n（该对话框其余文案均已 `t()` 化） | 产品 | `src/dialogs/export-sql-dialog/export-sql-dialog.tsx:294-306` |
 
 ### 3.5 二次独立复核新增发现（2026-07-04）
