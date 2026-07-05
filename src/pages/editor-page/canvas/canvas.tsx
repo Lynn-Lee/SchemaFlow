@@ -64,6 +64,7 @@ import { useCanvasParentAreaSync } from './canvas-parent-area-sync';
 import { useCanvasEdgeRefresh } from './canvas-edge-refresh';
 import { useCanvasFilterViewportSync } from './canvas-filter-viewport-sync';
 import { useCanvasInitialFit } from './canvas-initial-fit';
+import { useCanvasRelationshipTargetHighlight } from './canvas-relationship-target-highlight';
 
 export type { EdgeType, NodeType } from './canvas-model';
 
@@ -233,36 +234,10 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
         relationships,
     ]);
 
-    // Surgical update for relationship creation target highlighting
-    // This avoids expensive full node recalculation when only the visual state changes
-    useEffect(() => {
-        setNodes((nds) => {
-            let hasChanges = false;
-            const updatedNodes = nds.map((node) => {
-                if (node.type !== 'table') return node;
-
-                const shouldBeTarget =
-                    !!tempFloatingEdge?.sourceNodeId &&
-                    node.id !== tempFloatingEdge.sourceNodeId;
-                const isCurrentlyTarget =
-                    node.data.isRelationshipCreatingTarget ?? false;
-
-                if (shouldBeTarget !== isCurrentlyTarget) {
-                    hasChanges = true;
-                    return {
-                        ...node,
-                        data: {
-                            ...node.data,
-                            isRelationshipCreatingTarget: shouldBeTarget,
-                        },
-                    };
-                }
-                return node;
-            });
-
-            return hasChanges ? updatedNodes : nds;
-        });
-    }, [tempFloatingEdge?.sourceNodeId, setNodes]);
+    useCanvasRelationshipTargetHighlight({
+        sourceNodeId: tempFloatingEdge?.sourceNodeId,
+        setNodes,
+    });
 
     useCanvasFilterViewportSync({
         tables,

@@ -1629,6 +1629,9 @@ progress:
     - 2026-07-05：完成第二十五段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-initial-fit.ts`，将初始 nodes loading 判定、初始 table nodes 对齐检查和首次 `fitView()` orchestration 从 `canvas.tsx` 抽出为独立 hook。
     - 新增 `src/pages/editor-page/canvas/__tests__/canvas-initial-fit.test.ts`，红灯先失败于缺失 `../canvas-initial-fit`，绿灯覆盖 React Flow nodes 与初始 tables 匹配后关闭 loading 并触发原有首次 fit view 参数。
     - `canvas.tsx` 从 591 行降到 561 行；本轮仍不标记 done，下一步继续拆 relationship target highlight / onConnect / edge change / overlap debounce 等剩余 orchestration，直到主体低于 500 行。
+    - 2026-07-05：完成第二十六段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-relationship-target-highlight.ts`，将 relationship 创建期间的 target table 高亮 effect 从 `canvas.tsx` 抽出为独立 hook。
+    - 新增 `src/pages/editor-page/canvas/__tests__/canvas-relationship-target-highlight.test.ts`，红灯先失败于缺失 `../canvas-relationship-target-highlight`，绿灯覆盖 active source table 以外的 target 标记和无 source 时清理旧 target 标记。
+    - `canvas.tsx` 从 561 行降到 536 行；本轮仍不标记 done，下一步继续拆 onConnect / edge change / overlap debounce / loading/filter visibility 等剩余 orchestration，直到主体低于 500 行。
 ```
 
 ### 批次 Q：代码质量
