@@ -1617,6 +1617,9 @@ progress:
     - 2026-07-05：完成第二十一段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-viewport.tsx`，将 canvas context menu、application 容器、mouse/key handler 入口和 marker definitions 从 `canvas.tsx` 抽出为独立组件。
     - 新增 `src/pages/editor-page/canvas/__tests__/canvas-viewport.test.tsx`，红灯先失败于缺失 `../canvas-viewport`，绿灯覆盖 accessible canvas container、context menu 包裹、ref/handler 透传和 marker definitions 渲染。
     - `canvas.tsx` 从 664 行降到 655 行；本轮仍不标记 done，下一步继续拆 drag / zoom hooks / 其它 event/effect orchestration，直到主体低于 500 行。
+    - 2026-07-05：完成第二十二段最小拆分切片，新增 `src/pages/editor-page/canvas/canvas-parent-area-sync.ts`，将 parent area 同步 effect / debounce / `updateTablesState(..., { updateHistory: false })` orchestration 从 `canvas.tsx` 抽出为独立 hook。
+    - 新增 `src/pages/editor-page/canvas/__tests__/canvas-parent-area-sync.test.ts`，红灯先失败于缺失 `../canvas-parent-area-sync`，绿灯覆盖 parentAreaId 差异同步且不新增 history。
+    - `canvas.tsx` 从 655 行降到 633 行；本轮仍不标记 done，下一步继续拆 drag / zoom hooks / 其它 event/effect orchestration，直到主体低于 500 行。
 ```
 
 ### 批次 Q：代码质量

@@ -59,13 +59,13 @@ import {
     buildVisibleTableOverlapGraph,
 } from './canvas-overlap-updates';
 import { buildCanvasNodes } from './canvas-nodes';
-import { buildParentAreaUpdates } from './canvas-parent-areas';
 import { buildCanvasEdgeChangeSet } from './canvas-edge-changes';
 import { buildCanvasConnectAction } from './canvas-connect';
 import { useCanvasNodeChangeHandler } from './canvas-node-change-handler';
 import { useCanvasKeyboardHandler } from './canvas-keyboard-handler';
 import { useCanvasSelectionSync } from './canvas-selection-sync';
 import { CanvasViewport } from './canvas-viewport';
+import { useCanvasParentAreaSync } from './canvas-parent-area-sync';
 
 export type { EdgeType, NodeType } from './canvas-model';
 
@@ -345,32 +345,10 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
         }
     }, [filter, fitView, tables, setOverlapGraph, databaseType, showDBViews]);
 
-    useEffect(() => {
-        const checkParentAreas = debounce(() => {
-            const needsUpdate = buildParentAreaUpdates(nodes);
-
-            if (needsUpdate.length > 0) {
-                updateTablesState(
-                    (currentTables) =>
-                        currentTables.map((table) => {
-                            const update = needsUpdate.find(
-                                (u) => u.id === table.id
-                            );
-                            if (update) {
-                                return {
-                                    id: table.id,
-                                    parentAreaId: update.parentAreaId,
-                                };
-                            }
-                            return table;
-                        }),
-                    { updateHistory: false }
-                );
-            }
-        }, 300);
-
-        checkParentAreas();
-    }, [nodes, updateTablesState]);
+    useCanvasParentAreaSync({
+        nodes,
+        updateTablesState,
+    });
 
     const onConnectHandler = useCallback(
         async (params: AddEdgeParams) => {
