@@ -32,7 +32,6 @@ import { debounce, getOperatingSystem } from '@/lib/utils';
 import { useCanvas } from '@/hooks/use-canvas';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useIsLostInCanvas } from './hooks/use-is-lost-in-canvas';
-import type { DiagramFilter } from '@/lib/domain/diagram-filter/diagram-filter';
 import { useDiagramFilter } from '@/context/diagram-filter-context/use-diagram-filter';
 import { filterTable } from '@/lib/domain/diagram-filter/filter';
 import { defaultSchemas } from '@/lib/data/default-schemas';
@@ -53,10 +52,7 @@ import { CanvasControls } from './canvas-controls';
 import { CanvasFilterLayer } from './canvas-filter-layer';
 import { CanvasFlow } from './canvas-flow';
 import { useCanvasPointerActions } from './canvas-pointer-actions';
-import {
-    buildUpdatedOverlapGraphForNodeChanges,
-    buildVisibleTableOverlapGraph,
-} from './canvas-overlap-updates';
+import { buildUpdatedOverlapGraphForNodeChanges } from './canvas-overlap-updates';
 import { buildCanvasNodes } from './canvas-nodes';
 import { buildCanvasEdgeChangeSet } from './canvas-edge-changes';
 import { buildCanvasConnectAction } from './canvas-connect';
@@ -66,6 +62,7 @@ import { useCanvasSelectionSync } from './canvas-selection-sync';
 import { CanvasViewport } from './canvas-viewport';
 import { useCanvasParentAreaSync } from './canvas-parent-area-sync';
 import { useCanvasEdgeRefresh } from './canvas-edge-refresh';
+import { useCanvasFilterViewportSync } from './canvas-filter-viewport-sync';
 
 export type { EdgeType, NodeType } from './canvas-model';
 
@@ -297,32 +294,14 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
         });
     }, [tempFloatingEdge?.sourceNodeId, setNodes]);
 
-    const prevFilter = useRef<DiagramFilter | undefined>(undefined);
-    const prevShowDBViews = useRef<boolean>(showDBViews);
-    useEffect(() => {
-        if (
-            !equal(filter, prevFilter.current) ||
-            showDBViews !== prevShowDBViews.current
-        ) {
-            debounce(() => {
-                const overlappingTablesInDiagram =
-                    buildVisibleTableOverlapGraph({
-                        tables,
-                        filter,
-                        databaseType,
-                        showDBViews,
-                    });
-                setOverlapGraph(overlappingTablesInDiagram);
-                fitView({
-                    duration: 500,
-                    padding: 0.1,
-                    maxZoom: 0.8,
-                });
-            }, 500)();
-            prevFilter.current = filter;
-            prevShowDBViews.current = showDBViews;
-        }
-    }, [filter, fitView, tables, setOverlapGraph, databaseType, showDBViews]);
+    useCanvasFilterViewportSync({
+        tables,
+        filter,
+        databaseType,
+        showDBViews,
+        setOverlapGraph,
+        fitView,
+    });
 
     useCanvasParentAreaSync({
         nodes,
