@@ -295,6 +295,9 @@ acceptance:
     - AI SDK 不进入首屏 bundle
     - AI 默认禁用行为不变
     - AI SDK 在独立 chunk，adapter 接口有测试
+completion:
+    - 该互斥 spike 路线已关闭：本轮队列采用 `CHARTDB-F-002a` 默认方案，移除未使用 AI SDK 依赖，不再保留或启用 AI adapter 动态加载占位。
+    - 后续若重新决定启用 AI SDK，应新建任务卡并重新评估 BYOK/Gateway 密钥边界、bundle 分包和测试范围。
 ```
 
 #### CHARTDB-F-003：entrypoint.sh 移除 OPENAI_API_KEY
@@ -2750,7 +2753,7 @@ npm run test:ci
 | F-001a | 移除 @uidotdev/usehooks | F | P0 | done | - |
 | F-001b | TreeView motion → framer-motion | F | P0 | done | - |
 | F-002a | 移除 AI SDK 依赖（默认） | F | P0 | done | - |
-| F-002b | AI adapter spike（互斥） | F | P2 | queued | - |
+| F-002b | AI adapter spike（互斥） | F | P2 | done | - |
 | F-003 | entrypoint 移除 key | F | P0 | done | - |
 | F-004 | window.open noopener | F | P0 | done | - |
 | F-005 | ClickHouse onboarding | F | P0 | done | - |
@@ -2781,7 +2784,7 @@ npm run test:ci
 | Q-002 | deepCopy 修复 | Q | P3 | done | A-001 |
 | Q-003 | UI 测试覆盖 | Q | P2 | done | A-003, T-007 |
 | Q-004 | Smart Query i18n | Q | P3 | done | - |
-| Q-005 | 浏览器依赖拆分 | Q | P3 | queued | A-001 |
+| Q-005 | 浏览器依赖拆分 | Q | P3 | done | A-001 |
 | A-007 | 全局 ErrorBoundary | A | P0 | done | - |
 | A-008 | Context selector | A | P2 | done | A-003 |
 | A-009 | Diagram version 字段 | A | P2 | done | A-001 |
