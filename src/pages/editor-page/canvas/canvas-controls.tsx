@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Controls, MiniMap } from '@xyflow/react';
-import { AlertTriangle, Highlighter, Magnet, Pencil } from 'lucide-react';
+import { AlertTriangle, Highlighter, Magnet, Pencil, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Alert, AlertDescription, AlertTitle } from '@/components/alert/alert';
 import { Badge } from '@/components/badge/badge';
 import { Button } from '@/components/button/button';
 import {
@@ -30,6 +31,19 @@ type CanvasControlsProps = {
     showSidePanel: () => void;
 };
 
+const MOBILE_CANVAS_NOTICE_DISMISSED_KEY =
+    'chartdb.mobileCanvasNoticeDismissed';
+
+const getMobileCanvasNoticeDismissed = () => {
+    try {
+        return (
+            localStorage.getItem(MOBILE_CANVAS_NOTICE_DISMISSED_KEY) === 'true'
+        );
+    } catch {
+        return false;
+    }
+};
+
 export const CanvasControls: React.FC<CanvasControlsProps> = ({
     readonly,
     isDesktop,
@@ -47,9 +61,54 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
     showSidePanel,
 }) => {
     const { t } = useTranslation();
+    const [mobileCanvasNoticeDismissed, setMobileCanvasNoticeDismissed] =
+        useState(getMobileCanvasNoticeDismissed);
+
+    const showMobileCanvasNotice = !isDesktop && !mobileCanvasNoticeDismissed;
+
+    const dismissMobileCanvasNotice = () => {
+        setMobileCanvasNoticeDismissed(true);
+        try {
+            localStorage.setItem(MOBILE_CANVAS_NOTICE_DISMISSED_KEY, 'true');
+        } catch {
+            // Ignore storage failures; the notice still closes for this render.
+        }
+    };
 
     return (
         <>
+            {showMobileCanvasNotice ? (
+                <Controls
+                    position="top-right"
+                    orientation="horizontal"
+                    showZoom={false}
+                    showFitView={false}
+                    showInteractive={false}
+                    className="!shadow-none"
+                >
+                    <Alert className="max-w-[min(22rem,calc(100vw-2rem))] border-amber-300 bg-amber-50 text-amber-950 shadow-sm dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100">
+                        <AlertTriangle className="size-4" />
+                        <div className="pr-7">
+                            <AlertTitle>
+                                {t('canvas.mobile_notice.title')}
+                            </AlertTitle>
+                            <AlertDescription>
+                                {t('canvas.mobile_notice.description')}
+                            </AlertDescription>
+                        </div>
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="absolute right-2 top-2 size-7 text-amber-950 hover:bg-amber-100 dark:text-amber-100 dark:hover:bg-amber-900"
+                            aria-label={t('canvas.mobile_notice.dismiss')}
+                            onClick={dismissMobileCanvasNotice}
+                        >
+                            <X className="size-4" />
+                        </Button>
+                    </Alert>
+                </Controls>
+            ) : null}
             <Controls
                 position="top-left"
                 showZoom={false}

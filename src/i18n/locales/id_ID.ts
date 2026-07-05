@@ -529,6 +529,12 @@ export const id_ID: LanguageTranslation = {
         canvas: {
             all_tables_hidden: 'Semua tabel tersembunyi',
             show_all_tables: 'Tampilkan semua',
+            mobile_notice: {
+                title: 'Mobile editing is limited',
+                description:
+                    'For reliable canvas editing, use a desktop browser. You can continue on this device.',
+                dismiss: 'Dismiss mobile canvas notice',
+            },
         },
 
         canvas_filter: {

@@ -528,6 +528,12 @@ export const uk: LanguageTranslation = {
         canvas: {
             all_tables_hidden: 'Всі таблиці приховані',
             show_all_tables: 'Показати все',
+            mobile_notice: {
+                title: 'Mobile editing is limited',
+                description:
+                    'For reliable canvas editing, use a desktop browser. You can continue on this device.',
+                dismiss: 'Dismiss mobile canvas notice',
+            },
         },
 
         canvas_filter: {

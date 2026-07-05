@@ -531,6 +531,12 @@ export const ne: LanguageTranslation = {
         canvas: {
             all_tables_hidden: 'सबै तालिकाहरू लुकेका छन्',
             show_all_tables: 'सबै देखाउनुहोस्',
+            mobile_notice: {
+                title: 'Mobile editing is limited',
+                description:
+                    'For reliable canvas editing, use a desktop browser. You can continue on this device.',
+                dismiss: 'Dismiss mobile canvas notice',
+            },
         },
 
         canvas_filter: {

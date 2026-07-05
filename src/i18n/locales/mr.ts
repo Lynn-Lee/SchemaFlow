@@ -532,6 +532,12 @@ export const mr: LanguageTranslation = {
         canvas: {
             all_tables_hidden: 'सर्व टेबल्स लपवलेले आहेत',
             show_all_tables: 'सर्व दाखवा',
+            mobile_notice: {
+                title: 'Mobile editing is limited',
+                description:
+                    'For reliable canvas editing, use a desktop browser. You can continue on this device.',
+                dismiss: 'Dismiss mobile canvas notice',
+            },
         },
 
         canvas_filter: {

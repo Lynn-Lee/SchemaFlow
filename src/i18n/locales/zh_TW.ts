@@ -518,6 +518,12 @@ export const zh_TW: LanguageTranslation = {
         canvas: {
             all_tables_hidden: '所有表格已隱藏',
             show_all_tables: '顯示全部',
+            mobile_notice: {
+                title: 'Mobile editing is limited',
+                description:
+                    'For reliable canvas editing, use a desktop browser. You can continue on this device.',
+                dismiss: 'Dismiss mobile canvas notice',
+            },
         },
 
         canvas_filter: {

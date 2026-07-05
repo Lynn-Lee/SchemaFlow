@@ -526,6 +526,12 @@ export const ko_KR: LanguageTranslation = {
         canvas: {
             all_tables_hidden: '모든 테이블이 숨겨져 있습니다',
             show_all_tables: '모두 표시',
+            mobile_notice: {
+                title: 'Mobile editing is limited',
+                description:
+                    'For reliable canvas editing, use a desktop browser. You can continue on this device.',
+                dismiss: 'Dismiss mobile canvas notice',
+            },
         },
 
         canvas_filter: {

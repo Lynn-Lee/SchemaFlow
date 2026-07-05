@@ -527,6 +527,12 @@ export const en = {
         canvas: {
             all_tables_hidden: 'All tables are hidden',
             show_all_tables: 'Show all',
+            mobile_notice: {
+                title: 'Mobile editing is limited',
+                description:
+                    'For reliable canvas editing, use a desktop browser. You can continue on this device.',
+                dismiss: 'Dismiss mobile canvas notice',
+            },
         },
 
         canvas_filter: {

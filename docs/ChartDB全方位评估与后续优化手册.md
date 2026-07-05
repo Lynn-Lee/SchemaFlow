@@ -2246,7 +2246,7 @@ batch: 批次 P
 type: CODE
 priority: P3
 title: 在小屏幕/触屏设备打开 canvas 时给出明确提示，而非静默降级
-status: queued
+status: done
 depends_on: []
 owner_lane: product
 branch: codex/chartdb-p-mobile-canvas-notice
@@ -2271,6 +2271,14 @@ acceptance:
     - 移动端进入 canvas 时展示体验提示
     - 提示可关闭且不重复打扰
     - 桌面端行为不变
+completion:
+    - 2026-07-05：`CanvasControls` 在非桌面 canvas 视口展示一次性可关闭提示，说明移动端编辑体验有限并建议使用桌面浏览器；提示不阻断继续使用。
+    - 关闭后写入 `chartdb.mobileCanvasNoticeDismissed` 本地标记，后续进入移动 canvas 不重复打扰；桌面端不展示该提示。
+    - 提示标题、描述和关闭按钮 aria-label 已接入 `en` / `zh_CN` i18n；其它 locale 按现有类型契约补英文 fallback，避免 build 因 `LanguageTranslation = typeof en` 失败。
+    - 红灯先确认 `canvas.mobile_notice.*` 不存在；绿灯后 `src/pages/editor-page/canvas/__tests__/canvas-controls.test.tsx` 覆盖移动展示、关闭持久化、已关闭隐藏和桌面不展示。
+    - 任务卡 allowed_files 只列出 `en` / `zh_CN`，但新增基准 key 会让所有 `LanguageTranslation` locale 缺 key 而构建失败；本轮最小越界仅补齐其它 locale 的英文 fallback 文案。
+next:
+    - 进入 `CHARTDB-Q-006`：templates-page i18n；也可按状态表继续 `CHARTDB-Q-004` Smart Query i18n。
 ```
 
 #### CHARTDB-S-004：AI Gateway endpoint 增加 URL 校验（预防性修复）
@@ -2735,7 +2743,7 @@ npm run test:ci
 | P-011 | 路由 errorElement | P | P2 | done | - |
 | P-012 | Onboarding 数据库选择延续 | P | P3 | done | - |
 | P-013 | 存储错误处理 | P | P1 | done | - |
-| P-014 | 移动端 canvas 护栏提示 | P | P3 | queued | - |
+| P-014 | 移动端 canvas 护栏提示 | P | P3 | done | - |
 | S-004 | AI Gateway URL 校验 | S | P2 | done | - |
 | Q-006 | templates-page i18n | Q | P2 | queued | - |
 | Q-007 | export dialog 切换按钮 i18n | Q | P3 | queued | - |

@@ -527,6 +527,12 @@ export const vi: LanguageTranslation = {
         canvas: {
             all_tables_hidden: 'Tất cả bảng đã bị ẩn',
             show_all_tables: 'Hiển thị tất cả',
+            mobile_notice: {
+                title: 'Mobile editing is limited',
+                description:
+                    'For reliable canvas editing, use a desktop browser. You can continue on this device.',
+                dismiss: 'Dismiss mobile canvas notice',
+            },
         },
 
         canvas_filter: {

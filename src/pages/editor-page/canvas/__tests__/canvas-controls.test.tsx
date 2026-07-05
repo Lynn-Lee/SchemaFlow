@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { CanvasControls } from '../canvas-controls';
 
@@ -36,10 +37,15 @@ vi.mock('@/components/button/button', () => ({
     Button: ({
         children,
         onClick,
+        ...props
     }: {
         children?: React.ReactNode;
         onClick?: () => void;
-    }) => <button onClick={onClick}>{children}</button>,
+    } & React.ButtonHTMLAttributes<HTMLButtonElement>) => (
+        <button onClick={onClick} {...props}>
+            {children}
+        </button>
+    ),
 }));
 
 vi.mock('../toolbar/toolbar', () => ({
@@ -60,25 +66,37 @@ vi.mock('react-i18next', () => ({
 }));
 
 describe('CanvasControls', () => {
-    it('renders desktop canvas controls and minimap sizes', () => {
+    const renderControls = (
+        props: Partial<React.ComponentProps<typeof CanvasControls>> = {}
+    ) =>
         render(
             <CanvasControls
                 readonly={false}
                 isDesktop
                 isLoadingDOM={false}
-                isLostInCanvas
-                showMiniMapOnCanvas
+                isLostInCanvas={false}
+                showMiniMapOnCanvas={false}
                 snapToGridEnabled={false}
-                shiftPressed
+                shiftPressed={false}
                 operatingSystem="mac"
-                hasOverlappingTables
+                hasOverlappingTables={false}
                 onToggleSnapToGrid={vi.fn()}
                 onClearCustomTypeHighlight={vi.fn()}
                 onPulseOverlappingTables={vi.fn()}
                 showSidePanel={vi.fn()}
-                highlightedCustomType={{ name: 'money' }}
+                {...props}
             />
         );
+
+    it('renders desktop canvas controls and minimap sizes', () => {
+        renderControls({
+            isDesktop: true,
+            isLostInCanvas: true,
+            showMiniMapOnCanvas: true,
+            shiftPressed: true,
+            hasOverlappingTables: true,
+            highlightedCustomType: { name: 'money' },
+        });
 
         expect(screen.getByText('snap_to_grid_tooltip:⇧')).toBeInTheDocument();
         expect(
@@ -100,28 +118,60 @@ describe('CanvasControls', () => {
     });
 
     it('renders mobile loading and side panel controls only when editable', () => {
-        render(
-            <CanvasControls
-                readonly={false}
-                isDesktop={false}
-                isLoadingDOM
-                isLostInCanvas={false}
-                showMiniMapOnCanvas={false}
-                snapToGridEnabled={false}
-                shiftPressed={false}
-                operatingSystem="windows"
-                hasOverlappingTables={false}
-                onToggleSnapToGrid={vi.fn()}
-                onClearCustomTypeHighlight={vi.fn()}
-                onPulseOverlappingTables={vi.fn()}
-                showSidePanel={vi.fn()}
-            />
-        );
+        renderControls({
+            isDesktop: false,
+            isLoadingDOM: true,
+            operatingSystem: 'windows',
+        });
 
         expect(screen.getByText('loading_diagram')).toBeInTheDocument();
         expect(
             screen.getByText('snap_to_grid_tooltip:Shift')
         ).toBeInTheDocument();
         expect(screen.queryByTestId('mini-map')).not.toBeInTheDocument();
+    });
+
+    it('shows a dismissible mobile canvas notice only on mobile viewports', async () => {
+        const user = userEvent.setup();
+
+        renderControls({ isDesktop: false });
+
+        expect(
+            screen.getByText('canvas.mobile_notice.title')
+        ).toBeInTheDocument();
+        expect(
+            screen.getByText('canvas.mobile_notice.description')
+        ).toBeInTheDocument();
+
+        await user.click(
+            screen.getByRole('button', {
+                name: 'canvas.mobile_notice.dismiss',
+            })
+        );
+
+        expect(
+            screen.queryByText('canvas.mobile_notice.title')
+        ).not.toBeInTheDocument();
+        expect(
+            localStorage.getItem('chartdb.mobileCanvasNoticeDismissed')
+        ).toBe('true');
+    });
+
+    it('keeps the mobile canvas notice hidden after it is dismissed', () => {
+        localStorage.setItem('chartdb.mobileCanvasNoticeDismissed', 'true');
+
+        renderControls({ isDesktop: false });
+
+        expect(
+            screen.queryByText('canvas.mobile_notice.title')
+        ).not.toBeInTheDocument();
+    });
+
+    it('does not show the mobile canvas notice on desktop viewports', () => {
+        renderControls({ isDesktop: true });
+
+        expect(
+            screen.queryByText('canvas.mobile_notice.title')
+        ).not.toBeInTheDocument();
     });
 });

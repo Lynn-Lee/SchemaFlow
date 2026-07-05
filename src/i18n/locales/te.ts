@@ -529,6 +529,12 @@ export const te: LanguageTranslation = {
         canvas: {
             all_tables_hidden: 'అన్ని పట్టికలు దాచబడ్డాయి',
             show_all_tables: 'అన్ని చూపించు',
+            mobile_notice: {
+                title: 'Mobile editing is limited',
+                description:
+                    'For reliable canvas editing, use a desktop browser. You can continue on this device.',
+                dismiss: 'Dismiss mobile canvas notice',
+            },
         },
 
         canvas_filter: {

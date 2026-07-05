@@ -528,6 +528,12 @@ export const hi: LanguageTranslation = {
         canvas: {
             all_tables_hidden: 'सभी तालिकाएँ छिपी हुई हैं',
             show_all_tables: 'सभी दिखाएं',
+            mobile_notice: {
+                title: 'Mobile editing is limited',
+                description:
+                    'For reliable canvas editing, use a desktop browser. You can continue on this device.',
+                dismiss: 'Dismiss mobile canvas notice',
+            },
         },
 
         canvas_filter: {

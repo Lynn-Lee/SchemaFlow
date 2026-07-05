@@ -518,6 +518,12 @@ export const zh_CN: LanguageTranslation = {
         canvas: {
             all_tables_hidden: '所有表格已隐藏',
             show_all_tables: '显示全部',
+            mobile_notice: {
+                title: '移动端编辑体验有限',
+                description:
+                    '为了获得稳定的画布编辑体验，建议使用桌面浏览器。你仍然可以在当前设备继续操作。',
+                dismiss: '关闭移动端画布提示',
+            },
         },
 
         canvas_filter: {
