@@ -1729,7 +1729,7 @@ batch: 批次 Q
 type: TEST
 priority: P2
 title: 为 ChartDBProvider 和 Canvas 补充测试覆盖
-status: queued
+status: done
 depends_on:
     - CHARTDB-A-003
     - CHARTDB-T-007
@@ -1754,6 +1754,13 @@ acceptance:
     - ChartDBProvider 有核心操作测试
     - Canvas 有核心交互测试
     - 测试覆盖率提升
+completion:
+    - 2026-07-05：真实状态复核发现 `src/pages/editor-page/canvas/__tests__/` 已有节点映射、连线、选中、键盘、viewport、filter、overlap 等 canvas 覆盖；本轮补齐剩余的 ChartDBProvider 核心 table 操作覆盖。
+    - 新增 `src/context/chartdb-context/__tests__/chartdb-provider-core-operations.test.tsx`，通过 Testing Library 挂载 `ChartDBProvider`，验证 `addTable`、`updateTable`、`removeTable` 会更新 context tables 状态并发出 `add_tables`、`update_table`、`remove_tables` 事件。
+    - 红灯先确认缺少 ChartDBProvider add/update/remove table 核心操作测试；绿灯后新增聚焦测试、chartdb-context 测试和 canvas 测试目录通过。
+    - 任务卡 allowed_files 未列出本手册和阶段验收记录，但 dispatcher done 定义要求同步任务状态和验收结果；本轮文档越界仅更新本任务状态、总览和验收记录。
+next:
+    - 进入 `CHARTDB-S-004`：AI Gateway endpoint URL 校验；或进入 `CHARTDB-P-014`：移动端 canvas 护栏提示。
 ```
 
 #### CHARTDB-Q-004：Smart Query i18n
@@ -2708,7 +2715,7 @@ npm run test:ci
 | T-007 | canvas 拆分 | T | P2 | done | A-003 |
 | Q-001 | migration 测试 | Q | P2 | done | - |
 | Q-002 | deepCopy 修复 | Q | P3 | done | A-001 |
-| Q-003 | UI 测试覆盖 | Q | P2 | queued | A-003, T-007 |
+| Q-003 | UI 测试覆盖 | Q | P2 | done | A-003, T-007 |
 | Q-004 | Smart Query i18n | Q | P3 | queued | - |
 | Q-005 | 浏览器依赖拆分 | Q | P3 | queued | A-001 |
 | A-007 | 全局 ErrorBoundary | A | P0 | done | - |
