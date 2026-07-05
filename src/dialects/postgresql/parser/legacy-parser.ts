@@ -2,7 +2,7 @@ import { DatabaseType } from '@/lib/domain/database-type';
 import { adjustTablePositions } from '@/lib/domain/db-table';
 import { getTableIndexesWithPrimaryKey } from '@/lib/domain/db-index';
 import type { Diagram } from '@/lib/domain/diagram';
-import { convertToChartDBDiagram } from '@/lib/data/sql-import/common';
+import { convertToSchemaFlowDiagram } from '@/lib/data/sql-import/common';
 import { fromPostgres } from './postgresql';
 
 export async function importPostgreSQLDiagram({
@@ -15,7 +15,7 @@ export async function importPostgreSQLDiagram({
     const parserResult = await fromPostgres(sql);
 
     return normalizeImportedDiagram(
-        convertToChartDBDiagram(
+        convertToSchemaFlowDiagram(
             parserResult,
             DatabaseType.POSTGRESQL,
             targetDatabaseType

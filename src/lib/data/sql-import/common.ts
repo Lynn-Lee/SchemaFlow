@@ -620,8 +620,8 @@ export const typeAffinity: Record<string, Record<string, string>> = {
 // CockroachDB uses PostgreSQL-compatible types - reference dynamically
 typeAffinity[DatabaseType.COCKROACHDB] = typeAffinity[DatabaseType.POSTGRESQL];
 
-// Convert SQLParserResult to ChartDB Diagram structure
-export function convertToChartDBDiagram(
+// Convert SQLParserResult to SchemaFlow Diagram structure
+export function convertToSchemaFlowDiagram(
     parserResult: SQLParserResult,
     sourceDatabaseType: DatabaseType,
     targetDatabaseType: DatabaseType
@@ -629,7 +629,7 @@ export function convertToChartDBDiagram(
     // Create a mapping of old table IDs to new ones
     const tableIdMapping = new Map<string, string>();
 
-    // Convert SQL tables to ChartDB tables
+    // Convert SQL tables to SchemaFlow tables
     const tables: DBTable[] = parserResult.tables.map((table, index) => {
         const row = Math.floor(index / 4);
         const col = index % 4;
@@ -1045,7 +1045,7 @@ export function convertToChartDBDiagram(
         });
     });
 
-    // Convert SQL enum types to ChartDB custom types
+    // Convert SQL enum types to SchemaFlow custom types
     const customTypes: DBCustomType[] = [];
 
     if (parserResult.enums) {

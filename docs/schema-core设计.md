@@ -1,12 +1,12 @@
 # schema-core 设计
 
-> 任务：`CHARTDB-P2-000`
+> 任务：`SCHEMAFLOW-P2-000`
 > 阶段：Phase 2 Schema Core 与 Command 架构
-> 状态：执行清单已定义，后续从 `CHARTDB-P2-001` 开始编码。
+> 状态：执行清单已定义，后续从 `SCHEMAFLOW-P2-001` 开始编码。
 
 ## 1. 目标
 
-`schema-core` 是 ChartDB 后续 diagram 编辑的纯领域层。它负责统一模型、command、validator、diff 和 undo/redo contract，让 React Provider、Dexie、Canvas、SQL importer/exporter 不再各自维护一套隐式业务规则。
+`schema-core` 是 SchemaFlow 后续 diagram 编辑的纯领域层。它负责统一模型、command、validator、diff 和 undo/redo contract，让 React Provider、Dexie、Canvas、SQL importer/exporter 不再各自维护一套隐式业务规则。
 
 本阶段不改变用户可见能力，不新增账号、云端 diagram 存储、团队协作、权限、计费或生产数据库直连。Phase 2 的首要目标是建立兼容层，逐步把现有编辑动作迁入可测试的纯函数。
 
@@ -60,14 +60,14 @@ src/schema-core/
     impacted-entities.ts
 ```
 
-目录按任务逐步创建，不在 `CHARTDB-P2-001` 一次性搬迁所有类型。
+目录按任务逐步创建，不在 `SCHEMAFLOW-P2-001` 一次性搬迁所有类型。
 
 ## 4. 旧类型到新 domain type 的映射
 
 | 现有位置                                          | Phase 2 目标位置                              | 迁移方式                                          |
 | ------------------------------------------------- | --------------------------------------------- | ------------------------------------------------- |
 | `src/lib/domain` 的 diagram/table/field 类型      | `src/schema-core/model`                       | 先在新目录建立 re-export，再逐个迁移定义          |
-| `src/context/chartdb-context` 中的 table 编辑逻辑 | `src/schema-core/commands/table-commands.ts`  | Provider 保留 orchestration，业务规则进纯 command |
+| `src/context/schemaflow-context` 中的 table 编辑逻辑 | `src/schema-core/commands/table-commands.ts`  | Provider 保留 orchestration，业务规则进纯 command |
 | field、index、relationship 的散落更新逻辑         | `src/schema-core/commands/*-commands.ts`      | 先写 command tests，再接入 Provider               |
 | area、note、custom type 的画布辅助对象更新        | `src/schema-core/commands/visual-commands.ts` | 保持 UI 行为不变，只迁移状态变更规则              |
 | history context 的 action 字符串和 patch 数据     | `src/schema-core/commands/command-history.ts` | 先兼容旧 history，再逐步改为 inverse command      |
@@ -133,50 +133,50 @@ diff 分两类：
 
 Phase 2 不一次性替换现有 undo/redo。兼容策略：
 
-1. `CHARTDB-P2-002` 定义 `undoCommand` contract。
-2. `CHARTDB-P2-003` 到 `CHARTDB-P2-005` 中，每类对象 command 先返回 inverse command 或足够生成 inverse command 的 payload。
+1. `SCHEMAFLOW-P2-002` 定义 `undoCommand` contract。
+2. `SCHEMAFLOW-P2-003` 到 `SCHEMAFLOW-P2-005` 中，每类对象 command 先返回 inverse command 或足够生成 inverse command 的 payload。
 3. Provider 接入时保留现有 history context API，新增 adapter 把 command result 转成旧 history 所需数据。
-4. `CHARTDB-P2-006` 再把 history 内部逐步改为 command history。
+4. `SCHEMAFLOW-P2-006` 再把 history 内部逐步改为 command history。
 
-保留周期：从 `CHARTDB-P2-001` 到 `CHARTDB-P2-006` 全程保留旧 import path 和旧 history API；Phase 2 退出验收通过后，再评估是否删除旧兼容层。
+保留周期：从 `SCHEMAFLOW-P2-001` 到 `SCHEMAFLOW-P2-006` 全程保留旧 import path 和旧 history API；Phase 2 退出验收通过后，再评估是否删除旧兼容层。
 
 ## 8. 自动开发顺序
 
-### CHARTDB-P2-001：建立 schema-core 目录和领域模型出口
+### SCHEMAFLOW-P2-001：建立 schema-core 目录和领域模型出口
 
 - 只创建 `src/schema-core/model` 和旧路径 re-export。
 - 不改业务行为。
 - 验收：`schema-core` 不依赖 React、Dexie、Monaco、DOM；`npm run lint`、`npm run test:ci`、`npm run build` 通过。
 
-### CHARTDB-P2-002：定义 DiagramCommand 基础类型
+### SCHEMAFLOW-P2-002：定义 DiagramCommand 基础类型
 
 - 新增 command、result、context、risk metadata。
 - 新增 command contract tests。
 - 验收：result 能表达 success、validation error、risk warning。
 - 状态：已完成，业务行为未接入，下一项迁移 Table command。
 
-### CHARTDB-P2-003：迁移 Table command
+### SCHEMAFLOW-P2-003：迁移 Table command
 
 - 迁移 AddTable、UpdateTable、DeleteTable。
 - 删除 table 必须报告 relationship、dependency、note anchor 等影响。
 - Provider 只接入 table command，不同时迁移 field/index/relationship。
 - 状态：已完成。已新增 table command 纯函数和单元测试，Provider 的新增、编辑、删除表已接入 command；当前 Note 模型没有 table anchor 字段，删除 table 不会改变 notes，后续若引入 anchor 字段需在 command 中补充影响报告。
 
-### CHARTDB-P2-004：迁移 Field、Index、Relationship command
+### SCHEMAFLOW-P2-004：迁移 Field、Index、Relationship command
 
 - 删除 field 必须处理 index 和 relationship 引用。
 - 创建 relationship 前必须校验 source、target、column 引用。
 - index command 保留唯一索引、主键索引、普通索引语义。
 - 状态：已完成。已新增 field、index、relationship command 纯函数和单元测试，Provider 的 field/index/relationship 操作已接入 command；删除 field 会移除引用 relationship、收缩或删除相关 index，并在 undo 时恢复被级联移除的 relationship。
 
-### CHARTDB-P2-005：迁移 Area、Note、CustomType command
+### SCHEMAFLOW-P2-005：迁移 Area、Note、CustomType command
 
 - Area、Note 操作可撤销。
 - CustomType 删除前检查字段引用。
 - Note 内容仍只经过安全 Markdown 渲染，不重新引入 raw HTML。
 - 状态：已完成。已新增 area、note、custom type command 纯函数和单元测试，Provider 的 area/note/custom type 操作已接入 command；删除 custom type 会在字段仍引用该类型时返回 validation error，不写入 Dexie 或 history。
 
-### CHARTDB-P2-006：接入统一 undo/redo command history
+### SCHEMAFLOW-P2-006：接入统一 undo/redo command history
 
 - undo/redo 不再依赖散落 action 字符串。
 - 每个 command 可生成 redo/undo 数据。
@@ -192,7 +192,7 @@ Phase 2 不一次性替换现有 undo/redo。兼容策略：
 
 ## 10. Phase 2 退出门槛
 
-- `ChartDBProvider` 的核心编辑规则已迁出到 command 或 adapter。
+- `SchemaFlowProvider` 的核心编辑规则已迁出到 command 或 adapter。
 - table、field、index、relationship、area、note、custom type 的主要编辑动作有 command 单元测试。
 - undo/redo 覆盖核心对象，且旧行为保持可用。
 - 编辑失败不产生半持久化状态。

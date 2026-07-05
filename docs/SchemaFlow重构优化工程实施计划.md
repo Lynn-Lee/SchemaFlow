@@ -1,10 +1,10 @@
-# ChartDB 重构优化工程实施计划
+# SchemaFlow 重构优化工程实施计划
 
 > **给后续执行 agent 的要求：** 实施本文任务时，应按阶段逐项推进；每个 Phase 开始前先创建独立分支，每个 Task 完成后运行指定检查，并提交小粒度 commit。进入具体编码前，建议使用 `superpowers:subagent-driven-development` 或 `superpowers:executing-plans` 按任务执行。
 
-**目标：** 按《ChartDB 重构优化产品设计与研发计划》把当前 ChartDB 从可用的纯前端开源工具，逐步升级为安全、可维护、可扩展、可自托管的本地优先数据库 schema 工作台。
+**目标：** 按《SchemaFlow 重构优化产品设计与研发计划》把当前 SchemaFlow 从可用的纯前端开源工具，逐步升级为安全、可维护、可扩展、可自托管的本地优先数据库 schema 工作台。
 
-**重构仓库：** `https://github.com/Lynn-Lee/ChartDB`。后续研发只以该个人仓库作为唯一远端，不再维护其它远端关系。
+**重构仓库：** `https://github.com/Lynn-Lee/SchemaFlow`。后续研发只以该个人仓库作为唯一远端，不再维护其它远端关系。
 
 **架构：** 先修复安全和测试基线，再拆出 `schema-core`、`storage`、`dialects`、`features`、`workers` 等边界。首轮不引入账号登录和云协作，只为可选 Cloud/Team 模式预留数据模型和接口边界。
 
@@ -28,21 +28,21 @@
 8. Phase 7：发布治理与文档。
 9. Phase 8：可选 Cloud/Team 规划。
 
-Phase 0 和 Phase 1 是硬前置。Phase 0 已完成测试、构建、生产依赖 high audit 和 CI gate 验收；Phase 1 已完成 API key、Markdown、Docker/Nginx 和剩余 advisory 安全审查。进入 Phase 2 后先执行 `CHARTDB-P2-000` 定义 schema-core 拆分顺序和兼容层，再开始模型与 command 编码迁移。
+Phase 0 和 Phase 1 是硬前置。Phase 0 已完成测试、构建、生产依赖 high audit 和 CI gate 验收；Phase 1 已完成 API key、Markdown、Docker/Nginx 和剩余 advisory 安全审查。进入 Phase 2 后先执行 `SCHEMAFLOW-P2-000` 定义 schema-core 拆分顺序和兼容层，再开始模型与 command 编码迁移。
 
 ### 1.2 分支策略
 
 建议分支：
 
 ```bash
-git switch -c codex/chartdb-phase-0-baseline
-git switch -c codex/chartdb-phase-1-security
-git switch -c codex/chartdb-phase-2-schema-core
-git switch -c codex/chartdb-phase-3-storage
-git switch -c codex/chartdb-phase-4-dialects
-git switch -c codex/chartdb-phase-5-ux-a11y
-git switch -c codex/chartdb-phase-6-performance
-git switch -c codex/chartdb-phase-7-release-docs
+git switch -c codex/schemaflow-phase-0-baseline
+git switch -c codex/schemaflow-phase-1-security
+git switch -c codex/schemaflow-phase-2-schema-core
+git switch -c codex/schemaflow-phase-3-storage
+git switch -c codex/schemaflow-phase-4-dialects
+git switch -c codex/schemaflow-phase-5-ux-a11y
+git switch -c codex/schemaflow-phase-6-performance
+git switch -c codex/schemaflow-phase-7-release-docs
 ```
 
 每个 Phase 可以单独 PR。不要把多个 Phase 混在一个 PR 内。
@@ -92,9 +92,9 @@ Phase 0 到 Phase 7 不实现：
 仓库当前评估基线：
 
 - 分支：`main`。
-- 重构远端：`origin` 指向 `https://github.com/Lynn-Lee/ChartDB.git`。
+- 重构远端：`origin` 指向 `https://github.com/Lynn-Lee/SchemaFlow.git`。
 - 最新本地 commit：`c24936a feat: add move-to-area and auto-arrange-area context menu options (#1120)`。
-- 方案文档：`docs/ChartDB重构优化产品设计与研发计划.md`。
+- 方案文档：`docs/SchemaFlow重构优化产品设计与研发计划.md`。
 
 ### 2.2 已知验证结果
 
@@ -123,7 +123,7 @@ src/lib/utils/utils.ts:18
 npm audit --omit=dev
 ```
 
-当前结果：`CHARTDB-P0-002` 已将生产依赖 high/critical advisory 清零；仍有 AI SDK 链 low 风险和 `monaco-editor` / `dompurify` moderate 风险，破坏性修复转入 Phase 1 安全评估。
+当前结果：`SCHEMAFLOW-P0-002` 已将生产依赖 high/critical advisory 清零；仍有 AI SDK 链 low 风险和 `monaco-editor` / `dompurify` moderate 风险，破坏性修复转入 Phase 1 安全评估。
 
 ### 2.3 当前关键风险文件
 
@@ -131,8 +131,8 @@ npm audit --omit=dev
 - `default.conf.template`：`/config.js` 暴露 `OPENAI_API_KEY`。
 - `src/lib/env.ts`：前端读取 `window.env` 和 `import.meta.env`。
 - `src/lib/data/sql-export/export-sql-script.ts`：浏览器内直接调用 AI SDK。
-- `src/pages/editor-page/canvas/note-node/note-node.tsx`：`CHARTDB-P1-003` 已移除 `rehype-raw`，后续需保持 Markdown 安全回归测试。
-- `src/context/chartdb-context/chartdb-provider.tsx`：状态、业务命令、持久化高度耦合。
+- `src/pages/editor-page/canvas/note-node/note-node.tsx`：`SCHEMAFLOW-P1-003` 已移除 `rehype-raw`，后续需保持 Markdown 安全回归测试。
+- `src/context/schemaflow-context/schemaflow-provider.tsx`：状态、业务命令、持久化高度耦合。
 - `src/context/storage-context/storage-provider.tsx`：Dexie schema、migration、CRUD 混在 Provider。
 - `src/lib/data/sql-import/dialect-importers/postgresql/postgresql.ts`：方言 importer 文件过大。
 - `src/pages/editor-page/canvas/canvas.tsx`：画布职责过重。
@@ -247,7 +247,7 @@ src/
 **推荐分支：**
 
 ```bash
-git switch -c codex/chartdb-phase-0-baseline
+git switch -c codex/schemaflow-phase-0-baseline
 ```
 
 ### Task 0.1：修复测试环境中的 localStorage 失败
@@ -340,7 +340,7 @@ npm audit --omit=dev
 建议优先处理：
 
 - `react-router-dom` / `react-router`。
-- `react-use` / `js-cookie`（`react-use` 已在 `CHARTDB-T-005` 中移除）。
+- `react-use` / `js-cookie`（`react-use` 已在 `SCHEMAFLOW-T-005` 中移除）。
 - `vite`。
 - `vitest`。
 - `happy-dom`。
@@ -419,7 +419,7 @@ CI 目标顺序：
 6. build。
 7. test。
 
-- [x] 新增 `docs/安全风险登记.md`，记录暂时无法修复的 advisory、影响范围和处置计划。该项已在 `CHARTDB-P1-005` 完成。
+- [x] 新增 `docs/安全风险登记.md`，记录暂时无法修复的 advisory、影响范围和处置计划。该项已在 `SCHEMAFLOW-P1-005` 完成。
 
 风险登记字段：
 
@@ -480,12 +480,12 @@ git commit -m "chore: establish baseline checks"
 
 **目标：** 关闭 API key 暴露、Markdown XSS 和运行时配置风险。
 
-**当前状态：** `CHARTDB-P1-000`、`CHARTDB-P1-001`、`CHARTDB-P1-002`、`CHARTDB-P1-003`、`CHARTDB-P1-004` 和 `CHARTDB-P1-005` 已完成。Phase 1 安全实施清单已记录在 `docs/安全模型与AI边界.md`；Docker 构建和 Nginx `/config.js` 已移除浏览器端 API key 暴露；非 deterministic 的 AI-assisted SQL export 已接入 mode gate，默认 Disabled，BYOK 密钥只允许保存在当前浏览器会话内，Self-hosted Gateway 只接受非敏感 endpoint/model；Note Markdown 预览已禁用 raw HTML 并限制链接协议；Docker/Nginx 静态部署已增加基础 CSP 和安全响应头。Phase 1 安全审查已记录在 `docs/安全风险登记.md`，当前无开放 high/critical 风险，允许进入 Phase 2。
+**当前状态：** `SCHEMAFLOW-P1-000`、`SCHEMAFLOW-P1-001`、`SCHEMAFLOW-P1-002`、`SCHEMAFLOW-P1-003`、`SCHEMAFLOW-P1-004` 和 `SCHEMAFLOW-P1-005` 已完成。Phase 1 安全实施清单已记录在 `docs/安全模型与AI边界.md`；Docker 构建和 Nginx `/config.js` 已移除浏览器端 API key 暴露；非 deterministic 的 AI-assisted SQL export 已接入 mode gate，默认 Disabled，BYOK 密钥只允许保存在当前浏览器会话内，Self-hosted Gateway 只接受非敏感 endpoint/model；Note Markdown 预览已禁用 raw HTML 并限制链接协议；Docker/Nginx 静态部署已增加基础 CSP 和安全响应头。Phase 1 安全审查已记录在 `docs/安全风险登记.md`，当前无开放 high/critical 风险，允许进入 Phase 2。
 
 **推荐分支：**
 
 ```bash
-git switch -c codex/chartdb-phase-1-security
+git switch -c codex/schemaflow-phase-1-security
 ```
 
 ### Task 1.1：移除浏览器运行时 API key 暴露
@@ -507,7 +507,7 @@ git switch -c codex/chartdb-phase-1-security
 
 - `OPENAI_API_ENDPOINT`，仅当 endpoint 不包含 secret。
 - `LLM_MODEL_NAME`。
-- `HIDE_CHARTDB_CLOUD`。
+- `HIDE_SCHEMAFLOW_CLOUD`。
 - `DISABLE_ANALYTICS`。
 
 - [x] 修改 `Dockerfile`，不要将 `VITE_OPENAI_API_KEY` 写入 `.env`。
@@ -729,13 +729,13 @@ add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
 - [x] 构建 Docker 镜像。
 
 ```bash
-docker build -t chartdb-security-smoke .
+docker build -t schemaflow-security-smoke .
 ```
 
 - [x] 运行 Docker 容器。
 
 ```bash
-docker run --rm -p 8080:80 chartdb-security-smoke
+docker run --rm -p 8080:80 schemaflow-security-smoke
 ```
 
 - [x] 访问页面并检查响应头。
@@ -748,18 +748,18 @@ curl -I http://localhost:8080
 
 本轮结果：已新增 `src/lib/security/__tests__/nginx-security-headers.test.ts` 覆盖响应头、CSP 和 `/config.js` no-store；Docker smoke 和响应头 curl 结果记录在 `docs/阶段验收记录.md`。
 
-补充：Docker 镜像内首次生产构建曾在 Vite transform 阶段触发 Node heap OOM；本轮已在 builder 阶段设置 `NODE_OPTIONS=--max-old-space-size=4096`，并通过 `docker build -t chartdb-security-smoke .` 复验。
+补充：Docker 镜像内首次生产构建曾在 Vite transform 阶段触发 Node heap OOM；本轮已在 builder 阶段设置 `NODE_OPTIONS=--max-old-space-size=4096`，并通过 `docker build -t schemaflow-security-smoke .` 复验。
 
 ## 6. Phase 2：Schema Core 与 Command 架构
 
 **目标：** 解耦巨型 Provider，把编辑动作沉淀为可测试 command。
 
-**当前状态：** `CHARTDB-P2-000`、`CHARTDB-P2-001`、`CHARTDB-P2-002`、`CHARTDB-P2-003`、`CHARTDB-P2-004`、`CHARTDB-P2-005` 和 `CHARTDB-P2-006` 已完成，执行清单记录在 `docs/schema-core设计.md`，`src/schema-core/model` 已作为兼容 re-export 出口存在，`src/schema-core/commands` 已提供 command 基础 contract，并已迁移 table、field、index、relationship、area、note 和 custom type command。当前已接入 command history metadata，`HistoryProvider` 会优先 replay command history，旧 undo/redo 执行路径保持 fallback 兼容。`CHARTDB-P3-000` 已新增 `docs/storage设计.md`，`CHARTDB-P3-001` 已抽离 Dexie schema 和 migration 定义到 `src/storage/db`，`CHARTDB-P3-002` 已抽出 repository API，`CHARTDB-P3-003` 已将 diagram 创建、删除和替换封装到 Dexie transaction，`CHARTDB-P3-004` 已新增 versioned backup/restore contract。`CHARTDB-P4-000` 已新增 `docs/方言能力矩阵.md`，定义 dialect import/export capability、unsupported syntax、warning 规则和迁移顺序。后续从 `CHARTDB-P4-001` 开始创建 dialect contract 和 result type。
+**当前状态：** `SCHEMAFLOW-P2-000`、`SCHEMAFLOW-P2-001`、`SCHEMAFLOW-P2-002`、`SCHEMAFLOW-P2-003`、`SCHEMAFLOW-P2-004`、`SCHEMAFLOW-P2-005` 和 `SCHEMAFLOW-P2-006` 已完成，执行清单记录在 `docs/schema-core设计.md`，`src/schema-core/model` 已作为兼容 re-export 出口存在，`src/schema-core/commands` 已提供 command 基础 contract，并已迁移 table、field、index、relationship、area、note 和 custom type command。当前已接入 command history metadata，`HistoryProvider` 会优先 replay command history，旧 undo/redo 执行路径保持 fallback 兼容。`SCHEMAFLOW-P3-000` 已新增 `docs/storage设计.md`，`SCHEMAFLOW-P3-001` 已抽离 Dexie schema 和 migration 定义到 `src/storage/db`，`SCHEMAFLOW-P3-002` 已抽出 repository API，`SCHEMAFLOW-P3-003` 已将 diagram 创建、删除和替换封装到 Dexie transaction，`SCHEMAFLOW-P3-004` 已新增 versioned backup/restore contract。`SCHEMAFLOW-P4-000` 已新增 `docs/方言能力矩阵.md`，定义 dialect import/export capability、unsupported syntax、warning 规则和迁移顺序。后续从 `SCHEMAFLOW-P4-001` 开始创建 dialect contract 和 result type。
 
 **推荐分支：**
 
 ```bash
-git switch -c codex/chartdb-phase-2-schema-core
+git switch -c codex/schemaflow-phase-2-schema-core
 ```
 
 ### Task 2.1：建立 schema-core 目录和领域模型出口
@@ -851,7 +851,7 @@ export interface CommandContext {
 - 新增：`src/schema-core/commands/table-commands.ts`
 - 新增：`src/schema-core/commands/apply-table-command.ts`
 - 测试：`src/schema-core/commands/__tests__/table-commands.test.ts`
-- 修改：`src/context/chartdb-context/chartdb-provider.tsx`
+- 修改：`src/context/schemaflow-context/schemaflow-provider.tsx`
 
 **实施步骤：**
 
@@ -882,7 +882,7 @@ npm run test:ci -- src/schema-core/commands/__tests__/table-commands.test.ts
 npm run build
 ```
 
-本轮结果：已新增 `table.add`、`table.update`、`table.delete` 和 `table.restore` command，`applyTableCommand()` 作为纯函数返回下一状态、undo command、affected entity ids、validation error 与 cascade risk。`ChartDBProvider` 的 `addTables`、`updateTable` 和 `removeTables` 已改为先调用 command，再沿用现有 Dexie 写入、事件和旧 undo/redo 数据结构；未同时迁移 field/index/relationship command。删除 table 会报告并移除关联 relationship/dependency，字段和索引仍随 table payload 保留，细粒度 field/index 影响进入 Task 2.4。
+本轮结果：已新增 `table.add`、`table.update`、`table.delete` 和 `table.restore` command，`applyTableCommand()` 作为纯函数返回下一状态、undo command、affected entity ids、validation error 与 cascade risk。`SchemaFlowProvider` 的 `addTables`、`updateTable` 和 `removeTables` 已改为先调用 command，再沿用现有 Dexie 写入、事件和旧 undo/redo 数据结构；未同时迁移 field/index/relationship command。删除 table 会报告并移除关联 relationship/dependency，字段和索引仍随 table payload 保留，细粒度 field/index 影响进入 Task 2.4。
 
 ### Task 2.4：迁移 Field / Index / Relationship command
 
@@ -892,7 +892,7 @@ npm run build
 - 新增：`src/schema-core/commands/index-commands.ts`
 - 新增：`src/schema-core/commands/relationship-commands.ts`
 - 测试：`src/schema-core/commands/__tests__/field-index-relationship-commands.test.ts`
-- 修改：`src/context/chartdb-context/chartdb-provider.tsx`
+- 修改：`src/context/schemaflow-context/schemaflow-provider.tsx`
 
 **实施步骤：**
 
@@ -912,7 +912,7 @@ npm run build
 
 - [x] 运行完整 command 测试。
 
-本轮结果：已新增 field、index、relationship command 创建 helper 和 apply 纯函数；删除 field 会报告级联风险、移除引用 relationship、收缩包含该 field 的 index，并删除空 index。创建/更新 relationship 前会校验 source/target table 与 field 引用；index command 保留 unique、isPrimaryKey、type 和 fieldIds 语义。`ChartDBProvider` 的 field、index、relationship 操作已接入 command，同时保留既有 Dexie 写入和 undo/redo；删除 field 的 undo 会恢复被级联移除的 relationship。下一项进入 Task 2.5。
+本轮结果：已新增 field、index、relationship command 创建 helper 和 apply 纯函数；删除 field 会报告级联风险、移除引用 relationship、收缩包含该 field 的 index，并删除空 index。创建/更新 relationship 前会校验 source/target table 与 field 引用；index command 保留 unique、isPrimaryKey、type 和 fieldIds 语义。`SchemaFlowProvider` 的 field、index、relationship 操作已接入 command，同时保留既有 Dexie 写入和 undo/redo；删除 field 的 undo 会恢复被级联移除的 relationship。下一项进入 Task 2.5。
 
 ### Task 2.5：迁移 Area / Note / CustomType command
 
@@ -939,7 +939,7 @@ npm run build
 
 - 修改：`src/context/history-context/redo-undo-action.ts`
 - 修改：`src/context/history-context/redo-undo-stack-provider.tsx`
-- 修改：`src/context/chartdb-context/chartdb-provider.tsx`
+- 修改：`src/context/schemaflow-context/schemaflow-provider.tsx`
 - 测试：`src/schema-core/commands/__tests__/command-history.test.ts`
 
 **实施步骤：**
@@ -959,17 +959,17 @@ npm run build
 **推荐分支：**
 
 ```bash
-git switch -c codex/chartdb-phase-3-storage
+git switch -c codex/schemaflow-phase-3-storage
 ```
 
 ### Task 3.1：抽 Dexie 数据库定义
 
 **涉及文件：**
 
-- 新增：`src/storage/db/chartdb-dexie.ts`
+- 新增：`src/storage/db/schemaflow-dexie.ts`
 - 新增：`src/storage/db/schema-versions.ts`
 - 修改：`src/context/storage-context/storage-provider.tsx`
-- 测试：`src/storage/db/__tests__/chartdb-dexie.test.ts`
+- 测试：`src/storage/db/__tests__/schemaflow-dexie.test.ts`
 
 **实施步骤：**
 
@@ -979,7 +979,7 @@ git switch -c codex/chartdb-phase-3-storage
 
 - [x] 测试 Dexie table names 和当前版本。
 
-本轮结果：已新增 `src/storage/db/chartdb-dexie.ts` 和 `src/storage/db/schema-versions.ts`，集中 `ChartDB` 数据库名、当前 Dexie 版本 `13`、当前 store 名称和既有 upgrade migration。`StorageProvider` 只通过 `createChartDBDexie()` 创建 typed db instance，现有 CRUD 逻辑不变。新增 `src/storage/db/__tests__/chartdb-dexie.test.ts` 覆盖数据库名、版本和表名；下一项进入 Task 3.2。
+本轮结果：已新增 `src/storage/db/schemaflow-dexie.ts` 和 `src/storage/db/schema-versions.ts`，集中 `SchemaFlow` 数据库名、当前 Dexie 版本 `13`、当前 store 名称和既有 upgrade migration。`StorageProvider` 只通过 `createSchemaFlowDexie()` 创建 typed db instance，现有 CRUD 逻辑不变。新增 `src/storage/db/__tests__/schemaflow-dexie.test.ts` 覆盖数据库名、版本和表名；下一项进入 Task 3.2。
 
 ### Task 3.2：抽 Repository
 
@@ -1001,7 +1001,7 @@ git switch -c codex/chartdb-phase-3-storage
 
 - [x] repository 聚合测试覆盖读写、组合读取、排序、缺失实体和 Provider 边界。
 
-本轮结果：已新增 `src/storage/repositories/chartdb-repositories.ts`，集中 config、diagram filter、diagram、table、relationship、dependency、area、custom type 和 note repository API；`StorageProvider` 从直接 Dexie CRUD 收敛为 repository 组合适配层；新增 `src/storage/repositories/__tests__/chartdb-repositories.test.ts` 覆盖 diagram 组合读取、relationship/custom type 排序、diagram id 级联更新、缺失实体和 Provider repository 边界。下一项进入 Task 3.3。
+本轮结果：已新增 `src/storage/repositories/schemaflow-repositories.ts`，集中 config、diagram filter、diagram、table、relationship、dependency、area、custom type 和 note repository API；`StorageProvider` 从直接 Dexie CRUD 收敛为 repository 组合适配层；新增 `src/storage/repositories/__tests__/schemaflow-repositories.test.ts` 覆盖 diagram 组合读取、relationship/custom type 排序、diagram id 级联更新、缺失实体和 Provider repository 边界。下一项进入 Task 3.3。
 
 ### Task 3.3：实现 diagram transaction service
 
@@ -1009,7 +1009,7 @@ git switch -c codex/chartdb-phase-3-storage
 
 - 新增：`src/storage/repositories/diagram-transaction-service.ts`
 - 测试：`src/storage/repositories/__tests__/diagram-transaction-service.test.ts`
-- 修改：`src/context/chartdb-context/chartdb-provider.tsx`
+- 修改：`src/context/schemaflow-context/schemaflow-provider.tsx`
 
 **实施步骤：**
 
@@ -1030,7 +1030,7 @@ git switch -c codex/chartdb-phase-3-storage
 
 - [x] 测试事务失败时不产生半删状态。
 
-本轮结果：已新增 `src/storage/transactions/diagram-transaction-service.ts`，将 diagram 创建、删除和替换封装在 Dexie `transaction('rw')` 中。`createChartDBRepositories()` 的 diagram add/delete 已接入该 service，删除 diagram 会同时清理 tables、relationships、dependencies、areas、custom types、notes 和 diagram filter。新增 `src/storage/transactions/__tests__/diagram-transaction-service.test.ts` 覆盖 child write 失败回滚和 delete filter 清理；repository 测试补充 delete diagram filter 对外边界。下一项进入 Task 3.4。
+本轮结果：已新增 `src/storage/transactions/diagram-transaction-service.ts`，将 diagram 创建、删除和替换封装在 Dexie `transaction('rw')` 中。`createSchemaFlowRepositories()` 的 diagram add/delete 已接入该 service，删除 diagram 会同时清理 tables、relationships、dependencies、areas、custom types、notes 和 diagram filter。新增 `src/storage/transactions/__tests__/diagram-transaction-service.test.ts` 覆盖 child write 失败回滚和 delete filter 清理；repository 测试补充 delete diagram filter 对外边界。下一项进入 Task 3.4。
 
 ### Task 3.4：实现 backup/restore
 
@@ -1060,7 +1060,7 @@ git switch -c codex/chartdb-phase-3-storage
 
 - [x] 支持导入为新 diagram。
 
-本轮结果：已新增 `src/storage/backup/backup-format.ts` 和 `src/storage/backup/index.ts`，定义 `chartdb.backup` + `schemaVersion: 1` 文件格式、metadata、diagram count 校验和恢复为新 diagram 的 id/date 刷新规则。`src/lib/export-import-utils.ts` 的 JSON 导出入口已切到新 backup 格式，恢复入口对新 backup 先校验格式和版本，同时保留旧单 diagram JSON 兼容路径。新增 `docs/备份恢复格式.md` 记录 backup schema、恢复规则和后续 migration 边界。下一项进入 Phase 4 的 `CHARTDB-P4-000`。
+本轮结果：已新增 `src/storage/backup/backup-format.ts` 和 `src/storage/backup/index.ts`，定义 `schemaflow.backup` + `schemaVersion: 1` 文件格式、metadata、diagram count 校验和恢复为新 diagram 的 id/date 刷新规则。`src/lib/export-import-utils.ts` 的 JSON 导出入口已切到新 backup 格式，恢复入口对新 backup 先校验格式和版本，同时保留旧单 diagram JSON 兼容路径。新增 `docs/备份恢复格式.md` 记录 backup schema、恢复规则和后续 migration 边界。下一项进入 Phase 4 的 `SCHEMAFLOW-P4-000`。
 
 ## 8. Phase 4：Importer / Exporter 插件化
 
@@ -1069,12 +1069,12 @@ git switch -c codex/chartdb-phase-3-storage
 **推荐分支：**
 
 ```bash
-git switch -c codex/chartdb-phase-4-dialects
+git switch -c codex/schemaflow-phase-4-dialects
 ```
 
 ### Task 4.1：定义 importer/exporter contract
 
-前置执行清单：`CHARTDB-P4-000` 已完成，见 `docs/方言能力矩阵.md`。矩阵明确 PostgreSQL、MySQL、MariaDB、SQLite、SQL Server、Oracle、CockroachDB、ClickHouse 和 DBML 的当前 import/export 状态、unsupported syntax 与 warning 规则；Task 4.1 必须以该矩阵为 contract baseline。
+前置执行清单：`SCHEMAFLOW-P4-000` 已完成，见 `docs/方言能力矩阵.md`。矩阵明确 PostgreSQL、MySQL、MariaDB、SQLite、SQL Server、Oracle、CockroachDB、ClickHouse 和 DBML 的当前 import/export 状态、unsupported syntax 与 warning 规则；Task 4.1 必须以该矩阵为 contract baseline。
 
 **涉及文件：**
 
@@ -1099,7 +1099,7 @@ export type SupportLevel = 'full' | 'partial' | 'experimental' | 'unsupported';
 
 - [x] 测试 support level 渲染和缺省值。
 
-本轮结果：已新增 `src/dialects/common` contract。`ImportResult`、`ExportResult`、`DialectWarning`、`UnsupportedDialectObject`、`DialectSourceMap`、`SupportLevel` 和 capability matrix helper 已具备单元测试；旧 import/export 函数可先通过 adapter 兼容进入统一 result 形状。下一项进入 `CHARTDB-P4-002`，先以 wrapper 方式迁移 PostgreSQL importer。
+本轮结果：已新增 `src/dialects/common` contract。`ImportResult`、`ExportResult`、`DialectWarning`、`UnsupportedDialectObject`、`DialectSourceMap`、`SupportLevel` 和 capability matrix helper 已具备单元测试；旧 import/export 函数可先通过 adapter 兼容进入统一 result 形状。下一项进入 `SCHEMAFLOW-P4-002`，先以 wrapper 方式迁移 PostgreSQL importer。
 
 ### Task 4.2：迁移 PostgreSQL importer
 
@@ -1132,7 +1132,7 @@ export type SupportLevel = 'full' | 'partial' | 'experimental' | 'unsupported';
 
 - [x] 保持现有 PostgreSQL 测试全部通过。
 
-本轮结果：已新增 PostgreSQL dialect wrapper 和 capability 声明，`postgresqlSchemaImporter.importSchema()` 复用旧 `fromPostgres` parser 并返回统一 `ImportResult`。RLS、policy、extension、trigger 和 function 会作为 `unsupportedObjects` 与结构化 `warnings` 输出；现有 PostgreSQL regression tests 和新 wrapper tests 均通过。下一项进入 `CHARTDB-P4-003`，迁移 MySQL、MariaDB、SQLite、SQL Server 和 Oracle wrapper。
+本轮结果：已新增 PostgreSQL dialect wrapper 和 capability 声明，`postgresqlSchemaImporter.importSchema()` 复用旧 `fromPostgres` parser 并返回统一 `ImportResult`。RLS、policy、extension、trigger 和 function 会作为 `unsupportedObjects` 与结构化 `warnings` 输出；现有 PostgreSQL regression tests 和新 wrapper tests 均通过。下一项进入 `SCHEMAFLOW-P4-003`，迁移 MySQL、MariaDB、SQLite、SQL Server 和 Oracle wrapper。
 
 ### Task 4.3：迁移 MySQL、MariaDB、SQLite、SQL Server、Oracle
 
@@ -1154,7 +1154,7 @@ export type SupportLevel = 'full' | 'partial' | 'experimental' | 'unsupported';
 
 - [x] 新增 unsupported statement warnings。
 
-本轮结果：已新增 MySQL、MariaDB、SQLite、SQL Server 和 Oracle dialect wrapper，并通过 `src/dialects/common/legacy-sql-importer.ts` 复用旧 SQL parser 到 `Diagram` 的转换、排序和 primary key index normalize。五个方言均输出 capability metadata；MariaDB 明确通过 MySQL fallback 进入统一 `ImportResult`，并标注 experimental 支持等级。MySQL ENGINE/charset、MariaDB sequence/engine、SQLite virtual table、SQL Server procedure、Oracle sequence/package 等语义会进入结构化 `warnings` / `unsupportedObjects`。后续全方位优化手册 `CHARTDB-P-006` 已补齐 CockroachDB 和 ClickHouse wrapper：CockroachDB 通过 PostgreSQL fallback 输出 experimental warning，ClickHouse 明确 DDL import unsupported / Smart Query only。新增 wrapper 测试和旧 importer regression 均通过。下一项进入 `CHARTDB-P4-004`，DBML import/export 统一走 dialect contract。
+本轮结果：已新增 MySQL、MariaDB、SQLite、SQL Server 和 Oracle dialect wrapper，并通过 `src/dialects/common/legacy-sql-importer.ts` 复用旧 SQL parser 到 `Diagram` 的转换、排序和 primary key index normalize。五个方言均输出 capability metadata；MariaDB 明确通过 MySQL fallback 进入统一 `ImportResult`，并标注 experimental 支持等级。MySQL ENGINE/charset、MariaDB sequence/engine、SQLite virtual table、SQL Server procedure、Oracle sequence/package 等语义会进入结构化 `warnings` / `unsupportedObjects`。后续全方位优化手册 `SCHEMAFLOW-P-006` 已补齐 CockroachDB 和 ClickHouse wrapper：CockroachDB 通过 PostgreSQL fallback 输出 experimental warning，ClickHouse 明确 DDL import unsupported / Smart Query only。新增 wrapper 测试和旧 importer regression 均通过。下一项进入 `SCHEMAFLOW-P4-004`，DBML import/export 统一走 dialect contract。
 
 ### Task 4.4：DBML 进入 dialect pipeline
 
@@ -1177,7 +1177,7 @@ export type SupportLevel = 'full' | 'partial' | 'experimental' | 'unsupported';
 
 - [x] round-trip 测试通过。
 
-本轮结果：已新增 `src/dialects/dbml` wrapper 和 capability 声明，DBML import/export 复用旧解析与生成逻辑进入统一 dialect contract。`TableGroup`、standalone `Note`、空表和重复表会输出结构化 `warnings` / `unsupportedObjects`；DBML export 若存在静默丢弃风险，`riskLevel` 不低于 `medium`。下一项进入 `CHARTDB-P4-005`，导入前展示 preview、warnings 和 object counts。
+本轮结果：已新增 `src/dialects/dbml` wrapper 和 capability 声明，DBML import/export 复用旧解析与生成逻辑进入统一 dialect contract。`TableGroup`、standalone `Note`、空表和重复表会输出结构化 `warnings` / `unsupportedObjects`；DBML export 若存在静默丢弃风险，`riskLevel` 不低于 `medium`。下一项进入 `SCHEMAFLOW-P4-005`，导入前展示 preview、warnings 和 object counts。
 
 ### Task 4.5：导入 preview flow
 
@@ -1201,7 +1201,7 @@ export type SupportLevel = 'full' | 'partial' | 'experimental' | 'unsupported';
 
 - [x] 用户确认后才写入当前 diagram。
 
-本轮结果：已新增 `src/features/import/import-preview.ts` 和 `src/features/import/import-preview-panel.tsx`。导入对话框首次点击会通过 dialect wrapper 或 Smart Query metadata import 解析出 preview summary，展示 tables、relationships、customTypes、warnings 和 unsupportedObjects；只有用户再次确认后才写入当前 diagram 的 tables、relationships 和 customTypes，并继续保留既有表位置 offset、database type update 和 undo/redo reset 逻辑。下一项进入 `CHARTDB-P5-000`，定义 UX 和可访问性验收矩阵。
+本轮结果：已新增 `src/features/import/import-preview.ts` 和 `src/features/import/import-preview-panel.tsx`。导入对话框首次点击会通过 dialect wrapper 或 Smart Query metadata import 解析出 preview summary，展示 tables、relationships、customTypes、warnings 和 unsupportedObjects；只有用户再次确认后才写入当前 diagram 的 tables、relationships 和 customTypes，并继续保留既有表位置 offset、database type update 和 undo/redo reset 逻辑。下一项进入 `SCHEMAFLOW-P5-000`，定义 UX 和可访问性验收矩阵。
 
 ## 9. Phase 5：产品体验与可访问性
 
@@ -1210,7 +1210,7 @@ export type SupportLevel = 'full' | 'partial' | 'experimental' | 'unsupported';
 **推荐分支：**
 
 ```bash
-git switch -c codex/chartdb-phase-5-ux-a11y
+git switch -c codex/schemaflow-phase-5-ux-a11y
 ```
 
 ### Task 5.0：定义 UX 和可访问性验收矩阵
@@ -1219,9 +1219,9 @@ git switch -c codex/chartdb-phase-5-ux-a11y
 
 - 新增：`docs/可访问性与核心流程验收.md`
 - 修改：`docs/阶段验收记录.md`
-- 修改：`docs/ChartDB自动开发任务计划.md`
-- 修改：`docs/ChartDB重构优化产品设计与研发计划.md`
-- 修改：`docs/ChartDB重构优化工程实施计划.md`
+- 修改：`docs/SchemaFlow自动开发任务计划.md`
+- 修改：`docs/SchemaFlow重构优化产品设计与研发计划.md`
+- 修改：`docs/SchemaFlow重构优化工程实施计划.md`
 
 **实施步骤：**
 
@@ -1231,7 +1231,7 @@ git switch -c codex/chartdb-phase-5-ux-a11y
 
 - [x] 定义 Phase 5 退出标准和后续任务回归范围。
 
-本轮结果：已新增 `docs/可访问性与核心流程验收.md`，作为 Phase 5 后续代码任务的验收依据。矩阵覆盖首次进入、Smart Query、导入 Preview、编辑画布和设置中心，要求后续任务验证桌面与移动 smoke、键盘路径、可访问名称、Dialog 焦点、Disabled 原因和错误提示。下一项进入 `CHARTDB-P5-001`，重做首次进入入口。
+本轮结果：已新增 `docs/可访问性与核心流程验收.md`，作为 Phase 5 后续代码任务的验收依据。矩阵覆盖首次进入、Smart Query、导入 Preview、编辑画布和设置中心，要求后续任务验证桌面与移动 smoke、键盘路径、可访问名称、Dialog 焦点、Disabled 原因和错误提示。下一项进入 `SCHEMAFLOW-P5-001`，重做首次进入入口。
 
 ### Task 5.1：重做首次进入入口
 
@@ -1285,7 +1285,7 @@ git switch -c codex/chartdb-phase-5-ux-a11y
 
 - [ ] 复制按钮有 `aria-label`。
 
-本轮结果：Smart Query instructions 已展示 `Smart Query Wizard`，用五步说明串起选择数据库、复制 Smart Query、粘贴 JSON、Preview tables/relationships/warnings 和 Confirm import，并明确 ChartDB 不要求数据库密码、不接收连接串或 secret。导入 preview 解析失败或无可导入对象时，粘贴区会显示可操作错误，指向 Smart Query JSON、SQL syntax 或 dialect limitations。新建 diagram 的首次导入也接入 Preview/Confirm；大 Smart Query 结果在确认后仍保留进入 SelectTables 的旧分支。复制按钮命名和更广泛键盘路径进入 Task 5.3。
+本轮结果：Smart Query instructions 已展示 `Smart Query Wizard`，用五步说明串起选择数据库、复制 Smart Query、粘贴 JSON、Preview tables/relationships/warnings 和 Confirm import，并明确 SchemaFlow 不要求数据库密码、不接收连接串或 secret。导入 preview 解析失败或无可导入对象时，粘贴区会显示可操作错误，指向 Smart Query JSON、SQL syntax 或 dialect limitations。新建 diagram 的首次导入也接入 Preview/Confirm；大 Smart Query 结果在确认后仍保留进入 SelectTables 的旧分支。复制按钮命名和更广泛键盘路径进入 Task 5.3。
 
 ### Task 5.3：全局 aria-label 修复
 
@@ -1314,7 +1314,7 @@ rg -n "<Button|<button" src/pages src/dialogs src/components
 
 - [x] 跑无障碍 smoke。
 
-本轮结果：已新增 `src/lib/accessibility/__tests__/phase5-a11y-contract.test.ts`，锁定 Phase 5 核心控件命名契约。`CodeSnippet` 复制按钮和额外动作按钮已使用 tooltip 文案作为可访问名称；Dialog back 按钮补充 `Go back`；画布 Toolbar 的 filter、show all、zoom、reorder、undo、redo 均有明确 `aria-label`；Smart Query output、SQL query 和 DBML Monaco 编辑器均按用途命名。下一项进入 `CHARTDB-P5-004`，设置中心。
+本轮结果：已新增 `src/lib/accessibility/__tests__/phase5-a11y-contract.test.ts`，锁定 Phase 5 核心控件命名契约。`CodeSnippet` 复制按钮和额外动作按钮已使用 tooltip 文案作为可访问名称；Dialog back 按钮补充 `Go back`；画布 Toolbar 的 filter、show all、zoom、reorder、undo、redo 均有明确 `aria-label`；Smart Query output、SQL query 和 DBML Monaco 编辑器均按用途命名。下一项进入 `SCHEMAFLOW-P5-004`，设置中心。
 
 ### Task 5.4：设置中心
 
@@ -1334,18 +1334,18 @@ rg -n "<Button|<button" src/pages src/dialogs src/components
 
 - [x] 设置不保存 secret。
 
-本轮结果：已新增 `src/features/settings/settings-dialog.tsx`、`display-settings.tsx`、`privacy-settings.tsx` 和 `keyboard-shortcuts-settings.tsx`，并通过 `DialogProvider` 与左侧 Sidebar 的 `Settings` 入口打开。`LocalConfigProvider` 增加安全 localStorage 读写 helper，浏览器存储不可用时设置中心显示 session-only 降级说明。AI mode 支持 Disabled、BYOK Session、Self-hosted Gateway 切换；Gateway 仅保存 endpoint/model hint，BYOK key 不写入 localStorage。数据管理入口集中到导出 backup、恢复 backup 和清理本地 diagram 的破坏性确认说明。下一项进入 `CHARTDB-P6-000`。
+本轮结果：已新增 `src/features/settings/settings-dialog.tsx`、`display-settings.tsx`、`privacy-settings.tsx` 和 `keyboard-shortcuts-settings.tsx`，并通过 `DialogProvider` 与左侧 Sidebar 的 `Settings` 入口打开。`LocalConfigProvider` 增加安全 localStorage 读写 helper，浏览器存储不可用时设置中心显示 session-only 降级说明。AI mode 支持 Disabled、BYOK Session、Self-hosted Gateway 切换；Gateway 仅保存 endpoint/model hint，BYOK key 不写入 localStorage。数据管理入口集中到导出 backup、恢复 backup 和清理本地 diagram 的破坏性确认说明。下一项进入 `SCHEMAFLOW-P6-000`。
 
 ## 10. Phase 6：性能优化
 
 **目标：** 降低首屏包体，避免大 schema 阻塞主线程。
 
-**当前状态：** `CHARTDB-P6-000` 已新增 `docs/性能基线与优化计划.md`，定义首屏 bundle、Monaco chunk、模板数据 chunk、large schema import、layout worker 和 CI 性能预算的记录方式与验收口径。`CHARTDB-P6-001` 已完成 Monaco 懒加载：外层 `CodeSnippet` 不再静态加载 Monaco runtime，DBML highlight helper 改为 type-only 引用，build 中 `code-editor` chunk 从 `15,279.59 kB` / gzip `2,787.98 kB` 降至 `3,788.30 kB` / gzip `976.92 kB`。`CHARTDB-P6-002` 已完成模板 lazy registry：模板列表只加载 metadata manifest，详情和 clone 路径按 slug 动态加载完整 diagram。下一项进入 `CHARTDB-P6-003`，Parser 和 layout worker 化。
+**当前状态：** `SCHEMAFLOW-P6-000` 已新增 `docs/性能基线与优化计划.md`，定义首屏 bundle、Monaco chunk、模板数据 chunk、large schema import、layout worker 和 CI 性能预算的记录方式与验收口径。`SCHEMAFLOW-P6-001` 已完成 Monaco 懒加载：外层 `CodeSnippet` 不再静态加载 Monaco runtime，DBML highlight helper 改为 type-only 引用，build 中 `code-editor` chunk 从 `15,279.59 kB` / gzip `2,787.98 kB` 降至 `3,788.30 kB` / gzip `976.92 kB`。`SCHEMAFLOW-P6-002` 已完成模板 lazy registry：模板列表只加载 metadata manifest，详情和 clone 路径按 slug 动态加载完整 diagram。下一项进入 `SCHEMAFLOW-P6-003`，Parser 和 layout worker 化。
 
 **推荐分支：**
 
 ```bash
-git switch -c codex/chartdb-phase-6-performance
+git switch -c codex/schemaflow-phase-6-performance
 ```
 
 ### Task 6.1：Monaco 懒加载
@@ -1371,7 +1371,7 @@ npm run build
 
 - [x] 再次构建对比 chunk。
 
-本轮结果：基线 `npm run build` 输出 `code-editor-DNXSDyTK.js` 为 `15,279.59 kB` / gzip `2,787.98 kB`；修改后 `code-editor-BHvScKzX.js` 为 `3,788.30 kB` / gzip `976.92 kB`。新增懒加载契约测试覆盖 `CodeSnippet` 外层和 DBML highlight helper 不再静态加载 Monaco runtime。入口 `index` 仍为 `2,609.63 kB` / gzip `513.31 kB`；`editor-page` 剩余 `11,472.77 kB` / gzip `1,806.40 kB`，后续由模板 lazy registry 与 Parser/layout worker 化继续治理。下一项进入 `CHARTDB-P6-002`。
+本轮结果：基线 `npm run build` 输出 `code-editor-DNXSDyTK.js` 为 `15,279.59 kB` / gzip `2,787.98 kB`；修改后 `code-editor-BHvScKzX.js` 为 `3,788.30 kB` / gzip `976.92 kB`。新增懒加载契约测试覆盖 `CodeSnippet` 外层和 DBML highlight helper 不再静态加载 Monaco runtime。入口 `index` 仍为 `2,609.63 kB` / gzip `513.31 kB`；`editor-page` 剩余 `11,472.77 kB` / gzip `1,806.40 kB`，后续由模板 lazy registry 与 Parser/layout worker 化继续治理。下一项进入 `SCHEMAFLOW-P6-002`。
 
 ### Task 6.2：模板 lazy registry
 
@@ -1395,7 +1395,7 @@ npm run build
 
 - [x] 构建对比 templates chunk。
 
-本轮结果：新增 `TemplateManifest` 和 `templateManifests`，列表、featured 和 tag 筛选只读取 slug、名称、描述、标签、数据库类型、预览图和 featured 标记。`templates-data.ts` 移除全部模板模块静态 import，并在后续 `CHARTDB-T-002` 中删除 `loadTemplates()` 全量加载出口，仅保留 `Template` 类型和 `loadTemplateBySlug()` re-export；路由详情页和 clone 页通过 `template-manifest` 的 `loadTemplateBySlug()` 按需加载单个完整 diagram。契约测试确认列表路径不再导入完整模板聚合模块，且 50 个完整模板只能通过 per-template dynamic import 加载。`npm run build` 输出已拆出 `employee-db-*`、`wordpress-db-*`、`monica-db-*` 等独立模板 chunk；入口 `index` 约 `2,609.63 kB` / gzip `513.32 kB`，`editor-page` 约 `11,472.80 kB` / gzip `1,806.46 kB`，后续进入 `CHARTDB-P6-003`。
+本轮结果：新增 `TemplateManifest` 和 `templateManifests`，列表、featured 和 tag 筛选只读取 slug、名称、描述、标签、数据库类型、预览图和 featured 标记。`templates-data.ts` 移除全部模板模块静态 import，并在后续 `SCHEMAFLOW-T-002` 中删除 `loadTemplates()` 全量加载出口，仅保留 `Template` 类型和 `loadTemplateBySlug()` re-export；路由详情页和 clone 页通过 `template-manifest` 的 `loadTemplateBySlug()` 按需加载单个完整 diagram。契约测试确认列表路径不再导入完整模板聚合模块，且 50 个完整模板只能通过 per-template dynamic import 加载。`npm run build` 输出已拆出 `employee-db-*`、`wordpress-db-*`、`monica-db-*` 等独立模板 chunk；入口 `index` 约 `2,609.63 kB` / gzip `513.32 kB`，`editor-page` 约 `11,472.80 kB` / gzip `1,806.46 kB`，后续进入 `SCHEMAFLOW-P6-003`。
 
 ### Task 6.3：Worker 化 parser/layout
 
@@ -1419,18 +1419,18 @@ npm run build
     - 100 tables。
     - 500 tables。
 
-本轮结果：新增通用 `worker-client`、`import-worker` 和 `layout-worker`。导入 Preview 的 SQL/DBML/metadata parse 入口默认走 module worker，worker 不可用时回退主线程实现，worker parse 失败返回结构化 `IMPORT_PREVIEW_PARSE_FAILED`。导入对话框会显示 preview progress，并提供 cancel 按钮中止当前 worker task。Area auto arrange 和 Move to Area 的布局计算改为异步 worker client，fallback 继续使用既有 `arrangeTablesForArea()`。`docs/性能基线与优化计划.md` 已记录 100 tables 与 500 tables smoke 的验收方法；`npm run build` 后 `editor-page` 仍约 `11,474.96 kB` / gzip `1,807.52 kB`，说明本轮主要收敛大 schema 运行时阻塞风险，chunk 体积继续进入后续 bundle budget 与 parser 拆包治理。下一项进入 `CHARTDB-P7-000`。
+本轮结果：新增通用 `worker-client`、`import-worker` 和 `layout-worker`。导入 Preview 的 SQL/DBML/metadata parse 入口默认走 module worker，worker 不可用时回退主线程实现，worker parse 失败返回结构化 `IMPORT_PREVIEW_PARSE_FAILED`。导入对话框会显示 preview progress，并提供 cancel 按钮中止当前 worker task。Area auto arrange 和 Move to Area 的布局计算改为异步 worker client，fallback 继续使用既有 `arrangeTablesForArea()`。`docs/性能基线与优化计划.md` 已记录 100 tables 与 500 tables smoke 的验收方法；`npm run build` 后 `editor-page` 仍约 `11,474.96 kB` / gzip `1,807.52 kB`，说明本轮主要收敛大 schema 运行时阻塞风险，chunk 体积继续进入后续 bundle budget 与 parser 拆包治理。下一项进入 `SCHEMAFLOW-P7-000`。
 
 ## 11. Phase 7：发布治理与文档
 
 **目标：** 让项目具备可持续发布和维护能力。
 
-**当前状态：** `CHARTDB-P7-003` 已补齐 README 文档导航、架构说明、导入导出接口约定、测试策略、Issue template 和贡献规则；发布、安全、备份恢复、方言能力、问题上报和贡献流程已有独立入口。下一项进入 Phase 8 的可选 Cloud/Team 边界预研。
+**当前状态：** `SCHEMAFLOW-P7-003` 已补齐 README 文档导航、架构说明、导入导出接口约定、测试策略、Issue template 和贡献规则；发布、安全、备份恢复、方言能力、问题上报和贡献流程已有独立入口。下一项进入 Phase 8 的可选 Cloud/Team 边界预研。
 
 **推荐分支：**
 
 ```bash
-git switch -c codex/chartdb-phase-7-release-docs
+git switch -c codex/schemaflow-phase-7-release-docs
 ```
 
 ### Task 7.1：发布 workflow gate
@@ -1503,7 +1503,7 @@ git switch -c codex/chartdb-phase-7-release-docs
 
 ### Task 8.1：Cloud/Team 技术预研
 
-**当前状态：** `CHARTDB-P8-001` 已在 `docs/可选账号登录与团队协作预研.md` 补齐 Cloud/Team 技术栈选型记录。推荐方案为 `NestJS + PostgreSQL + Auth.js/OIDC adapter + REST API + append-only sync log`，对比方案为 Fastify 轻量 API；文档明确 OSS Core 隔离、Cloud/Team 不作为默认依赖、sync/push-pull 和 conflict 边界。本轮不新增登录代码，后续真正实现需要另开独立 Cloud/Team 工程计划。
+**当前状态：** `SCHEMAFLOW-P8-001` 已在 `docs/可选账号登录与团队协作预研.md` 补齐 Cloud/Team 技术栈选型记录。推荐方案为 `NestJS + PostgreSQL + Auth.js/OIDC adapter + REST API + append-only sync log`，对比方案为 Fastify 轻量 API；文档明确 OSS Core 隔离、Cloud/Team 不作为默认依赖、sync/push-pull 和 conflict 边界。本轮不新增登录代码，后续真正实现需要另开独立 Cloud/Team 工程计划。
 
 **交付物：**
 
@@ -1548,8 +1548,8 @@ npm audit --omit=dev --audit-level=high
 涉及 Docker 的 Phase 执行：
 
 ```bash
-docker build -t chartdb-smoke .
-docker run --rm -p 8080:80 chartdb-smoke
+docker build -t schemaflow-smoke .
+docker run --rm -p 8080:80 schemaflow-smoke
 curl -I http://localhost:8080
 ```
 
@@ -1661,7 +1661,7 @@ curl -I http://localhost:8080
 第一批具体命令：
 
 ```bash
-git switch -c codex/chartdb-phase-0-baseline
+git switch -c codex/schemaflow-phase-0-baseline
 npm run test:ci
 npm audit --omit=dev
 ```

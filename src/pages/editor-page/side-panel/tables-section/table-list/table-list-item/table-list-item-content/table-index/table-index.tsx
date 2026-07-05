@@ -27,7 +27,7 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from '@/components/tooltip/tooltip';
-import { useChartDB } from '@/hooks/use-chartdb';
+import { useSchemaFlow } from '@/hooks/use-schemaflow';
 import { IndexTypeSelector } from './index-type-selector';
 
 export interface TableIndexProps {
@@ -44,7 +44,7 @@ export const TableIndex: React.FC<TableIndexProps> = ({
     removeIndex,
 }) => {
     const { t } = useTranslation();
-    const { databaseType, readonly } = useChartDB();
+    const { databaseType, readonly } = useSchemaFlow();
 
     const fieldOptions = useMemo(
         () =>

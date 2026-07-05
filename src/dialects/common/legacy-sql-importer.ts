@@ -1,4 +1,4 @@
-import { convertToChartDBDiagram } from '@/lib/data/sql-import/common';
+import { convertToSchemaFlowDiagram } from '@/lib/data/sql-import/common';
 import type { SQLParserResult } from '@/lib/data/sql-import/common';
 import type { DatabaseType } from '@/lib/domain/database-type';
 import { getTableIndexesWithPrimaryKey } from '@/lib/domain/db-index';
@@ -19,7 +19,7 @@ export async function importLegacySQLDiagram({
     const parserResult = await parse(sql);
 
     return normalizeImportedDiagram(
-        convertToChartDBDiagram(
+        convertToSchemaFlowDiagram(
             parserResult,
             sourceDatabaseType,
             targetDatabaseType

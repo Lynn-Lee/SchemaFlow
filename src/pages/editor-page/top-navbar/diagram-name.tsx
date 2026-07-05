@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/button/button';
 import { Check, Pencil } from 'lucide-react';
 import { Input } from '@/components/input/input';
-import { useChartDB } from '@/hooks/use-chartdb';
+import { useSchemaFlow } from '@/hooks/use-schemaflow';
 import { useClickAway } from '@/hooks/use-click-away';
 import { useKeyPressEvent } from '@/hooks/use-key-press-event';
 import { DiagramIcon } from '@/components/diagram-icon/diagram-icon';
@@ -19,7 +19,7 @@ import { useDialog } from '@/hooks/use-dialog';
 export interface DiagramNameProps {}
 
 export const DiagramName: React.FC<DiagramNameProps> = () => {
-    const { diagramName, updateDiagramName, currentDiagram } = useChartDB();
+    const { diagramName, updateDiagramName, currentDiagram } = useSchemaFlow();
 
     const { t } = useTranslation();
     const [editMode, setEditMode] = useState(false);

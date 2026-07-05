@@ -50,7 +50,7 @@ describe('RouteErrorBoundary', () => {
 
         expect(
             await screen.findByRole('heading', {
-                name: /chartdb could not open this page/i,
+                name: /schemaflow could not open this page/i,
             })
         ).toBeInTheDocument();
         expect(

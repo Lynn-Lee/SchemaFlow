@@ -6,7 +6,7 @@ import { LocalConfigProvider } from '@/context/local-config-context/local-config
 import { DatabaseType } from '@/lib/domain/database-type';
 import type { Diagram } from '@/lib/domain/diagram';
 import { clearBYOKSessionKey } from '@/lib/ai/ai-mode';
-import { createChartDBBackup } from '@/storage/backup';
+import { createSchemaFlowBackup } from '@/storage/backup';
 import { SettingsDialog } from '../settings-dialog';
 
 const clearAllDiagramsMock = vi.fn();
@@ -69,9 +69,9 @@ describe('SettingsDialog', () => {
         addDiagramMock.mockResolvedValue(undefined);
         navigateMock.mockReset();
         clearBYOKSessionKey();
-        localStorage.removeItem('chartdb.ai.mode');
-        localStorage.removeItem('chartdb.ai.byok.key');
-        sessionStorage.removeItem('chartdb.ai.byok.key');
+        localStorage.removeItem('schemaflow.ai.mode');
+        localStorage.removeItem('schemaflow.ai.byok.key');
+        sessionStorage.removeItem('schemaflow.ai.byok.key');
     });
 
     it('centralizes display, AI mode, export, and local data controls', () => {
@@ -100,7 +100,7 @@ describe('SettingsDialog', () => {
             screen.getByRole('heading', { name: 'Data management' })
         ).toBeVisible();
         expect(
-            screen.getByText(/ChartDB stores diagrams in this browser/)
+            screen.getByText(/SchemaFlow stores diagrams in this browser/)
         ).toBeInTheDocument();
         expect(
             screen.getByRole('button', { name: 'Export diagram backup' })
@@ -125,7 +125,7 @@ describe('SettingsDialog', () => {
         expect(screen.getByLabelText('AI-assisted export mode')).toHaveValue(
             'byok-session'
         );
-        expect(localStorage.getItem('chartdb.ai.byok.key')).toBeNull();
+        expect(localStorage.getItem('schemaflow.ai.byok.key')).toBeNull();
         expect(
             localStorage.getItem(['OPENAI', 'API', 'KEY'].join('_'))
         ).toBeNull();
@@ -203,7 +203,7 @@ describe('SettingsDialog', () => {
     it('previews a backup summary before restoring diagrams', async () => {
         const user = userEvent.setup();
         renderSettings();
-        const backup = createChartDBBackup({
+        const backup = createSchemaFlowBackup({
             diagrams: [createDiagram()],
             now: new Date('2026-07-01T12:00:00.000Z'),
             appVersion: '1.20.1-test',
@@ -211,7 +211,7 @@ describe('SettingsDialog', () => {
 
         await user.upload(
             screen.getByLabelText('Backup file'),
-            new File([JSON.stringify(backup)], 'chartdb-backup.json', {
+            new File([JSON.stringify(backup)], 'schemaflow-backup.json', {
                 type: 'application/json',
             })
         );

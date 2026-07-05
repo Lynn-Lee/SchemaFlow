@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { fromPostgres } from '../postgresql';
-import { convertToChartDBDiagram } from '../../../common';
+import { convertToSchemaFlowDiagram } from '../../../common';
 import { DatabaseType } from '@/lib/domain/database-type';
 
 describe('Enum Parsing Test - Quest Management System', () => {
@@ -63,7 +63,7 @@ CREATE TABLE rewards (
         const parserResult = await fromPostgres(sql);
 
         // Convert to diagram
-        const diagram = convertToChartDBDiagram(
+        const diagram = convertToSchemaFlowDiagram(
             parserResult,
             DatabaseType.POSTGRESQL,
             DatabaseType.POSTGRESQL

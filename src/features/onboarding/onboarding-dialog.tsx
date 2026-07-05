@@ -120,7 +120,7 @@ export const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
         } catch {
             await deleteDiagram(diagram.id);
             setMessage(
-                'ChartDB could not create the diagram. Nothing was saved; try again.'
+                'SchemaFlow could not create the diagram. Nothing was saved; try again.'
             );
         } finally {
             setIsCreating(false);
@@ -180,7 +180,7 @@ export const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
                 onEscapeKeyDown={(event) => event.preventDefault()}
             >
                 <DialogHeader>
-                    <DialogTitle>Start a ChartDB diagram</DialogTitle>
+                    <DialogTitle>Start a SchemaFlow diagram</DialogTitle>
                     <DialogDescription>
                         Pick the database first, then choose whether to import,
                         start blank, or explore templates.

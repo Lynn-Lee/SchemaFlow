@@ -429,7 +429,7 @@ export const bn: LanguageTranslation = {
         smart_query_wizard: {
             title: 'Smart Query Wizard',
             description:
-                'ChartDB never asks for your database password. You copy a read-only metadata query, run it locally, then paste the JSON output here.',
+                'SchemaFlow never asks for your database password. You copy a read-only metadata query, run it locally, then paste the JSON output here.',
             steps: {
                 choose_database: {
                     title: 'Choose this database type',
@@ -439,7 +439,7 @@ export const bn: LanguageTranslation = {
                 copy_query: {
                     title: 'Copy the Smart Query',
                     description:
-                        'Run it in your own database client. No database password is required in ChartDB.',
+                        'Run it in your own database client. No database password is required in SchemaFlow.',
                 },
                 paste_json: {
                     title: 'Paste the JSON result',
@@ -449,7 +449,7 @@ export const bn: LanguageTranslation = {
                 preview: {
                     title: 'Preview tables, relationships, and warnings',
                     description:
-                        'ChartDB summarizes objects and dialect limitations before writing to the diagram.',
+                        'SchemaFlow summarizes objects and dialect limitations before writing to the diagram.',
                 },
                 confirm: {
                     title: 'Confirm import',
@@ -513,7 +513,7 @@ export const bn: LanguageTranslation = {
             error: {
                 title: 'চিত্র রপ্তানিতে ত্রুটি',
                 description:
-                    'কিছু ভুল হয়েছে। সাহায্যের প্রয়োজন? support@chartdb.io-এ যোগাযোগ করুন।',
+                    'কিছু ভুল হয়েছে। সাহায্যের প্রয়োজন? support@schemaflow.io-এ যোগাযোগ করুন।',
             },
         },
 
@@ -525,7 +525,7 @@ export const bn: LanguageTranslation = {
             error: {
                 title: 'চিত্র আমদানিতে ত্রুটি',
                 description:
-                    'ডায়াগ্রাম JSON অবৈধ। অনুগ্রহ করে JSON পরীক্ষা করুন এবং আবার চেষ্টা করুন। সাহায্যের প্রয়োজন? support@chartdb.io-এ যোগাযোগ করুন।',
+                    'ডায়াগ্রাম JSON অবৈধ। অনুগ্রহ করে JSON পরীক্ষা করুন এবং আবার চেষ্টা করুন। সাহায্যের প্রয়োজন? support@schemaflow.io-এ যোগাযোগ করুন।',
             },
         },
         import_dbml_dialog: {

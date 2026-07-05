@@ -418,7 +418,7 @@ export const zh_CN: LanguageTranslation = {
         smart_query_wizard: {
             title: 'Smart Query 向导',
             description:
-                'ChartDB 不会要求你的数据库密码。你只需复制只读元数据查询，在本地运行，然后将 JSON 输出粘贴到这里。',
+                'SchemaFlow 不会要求你的数据库密码。你只需复制只读元数据查询，在本地运行，然后将 JSON 输出粘贴到这里。',
             steps: {
                 choose_database: {
                     title: '选择当前数据库类型',
@@ -427,7 +427,7 @@ export const zh_CN: LanguageTranslation = {
                 copy_query: {
                     title: '复制 Smart Query',
                     description:
-                        '在你自己的数据库客户端中运行它。ChartDB 不需要数据库密码。',
+                        '在你自己的数据库客户端中运行它。SchemaFlow 不需要数据库密码。',
                 },
                 paste_json: {
                     title: '粘贴 JSON 结果',
@@ -436,7 +436,8 @@ export const zh_CN: LanguageTranslation = {
                 },
                 preview: {
                     title: '预览表、关系和警告',
-                    description: 'ChartDB 会在写入关系图前汇总对象和方言限制。',
+                    description:
+                        'SchemaFlow 会在写入关系图前汇总对象和方言限制。',
                 },
                 confirm: {
                     title: '确认导入',
@@ -497,7 +498,7 @@ export const zh_CN: LanguageTranslation = {
             error: {
                 title: 'Error exporting diagram',
                 description:
-                    'Something went wrong. Need help? support@chartdb.io',
+                    'Something went wrong. Need help? support@schemaflow.io',
             },
         },
 
@@ -509,7 +510,7 @@ export const zh_CN: LanguageTranslation = {
             error: {
                 title: '导入关系图时出错',
                 description:
-                    '关系图 JSON 无效，请检查 JSON 后重试。需要帮助？ 联系 support@chartdb.io',
+                    '关系图 JSON 无效，请检查 JSON 后重试。需要帮助？ 联系 support@schemaflow.io',
             },
         },
         import_dbml_dialog: {

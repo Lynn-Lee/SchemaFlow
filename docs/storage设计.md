@@ -1,6 +1,6 @@
-# ChartDB Storage 设计
+# SchemaFlow Storage 设计
 
-> 状态：Phase 3 执行清单。`CHARTDB-P3-001` 已完成 Dexie schema 集中化，`CHARTDB-P3-002` 已完成 repository API 抽离；后续从 `CHARTDB-P3-003` 的 diagram transaction service 继续。
+> 状态：Phase 3 执行清单。`SCHEMAFLOW-P3-001` 已完成 Dexie schema 集中化，`SCHEMAFLOW-P3-002` 已完成 repository API 抽离；后续从 `SCHEMAFLOW-P3-003` 的 diagram transaction service 继续。
 
 ## 1. 目标
 
@@ -10,9 +10,9 @@ Phase 3 的目标是把 IndexedDB 访问从 React Provider 中抽离，形成可
 
 ## 2. 当前基线
 
-当前 Dexie 初始化、表结构和 migration 已集中到 `src/storage/db`，CRUD repository 已集中到 `src/storage/repositories/chartdb-repositories.ts`：
+当前 Dexie 初始化、表结构和 migration 已集中到 `src/storage/db`，CRUD repository 已集中到 `src/storage/repositories/schemaflow-repositories.ts`：
 
-- 数据库名：`ChartDB`。
+- 数据库名：`SchemaFlow`。
 - 当前 Dexie 版本：`13`。
 - 当前表：`diagrams`、`db_tables`、`db_relationships`、`db_dependencies`、`areas`、`db_custom_types`、`notes`、`config`、`diagram_filters`。
 - 既有 migration：字段 type 字符串迁移、relationship cardinality 迁移、field nullable 字符串迁移、config 重置。
@@ -23,7 +23,7 @@ Phase 3 的目标是把 IndexedDB 访问从 React Provider 中抽离，形成可
 ```text
 src/storage/
   db/
-    chartdb-dexie.ts
+    schemaflow-dexie.ts
     schema-versions.ts
   repositories/
     diagram-repository.ts
@@ -47,7 +47,7 @@ src/storage/
 
 ## 4. Dexie 与 migration 边界
 
-`src/storage/db/chartdb-dexie.ts` 负责创建 Dexie instance。`src/storage/db/schema-versions.ts` 负责集中声明所有 stores 和 upgrade migration。
+`src/storage/db/schemaflow-dexie.ts` 负责创建 Dexie instance。`src/storage/db/schema-versions.ts` 负责集中声明所有 stores 和 upgrade migration。
 
 约束：
 
@@ -58,7 +58,7 @@ src/storage/
 
 ## 5. Repository 边界
 
-repository 是 Dexie table 的唯一读写入口。React Provider 和 ChartDBProvider 不直接写 Dexie table。
+repository 是 Dexie table 的唯一读写入口。React Provider 和 SchemaFlowProvider 不直接写 Dexie table。
 
 首轮 repository API 只覆盖既有 StorageContext 能力：
 
@@ -86,18 +86,18 @@ diagram 级写操作必须逐步迁移到 transaction service：
 
 - 删除 diagram 后没有孤儿记录。
 - transaction 失败时不留下半成品 diagram。
-- command history 和旧 undo/redo 仍由 ChartDBProvider 管理，不写入 storage transaction。
+- command history 和旧 undo/redo 仍由 SchemaFlowProvider 管理，不写入 storage transaction。
 
 ## 7. Backup / restore 格式
 
-备份文件必须版本化，首个目标格式为 `chartdb.backup.v1`：
+备份文件必须版本化，首个目标格式为 `schemaflow.backup.v1`：
 
 ```ts
-type ChartDBBackupV1 = {
-    format: 'chartdb.backup';
+type SchemaFlowBackupV1 = {
+    format: 'schemaflow.backup';
     schemaVersion: 1;
     createdAt: string;
-    source: 'chartdb-local';
+    source: 'schemaflow-local';
     appVersion?: string;
     diagramCount: number;
     diagrams: Diagram[];
@@ -113,10 +113,10 @@ type ChartDBBackupV1 = {
 
 ## 8. 自动开发顺序
 
-1. `CHARTDB-P3-001`：抽离 Dexie 数据库定义，新增 `src/storage/db` 和 schema version 测试。
-2. `CHARTDB-P3-002`：抽 repository API，让 `StorageProvider` 组合 repository。（已完成）
-3. `CHARTDB-P3-003`：实现 diagram transaction service，覆盖删除和替换一致性。
-4. `CHARTDB-P3-004`：实现 backup schema version、校验和 restore migration。（已完成 versioned backup contract，后续 migration runner 随新格式版本增加）
+1. `SCHEMAFLOW-P3-001`：抽离 Dexie 数据库定义，新增 `src/storage/db` 和 schema version 测试。
+2. `SCHEMAFLOW-P3-002`：抽 repository API，让 `StorageProvider` 组合 repository。（已完成）
+3. `SCHEMAFLOW-P3-003`：实现 diagram transaction service，覆盖删除和替换一致性。
+4. `SCHEMAFLOW-P3-004`：实现 backup schema version、校验和 restore migration。（已完成 versioned backup contract，后续 migration runner 随新格式版本增加）
 
 Phase 3 完成后才允许进入 Phase 4 dialect contract，不跳过 storage 事务和备份恢复验收。
 

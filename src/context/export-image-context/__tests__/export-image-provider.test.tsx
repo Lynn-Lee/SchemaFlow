@@ -23,8 +23,8 @@ vi.mock('@xyflow/react', () => ({
     }),
 }));
 
-vi.mock('@/hooks/use-chartdb', () => ({
-    useChartDB: () => ({
+vi.mock('@/hooks/use-schemaflow', () => ({
+    useSchemaFlow: () => ({
         diagramName: 'diagram',
     }),
 }));
@@ -127,7 +127,7 @@ describe('ExportImageProvider', () => {
                 document.querySelector('#relationship-marker')
             );
 
-            return 'data:image/svg+xml;base64,chartdb';
+            return 'data:image/svg+xml;base64,schemaflow';
         });
 
         document.createElement = ((

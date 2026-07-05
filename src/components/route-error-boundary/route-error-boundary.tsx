@@ -31,18 +31,18 @@ export const RouteErrorBoundary = () => {
                     </div>
                     <div className="space-y-2">
                         <p className="text-sm font-medium uppercase text-muted-foreground">
-                            ChartDB route recovery
+                            SchemaFlow route recovery
                         </p>
                         <h1 className="text-2xl font-semibold">
-                            ChartDB could not open this page
+                            SchemaFlow could not open this page
                         </h1>
                     </div>
                 </div>
 
                 <p className="text-sm leading-6 text-muted-foreground">
-                    The page loader or route chunk failed before ChartDB could
-                    render the requested view. Your local diagrams remain in
-                    browser storage.
+                    The page loader or route chunk failed before SchemaFlow
+                    could render the requested view. Your local diagrams remain
+                    in browser storage.
                 </p>
 
                 <p className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">

@@ -63,7 +63,7 @@ describe('buildImportPreview', () => {
                 {
                     objectType: 'policy',
                     name: 'users_rls',
-                    reason: 'RLS policy is not represented in ChartDB.',
+                    reason: 'RLS policy is not represented in SchemaFlow.',
                     ignored: true,
                 },
             ],
@@ -93,7 +93,7 @@ describe('buildImportPreview', () => {
                 {
                     objectType: 'policy',
                     name: 'users_rls',
-                    reason: 'RLS policy is not represented in ChartDB.',
+                    reason: 'RLS policy is not represented in SchemaFlow.',
                     ignored: true,
                 },
             ],

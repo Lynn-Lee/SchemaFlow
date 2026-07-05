@@ -10,7 +10,7 @@ export const HelmetData: React.FC = () => (
         <meta property="og:type" content="website" />
         <meta
             property="og:title"
-            content="ChartDB - Database schema diagrams visualizer"
+            content="SchemaFlow - Database schema diagrams visualizer"
         />
         <meta
             property="og:description"
@@ -18,13 +18,13 @@ export const HelmetData: React.FC = () => (
         />
         <meta
             property="og:image"
-            content="https://app.chartdb.io/chartdb.png"
+            content="https://app.schemaflow.io/schemaflow.png"
         />
-        <meta property="og:url" content="https://app.chartdb.io" />
+        <meta property="og:url" content="https://app.schemaflow.io" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta
             name="twitter:title"
-            content="ChartDB - Database schema diagrams visualizer"
+            content="SchemaFlow - Database schema diagrams visualizer"
         />
         <meta
             name="twitter:description"
@@ -32,8 +32,8 @@ export const HelmetData: React.FC = () => (
         />
         <meta
             name="twitter:image"
-            content="https://github.com/chartdb/chartdb/raw/main/public/chartdb.png"
+            content="https://github.com/schemaflow/schemaflow/raw/main/public/schemaflow.png"
         />
-        <title>ChartDB - Database schema diagrams visualizer</title>
+        <title>SchemaFlow - Database schema diagrams visualizer</title>
     </Helmet>
 );

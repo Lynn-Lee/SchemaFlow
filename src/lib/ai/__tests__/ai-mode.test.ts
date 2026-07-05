@@ -29,8 +29,8 @@ describe('AI export mode gating', () => {
         setBYOKSessionKey('sk-session-only');
 
         expect(getBYOKSessionKey()).toBe('sk-session-only');
-        expect(localStorage.getItem('chartdb.ai.byok.key')).toBeNull();
-        expect(sessionStorage.getItem('chartdb.ai.byok.key')).toBeNull();
+        expect(localStorage.getItem('schemaflow.ai.byok.key')).toBeNull();
+        expect(sessionStorage.getItem('schemaflow.ai.byok.key')).toBeNull();
 
         clearBYOKSessionKey();
 

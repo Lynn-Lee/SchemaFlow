@@ -3,9 +3,9 @@ import type { DBRelationship } from '@/lib/domain/db-relationship';
 import { determineCardinalities } from '@/lib/domain/db-relationship';
 import type { DBTable } from '@/lib/domain/db-table';
 
-export const CHARTDB_SCHEMA_VERSION = 13;
+export const SCHEMAFLOW_SCHEMA_VERSION = 13;
 
-export const CHARTDB_STORES_BY_VERSION = {
+export const SCHEMAFLOW_STORES_BY_VERSION = {
     1: {
         diagrams: '++id, name, databaseType, createdAt, updatedAt',
         db_tables:
@@ -119,10 +119,10 @@ export const CHARTDB_STORES_BY_VERSION = {
     },
 } as const;
 
-export const CHARTDB_CURRENT_STORES =
-    CHARTDB_STORES_BY_VERSION[CHARTDB_SCHEMA_VERSION];
+export const SCHEMAFLOW_CURRENT_STORES =
+    SCHEMAFLOW_STORES_BY_VERSION[SCHEMAFLOW_SCHEMA_VERSION];
 
-export const CHARTDB_STORE_NAMES = Object.keys(CHARTDB_CURRENT_STORES);
+export const SCHEMAFLOW_STORE_NAMES = Object.keys(SCHEMAFLOW_CURRENT_STORES);
 
 type LegacyDBFieldType = {
     id: string;
@@ -191,8 +191,8 @@ export const migrateV12ResetConfig = (tx: ConfigMigrationTransaction) => {
     tx.table('config').clear();
 };
 
-export const registerChartDBSchemaVersions = <T extends Dexie>(db: T): T => {
-    db.version(1).stores(CHARTDB_STORES_BY_VERSION[1]);
+export const registerSchemaFlowSchemaVersions = <T extends Dexie>(db: T): T => {
+    db.version(1).stores(SCHEMAFLOW_STORES_BY_VERSION[1]);
 
     db.version(2).upgrade((tx) =>
         tx
@@ -201,9 +201,9 @@ export const registerChartDBSchemaVersions = <T extends Dexie>(db: T): T => {
             .modify(migrateV2FieldTypes)
     );
 
-    db.version(3).stores(CHARTDB_STORES_BY_VERSION[3]);
-    db.version(4).stores(CHARTDB_STORES_BY_VERSION[4]);
-    db.version(5).stores(CHARTDB_STORES_BY_VERSION[5]);
+    db.version(3).stores(SCHEMAFLOW_STORES_BY_VERSION[3]);
+    db.version(4).stores(SCHEMAFLOW_STORES_BY_VERSION[4]);
+    db.version(5).stores(SCHEMAFLOW_STORES_BY_VERSION[5]);
 
     db.version(6).upgrade((tx) =>
         tx
@@ -212,8 +212,8 @@ export const registerChartDBSchemaVersions = <T extends Dexie>(db: T): T => {
             .modify(migrateV6RelationshipCardinalities)
     );
 
-    db.version(7).stores(CHARTDB_STORES_BY_VERSION[7]);
-    db.version(8).stores(CHARTDB_STORES_BY_VERSION[8]);
+    db.version(7).stores(SCHEMAFLOW_STORES_BY_VERSION[7]);
+    db.version(8).stores(SCHEMAFLOW_STORES_BY_VERSION[8]);
 
     db.version(9).upgrade((tx) =>
         tx
@@ -222,12 +222,12 @@ export const registerChartDBSchemaVersions = <T extends Dexie>(db: T): T => {
             .modify(migrateV9FieldNullability)
     );
 
-    db.version(10).stores(CHARTDB_STORES_BY_VERSION[10]);
-    db.version(11).stores(CHARTDB_STORES_BY_VERSION[11]);
+    db.version(10).stores(SCHEMAFLOW_STORES_BY_VERSION[10]);
+    db.version(11).stores(SCHEMAFLOW_STORES_BY_VERSION[11]);
     db.version(12)
-        .stores(CHARTDB_STORES_BY_VERSION[12])
+        .stores(SCHEMAFLOW_STORES_BY_VERSION[12])
         .upgrade(migrateV12ResetConfig);
-    db.version(CHARTDB_SCHEMA_VERSION).stores(CHARTDB_CURRENT_STORES);
+    db.version(SCHEMAFLOW_SCHEMA_VERSION).stores(SCHEMAFLOW_CURRENT_STORES);
 
     return db;
 };

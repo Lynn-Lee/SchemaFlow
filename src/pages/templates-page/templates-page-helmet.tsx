@@ -8,7 +8,7 @@ export interface TemplatesPageHelmetProps {
     isFeatured: boolean;
 }
 
-const CHARTDB_HOST_URL = 'https://chartdb.io';
+const SCHEMAFLOW_HOST_URL = 'https://schemaflow.io';
 export const TemplatesPageHelmet: React.FC<TemplatesPageHelmetProps> = ({
     tag,
     isFeatured,
@@ -28,11 +28,12 @@ export const TemplatesPageHelmet: React.FC<TemplatesPageHelmetProps> = ({
             suffix += '/featured';
         }
 
-        return `${CHARTDB_HOST_URL}${suffix}`;
+        return `${SCHEMAFLOW_HOST_URL}${suffix}`;
     }, [isFeatured, formattedUrlTag]);
 
     const needCanonical =
-        HOST_URL !== CHARTDB_HOST_URL || (tag && formattedUrlTag !== tagParam);
+        HOST_URL !== SCHEMAFLOW_HOST_URL ||
+        (tag && formattedUrlTag !== tagParam);
 
     return (
         <Helmet>
@@ -41,13 +42,13 @@ export const TemplatesPageHelmet: React.FC<TemplatesPageHelmetProps> = ({
             ) : null}
 
             {tag ? (
-                <title>{`${tag} database schema diagram templates | ChartDB`}</title>
+                <title>{`${tag} database schema diagram templates | SchemaFlow`}</title>
             ) : isFeatured ? (
                 <title>
-                    Featured database schema diagram templates | ChartDB
+                    Featured database schema diagram templates | SchemaFlow
                 </title>
             ) : (
-                <title>Database schema diagram templates | ChartDB</title>
+                <title>Database schema diagram templates | SchemaFlow</title>
             )}
 
             {tag ? (
@@ -65,17 +66,17 @@ export const TemplatesPageHelmet: React.FC<TemplatesPageHelmetProps> = ({
             {tag ? (
                 <meta
                     property="og:title"
-                    content={`${tag} database schema diagram templates | ChartDB`}
+                    content={`${tag} database schema diagram templates | SchemaFlow`}
                 />
             ) : isFeatured ? (
                 <meta
                     property="og:title"
-                    content="Featured database schema diagram templates | ChartDB"
+                    content="Featured database schema diagram templates | SchemaFlow"
                 />
             ) : (
                 <meta
                     property="og:title"
-                    content="Database schema diagram templates | ChartDB"
+                    content="Database schema diagram templates | SchemaFlow"
                 />
             )}
 
@@ -104,19 +105,19 @@ export const TemplatesPageHelmet: React.FC<TemplatesPageHelmetProps> = ({
                     content="Discover a collection of real-world database schema diagrams, featuring example applications and popular open-source projects."
                 />
             )}
-            <meta property="og:image" content={`${HOST_URL}/chartdb.png`} />
+            <meta property="og:image" content={`${HOST_URL}/schemaflow.png`} />
             <meta property="og:type" content="website" />
-            <meta property="og:site_name" content="ChartDB" />
+            <meta property="og:site_name" content="SchemaFlow" />
 
             {tag ? (
                 <meta
                     name="twitter:title"
-                    content={`${tag} database schema diagram templates | ChartDB`}
+                    content={`${tag} database schema diagram templates | SchemaFlow`}
                 />
             ) : (
                 <meta
                     name="twitter:title"
-                    content="Database schema diagram templates | ChartDB"
+                    content="Database schema diagram templates | SchemaFlow"
                 />
             )}
 
@@ -132,10 +133,10 @@ export const TemplatesPageHelmet: React.FC<TemplatesPageHelmetProps> = ({
                 />
             )}
 
-            <meta name="twitter:image" content={`${HOST_URL}/chartdb.png`} />
+            <meta name="twitter:image" content={`${HOST_URL}/schemaflow.png`} />
             <meta name="twitter:card" content="summary_large_image" />
-            <meta name="twitter:site" content="@ChartDB_io" />
-            <meta name="twitter:creator" content="@ChartDB_io" />
+            <meta name="twitter:site" content="@SchemaFlow_io" />
+            <meta name="twitter:creator" content="@SchemaFlow_io" />
         </Helmet>
     );
 };

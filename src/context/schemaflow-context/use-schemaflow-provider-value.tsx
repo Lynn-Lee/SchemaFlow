@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import type { DBTable } from '@/lib/domain/db-table';
 import { generateId } from '@/lib/utils';
-import type { ChartDBContext, ChartDBEvent } from './chartdb-context';
+import type { SchemaFlowContext, SchemaFlowEvent } from './schemaflow-context';
 import { useDependencyOperations } from './use-dependency-operations';
 import { useIndexOperations } from './use-index-operations';
 import { useRelationshipConstraintOperations } from './use-relationship-constraint-operations';
@@ -35,18 +35,18 @@ import {
     createReplaceDiagramCommand,
 } from '@/schema-core/commands';
 
-export interface ChartDBProviderValueProps {
+export interface SchemaFlowProviderValueProps {
     diagram?: Diagram;
     readonly?: boolean;
 }
 
-export const useChartDBProviderValue = ({
+export const useSchemaFlowProviderValue = ({
     diagram,
     readonly: readonlyProp,
-}: ChartDBProviderValueProps): ChartDBContext => {
+}: SchemaFlowProviderValueProps): SchemaFlowContext => {
     const { hasDiff } = useDiff();
     const storageDB = useStorage();
-    const events = useEventEmitter<ChartDBEvent>();
+    const events = useEventEmitter<SchemaFlowEvent>();
     const { addUndoAction, resetRedoStack, resetUndoStack } =
         useRedoUndoStack();
 
@@ -221,7 +221,7 @@ export const useChartDBProviderValue = ({
 
     diffEvents.useSubscription(diffCalculatedHandler);
 
-    const clearDiagramData: ChartDBContext['clearDiagramData'] =
+    const clearDiagramData: SchemaFlowContext['clearDiagramData'] =
         useCallback(async () => {
             const updatedAt = new Date();
             setTables([]);
@@ -246,7 +246,7 @@ export const useChartDBProviderValue = ({
             ]);
         }, [db, diagramId, resetRedoStack, resetUndoStack]);
 
-    const deleteDiagram: ChartDBContext['deleteDiagram'] =
+    const deleteDiagram: SchemaFlowContext['deleteDiagram'] =
         useCallback(async () => {
             setDiagramId('');
             setDiagramName('');
@@ -272,7 +272,7 @@ export const useChartDBProviderValue = ({
             ]);
         }, [db, diagramId, resetRedoStack, resetUndoStack]);
 
-    const updateDiagramUpdatedAt: ChartDBContext['updateDiagramUpdatedAt'] =
+    const updateDiagramUpdatedAt: SchemaFlowContext['updateDiagramUpdatedAt'] =
         useCallback(async () => {
             const updatedAt = new Date();
             setDiagramUpdatedAt(updatedAt);
@@ -282,7 +282,7 @@ export const useChartDBProviderValue = ({
             });
         }, [db, diagramId, setDiagramUpdatedAt]);
 
-    const updateDatabaseType: ChartDBContext['updateDatabaseType'] =
+    const updateDatabaseType: SchemaFlowContext['updateDatabaseType'] =
         useCallback(
             async (databaseType) => {
                 setDatabaseType(databaseType);
@@ -296,7 +296,7 @@ export const useChartDBProviderValue = ({
             [db, diagramId, setDatabaseType]
         );
 
-    const updateDatabaseEdition: ChartDBContext['updateDatabaseEdition'] =
+    const updateDatabaseEdition: SchemaFlowContext['updateDatabaseEdition'] =
         useCallback(
             async (databaseEdition) => {
                 setDatabaseEdition(databaseEdition);
@@ -310,7 +310,7 @@ export const useChartDBProviderValue = ({
             [db, diagramId, setDatabaseEdition]
         );
 
-    const updateDiagramId: ChartDBContext['updateDiagramId'] = useCallback(
+    const updateDiagramId: SchemaFlowContext['updateDiagramId'] = useCallback(
         async (id) => {
             const prevId = diagramId;
             setDiagramId(id);
@@ -319,35 +319,36 @@ export const useChartDBProviderValue = ({
         [db, diagramId, setDiagramId]
     );
 
-    const updateDiagramName: ChartDBContext['updateDiagramName'] = useCallback(
-        async (name, options = { updateHistory: true }) => {
-            const prevName = diagramName;
-            setDiagramName(name);
-            const updatedAt = new Date();
-            setDiagramUpdatedAt(updatedAt);
-            await db.updateDiagram({
-                id: diagramId,
-                attributes: { name, updatedAt },
-            });
-
-            if (options.updateHistory) {
-                addUndoAction({
-                    action: 'updateDiagramName',
-                    redoData: { name },
-                    undoData: { name: prevName },
+    const updateDiagramName: SchemaFlowContext['updateDiagramName'] =
+        useCallback(
+            async (name, options = { updateHistory: true }) => {
+                const prevName = diagramName;
+                setDiagramName(name);
+                const updatedAt = new Date();
+                setDiagramUpdatedAt(updatedAt);
+                await db.updateDiagram({
+                    id: diagramId,
+                    attributes: { name, updatedAt },
                 });
-                resetRedoStack();
-            }
-        },
-        [
-            db,
-            diagramId,
-            setDiagramName,
-            addUndoAction,
-            diagramName,
-            resetRedoStack,
-        ]
-    );
+
+                if (options.updateHistory) {
+                    addUndoAction({
+                        action: 'updateDiagramName',
+                        redoData: { name },
+                        undoData: { name: prevName },
+                    });
+                    resetRedoStack();
+                }
+            },
+            [
+                db,
+                diagramId,
+                setDiagramName,
+                addUndoAction,
+                diagramName,
+                resetRedoStack,
+            ]
+        );
 
     const {
         addField,
@@ -485,7 +486,7 @@ export const useChartDBProviderValue = ({
         tables,
     });
 
-    const loadDiagramFromData: ChartDBContext['loadDiagramFromData'] =
+    const loadDiagramFromData: SchemaFlowContext['loadDiagramFromData'] =
         useCallback(
             (diagram, options) => {
                 const command = createReplaceDiagramCommand({
@@ -523,17 +524,18 @@ export const useChartDBProviderValue = ({
             ]
         );
 
-    const updateDiagramData: ChartDBContext['updateDiagramData'] = useCallback(
-        async (diagram, options) => {
-            const st = options?.forceUpdateStorage ? storageDB : db;
-            await st.deleteDiagram(diagram.id);
-            await st.addDiagram({ diagram });
-            loadDiagramFromData(diagram);
-        },
-        [db, storageDB, loadDiagramFromData]
-    );
+    const updateDiagramData: SchemaFlowContext['updateDiagramData'] =
+        useCallback(
+            async (diagram, options) => {
+                const st = options?.forceUpdateStorage ? storageDB : db;
+                await st.deleteDiagram(diagram.id);
+                await st.addDiagram({ diagram });
+                loadDiagramFromData(diagram);
+            },
+            [db, storageDB, loadDiagramFromData]
+        );
 
-    const loadDiagram: ChartDBContext['loadDiagram'] = useCallback(
+    const loadDiagram: SchemaFlowContext['loadDiagram'] = useCallback(
         async (diagramId: string) => {
             const diagram = await storageDB.getDiagram(diagramId, {
                 includeRelationships: true,

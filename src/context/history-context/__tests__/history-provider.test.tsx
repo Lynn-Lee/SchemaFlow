@@ -9,7 +9,7 @@ import { useHistory } from '@/hooks/use-history';
 import type { RedoUndoAction } from '../redo-undo-action';
 import type { DBTable } from '@/schema-core/model';
 
-const chartDB = {
+const schemaFlow = {
     addTables: vi.fn(),
     removeTables: vi.fn(),
     updateTable: vi.fn(),
@@ -50,8 +50,8 @@ const redoUndoStack = {
     hasUndo: false,
 };
 
-vi.mock('@/hooks/use-chartdb', () => ({
-    useChartDB: () => chartDB,
+vi.mock('@/hooks/use-schemaflow', () => ({
+    useSchemaFlow: () => schemaFlow,
 }));
 
 vi.mock('@/hooks/use-redo-undo-stack', () => ({
@@ -87,7 +87,7 @@ function table(id: string): DBTable {
 describe('HistoryProvider command history replay', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        for (const fn of Object.values(chartDB)) {
+        for (const fn of Object.values(schemaFlow)) {
             fn.mockResolvedValue(undefined);
         }
         redoUndoStack.undoStack = [];
@@ -134,12 +134,12 @@ describe('HistoryProvider command history replay', () => {
         await userEvent.click(screen.getByRole('button', { name: 'Undo' }));
 
         await waitFor(() =>
-            expect(chartDB.removeTables).toHaveBeenCalledWith(
+            expect(schemaFlow.removeTables).toHaveBeenCalledWith(
                 ['command-undo'],
                 { updateHistory: false }
             )
         );
-        expect(chartDB.removeTables).not.toHaveBeenCalledWith(
+        expect(schemaFlow.removeTables).not.toHaveBeenCalledWith(
             ['legacy-undo'],
             expect.anything()
         );
@@ -188,12 +188,12 @@ describe('HistoryProvider command history replay', () => {
         await userEvent.click(screen.getByRole('button', { name: 'Redo' }));
 
         await waitFor(() =>
-            expect(chartDB.addTables).toHaveBeenCalledWith(
+            expect(schemaFlow.addTables).toHaveBeenCalledWith(
                 [expect.objectContaining({ id: 'command-redo' })],
                 { updateHistory: false }
             )
         );
-        expect(chartDB.addTables).not.toHaveBeenCalledWith(
+        expect(schemaFlow.addTables).not.toHaveBeenCalledWith(
             [expect.objectContaining({ id: 'legacy-redo' })],
             expect.anything()
         );
@@ -220,9 +220,12 @@ describe('HistoryProvider command history replay', () => {
         await userEvent.click(screen.getByRole('button', { name: 'Undo' }));
 
         await waitFor(() =>
-            expect(chartDB.removeTables).toHaveBeenCalledWith(['legacy-undo'], {
-                updateHistory: false,
-            })
+            expect(schemaFlow.removeTables).toHaveBeenCalledWith(
+                ['legacy-undo'],
+                {
+                    updateHistory: false,
+                }
+            )
         );
     });
 });

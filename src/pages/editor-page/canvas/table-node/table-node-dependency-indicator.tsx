@@ -1,4 +1,4 @@
-import { useChartDB } from '@/hooks/use-chartdb';
+import { useSchemaFlow } from '@/hooks/use-schemaflow';
 import type { DBTable } from '@/lib/domain/db-table';
 import {
     Handle,
@@ -23,7 +23,7 @@ export interface TableNodeDependencyIndicatorProps {
 
 export const TableNodeDependencyIndicator: React.FC<TableNodeDependencyIndicatorProps> =
     React.memo(({ table, focused }) => {
-        const { dependencies } = useChartDB();
+        const { dependencies } = useSchemaFlow();
         const updateNodeInternals = useUpdateNodeInternals();
         const connection = useConnection();
 

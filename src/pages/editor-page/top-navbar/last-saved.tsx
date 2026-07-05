@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import TimeAgo from 'timeago-react';
-import { useChartDB } from '@/hooks/use-chartdb';
+import { useSchemaFlow } from '@/hooks/use-schemaflow';
 import { Badge } from '@/components/badge/badge';
 import {
     Tooltip,
@@ -73,7 +73,7 @@ const timeAgolocaleFromLanguage = async (
 };
 
 export const LastSaved: React.FC<LastSavedProps> = () => {
-    const { currentDiagram } = useChartDB();
+    const { currentDiagram } = useSchemaFlow();
     const { i18n } = useTranslation();
     const [language, setLanguage] = useState<string>('en_US');
 

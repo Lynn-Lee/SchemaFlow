@@ -15,14 +15,14 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import equal from 'fast-deep-equal';
-import { useChartDB } from '@/hooks/use-chartdb';
+import { useSchemaFlow } from '@/hooks/use-schemaflow';
 import { useToast } from '@/components/toast/use-toast';
 import { useLayout } from '@/hooks/use-layout';
 import { useBreakpoint } from '@/hooks/use-breakpoint';
 import { useTheme } from '@/hooks/use-theme';
 import type { DBTable } from '@/lib/domain/db-table';
 import { useLocalConfig } from '@/hooks/use-local-config';
-import type { ChartDBEvent } from '@/context/chartdb-context/chartdb-context';
+import type { SchemaFlowEvent } from '@/context/schemaflow-context/schemaflow-context';
 import { getOperatingSystem } from '@/lib/browser-utils';
 import { useCanvas } from '@/hooks/use-canvas';
 import { useIsLostInCanvas } from './hooks/use-is-lost-in-canvas';
@@ -39,7 +39,7 @@ import {
     buildCanvasEdgesWithFloatingEdge,
     buildCanvasNodesWithCursor,
 } from './canvas-floating-edge';
-import { buildCanvasEventUpdate } from './canvas-chartdb-events';
+import { buildCanvasEventUpdate } from './canvas-schemaflow-events';
 import { CanvasControls } from './canvas-controls';
 import { CanvasFilterLayer } from './canvas-filter-layer';
 import { CanvasFlow } from './canvas-flow';
@@ -102,7 +102,7 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
         updateNote,
         highlightedCustomType,
         highlightCustomTypeId,
-    } = useChartDB();
+    } = useSchemaFlow();
     const { showSidePanel } = useLayout();
     const { effectiveTheme } = useTheme();
     const { scrollAction, showDBViews, showMiniMapOnCanvas } = useLocalConfig();
@@ -335,7 +335,7 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
     });
 
     const eventConsumer = useCallback(
-        (event: ChartDBEvent) => {
+        (event: SchemaFlowEvent) => {
             const update = buildCanvasEventUpdate({
                 event,
                 overlapGraph,

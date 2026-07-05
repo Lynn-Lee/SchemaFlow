@@ -3,8 +3,8 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { DiffProvider } from '@/context/diff-context/diff-provider';
 import type { DBTable } from '@/lib/domain/db-table';
-import { ChartDBProvider } from '../chartdb-provider';
-import { useChartDBSelector } from '../chartdb-context';
+import { SchemaFlowProvider } from '../schemaflow-provider';
+import { useSchemaFlowSelector } from '../schemaflow-context';
 
 const createTable = (overrides: Partial<DBTable> = {}): DBTable => ({
     id: 'table-1',
@@ -23,10 +23,10 @@ const ForceOverrideHarness: React.FC<{
     onError: (message: string) => void;
     nextTables: unknown[];
 }> = ({ onError, nextTables }) => {
-    const tables = useChartDBSelector((chartDB) => chartDB.tables);
-    const addTable = useChartDBSelector((chartDB) => chartDB.addTable);
-    const updateTablesState = useChartDBSelector(
-        (chartDB) => chartDB.updateTablesState
+    const tables = useSchemaFlowSelector((schemaFlow) => schemaFlow.tables);
+    const addTable = useSchemaFlowSelector((schemaFlow) => schemaFlow.addTable);
+    const updateTablesState = useSchemaFlowSelector(
+        (schemaFlow) => schemaFlow.updateTablesState
     );
 
     return (
@@ -68,12 +68,12 @@ describe('updateTablesState forceOverride validation', () => {
     it('replaces the tables snapshot when the override payload is a valid tables array', async () => {
         render(
             <DiffProvider>
-                <ChartDBProvider readonly>
+                <SchemaFlowProvider readonly>
                     <ForceOverrideHarness
                         onError={vi.fn()}
                         nextTables={[createTable({ name: 'accounts' })]}
                     />
-                </ChartDBProvider>
+                </SchemaFlowProvider>
             </DiffProvider>
         );
 
@@ -90,12 +90,12 @@ describe('updateTablesState forceOverride validation', () => {
 
         render(
             <DiffProvider>
-                <ChartDBProvider readonly>
+                <SchemaFlowProvider readonly>
                     <ForceOverrideHarness
                         onError={onError}
                         nextTables={[{ id: 'broken-table' }]}
                     />
-                </ChartDBProvider>
+                </SchemaFlowProvider>
             </DiffProvider>
         );
 

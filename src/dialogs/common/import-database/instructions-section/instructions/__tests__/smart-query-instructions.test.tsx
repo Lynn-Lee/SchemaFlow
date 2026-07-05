@@ -23,21 +23,21 @@ vi.mock('@/components/code-snippet/code-snippet', () => ({
 const translations: Record<string, string> = {
     'smart_query_wizard.title': 'Smart Query Wizard',
     'smart_query_wizard.description':
-        'ChartDB never asks for your database password. You copy a read-only metadata query, run it locally, then paste the JSON output here.',
+        'SchemaFlow never asks for your database password. You copy a read-only metadata query, run it locally, then paste the JSON output here.',
     'smart_query_wizard.steps.choose_database.title':
         'Choose this database type',
     'smart_query_wizard.steps.choose_database.description':
         'The query is generated for the selected database and client.',
     'smart_query_wizard.steps.copy_query.title': 'Copy the Smart Query',
     'smart_query_wizard.steps.copy_query.description':
-        'Run it in your own database client. No database password is required in ChartDB.',
+        'Run it in your own database client. No database password is required in SchemaFlow.',
     'smart_query_wizard.steps.paste_json.title': 'Paste the JSON result',
     'smart_query_wizard.steps.paste_json.description':
         'Only paste the metadata JSON returned by the query, not a connection string or secret.',
     'smart_query_wizard.steps.preview.title':
         'Preview tables, relationships, and warnings',
     'smart_query_wizard.steps.preview.description':
-        'ChartDB summarizes objects and dialect limitations before writing to the diagram.',
+        'SchemaFlow summarizes objects and dialect limitations before writing to the diagram.',
     'smart_query_wizard.steps.confirm.title': 'Confirm import',
     'smart_query_wizard.steps.confirm.description':
         'Nothing is added to IndexedDB until you confirm the preview.',

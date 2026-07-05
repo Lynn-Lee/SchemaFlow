@@ -416,7 +416,7 @@ export const tr: LanguageTranslation = {
         smart_query_wizard: {
             title: 'Smart Query Wizard',
             description:
-                'ChartDB never asks for your database password. You copy a read-only metadata query, run it locally, then paste the JSON output here.',
+                'SchemaFlow never asks for your database password. You copy a read-only metadata query, run it locally, then paste the JSON output here.',
             steps: {
                 choose_database: {
                     title: 'Choose this database type',
@@ -426,7 +426,7 @@ export const tr: LanguageTranslation = {
                 copy_query: {
                     title: 'Copy the Smart Query',
                     description:
-                        'Run it in your own database client. No database password is required in ChartDB.',
+                        'Run it in your own database client. No database password is required in SchemaFlow.',
                 },
                 paste_json: {
                     title: 'Paste the JSON result',
@@ -436,7 +436,7 @@ export const tr: LanguageTranslation = {
                 preview: {
                     title: 'Preview tables, relationships, and warnings',
                     description:
-                        'ChartDB summarizes objects and dialect limitations before writing to the diagram.',
+                        'SchemaFlow summarizes objects and dialect limitations before writing to the diagram.',
                 },
                 confirm: {
                     title: 'Confirm import',
@@ -497,7 +497,7 @@ export const tr: LanguageTranslation = {
             error: {
                 title: 'Error exporting diagram',
                 description:
-                    'Something went wrong. Need help? support@chartdb.io',
+                    'Something went wrong. Need help? support@schemaflow.io',
             },
         },
         import_diagram_dialog: {
@@ -508,7 +508,7 @@ export const tr: LanguageTranslation = {
             error: {
                 title: 'Error importing diagram',
                 description:
-                    'The diagram JSON is invalid. Please check the JSON and try again. Need help? support@chartdb.io',
+                    'The diagram JSON is invalid. Please check the JSON and try again. Need help? support@schemaflow.io',
             },
         },
         import_dbml_dialog: {

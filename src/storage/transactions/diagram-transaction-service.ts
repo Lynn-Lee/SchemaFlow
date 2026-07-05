@@ -4,7 +4,7 @@ import type { DBDependency } from '@/lib/domain/db-dependency';
 import type { DBRelationship } from '@/lib/domain/db-relationship';
 import type { DBTable } from '@/lib/domain/db-table';
 import type { Diagram } from '@/lib/domain/diagram';
-import type { ChartDBDexie } from '@/storage/db/chartdb-dexie';
+import type { SchemaFlowDexie } from '@/storage/db/schemaflow-dexie';
 
 const getDiagramCore = (diagram: Diagram): Diagram => ({
     id: diagram.id,
@@ -23,7 +23,7 @@ const withDiagramId = <T extends { id: string }>(
     diagramId,
 });
 
-export const createDiagramTransactionService = (db: ChartDBDexie) => {
+export const createDiagramTransactionService = (db: SchemaFlowDexie) => {
     const runDiagramTransaction = async (callback: () => Promise<void>) => {
         await db.transaction(
             'rw',

@@ -6,9 +6,9 @@ import {
 } from './domain/diagram';
 import { generateDiagramId } from './browser-utils';
 import {
-    CHARTDB_BACKUP_FORMAT,
-    createChartDBBackup,
-    parseChartDBBackup,
+    SCHEMAFLOW_BACKUP_FORMAT,
+    createSchemaFlowBackup,
+    parseSchemaFlowBackup,
     restoreDiagramFromBackup,
 } from '@/storage/backup';
 import packageJson from '../../package.json';
@@ -67,7 +67,7 @@ const migrateDiagramJsonInput = (
 
 export const diagramToJSONOutput = (diagram: Diagram): string => {
     return JSON.stringify(
-        createChartDBBackup({
+        createSchemaFlowBackup({
             diagrams: [diagram],
             appVersion: packageJson.version,
         }),
@@ -83,10 +83,10 @@ export const diagramFromJSONInput = (json: string): Diagram => {
         typeof loadedDiagram === 'object' &&
         loadedDiagram !== null &&
         'format' in loadedDiagram &&
-        loadedDiagram.format === CHARTDB_BACKUP_FORMAT
+        loadedDiagram.format === SCHEMAFLOW_BACKUP_FORMAT
     ) {
         return restoreDiagramFromBackup({
-            backup: parseChartDBBackup(json),
+            backup: parseSchemaFlowBackup(json),
         });
     }
 

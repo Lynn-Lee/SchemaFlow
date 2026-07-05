@@ -1,5 +1,5 @@
 name: Feature request
-description: Propose an improvement that preserves ChartDB's local-first OSS Core.
+description: Propose an improvement that preserves SchemaFlow's local-first OSS Core.
 title: "[Feature]: "
 labels: ["enhancement"]
 body:

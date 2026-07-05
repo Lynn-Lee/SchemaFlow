@@ -16,7 +16,7 @@ import type { Area } from '@/lib/domain/area';
 import type { DBCustomType } from '@/lib/domain/db-custom-type';
 import type { Note } from '@/lib/domain/note';
 
-export type ChartDBEventType =
+export type SchemaFlowEventType =
     | 'add_tables'
     | 'update_table'
     | 'remove_tables'
@@ -24,42 +24,42 @@ export type ChartDBEventType =
     | 'remove_field'
     | 'load_diagram';
 
-export type ChartDBEventBase<T extends ChartDBEventType, D> = {
+export type SchemaFlowEventBase<T extends SchemaFlowEventType, D> = {
     action: T;
     data: D;
 };
 
-export type CreateTableEvent = ChartDBEventBase<
+export type CreateTableEvent = SchemaFlowEventBase<
     'add_tables',
     { tables: DBTable[] }
 >;
 
-export type UpdateTableEvent = ChartDBEventBase<
+export type UpdateTableEvent = SchemaFlowEventBase<
     'update_table',
     { id: string; table: Partial<DBTable> }
 >;
 
-export type RemoveTableEvent = ChartDBEventBase<
+export type RemoveTableEvent = SchemaFlowEventBase<
     'remove_tables',
     { tableIds: string[] }
 >;
 
-export type AddFieldEvent = ChartDBEventBase<
+export type AddFieldEvent = SchemaFlowEventBase<
     'add_field',
     { tableId: string; field: DBField; fields: DBField[] }
 >;
 
-export type RemoveFieldEvent = ChartDBEventBase<
+export type RemoveFieldEvent = SchemaFlowEventBase<
     'remove_field',
     { tableId: string; fieldId: string; fields: DBField[] }
 >;
 
-export type LoadDiagramEvent = ChartDBEventBase<
+export type LoadDiagramEvent = SchemaFlowEventBase<
     'load_diagram',
     { diagram: Diagram }
 >;
 
-export type ChartDBEvent =
+export type SchemaFlowEvent =
     | CreateTableEvent
     | UpdateTableEvent
     | RemoveTableEvent
@@ -67,7 +67,7 @@ export type ChartDBEvent =
     | RemoveFieldEvent
     | LoadDiagramEvent;
 
-export interface ChartDBContext {
+export interface SchemaFlowContext {
     diagramId: string;
     diagramName: string;
     databaseType: DatabaseType;
@@ -79,7 +79,7 @@ export interface ChartDBContext {
     customTypes: DBCustomType[];
     notes: Note[];
     currentDiagram: Diagram;
-    events: EventEmitter<ChartDBEvent>;
+    events: EventEmitter<SchemaFlowEvent>;
     readonly?: boolean;
 
     highlightedCustomType?: DBCustomType;
@@ -334,7 +334,7 @@ export interface ChartDBContext {
     ) => Promise<void>;
 }
 
-export const initialChartDBContext: ChartDBContext = {
+export const initialSchemaFlowContext: SchemaFlowContext = {
     databaseType: DatabaseType.GENERIC,
     diagramName: '',
     diagramId: '',
@@ -446,23 +446,23 @@ export const initialChartDBContext: ChartDBContext = {
     updateCustomType: emptyFn,
 };
 
-export const chartDBContext = createContext<ChartDBContext>(
-    initialChartDBContext
+export const schemaFlowContext = createContext<SchemaFlowContext>(
+    initialSchemaFlowContext
 );
 
-type ChartDBStoreListener = () => void;
+type SchemaFlowStoreListener = () => void;
 
-export interface ChartDBStore {
-    getSnapshot: () => ChartDBContext;
-    setValue: (value: ChartDBContext) => void;
-    subscribe: (listener: ChartDBStoreListener) => () => void;
+export interface SchemaFlowStore {
+    getSnapshot: () => SchemaFlowContext;
+    setValue: (value: SchemaFlowContext) => void;
+    subscribe: (listener: SchemaFlowStoreListener) => () => void;
 }
 
-export const createChartDBStore = (
-    initialValue: ChartDBContext
-): ChartDBStore => {
+export const createSchemaFlowStore = (
+    initialValue: SchemaFlowContext
+): SchemaFlowStore => {
     let value = initialValue;
-    const listeners = new Set<ChartDBStoreListener>();
+    const listeners = new Set<SchemaFlowStoreListener>();
 
     return {
         getSnapshot: () => value,
@@ -483,14 +483,14 @@ export const createChartDBStore = (
     };
 };
 
-export const chartDBStoreContext = createContext<ChartDBStore>(
-    createChartDBStore(initialChartDBContext)
+export const schemaFlowStoreContext = createContext<SchemaFlowStore>(
+    createSchemaFlowStore(initialSchemaFlowContext)
 );
 
-export const useChartDBSelector = <Selected,>(
-    selector: (chartDB: ChartDBContext) => Selected
+export const useSchemaFlowSelector = <Selected,>(
+    selector: (schemaFlow: SchemaFlowContext) => Selected
 ): Selected => {
-    const store = useContext(chartDBStoreContext);
+    const store = useContext(schemaFlowStoreContext);
 
     return useSyncExternalStore(
         store.subscribe,

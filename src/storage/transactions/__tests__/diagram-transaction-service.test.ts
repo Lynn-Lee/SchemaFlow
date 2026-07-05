@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createDiagramTransactionService } from '../diagram-transaction-service';
-import type { ChartDBDexie } from '@/storage/db/chartdb-dexie';
+import type { SchemaFlowDexie } from '@/storage/db/schemaflow-dexie';
 import type { Diagram } from '@/lib/domain/diagram';
 import type { DBTable } from '@/lib/domain/db-table';
 import type { DiagramFilter } from '@/lib/domain/diagram-filter/diagram-filter';
@@ -107,7 +107,7 @@ const createTestDb = () => {
                 throw error;
             }
         },
-    } as unknown as ChartDBDexie;
+    } as unknown as SchemaFlowDexie;
 };
 
 const createDiagram = (id = 'diagram-1'): Diagram => ({

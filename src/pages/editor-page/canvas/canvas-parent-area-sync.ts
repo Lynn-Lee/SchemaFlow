@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
-import type { ChartDBContext } from '@/context/chartdb-context/chartdb-context';
+import type { SchemaFlowContext } from '@/context/schemaflow-context/schemaflow-context';
 import { debounce } from '@/lib/utils';
 import type { NodeType } from './canvas-model';
 import { buildParentAreaUpdates } from './canvas-parent-areas';
 
 export interface UseCanvasParentAreaSyncParams {
     nodes: NodeType[];
-    updateTablesState: ChartDBContext['updateTablesState'];
+    updateTablesState: SchemaFlowContext['updateTablesState'];
     debounceMs?: number;
 }
 

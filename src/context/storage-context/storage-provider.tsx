@@ -1,15 +1,15 @@
 import React, { useMemo } from 'react';
 import type { StorageContext } from './storage-context';
 import { storageContext } from './storage-context';
-import { createChartDBDexie } from '@/storage/db/chartdb-dexie';
-import { createChartDBRepositories } from '@/storage/repositories/chartdb-repositories';
+import { createSchemaFlowDexie } from '@/storage/db/schemaflow-dexie';
+import { createSchemaFlowRepositories } from '@/storage/repositories/schemaflow-repositories';
 
 export const StorageProvider: React.FC<React.PropsWithChildren> = ({
     children,
 }) => {
-    const database = useMemo(() => createChartDBDexie(), []);
+    const database = useMemo(() => createSchemaFlowDexie(), []);
     const repositories = useMemo(
-        () => createChartDBRepositories(database),
+        () => createSchemaFlowRepositories(database),
         [database]
     );
 

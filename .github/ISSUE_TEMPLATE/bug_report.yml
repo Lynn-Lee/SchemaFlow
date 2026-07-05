@@ -1,18 +1,18 @@
 name: Bug report
-description: Report a reproducible ChartDB bug.
+description: Report a reproducible SchemaFlow bug.
 title: "[Bug]: "
 labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for reporting a ChartDB bug. Please remove secrets, credentials, hostnames, and private schema names before sharing examples.
+        Thanks for reporting a SchemaFlow bug. Please remove secrets, credentials, hostnames, and private schema names before sharing examples.
   - type: textarea
     id: summary
     attributes:
       label: Summary
       description: What happened, and what did you expect instead?
-      placeholder: ChartDB did X, but I expected Y.
+      placeholder: SchemaFlow did X, but I expected Y.
     validations:
       required: true
   - type: textarea
@@ -21,7 +21,7 @@ body:
       label: Reproduction steps
       description: Provide the smallest sequence that reproduces the bug.
       placeholder: |
-        1. Open ChartDB...
+        1. Open SchemaFlow...
         2. Import...
         3. Click...
     validations:
@@ -44,9 +44,9 @@ body:
     validations:
       required: true
   - type: input
-    id: chartdb-version
+    id: schemaflow-version
     attributes:
-      label: ChartDB version or commit
+      label: SchemaFlow version or commit
       placeholder: v1.20.1 or commit SHA
     validations:
       required: true

@@ -2,12 +2,12 @@
 
 > 版本：v1.0
 > 日期：2026-07-01
-> 对应任务：`CHARTDB-P1-000`
+> 对应任务：`SCHEMAFLOW-P1-000`
 > 文档定位：作为 Phase 1 安全重构的实施清单，约束密钥、AI、Markdown、Docker/Nginx 和剩余 advisory 的后续代码任务。
 
 ## 1. 安全目标
 
-Phase 1 的目标是关闭当前最高风险面，让 ChartDB 的本地优先承诺可验证：
+Phase 1 的目标是关闭当前最高风险面，让 SchemaFlow 的本地优先承诺可验证：
 
 - 默认不把用户 schema、diagram、note 或导出内容发送到任何远端。
 - 浏览器端不得持久化 AI API 密钥。
@@ -18,10 +18,10 @@ Phase 1 的目标是关闭当前最高风险面，让 ChartDB 的本地优先承
 
 ## 2. 本地优先数据边界
 
-默认模式下，ChartDB 只在浏览器内处理数据：
+默认模式下，SchemaFlow 只在浏览器内处理数据：
 
 - Diagram、table、relationship、area、note 和导入结果默认保存在 IndexedDB。
-- Smart Query 仍由用户在自己的数据库环境中手动执行，ChartDB 不直接连接生产数据库。
+- Smart Query 仍由用户在自己的数据库环境中手动执行，SchemaFlow 不直接连接生产数据库。
 - SQL、DBML、JSON backup、PNG、SVG 和 Markdown 导出默认在本地生成。
 - 除用户明确启用 AI-assisted export 或自托管 Gateway 外，不发送 schema 摘要到模型服务。
 
@@ -70,7 +70,7 @@ Phase 1 只允许三种 AI mode。
 
 - 读取不含 secret 的 `OPENAI_API_ENDPOINT`。
 - 读取不含 secret 的 `LLM_MODEL_NAME`。
-- 读取 `DISABLE_ANALYTICS` 和 `HIDE_CHARTDB_CLOUD` 等非敏感配置。
+- 读取 `DISABLE_ANALYTICS` 和 `HIDE_SCHEMAFLOW_CLOUD` 等非敏感配置。
 
 ## 5. Markdown 安全规则
 
@@ -111,11 +111,11 @@ Docker smoke 应至少确认：
 
 | 任务 | 目标 | 关键验收 |
 | --- | --- | --- |
-| `CHARTDB-P1-001` | 移除 Dockerfile 和 `/config.js` 中的 API key 暴露 | 已完成：构建产物和运行时配置不输出 `OPENAI_API_KEY` |
-| `CHARTDB-P1-002` | 增加 Disabled、BYOK Session、Gateway 三种 AI mode | 已完成：默认 Disabled，BYOK 不持久化密钥，BYOK/Gateway 请求前必须确认 schema transfer |
-| `CHARTDB-P1-003` | Note Markdown 安全渲染 | 已完成：恶意 Markdown fixture 不执行 raw HTML 或危险链接 |
-| `CHARTDB-P1-004` | Docker 和 Nginx 安全头 | 已完成：自托管镜像包含基础安全头，CSP 策略有文档说明 |
-| `CHARTDB-P1-005` | Phase 1 安全审查 | 已完成：剩余风险按 High、Medium、Low 分类记录在 `docs/安全风险登记.md` |
+| `SCHEMAFLOW-P1-001` | 移除 Dockerfile 和 `/config.js` 中的 API key 暴露 | 已完成：构建产物和运行时配置不输出 `OPENAI_API_KEY` |
+| `SCHEMAFLOW-P1-002` | 增加 Disabled、BYOK Session、Gateway 三种 AI mode | 已完成：默认 Disabled，BYOK 不持久化密钥，BYOK/Gateway 请求前必须确认 schema transfer |
+| `SCHEMAFLOW-P1-003` | Note Markdown 安全渲染 | 已完成：恶意 Markdown fixture 不执行 raw HTML 或危险链接 |
+| `SCHEMAFLOW-P1-004` | Docker 和 Nginx 安全头 | 已完成：自托管镜像包含基础安全头，CSP 策略有文档说明 |
+| `SCHEMAFLOW-P1-005` | Phase 1 安全审查 | 已完成：剩余风险按 High、Medium、Low 分类记录在 `docs/安全风险登记.md` |
 
 ## 8. 验证命令
 
@@ -139,5 +139,5 @@ rg -n "VITE_OPENAI_API_KEY|OPENAI_API_KEY|window\\.env|rehype-raw|dangerouslySet
 验收原则：
 
 - `npm audit --omit=dev --audit-level=high` 必须通过。
-- 安全扫描命中项必须被移除，或在 `CHARTDB-P1-005` 中逐项解释为非 secret、非执行风险。
+- 安全扫描命中项必须被移除，或在 `SCHEMAFLOW-P1-005` 中逐项解释为非 secret、非执行风险。
 - 不以引入账号登录、云端存储或团队权限作为安全修复手段。

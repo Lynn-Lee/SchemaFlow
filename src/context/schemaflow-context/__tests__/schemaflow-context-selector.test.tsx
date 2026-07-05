@@ -1,8 +1,8 @@
 import { act, render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it } from 'vitest';
-import { ChartDBProvider } from '../chartdb-provider';
-import { useChartDBSelector } from '../chartdb-context';
+import { SchemaFlowProvider } from '../schemaflow-provider';
+import { useSchemaFlowSelector } from '../schemaflow-context';
 import type { DBTable } from '@/lib/domain/db-table';
 import { DiffProvider } from '@/context/diff-context/diff-provider';
 
@@ -25,7 +25,9 @@ const renderCounts = {
 
 const DiagramNameSubscriber: React.FC = React.memo(() => {
     renderCounts.diagramName += 1;
-    const diagramName = useChartDBSelector((chartDB) => chartDB.diagramName);
+    const diagramName = useSchemaFlowSelector(
+        (schemaFlow) => schemaFlow.diagramName
+    );
 
     return <div data-testid="diagram-name">{diagramName}</div>;
 });
@@ -33,8 +35,10 @@ DiagramNameSubscriber.displayName = 'DiagramNameSubscriber';
 
 const TablesSubscriber: React.FC = () => {
     renderCounts.tables += 1;
-    const tables = useChartDBSelector((chartDB) => chartDB.tables);
-    const addTables = useChartDBSelector((chartDB) => chartDB.addTables);
+    const tables = useSchemaFlowSelector((schemaFlow) => schemaFlow.tables);
+    const addTables = useSchemaFlowSelector(
+        (schemaFlow) => schemaFlow.addTables
+    );
 
     return (
         <button
@@ -50,17 +54,17 @@ const TablesSubscriber: React.FC = () => {
     );
 };
 
-describe('useChartDBSelector', () => {
+describe('useSchemaFlowSelector', () => {
     it('does not rerender a selector subscriber when an unrelated slice changes', async () => {
         renderCounts.diagramName = 0;
         renderCounts.tables = 0;
 
         render(
             <DiffProvider>
-                <ChartDBProvider readonly>
+                <SchemaFlowProvider readonly>
                     <DiagramNameSubscriber />
                     <TablesSubscriber />
-                </ChartDBProvider>
+                </SchemaFlowProvider>
             </DiffProvider>
         );
 

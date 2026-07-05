@@ -1,5 +1,5 @@
 import type { Area } from '@/lib/domain/area';
-import type { ChartDBConfig } from '@/lib/domain/config';
+import type { SchemaFlowConfig } from '@/lib/domain/config';
 import type { DBCustomType } from '@/lib/domain/db-custom-type';
 import type { DBDependency } from '@/lib/domain/db-dependency';
 import type { DBRelationship } from '@/lib/domain/db-relationship';
@@ -7,7 +7,7 @@ import type { DBTable } from '@/lib/domain/db-table';
 import type { Diagram } from '@/lib/domain/diagram';
 import type { DiagramFilter } from '@/lib/domain/diagram-filter/diagram-filter';
 import type { Note } from '@/lib/domain/note';
-import type { ChartDBDexie } from '@/storage/db/chartdb-dexie';
+import type { SchemaFlowDexie } from '@/storage/db/schemaflow-dexie';
 import { createDiagramTransactionService } from '@/storage/transactions/diagram-transaction-service';
 
 type DiagramListOptions = {
@@ -94,7 +94,7 @@ const createDiagramScopedRepository = <T extends { id: string }>(
     },
 });
 
-export const createChartDBRepositories = (db: ChartDBDexie) => {
+export const createSchemaFlowRepositories = (db: SchemaFlowDexie) => {
     const diagramTransactions = createDiagramTransactionService(db);
     const tables = createDiagramScopedRepository<DBTable>(db.db_tables);
     const relationships = createDiagramScopedRepository<DBRelationship>(
@@ -116,10 +116,10 @@ export const createChartDBRepositories = (db: ChartDBDexie) => {
     const notes = createDiagramScopedRepository<Note>(db.notes);
 
     const config = {
-        get: async (): Promise<ChartDBConfig | undefined> => {
+        get: async (): Promise<SchemaFlowConfig | undefined> => {
             return await db.config.get(1);
         },
-        update: async (attributes: Partial<ChartDBConfig>) => {
+        update: async (attributes: Partial<SchemaFlowConfig>) => {
             await db.config.update(1, attributes);
         },
     };
@@ -233,4 +233,6 @@ export const createChartDBRepositories = (db: ChartDBDexie) => {
     };
 };
 
-export type ChartDBRepositories = ReturnType<typeof createChartDBRepositories>;
+export type SchemaFlowRepositories = ReturnType<
+    typeof createSchemaFlowRepositories
+>;

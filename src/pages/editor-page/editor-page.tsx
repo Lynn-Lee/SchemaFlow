@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect } from 'react';
-import { useChartDB } from '@/hooks/use-chartdb';
+import { useSchemaFlow } from '@/hooks/use-schemaflow';
 import { useDialog } from '@/hooks/use-dialog';
 import { Toaster } from '@/components/toast/toaster';
 import { useBreakpoint } from '@/hooks/use-breakpoint';
@@ -10,7 +10,7 @@ import { LocalConfigProvider } from '@/context/local-config-context/local-config
 import { StorageProvider } from '@/context/storage-context/storage-provider';
 import { ConfigProvider } from '@/context/config-context/config-provider';
 import { RedoUndoStackProvider } from '@/context/history-context/redo-undo-stack-provider';
-import { ChartDBProvider } from '@/context/chartdb-context/chartdb-provider';
+import { SchemaFlowProvider } from '@/context/schemaflow-context/schemaflow-provider';
 import { HistoryProvider } from '@/context/history-context/history-provider';
 import { ThemeProvider } from '@/context/theme-context/theme-provider';
 import { ReactFlowProvider } from '@xyflow/react';
@@ -21,7 +21,7 @@ import { Spinner } from '@/components/spinner/spinner';
 import { Helmet } from 'react-helmet-async';
 import { AlertProvider } from '@/context/alert-context/alert-provider';
 import { CanvasProvider } from '@/context/canvas-context/canvas-provider';
-import { HIDE_CHARTDB_CLOUD } from '@/lib/env';
+import { HIDE_SCHEMAFLOW_CLOUD } from '@/lib/env';
 import { useDiagramLoader } from './use-diagram-loader';
 import { DiffProvider } from '@/context/diff-context/diff-provider';
 import { TopNavbarMock } from './top-navbar/top-navbar-mock';
@@ -41,7 +41,7 @@ export const EditorMobileLayoutLazy = React.lazy(
 );
 
 const EditorPageComponent: React.FC = () => {
-    const { diagramName, currentDiagram } = useChartDB();
+    const { diagramName, currentDiagram } = useSchemaFlow();
     const { openStarUsDialog } = useDialog();
     const { isMd: isDesktop } = useBreakpoint('md');
     const { starUsDialogLastOpen, setStarUsDialogLastOpen, githubRepoOpened } =
@@ -55,7 +55,7 @@ const EditorPageComponent: React.FC = () => {
     } = useDiagramLoader();
 
     useEffect(() => {
-        if (HIDE_CHARTDB_CLOUD) {
+        if (HIDE_SCHEMAFLOW_CLOUD) {
             return;
         }
 
@@ -84,8 +84,8 @@ const EditorPageComponent: React.FC = () => {
             <Helmet>
                 <title>
                     {diagramName
-                        ? `ChartDB - ${diagramName} Diagram | Visualize Database Schemas`
-                        : 'ChartDB - Create & Visualize Database Schema Diagrams'}
+                        ? `SchemaFlow - ${diagramName} Diagram | Visualize Database Schemas`
+                        : 'SchemaFlow - Create & Visualize Database Schema Diagrams'}
                 </title>
             </Helmet>
             <section
@@ -157,7 +157,7 @@ export const EditorPage: React.FC = () => (
                         <ConfigProvider>
                             <RedoUndoStackProvider>
                                 <DiffProvider>
-                                    <ChartDBProvider>
+                                    <SchemaFlowProvider>
                                         <DiagramFilterProvider>
                                             <HistoryProvider>
                                                 <ReactFlowProvider>
@@ -175,7 +175,7 @@ export const EditorPage: React.FC = () => (
                                                 </ReactFlowProvider>
                                             </HistoryProvider>
                                         </DiagramFilterProvider>
-                                    </ChartDBProvider>
+                                    </SchemaFlowProvider>
                                 </DiffProvider>
                             </RedoUndoStackProvider>
                         </ConfigProvider>

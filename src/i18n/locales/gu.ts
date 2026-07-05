@@ -425,7 +425,7 @@ export const gu: LanguageTranslation = {
         smart_query_wizard: {
             title: 'Smart Query Wizard',
             description:
-                'ChartDB never asks for your database password. You copy a read-only metadata query, run it locally, then paste the JSON output here.',
+                'SchemaFlow never asks for your database password. You copy a read-only metadata query, run it locally, then paste the JSON output here.',
             steps: {
                 choose_database: {
                     title: 'Choose this database type',
@@ -435,7 +435,7 @@ export const gu: LanguageTranslation = {
                 copy_query: {
                     title: 'Copy the Smart Query',
                     description:
-                        'Run it in your own database client. No database password is required in ChartDB.',
+                        'Run it in your own database client. No database password is required in SchemaFlow.',
                 },
                 paste_json: {
                     title: 'Paste the JSON result',
@@ -445,7 +445,7 @@ export const gu: LanguageTranslation = {
                 preview: {
                     title: 'Preview tables, relationships, and warnings',
                     description:
-                        'ChartDB summarizes objects and dialect limitations before writing to the diagram.',
+                        'SchemaFlow summarizes objects and dialect limitations before writing to the diagram.',
                 },
                 confirm: {
                     title: 'Confirm import',
@@ -510,7 +510,7 @@ export const gu: LanguageTranslation = {
             error: {
                 title: 'ડાયાગ્રામ નિકાસમાં ભૂલ',
                 description:
-                    'કશુક તો ખોટું થયું. મદદ જોઈએ? support@chartdb.io પર સંપર્ક કરો.',
+                    'કશુક તો ખોટું થયું. મદદ જોઈએ? support@schemaflow.io પર સંપર્ક કરો.',
             },
         },
 
@@ -522,7 +522,7 @@ export const gu: LanguageTranslation = {
             error: {
                 title: 'ડાયાગ્રામ આયાતમાં ભૂલ',
                 description:
-                    'ડાયાગ્રામ JSON અમાન્ય છે. કૃપા કરીને JSON તપાસો અને ફરી પ્રયાસ કરો. મદદ જોઈએ? support@chartdb.io પર સંપર્ક કરો.',
+                    'ડાયાગ્રામ JSON અમાન્ય છે. કૃપા કરીને JSON તપાસો અને ફરી પ્રયાસ કરો. મદદ જોઈએ? support@schemaflow.io પર સંપર્ક કરો.',
             },
         },
         import_dbml_dialog: {

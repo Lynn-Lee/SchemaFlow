@@ -20,7 +20,7 @@ export function extractDBMLImportWarnings(
         unsupportedObjects.push({
             objectType: 'table_group',
             name,
-            reason: 'DBML TableGroup layout metadata is not represented in the ChartDB diagram model.',
+            reason: 'DBML TableGroup layout metadata is not represented in the SchemaFlow diagram model.',
             ignored: true,
         });
         warnings.push({
@@ -36,7 +36,7 @@ export function extractDBMLImportWarnings(
         unsupportedObjects.push({
             objectType: 'note',
             name,
-            reason: 'Standalone DBML Note blocks are not mapped to ChartDB note nodes by the legacy parser.',
+            reason: 'Standalone DBML Note blocks are not mapped to SchemaFlow note nodes by the legacy parser.',
             ignored: true,
         });
         warnings.push({

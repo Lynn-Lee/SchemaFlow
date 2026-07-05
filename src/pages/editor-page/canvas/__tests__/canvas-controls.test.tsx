@@ -153,12 +153,12 @@ describe('CanvasControls', () => {
             screen.queryByText('canvas.mobile_notice.title')
         ).not.toBeInTheDocument();
         expect(
-            localStorage.getItem('chartdb.mobileCanvasNoticeDismissed')
+            localStorage.getItem('schemaflow.mobileCanvasNoticeDismissed')
         ).toBe('true');
     });
 
     it('keeps the mobile canvas notice hidden after it is dismissed', () => {
-        localStorage.setItem('chartdb.mobileCanvasNoticeDismissed', 'true');
+        localStorage.setItem('schemaflow.mobileCanvasNoticeDismissed', 'true');
 
         renderControls({ isDesktop: false });
 

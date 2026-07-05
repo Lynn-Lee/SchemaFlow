@@ -23,9 +23,9 @@ import {
 } from '@/lib/ai/ai-mode';
 import {
     parseBackupSummary,
-    parseChartDBBackup,
+    parseSchemaFlowBackup,
     restoreDiagramFromBackup,
-    type ChartDBBackupSummary,
+    type SchemaFlowBackupSummary,
 } from '@/storage/backup';
 
 type ClearStatus = 'idle' | 'clearing' | 'success' | 'error';
@@ -80,7 +80,7 @@ export const PrivacySettings: React.FC = () => {
     >();
     const [restoreJson, setRestoreJson] = React.useState<string | undefined>();
     const [restoreSummary, setRestoreSummary] = React.useState<
-        ChartDBBackupSummary | undefined
+        SchemaFlowBackupSummary | undefined
     >();
     const [byokSessionKey, setByokSessionKey] = React.useState(
         () => getBYOKSessionKey() ?? ''
@@ -194,7 +194,7 @@ export const PrivacySettings: React.FC = () => {
         setRestoreError(undefined);
 
         try {
-            const backup = parseChartDBBackup(restoreJson);
+            const backup = parseSchemaFlowBackup(restoreJson);
             const restoredDiagrams = backup.diagrams.map((_, diagramIndex) =>
                 restoreDiagramFromBackup({
                     backup,
@@ -350,9 +350,9 @@ export const PrivacySettings: React.FC = () => {
                 <div>
                     <h3 className="text-sm font-semibold">Data management</h3>
                     <p className="text-sm text-muted-foreground">
-                        ChartDB stores diagrams in this browser with IndexedDB
-                        and localStorage. No account or cloud workspace is
-                        required.
+                        SchemaFlow stores diagrams in this browser with
+                        IndexedDB and localStorage. No account or cloud
+                        workspace is required.
                     </p>
                 </div>
                 <div className="grid gap-2 rounded-md border border-border p-3 sm:grid-cols-3">
@@ -395,7 +395,7 @@ export const PrivacySettings: React.FC = () => {
                         <Upload className="size-4" />
                         <AlertTitle>Reading backup</AlertTitle>
                         <AlertDescription>
-                            ChartDB is building a restore preview.
+                            SchemaFlow is building a restore preview.
                         </AlertDescription>
                     </Alert>
                 ) : null}

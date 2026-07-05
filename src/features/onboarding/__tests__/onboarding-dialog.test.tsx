@@ -62,7 +62,7 @@ describe('OnboardingDialog', () => {
         renderDialog();
 
         expect(
-            screen.getByRole('heading', { name: 'Start a ChartDB diagram' })
+            screen.getByRole('heading', { name: 'Start a SchemaFlow diagram' })
         ).toBeInTheDocument();
         expect(
             screen.getByRole('radio', { name: /PostgreSQL/i })

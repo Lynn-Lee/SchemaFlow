@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { addEdge, createGraph } from '@/lib/graph';
 import { DatabaseType } from '@/lib/domain/database-type';
-import { buildCanvasEventUpdate } from '../canvas-chartdb-events';
-import type { ChartDBEvent } from '@/context/chartdb-context/chartdb-context';
+import { buildCanvasEventUpdate } from '../canvas-schemaflow-events';
+import type { SchemaFlowEvent } from '@/context/schemaflow-context/schemaflow-context';
 
-describe('canvas ChartDB events', () => {
+describe('canvas SchemaFlow events', () => {
     it('removes deleted tables from the overlap graph', () => {
         const overlapGraph = addEdge(
             addEdge(createGraph<string>(), 'table-1', 'table-2'),
@@ -16,7 +16,7 @@ describe('canvas ChartDB events', () => {
             event: {
                 action: 'remove_tables',
                 data: { tableIds: ['table-2'] },
-            } as ChartDBEvent,
+            } as SchemaFlowEvent,
             overlapGraph,
             nodes: [],
             getNode: () => undefined,

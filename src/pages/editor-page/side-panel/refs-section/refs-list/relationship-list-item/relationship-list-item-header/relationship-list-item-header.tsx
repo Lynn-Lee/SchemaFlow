@@ -9,7 +9,7 @@ import {
 import { ListItemHeaderButton } from '../../../../list-item-header-button/list-item-header-button';
 import type { DBRelationship } from '@/lib/domain/db-relationship';
 import { useReactFlow } from '@xyflow/react';
-import { useChartDB } from '@/hooks/use-chartdb';
+import { useSchemaFlow } from '@/hooks/use-schemaflow';
 import { useFocusOn } from '@/hooks/use-focus-on';
 import { useClickAway } from '@/hooks/use-click-away';
 import { useKeyPressEvent } from '@/hooks/use-key-press-event';
@@ -32,7 +32,8 @@ export interface RelationshipListItemHeaderProps {
 export const RelationshipListItemHeader: React.FC<
     RelationshipListItemHeaderProps
 > = ({ relationship }) => {
-    const { updateRelationship, removeRelationship, readonly } = useChartDB();
+    const { updateRelationship, removeRelationship, readonly } =
+        useSchemaFlow();
     const { deleteElements } = useReactFlow();
     const { t } = useTranslation();
     const { focusOnRelationship } = useFocusOn();

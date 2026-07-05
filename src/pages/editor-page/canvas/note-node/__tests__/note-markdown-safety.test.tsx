@@ -4,8 +4,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { NoteNode, type NoteNodeProps } from '../note-node';
 import type { Note } from '@/lib/domain/note';
 
-vi.mock('@/hooks/use-chartdb', () => ({
-    useChartDB: () => ({
+vi.mock('@/hooks/use-schemaflow', () => ({
+    useSchemaFlow: () => ({
         updateNote: vi.fn(),
         removeNote: vi.fn(),
         readonly: true,
@@ -66,14 +66,14 @@ describe('NoteNode markdown safety', () => {
 
     it('keeps safe links and blocks dangerous link protocols', () => {
         renderNote(`
-[safe](https://chartdb.io)
+[safe](https://schemaflow.io)
 [email](mailto:security@example.com)
 [bad](javascript:alert(1))
 `);
 
         expect(screen.getByRole('link', { name: 'safe' })).toHaveAttribute(
             'href',
-            'https://chartdb.io'
+            'https://schemaflow.io'
         );
         expect(screen.getByRole('link', { name: 'email' })).toHaveAttribute(
             'href',

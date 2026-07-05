@@ -3,8 +3,8 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { DiffProvider } from '@/context/diff-context/diff-provider';
 import type { DBTable } from '@/lib/domain/db-table';
-import { ChartDBProvider } from '../chartdb-provider';
-import { useChartDBSelector } from '../chartdb-context';
+import { SchemaFlowProvider } from '../schemaflow-provider';
+import { useSchemaFlowSelector } from '../schemaflow-context';
 
 const createTable = (overrides: Partial<DBTable> = {}): DBTable => ({
     id: 'table-1',
@@ -22,11 +22,15 @@ const createTable = (overrides: Partial<DBTable> = {}): DBTable => ({
 const ProviderTableHarness: React.FC<{
     onEvent: (eventName: string) => void;
 }> = ({ onEvent }) => {
-    const tables = useChartDBSelector((chartDB) => chartDB.tables);
-    const events = useChartDBSelector((chartDB) => chartDB.events);
-    const addTable = useChartDBSelector((chartDB) => chartDB.addTable);
-    const updateTable = useChartDBSelector((chartDB) => chartDB.updateTable);
-    const removeTable = useChartDBSelector((chartDB) => chartDB.removeTable);
+    const tables = useSchemaFlowSelector((schemaFlow) => schemaFlow.tables);
+    const events = useSchemaFlowSelector((schemaFlow) => schemaFlow.events);
+    const addTable = useSchemaFlowSelector((schemaFlow) => schemaFlow.addTable);
+    const updateTable = useSchemaFlowSelector(
+        (schemaFlow) => schemaFlow.updateTable
+    );
+    const removeTable = useSchemaFlowSelector(
+        (schemaFlow) => schemaFlow.removeTable
+    );
 
     events.useSubscription((event) => {
         onEvent(event.action);
@@ -68,15 +72,15 @@ const ProviderTableHarness: React.FC<{
     );
 };
 
-describe('ChartDBProvider core table operations', () => {
+describe('SchemaFlowProvider core table operations', () => {
     it('updates table state and emits events for add, update, and remove', async () => {
         const onEvent = vi.fn();
 
         render(
             <DiffProvider>
-                <ChartDBProvider readonly>
+                <SchemaFlowProvider readonly>
                     <ProviderTableHarness onEvent={onEvent} />
-                </ChartDBProvider>
+                </SchemaFlowProvider>
             </DiffProvider>
         );
 

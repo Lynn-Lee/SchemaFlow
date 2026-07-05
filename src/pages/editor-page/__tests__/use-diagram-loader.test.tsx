@@ -21,8 +21,8 @@ vi.mock('@/hooks/use-config', () => ({
     }),
 }));
 
-vi.mock('@/hooks/use-chartdb', () => ({
-    useChartDB: () => ({
+vi.mock('@/hooks/use-schemaflow', () => ({
+    useSchemaFlow: () => ({
         currentDiagram: undefined,
         loadDiagram,
     }),

@@ -688,7 +688,7 @@ export const importDBMLToDiagram = async (
             enums: allEnums,
         };
 
-        // Convert DBML tables to ChartDB table objects
+        // Convert DBML tables to SchemaFlow table objects
         const tables: DBTable[] = extractedData.tables.map((table, index) => {
             const row = Math.floor(index / 4);
             const col = index % 4;
@@ -798,7 +798,7 @@ export const importDBMLToDiagram = async (
                 });
             }
 
-            // Convert DBML indexes to ChartDB indexes (excluding PK indexes and their duplicates)
+            // Convert DBML indexes to SchemaFlow indexes (excluding PK indexes and their duplicates)
             const indexes: DBIndex[] =
                 table.indexes
                     ?.filter((dbmlIndex) => {

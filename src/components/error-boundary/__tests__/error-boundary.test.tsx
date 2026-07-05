@@ -26,7 +26,7 @@ describe('ErrorBoundary', () => {
             screen.getByRole('button', { name: /refresh page/i })
         ).toBeInTheDocument();
         expect(
-            screen.getByText(/chartdb ran into an unexpected error/i)
+            screen.getByText(/schemaflow ran into an unexpected error/i)
         ).toBeInTheDocument();
 
         consoleError.mockRestore();

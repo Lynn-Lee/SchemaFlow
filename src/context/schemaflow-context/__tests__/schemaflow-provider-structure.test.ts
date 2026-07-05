@@ -2,40 +2,40 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const chartDBContextDir = path.resolve(
+const schemaFlowContextDir = path.resolve(
     process.cwd(),
-    'src/context/chartdb-context'
+    'src/context/schemaflow-context'
 );
 
-describe('ChartDBProvider structure', () => {
+describe('SchemaFlowProvider structure', () => {
     it('keeps the provider shell small and moves implementation into hooks', () => {
         const providerPath = path.join(
-            chartDBContextDir,
-            'chartdb-provider.tsx'
+            schemaFlowContextDir,
+            'schemaflow-provider.tsx'
         );
         const providerSource = fs.readFileSync(providerPath, 'utf8');
         const providerLines = providerSource.split('\n').length;
 
         expect(providerLines).toBeLessThanOrEqual(800);
-        expect(providerSource).toContain('useChartDBProviderValue');
+        expect(providerSource).toContain('useSchemaFlowProviderValue');
 
         const hookPath = path.join(
-            chartDBContextDir,
-            'use-chartdb-provider-value.tsx'
+            schemaFlowContextDir,
+            'use-schemaflow-provider-value.tsx'
         );
         expect(fs.existsSync(hookPath)).toBe(true);
     });
 
     it('moves dependency operations into a domain hook', () => {
         const hookPath = path.join(
-            chartDBContextDir,
+            schemaFlowContextDir,
             'use-dependency-operations.ts'
         );
         expect(fs.existsSync(hookPath)).toBe(true);
 
         const providerValuePath = path.join(
-            chartDBContextDir,
-            'use-chartdb-provider-value.tsx'
+            schemaFlowContextDir,
+            'use-schemaflow-provider-value.tsx'
         );
         const providerValueSource = fs.readFileSync(providerValuePath, 'utf8');
 
@@ -46,14 +46,14 @@ describe('ChartDBProvider structure', () => {
 
     it('moves visual and custom type operations into a domain hook', () => {
         const hookPath = path.join(
-            chartDBContextDir,
+            schemaFlowContextDir,
             'use-visual-operations.ts'
         );
         expect(fs.existsSync(hookPath)).toBe(true);
 
         const providerValuePath = path.join(
-            chartDBContextDir,
-            'use-chartdb-provider-value.tsx'
+            schemaFlowContextDir,
+            'use-schemaflow-provider-value.tsx'
         );
         const providerValueSource = fs.readFileSync(providerValuePath, 'utf8');
 
@@ -68,14 +68,14 @@ describe('ChartDBProvider structure', () => {
 
     it('moves table and field operations into a domain hook', () => {
         const hookPath = path.join(
-            chartDBContextDir,
+            schemaFlowContextDir,
             'use-table-field-operations.ts'
         );
         expect(fs.existsSync(hookPath)).toBe(true);
 
         const providerValuePath = path.join(
-            chartDBContextDir,
-            'use-chartdb-provider-value.tsx'
+            schemaFlowContextDir,
+            'use-schemaflow-provider-value.tsx'
         );
         const providerValueSource = fs.readFileSync(providerValuePath, 'utf8');
 
@@ -89,14 +89,14 @@ describe('ChartDBProvider structure', () => {
 
     it('moves relationship and check constraint operations into a domain hook', () => {
         const hookPath = path.join(
-            chartDBContextDir,
+            schemaFlowContextDir,
             'use-relationship-constraint-operations.ts'
         );
         expect(fs.existsSync(hookPath)).toBe(true);
 
         const providerValuePath = path.join(
-            chartDBContextDir,
-            'use-chartdb-provider-value.tsx'
+            schemaFlowContextDir,
+            'use-schemaflow-provider-value.tsx'
         );
         const providerValueSource = fs.readFileSync(providerValuePath, 'utf8');
 
@@ -115,14 +115,14 @@ describe('ChartDBProvider structure', () => {
 
     it('moves index operations into a domain hook', () => {
         const hookPath = path.join(
-            chartDBContextDir,
+            schemaFlowContextDir,
             'use-index-operations.ts'
         );
         expect(fs.existsSync(hookPath)).toBe(true);
 
         const providerValuePath = path.join(
-            chartDBContextDir,
-            'use-chartdb-provider-value.tsx'
+            schemaFlowContextDir,
+            'use-schemaflow-provider-value.tsx'
         );
         const providerValueSource = fs.readFileSync(providerValuePath, 'utf8');
 
@@ -134,8 +134,8 @@ describe('ChartDBProvider structure', () => {
 
     it('routes diff merge and diagram load through schema-core diagram commands', () => {
         const providerValuePath = path.join(
-            chartDBContextDir,
-            'use-chartdb-provider-value.tsx'
+            schemaFlowContextDir,
+            'use-schemaflow-provider-value.tsx'
         );
         const providerValueSource = fs.readFileSync(providerValuePath, 'utf8');
 

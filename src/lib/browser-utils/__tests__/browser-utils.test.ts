@@ -38,10 +38,10 @@ describe('safeOpenUrl', () => {
     it('opens external links in a new tab without opener access', () => {
         const open = vi.spyOn(window, 'open').mockImplementation(() => null);
 
-        safeOpenUrl('https://docs.chartdb.io');
+        safeOpenUrl('https://docs.schemaflow.io');
 
         expect(open).toHaveBeenCalledWith(
-            'https://docs.chartdb.io',
+            'https://docs.schemaflow.io',
             '_blank',
             'noopener,noreferrer'
         );

@@ -9,7 +9,7 @@ import { useConfig } from '@/hooks/use-config';
 import type { DatabaseMetadata } from '@/lib/data/import-metadata/metadata-types/database-metadata';
 import { loadDatabaseMetadata } from '@/lib/data/import-metadata/metadata-types/database-metadata';
 import { generateDiagramId } from '@/lib/browser-utils';
-import { useChartDB } from '@/hooks/use-chartdb';
+import { useSchemaFlow } from '@/hooks/use-schemaflow';
 import { useDialog } from '@/hooks/use-dialog';
 import type { DatabaseEdition } from '@/lib/domain/database-edition';
 import { SelectDatabase } from './select-database/select-database';
@@ -51,7 +51,7 @@ export const CreateDiagramDialog: React.FC<CreateDiagramDialogProps> = ({
     initialDatabaseType,
     initialStep,
 }) => {
-    const { diagramId } = useChartDB();
+    const { diagramId } = useSchemaFlow();
     const { t } = useTranslation();
     const [importMethod, setImportMethod] = useState<ImportMethod>('query');
     const [databaseType, setDatabaseType] = useState<DatabaseType>(

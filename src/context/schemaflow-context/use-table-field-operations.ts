@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import { z } from 'zod';
-import type { ChartDBContext, ChartDBEvent } from './chartdb-context';
+import type { SchemaFlowContext, SchemaFlowEvent } from './schemaflow-context';
 import type { StorageContext } from '../storage-context/storage-context';
 import type { RedoUndoStackContext } from '../history-context/redo-undo-stack-context';
 import { dbTableSchema, type DBTable } from '@/lib/domain/db-table';
@@ -46,7 +46,7 @@ export interface UseTableFieldOperationsParams {
     db: StorageContext;
     dependencies: DBDependency[];
     diagramId: string;
-    events: EventEmitter<ChartDBEvent>;
+    events: EventEmitter<SchemaFlowEvent>;
     notes: Note[];
     relationships: DBRelationship[];
     resetRedoStack: RedoUndoStackContext['resetRedoStack'];
@@ -74,7 +74,7 @@ export function useTableFieldOperations({
     setTables,
     tables,
 }: UseTableFieldOperationsParams): Pick<
-    ChartDBContext,
+    SchemaFlowContext,
     | 'addTable'
     | 'addTables'
     | 'createTable'
@@ -89,7 +89,7 @@ export function useTableFieldOperations({
     | 'removeField'
     | 'updateField'
 > {
-    const addTables: ChartDBContext['addTables'] = useCallback(
+    const addTables: SchemaFlowContext['addTables'] = useCallback(
         async (tablesToAdd: DBTable[], options = { updateHistory: true }) => {
             const commandHistoryEntries: Array<CommandHistoryEntry | null> = [];
             const nextCommandState = tablesToAdd.reduce(
@@ -162,14 +162,14 @@ export function useTableFieldOperations({
         ]
     );
 
-    const addTable: ChartDBContext['addTable'] = useCallback(
+    const addTable: SchemaFlowContext['addTable'] = useCallback(
         async (table: DBTable, options = { updateHistory: true }) => {
             return addTables([table], options);
         },
         [addTables]
     );
 
-    const createTable: ChartDBContext['createTable'] = useCallback(
+    const createTable: SchemaFlowContext['createTable'] = useCallback(
         async (attributes) => {
             const isView = attributes?.isView ?? false;
             const count = isView
@@ -211,12 +211,12 @@ export function useTableFieldOperations({
         [addTable, tables, databaseType]
     );
 
-    const getTable: ChartDBContext['getTable'] = useCallback(
+    const getTable: SchemaFlowContext['getTable'] = useCallback(
         (id: string) => tables.find((table) => table.id === id) ?? null,
         [tables]
     );
 
-    const removeTables: ChartDBContext['removeTables'] = useCallback(
+    const removeTables: SchemaFlowContext['removeTables'] = useCallback(
         async (ids, options) => {
             const initialCommandState = {
                 tables,
@@ -330,14 +330,14 @@ export function useTableFieldOperations({
         ]
     );
 
-    const removeTable: ChartDBContext['removeTable'] = useCallback(
+    const removeTable: SchemaFlowContext['removeTable'] = useCallback(
         async (id: string, options = { updateHistory: true }) => {
             return removeTables([id], options);
         },
         [removeTables]
     );
 
-    const updateTable: ChartDBContext['updateTable'] = useCallback(
+    const updateTable: SchemaFlowContext['updateTable'] = useCallback(
         async (
             id: string,
             table: Partial<DBTable>,
@@ -411,151 +411,159 @@ export function useTableFieldOperations({
         ]
     );
 
-    const updateTablesState: ChartDBContext['updateTablesState'] = useCallback(
-        async (
-            updateFn: (tables: DBTable[]) => PartialExcept<DBTable, 'id'>[],
-            options = { updateHistory: true, forceOverride: false }
-        ) => {
-            const updateTables = (prevTables: DBTable[]) => {
-                const updatedTables = updateFn(prevTables);
-                if (options.forceOverride) {
-                    const parsedTables = z
-                        .array(dbTableSchema)
-                        .safeParse(updatedTables);
-                    if (!parsedTables.success) {
-                        throw new Error(
-                            `updateTablesState forceOverride received an invalid tables snapshot: ${parsedTables.error.message}`
-                        );
+    const updateTablesState: SchemaFlowContext['updateTablesState'] =
+        useCallback(
+            async (
+                updateFn: (tables: DBTable[]) => PartialExcept<DBTable, 'id'>[],
+                options = { updateHistory: true, forceOverride: false }
+            ) => {
+                const updateTables = (prevTables: DBTable[]) => {
+                    const updatedTables = updateFn(prevTables);
+                    if (options.forceOverride) {
+                        const parsedTables = z
+                            .array(dbTableSchema)
+                            .safeParse(updatedTables);
+                        if (!parsedTables.success) {
+                            throw new Error(
+                                `updateTablesState forceOverride received an invalid tables snapshot: ${parsedTables.error.message}`
+                            );
+                        }
+                        return parsedTables.data;
                     }
-                    return parsedTables.data;
+
+                    return prevTables
+                        .map((prevTable) => {
+                            const updatedTable = updatedTables.find(
+                                (t) => t.id === prevTable.id
+                            );
+                            return updatedTable
+                                ? { ...prevTable, ...updatedTable }
+                                : prevTable;
+                        })
+                        .filter((prevTable) =>
+                            updatedTables.some((t) => t.id === prevTable.id)
+                        );
+                };
+
+                const prevTables = deepCopy(tables);
+                const updatedTables = updateTables(tables);
+
+                const tablesToDelete = prevTables.filter(
+                    (table) => !updatedTables.some((t) => t.id === table.id)
+                );
+
+                const relationshipsToRemove = relationships.filter(
+                    (relationship) =>
+                        tablesToDelete.some(
+                            (table) =>
+                                table.id === relationship.sourceTableId ||
+                                table.id === relationship.targetTableId
+                        )
+                );
+
+                const dependenciesToRemove = dependencies.filter((dependency) =>
+                    tablesToDelete.some(
+                        (table) =>
+                            table.id === dependency.tableId ||
+                            table.id === dependency.dependentTableId
+                    )
+                );
+
+                setRelationships((relationships) =>
+                    relationships.filter(
+                        (relationship) =>
+                            !relationshipsToRemove.some(
+                                (r) => r.id === relationship.id
+                            )
+                    )
+                );
+
+                setDependencies((dependencies) =>
+                    dependencies.filter(
+                        (dependency) =>
+                            !dependenciesToRemove.some(
+                                (d) => d.id === dependency.id
+                            )
+                    )
+                );
+
+                setTables(updateTables);
+
+                events.emit({
+                    action: 'remove_tables',
+                    data: { tableIds: tablesToDelete.map((t) => t.id) },
+                });
+
+                const promises = [];
+                for (const updatedTable of updatedTables) {
+                    promises.push(
+                        db.putTable({
+                            diagramId,
+                            table: updatedTable,
+                        })
+                    );
                 }
 
-                return prevTables
-                    .map((prevTable) => {
-                        const updatedTable = updatedTables.find(
-                            (t) => t.id === prevTable.id
-                        );
-                        return updatedTable
-                            ? { ...prevTable, ...updatedTable }
-                            : prevTable;
-                    })
-                    .filter((prevTable) =>
-                        updatedTables.some((t) => t.id === prevTable.id)
+                for (const table of tablesToDelete) {
+                    promises.push(db.deleteTable({ diagramId, id: table.id }));
+                }
+
+                for (const relationship of relationshipsToRemove) {
+                    promises.push(
+                        db.deleteRelationship({
+                            diagramId,
+                            id: relationship.id,
+                        })
                     );
-            };
+                }
 
-            const prevTables = deepCopy(tables);
-            const updatedTables = updateTables(tables);
+                for (const dependency of dependenciesToRemove) {
+                    promises.push(
+                        db.deleteDependency({ diagramId, id: dependency.id })
+                    );
+                }
 
-            const tablesToDelete = prevTables.filter(
-                (table) => !updatedTables.some((t) => t.id === table.id)
-            );
-
-            const relationshipsToRemove = relationships.filter((relationship) =>
-                tablesToDelete.some(
-                    (table) =>
-                        table.id === relationship.sourceTableId ||
-                        table.id === relationship.targetTableId
-                )
-            );
-
-            const dependenciesToRemove = dependencies.filter((dependency) =>
-                tablesToDelete.some(
-                    (table) =>
-                        table.id === dependency.tableId ||
-                        table.id === dependency.dependentTableId
-                )
-            );
-
-            setRelationships((relationships) =>
-                relationships.filter(
-                    (relationship) =>
-                        !relationshipsToRemove.some(
-                            (r) => r.id === relationship.id
-                        )
-                )
-            );
-
-            setDependencies((dependencies) =>
-                dependencies.filter(
-                    (dependency) =>
-                        !dependenciesToRemove.some(
-                            (d) => d.id === dependency.id
-                        )
-                )
-            );
-
-            setTables(updateTables);
-
-            events.emit({
-                action: 'remove_tables',
-                data: { tableIds: tablesToDelete.map((t) => t.id) },
-            });
-
-            const promises = [];
-            for (const updatedTable of updatedTables) {
+                const updatedAt = new Date();
+                setDiagramUpdatedAt(updatedAt);
                 promises.push(
-                    db.putTable({
-                        diagramId,
-                        table: updatedTable,
+                    db.updateDiagram({
+                        id: diagramId,
+                        attributes: { updatedAt },
                     })
                 );
-            }
 
-            for (const table of tablesToDelete) {
-                promises.push(db.deleteTable({ diagramId, id: table.id }));
-            }
+                await Promise.all(promises);
 
-            for (const relationship of relationshipsToRemove) {
-                promises.push(
-                    db.deleteRelationship({ diagramId, id: relationship.id })
-                );
-            }
+                if (options.updateHistory) {
+                    addUndoAction({
+                        action: 'updateTablesState',
+                        redoData: { tables: updatedTables },
+                        undoData: {
+                            tables: prevTables,
+                            relationships: relationshipsToRemove,
+                            dependencies: dependenciesToRemove,
+                        },
+                    });
+                    resetRedoStack();
+                }
+            },
+            [
+                db,
+                tables,
+                setTables,
+                diagramId,
+                addUndoAction,
+                resetRedoStack,
+                relationships,
+                events,
+                dependencies,
+                setDependencies,
+                setDiagramUpdatedAt,
+                setRelationships,
+            ]
+        );
 
-            for (const dependency of dependenciesToRemove) {
-                promises.push(
-                    db.deleteDependency({ diagramId, id: dependency.id })
-                );
-            }
-
-            const updatedAt = new Date();
-            setDiagramUpdatedAt(updatedAt);
-            promises.push(
-                db.updateDiagram({ id: diagramId, attributes: { updatedAt } })
-            );
-
-            await Promise.all(promises);
-
-            if (options.updateHistory) {
-                addUndoAction({
-                    action: 'updateTablesState',
-                    redoData: { tables: updatedTables },
-                    undoData: {
-                        tables: prevTables,
-                        relationships: relationshipsToRemove,
-                        dependencies: dependenciesToRemove,
-                    },
-                });
-                resetRedoStack();
-            }
-        },
-        [
-            db,
-            tables,
-            setTables,
-            diagramId,
-            addUndoAction,
-            resetRedoStack,
-            relationships,
-            events,
-            dependencies,
-            setDependencies,
-            setDiagramUpdatedAt,
-            setRelationships,
-        ]
-    );
-
-    const getField: ChartDBContext['getField'] = useCallback(
+    const getField: SchemaFlowContext['getField'] = useCallback(
         (tableId: string, fieldId: string) => {
             const table = getTable(tableId);
             return table?.fields.find((f) => f.id === fieldId) ?? null;
@@ -563,7 +571,7 @@ export function useTableFieldOperations({
         [getTable]
     );
 
-    const updateField: ChartDBContext['updateField'] = useCallback(
+    const updateField: SchemaFlowContext['updateField'] = useCallback(
         async (
             tableId: string,
             fieldId: string,
@@ -642,7 +650,7 @@ export function useTableFieldOperations({
         ]
     );
 
-    const removeField: ChartDBContext['removeField'] = useCallback(
+    const removeField: SchemaFlowContext['removeField'] = useCallback(
         async (
             tableId: string,
             fieldId: string,
@@ -741,7 +749,7 @@ export function useTableFieldOperations({
         ]
     );
 
-    const addField: ChartDBContext['addField'] = useCallback(
+    const addField: SchemaFlowContext['addField'] = useCallback(
         async (
             tableId: string,
             field: DBField,
@@ -825,7 +833,7 @@ export function useTableFieldOperations({
         ]
     );
 
-    const createField: ChartDBContext['createField'] = useCallback(
+    const createField: SchemaFlowContext['createField'] = useCallback(
         async (tableId: string) => {
             const table = getTable(tableId);
             const field: DBField = {

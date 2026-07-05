@@ -1,4 +1,4 @@
-import { useChartDB } from '@/hooks/use-chartdb';
+import { useSchemaFlow } from '@/hooks/use-schemaflow';
 import { useConfig } from '@/hooks/use-config';
 import { useDialog } from '@/hooks/use-dialog';
 import { useFullScreenLoader } from '@/hooks/use-full-screen-spinner';
@@ -20,7 +20,7 @@ export const useDiagramLoader = () => {
     const [reloadAttempt, setReloadAttempt] = useState(0);
     const { diagramId } = useParams<{ diagramId: string }>();
     const { config } = useConfig();
-    const { loadDiagram, currentDiagram } = useChartDB();
+    const { loadDiagram, currentDiagram } = useSchemaFlow();
     const { resetRedoStack, resetUndoStack } = useRedoUndoStack();
     const { showLoader, hideLoader } = useFullScreenLoader();
     const { openOpenDiagramDialog } = useDialog();

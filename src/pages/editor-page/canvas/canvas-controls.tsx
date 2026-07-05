@@ -32,7 +32,7 @@ type CanvasControlsProps = {
 };
 
 const MOBILE_CANVAS_NOTICE_DISMISSED_KEY =
-    'chartdb.mobileCanvasNoticeDismissed';
+    'schemaflow.mobileCanvasNoticeDismissed';
 
 const getMobileCanvasNoticeDismissed = () => {
     try {

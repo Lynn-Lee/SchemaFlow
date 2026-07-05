@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { createChartDBRepositories } from '../chartdb-repositories';
-import type { ChartDBDexie } from '@/storage/db/chartdb-dexie';
+import { createSchemaFlowRepositories } from '../schemaflow-repositories';
+import type { SchemaFlowDexie } from '@/storage/db/schemaflow-dexie';
 import type { Diagram } from '@/lib/domain/diagram';
 import type { DBTable } from '@/lib/domain/db-table';
 import type { DBRelationship } from '@/lib/domain/db-relationship';
@@ -127,7 +127,7 @@ const createTestDb = () => {
                 throw error;
             }
         },
-    } as unknown as ChartDBDexie;
+    } as unknown as SchemaFlowDexie;
 };
 
 const createDiagram = (id = 'diagram-1'): Diagram => ({
@@ -151,9 +151,9 @@ const createTable = (id: string, name: string): DBTable => ({
     width: 200,
 });
 
-describe('ChartDB repositories', () => {
+describe('SchemaFlow repositories', () => {
     it('adds and reads diagrams with included child entities', async () => {
-        const repositories = createChartDBRepositories(createTestDb());
+        const repositories = createSchemaFlowRepositories(createTestDb());
         const diagram = createDiagram();
 
         await repositories.diagrams.add({
@@ -193,7 +193,7 @@ describe('ChartDB repositories', () => {
     });
 
     it('cascades diagram id updates to child entity records', async () => {
-        const repositories = createChartDBRepositories(createTestDb());
+        const repositories = createSchemaFlowRepositories(createTestDb());
 
         await repositories.diagrams.add({
             diagram: {
@@ -216,7 +216,7 @@ describe('ChartDB repositories', () => {
     });
 
     it('returns undefined when a scoped entity is missing', async () => {
-        const repositories = createChartDBRepositories(createTestDb());
+        const repositories = createSchemaFlowRepositories(createTestDb());
 
         await expect(
             repositories.tables.get({
@@ -227,7 +227,7 @@ describe('ChartDB repositories', () => {
     });
 
     it('deletes diagram filter with diagram records', async () => {
-        const repositories = createChartDBRepositories(createTestDb());
+        const repositories = createSchemaFlowRepositories(createTestDb());
         const diagram = createDiagram();
 
         await repositories.diagrams.add({ diagram });
@@ -247,7 +247,7 @@ describe('ChartDB repositories', () => {
     });
 
     it('clears all diagrams and child entity records', async () => {
-        const repositories = createChartDBRepositories(createTestDb());
+        const repositories = createSchemaFlowRepositories(createTestDb());
 
         await repositories.diagrams.add({
             diagram: {
@@ -279,7 +279,7 @@ describe('ChartDB repositories', () => {
             'utf8'
         );
 
-        expect(provider).toContain('createChartDBRepositories');
+        expect(provider).toContain('createSchemaFlowRepositories');
         expect(provider).not.toMatch(/\bdb\.(diagrams|db_tables|notes)\b/);
     });
 });

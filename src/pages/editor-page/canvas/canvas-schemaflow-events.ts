@@ -1,5 +1,5 @@
 import type { Node } from '@xyflow/react';
-import type { ChartDBEvent } from '@/context/chartdb-context/chartdb-context';
+import type { SchemaFlowEvent } from '@/context/schemaflow-context/schemaflow-context';
 import type { DatabaseType } from '@/lib/domain/database-type';
 import type { DiagramFilter } from '@/lib/domain/diagram-filter/diagram-filter';
 import { filterTable } from '@/lib/domain/diagram-filter/filter';
@@ -36,7 +36,7 @@ export const buildCanvasEventUpdate = ({
     databaseType,
     showDBViews,
 }: {
-    event: ChartDBEvent;
+    event: SchemaFlowEvent;
     overlapGraph: Graph<string>;
     nodes: NodeType[];
     getNode: (id: string) => Node | undefined;

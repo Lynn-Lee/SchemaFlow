@@ -425,7 +425,7 @@ export const ko_KR: LanguageTranslation = {
         smart_query_wizard: {
             title: 'Smart Query Wizard',
             description:
-                'ChartDB never asks for your database password. You copy a read-only metadata query, run it locally, then paste the JSON output here.',
+                'SchemaFlow never asks for your database password. You copy a read-only metadata query, run it locally, then paste the JSON output here.',
             steps: {
                 choose_database: {
                     title: 'Choose this database type',
@@ -435,7 +435,7 @@ export const ko_KR: LanguageTranslation = {
                 copy_query: {
                     title: 'Copy the Smart Query',
                     description:
-                        'Run it in your own database client. No database password is required in ChartDB.',
+                        'Run it in your own database client. No database password is required in SchemaFlow.',
                 },
                 paste_json: {
                     title: 'Paste the JSON result',
@@ -445,7 +445,7 @@ export const ko_KR: LanguageTranslation = {
                 preview: {
                     title: 'Preview tables, relationships, and warnings',
                     description:
-                        'ChartDB summarizes objects and dialect limitations before writing to the diagram.',
+                        'SchemaFlow summarizes objects and dialect limitations before writing to the diagram.',
                 },
                 confirm: {
                     title: 'Confirm import',
@@ -509,7 +509,7 @@ export const ko_KR: LanguageTranslation = {
             error: {
                 title: '다이어그램 내보내기 오류',
                 description:
-                    '무언가 문제가 발생하였습니다. 도움이 필요하신 경우 support@chartdb.io으로 연락해주세요.',
+                    '무언가 문제가 발생하였습니다. 도움이 필요하신 경우 support@schemaflow.io으로 연락해주세요.',
             },
         },
         import_diagram_dialog: {
@@ -520,7 +520,7 @@ export const ko_KR: LanguageTranslation = {
             error: {
                 title: '다이어그램 가져오기 오류',
                 description:
-                    '다이어그램 JSON이 유효하지 않습니다. JSON이 올바른 형식인지 확인해주세요. 도움이 필요하신 경우 support@chartdb.io으로 연락해주세요.',
+                    '다이어그램 JSON이 유효하지 않습니다. JSON이 올바른 형식인지 확인해주세요. 도움이 필요하신 경우 support@schemaflow.io으로 연락해주세요.',
             },
         },
         import_dbml_dialog: {

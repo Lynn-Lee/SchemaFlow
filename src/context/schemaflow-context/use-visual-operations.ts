@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
-import type { ChartDBContext } from './chartdb-context';
+import type { SchemaFlowContext } from './schemaflow-context';
 import type { StorageContext } from '../storage-context/storage-context';
 import type { RedoUndoStackContext } from '../history-context/redo-undo-stack-context';
 import type { Area } from '@/lib/domain/area';
@@ -73,7 +73,7 @@ export function useVisualOperations({
     setNotes,
     tables,
 }: UseVisualOperationsParams): Pick<
-    ChartDBContext,
+    SchemaFlowContext,
     | 'addArea'
     | 'addAreas'
     | 'createArea'
@@ -109,7 +109,7 @@ export function useVisualOperations({
             };
         }, [databaseType, tables, areas, notes, customTypes]);
 
-    const addAreas: ChartDBContext['addAreas'] = useCallback(
+    const addAreas: SchemaFlowContext['addAreas'] = useCallback(
         async (areas: Area[], options = { updateHistory: true }) => {
             let commandState = createVisualCustomTypeCommandState();
             const acceptedAreas: Area[] = [];
@@ -169,14 +169,14 @@ export function useVisualOperations({
         ]
     );
 
-    const addArea: ChartDBContext['addArea'] = useCallback(
+    const addArea: SchemaFlowContext['addArea'] = useCallback(
         async (area: Area, options = { updateHistory: true }) => {
             return addAreas([area], options);
         },
         [addAreas]
     );
 
-    const createArea: ChartDBContext['createArea'] = useCallback(
+    const createArea: SchemaFlowContext['createArea'] = useCallback(
         async (attributes) => {
             const area: Area = {
                 id: generateId(),
@@ -196,12 +196,12 @@ export function useVisualOperations({
         [areas, addArea]
     );
 
-    const getArea: ChartDBContext['getArea'] = useCallback(
+    const getArea: SchemaFlowContext['getArea'] = useCallback(
         (id: string) => areas.find((area) => area.id === id) ?? null,
         [areas]
     );
 
-    const removeAreas: ChartDBContext['removeAreas'] = useCallback(
+    const removeAreas: SchemaFlowContext['removeAreas'] = useCallback(
         async (ids: string[], options = { updateHistory: true }) => {
             let commandState = createVisualCustomTypeCommandState();
             const prevAreas = areas.filter((area) => ids.includes(area.id));
@@ -261,14 +261,14 @@ export function useVisualOperations({
         ]
     );
 
-    const removeArea: ChartDBContext['removeArea'] = useCallback(
+    const removeArea: SchemaFlowContext['removeArea'] = useCallback(
         async (id: string, options = { updateHistory: true }) => {
             return removeAreas([id], options);
         },
         [removeAreas]
     );
 
-    const updateArea: ChartDBContext['updateArea'] = useCallback(
+    const updateArea: SchemaFlowContext['updateArea'] = useCallback(
         async (
             id: string,
             area: Partial<Area>,
@@ -321,7 +321,7 @@ export function useVisualOperations({
         ]
     );
 
-    const addNotes: ChartDBContext['addNotes'] = useCallback(
+    const addNotes: SchemaFlowContext['addNotes'] = useCallback(
         async (notes: Note[], options = { updateHistory: true }) => {
             let commandState = createVisualCustomTypeCommandState();
             const acceptedNotes: Note[] = [];
@@ -381,14 +381,14 @@ export function useVisualOperations({
         ]
     );
 
-    const addNote: ChartDBContext['addNote'] = useCallback(
+    const addNote: SchemaFlowContext['addNote'] = useCallback(
         async (note: Note, options = { updateHistory: true }) => {
             return addNotes([note], options);
         },
         [addNotes]
     );
 
-    const createNote: ChartDBContext['createNote'] = useCallback(
+    const createNote: SchemaFlowContext['createNote'] = useCallback(
         async (attributes) => {
             const note: Note = {
                 id: generateId(),
@@ -408,12 +408,12 @@ export function useVisualOperations({
         [addNote]
     );
 
-    const getNote: ChartDBContext['getNote'] = useCallback(
+    const getNote: SchemaFlowContext['getNote'] = useCallback(
         (id: string) => notes.find((note) => note.id === id) ?? null,
         [notes]
     );
 
-    const removeNotes: ChartDBContext['removeNotes'] = useCallback(
+    const removeNotes: SchemaFlowContext['removeNotes'] = useCallback(
         async (ids: string[], options = { updateHistory: true }) => {
             let commandState = createVisualCustomTypeCommandState();
             const prevNotes = notes.filter((note) => ids.includes(note.id));
@@ -473,14 +473,14 @@ export function useVisualOperations({
         ]
     );
 
-    const removeNote: ChartDBContext['removeNote'] = useCallback(
+    const removeNote: SchemaFlowContext['removeNote'] = useCallback(
         async (id: string, options = { updateHistory: true }) => {
             return removeNotes([id], options);
         },
         [removeNotes]
     );
 
-    const updateNote: ChartDBContext['updateNote'] = useCallback(
+    const updateNote: SchemaFlowContext['updateNote'] = useCallback(
         async (
             id: string,
             note: Partial<Note>,
@@ -544,12 +544,12 @@ export function useVisualOperations({
             : undefined;
     }, [highlightedCustomTypeId, customTypes]);
 
-    const getCustomType: ChartDBContext['getCustomType'] = useCallback(
+    const getCustomType: SchemaFlowContext['getCustomType'] = useCallback(
         (id: string) => customTypes.find((type) => type.id === id) ?? null,
         [customTypes]
     );
 
-    const addCustomTypes: ChartDBContext['addCustomTypes'] = useCallback(
+    const addCustomTypes: SchemaFlowContext['addCustomTypes'] = useCallback(
         async (
             customTypesToAdd: DBCustomType[],
             options = { updateHistory: true }
@@ -615,14 +615,14 @@ export function useVisualOperations({
         ]
     );
 
-    const addCustomType: ChartDBContext['addCustomType'] = useCallback(
+    const addCustomType: SchemaFlowContext['addCustomType'] = useCallback(
         async (customType: DBCustomType, options = { updateHistory: true }) => {
             return addCustomTypes([customType], options);
         },
         [addCustomTypes]
     );
 
-    const createCustomType: ChartDBContext['createCustomType'] = useCallback(
+    const createCustomType: SchemaFlowContext['createCustomType'] = useCallback(
         async (attributes) => {
             const customType: DBCustomType = {
                 id: generateId(),
@@ -639,83 +639,91 @@ export function useVisualOperations({
         [addCustomType, customTypes]
     );
 
-    const removeCustomTypes: ChartDBContext['removeCustomTypes'] = useCallback(
-        async (ids, options = { updateHistory: true }) => {
-            let commandState = createVisualCustomTypeCommandState();
-            const typesToRemove: DBCustomType[] = [];
-            const commandHistoryEntries: Array<CommandHistoryEntry | null> = [];
-            for (const id of ids) {
-                const previousType = commandState.customTypes.find(
-                    (type) => type.id === id
-                );
-                const command = createDeleteCustomTypeCommand({
-                    context: commandContext,
-                    customTypeId: id,
-                });
-                const result = applyCustomTypeCommand({
-                    command,
-                    context: commandContext,
-                    state: commandState,
-                });
-                commandHistoryEntries.push(
-                    createCommandHistoryEntry({ redoCommand: command, result })
-                );
-                commandState = result.state;
-                if (result.status === 'success' && previousType) {
-                    typesToRemove.push(previousType);
+    const removeCustomTypes: SchemaFlowContext['removeCustomTypes'] =
+        useCallback(
+            async (ids, options = { updateHistory: true }) => {
+                let commandState = createVisualCustomTypeCommandState();
+                const typesToRemove: DBCustomType[] = [];
+                const commandHistoryEntries: Array<CommandHistoryEntry | null> =
+                    [];
+                for (const id of ids) {
+                    const previousType = commandState.customTypes.find(
+                        (type) => type.id === id
+                    );
+                    const command = createDeleteCustomTypeCommand({
+                        context: commandContext,
+                        customTypeId: id,
+                    });
+                    const result = applyCustomTypeCommand({
+                        command,
+                        context: commandContext,
+                        state: commandState,
+                    });
+                    commandHistoryEntries.push(
+                        createCommandHistoryEntry({
+                            redoCommand: command,
+                            result,
+                        })
+                    );
+                    commandState = result.state;
+                    if (result.status === 'success' && previousType) {
+                        typesToRemove.push(previousType);
+                    }
                 }
-            }
 
-            if (typesToRemove.length === 0) return;
+                if (typesToRemove.length === 0) return;
 
-            setCustomTypes(commandState.customTypes);
+                setCustomTypes(commandState.customTypes);
 
-            const updatedAt = new Date();
-            setDiagramUpdatedAt(updatedAt);
+                const updatedAt = new Date();
+                setDiagramUpdatedAt(updatedAt);
 
-            await Promise.all([
-                db.updateDiagram({ id: diagramId, attributes: { updatedAt } }),
-                ...typesToRemove.map((customType) =>
-                    db.deleteCustomType({ diagramId, id: customType.id })
-                ),
-            ]);
-
-            if (typesToRemove.length > 0 && options.updateHistory) {
-                addUndoAction({
-                    action: 'removeCustomTypes',
-                    redoData: {
-                        customTypeIds: typesToRemove.map((type) => type.id),
-                    },
-                    undoData: {
-                        customTypes: typesToRemove,
-                    },
-                    commandHistory: createBatchedCommandHistory(
-                        commandHistoryEntries
+                await Promise.all([
+                    db.updateDiagram({
+                        id: diagramId,
+                        attributes: { updatedAt },
+                    }),
+                    ...typesToRemove.map((customType) =>
+                        db.deleteCustomType({ diagramId, id: customType.id })
                     ),
-                });
-                resetRedoStack();
-            }
-        },
-        [
-            commandContext,
-            createVisualCustomTypeCommandState,
-            db,
-            diagramId,
-            setCustomTypes,
-            setDiagramUpdatedAt,
-            addUndoAction,
-            resetRedoStack,
-        ]
-    );
+                ]);
 
-    const removeCustomType: ChartDBContext['removeCustomType'] = useCallback(
+                if (typesToRemove.length > 0 && options.updateHistory) {
+                    addUndoAction({
+                        action: 'removeCustomTypes',
+                        redoData: {
+                            customTypeIds: typesToRemove.map((type) => type.id),
+                        },
+                        undoData: {
+                            customTypes: typesToRemove,
+                        },
+                        commandHistory: createBatchedCommandHistory(
+                            commandHistoryEntries
+                        ),
+                    });
+                    resetRedoStack();
+                }
+            },
+            [
+                commandContext,
+                createVisualCustomTypeCommandState,
+                db,
+                diagramId,
+                setCustomTypes,
+                setDiagramUpdatedAt,
+                addUndoAction,
+                resetRedoStack,
+            ]
+        );
+
+    const removeCustomType: SchemaFlowContext['removeCustomType'] = useCallback(
         async (id: string, options = { updateHistory: true }) => {
             return removeCustomTypes([id], options);
         },
         [removeCustomTypes]
     );
 
-    const updateCustomType: ChartDBContext['updateCustomType'] = useCallback(
+    const updateCustomType: SchemaFlowContext['updateCustomType'] = useCallback(
         async (
             id: string,
             customType: Partial<DBCustomType>,

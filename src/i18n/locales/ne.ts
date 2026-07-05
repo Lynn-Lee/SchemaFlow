@@ -428,7 +428,7 @@ export const ne: LanguageTranslation = {
         smart_query_wizard: {
             title: 'Smart Query Wizard',
             description:
-                'ChartDB never asks for your database password. You copy a read-only metadata query, run it locally, then paste the JSON output here.',
+                'SchemaFlow never asks for your database password. You copy a read-only metadata query, run it locally, then paste the JSON output here.',
             steps: {
                 choose_database: {
                     title: 'Choose this database type',
@@ -438,7 +438,7 @@ export const ne: LanguageTranslation = {
                 copy_query: {
                     title: 'Copy the Smart Query',
                     description:
-                        'Run it in your own database client. No database password is required in ChartDB.',
+                        'Run it in your own database client. No database password is required in SchemaFlow.',
                 },
                 paste_json: {
                     title: 'Paste the JSON result',
@@ -448,7 +448,7 @@ export const ne: LanguageTranslation = {
                 preview: {
                     title: 'Preview tables, relationships, and warnings',
                     description:
-                        'ChartDB summarizes objects and dialect limitations before writing to the diagram.',
+                        'SchemaFlow summarizes objects and dialect limitations before writing to the diagram.',
                 },
                 confirm: {
                     title: 'Confirm import',
@@ -512,7 +512,7 @@ export const ne: LanguageTranslation = {
             error: {
                 title: 'Error exporting diagram',
                 description:
-                    'Something went wrong. Need help? support@chartdb.io',
+                    'Something went wrong. Need help? support@schemaflow.io',
             },
         },
 
@@ -524,7 +524,7 @@ export const ne: LanguageTranslation = {
             error: {
                 title: 'डायाग्राम आयात गर्दा समस्या आयो',
                 description:
-                    'डायाग्राम JSON अमान्य छ। कृपया JSON जाँच गर्नुहोस् र पुन: प्रयास गर्नुहोस्। मद्दत चाहिन्छ? support@chartdb.io मा सम्पर्क गर्नुहोस्',
+                    'डायाग्राम JSON अमान्य छ। कृपया JSON जाँच गर्नुहोस् र पुन: प्रयास गर्नुहोस्। मद्दत चाहिन्छ? support@schemaflow.io मा सम्पर्क गर्नुहोस्',
             },
         },
         import_dbml_dialog: {

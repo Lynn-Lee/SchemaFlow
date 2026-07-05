@@ -6,7 +6,7 @@ import {
     migrateV12ResetConfig,
 } from '../schema-versions';
 
-describe('ChartDB Dexie schema migrations', () => {
+describe('SchemaFlow Dexie schema migrations', () => {
     it('migrates v1 field type strings into field type objects for v2', () => {
         const table = {
             fields: [

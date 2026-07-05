@@ -25,10 +25,10 @@ import { Table, Workflow } from 'lucide-react';
 import { useLayout } from '@/hooks/use-layout';
 import { useTranslation } from 'react-i18next';
 import { useBreakpoint } from '@/hooks/use-breakpoint';
-import ChartDBLogo from '@/assets/logo-light.png';
-import ChartDBDarkLogo from '@/assets/logo-dark.png';
+import SchemaFlowLogo from '@/assets/logo-light.png';
+import SchemaFlowDarkLogo from '@/assets/logo-dark.png';
 import { useTheme } from '@/hooks/use-theme';
-import { useChartDB } from '@/hooks/use-chartdb';
+import { useSchemaFlow } from '@/hooks/use-schemaflow';
 import { supportsCustomTypes } from '@/lib/domain/database-capabilities';
 import { useDialog } from '@/hooks/use-dialog';
 import { Separator } from '@/components/separator/separator';
@@ -54,7 +54,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = () => {
     const { t } = useTranslation();
     const { isMd: isDesktop } = useBreakpoint('md');
     const { effectiveTheme } = useTheme();
-    const { databaseType } = useChartDB();
+    const { databaseType } = useSchemaFlow();
     const {
         openCreateDiagramDialog,
         openOpenDiagramDialog,
@@ -166,7 +166,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = () => {
             {
                 title: 'Docs',
                 icon: BookOpen,
-                onClick: () => safeOpenUrl('https://docs.chartdb.io'),
+                onClick: () => safeOpenUrl('https://docs.schemaflow.io'),
                 active: false,
             },
             {
@@ -189,17 +189,17 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = () => {
             {!isDesktop ? (
                 <SidebarHeader>
                     <a
-                        href="https://chartdb.io"
+                        href="https://schemaflow.io"
                         className="cursor-pointer"
                         rel="noreferrer"
                     >
                         <img
                             src={
                                 effectiveTheme === 'light'
-                                    ? ChartDBLogo
-                                    : ChartDBDarkLogo
+                                    ? SchemaFlowLogo
+                                    : SchemaFlowDarkLogo
                             }
-                            alt="chartDB"
+                            alt="schemaFlow"
                             className="h-4 max-w-fit"
                         />
                     </a>

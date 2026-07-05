@@ -423,7 +423,7 @@ export const ar: LanguageTranslation = {
         smart_query_wizard: {
             title: 'Smart Query Wizard',
             description:
-                'ChartDB never asks for your database password. You copy a read-only metadata query, run it locally, then paste the JSON output here.',
+                'SchemaFlow never asks for your database password. You copy a read-only metadata query, run it locally, then paste the JSON output here.',
             steps: {
                 choose_database: {
                     title: 'Choose this database type',
@@ -433,7 +433,7 @@ export const ar: LanguageTranslation = {
                 copy_query: {
                     title: 'Copy the Smart Query',
                     description:
-                        'Run it in your own database client. No database password is required in ChartDB.',
+                        'Run it in your own database client. No database password is required in SchemaFlow.',
                 },
                 paste_json: {
                     title: 'Paste the JSON result',
@@ -443,7 +443,7 @@ export const ar: LanguageTranslation = {
                 preview: {
                     title: 'Preview tables, relationships, and warnings',
                     description:
-                        'ChartDB summarizes objects and dialect limitations before writing to the diagram.',
+                        'SchemaFlow summarizes objects and dialect limitations before writing to the diagram.',
                 },
                 confirm: {
                     title: 'Confirm import',
@@ -505,7 +505,7 @@ export const ar: LanguageTranslation = {
             error: {
                 title: 'حدث خطأ أثناء التصدير',
                 description:
-                    'support@chartdb.io حدث خطأ ما. هل تحتاج إلى مساعدة؟',
+                    'support@schemaflow.io حدث خطأ ما. هل تحتاج إلى مساعدة؟',
             },
         },
         import_diagram_dialog: {
@@ -516,7 +516,7 @@ export const ar: LanguageTranslation = {
             error: {
                 title: 'حدث خطأ أثناء الاستيراد',
                 description:
-                    'support@chartdb.io و المحاولة مرة اخرى. هل تحتاج إلى المساعدة؟ JSON غير صالح. يرجى التحقق من JSON الرسم البياني',
+                    'support@schemaflow.io و المحاولة مرة اخرى. هل تحتاج إلى المساعدة؟ JSON غير صالح. يرجى التحقق من JSON الرسم البياني',
             },
         },
         import_dbml_dialog: {

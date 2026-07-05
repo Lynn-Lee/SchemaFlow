@@ -21,7 +21,7 @@ import {
     Pencil,
 } from 'lucide-react';
 import { generateDBFieldSuffix, type DBField } from '@/lib/domain/db-field';
-import { useChartDB } from '@/hooks/use-chartdb';
+import { useSchemaFlow } from '@/hooks/use-schemaflow';
 import { cn } from '@/lib/utils';
 import {
     Tooltip,
@@ -90,7 +90,7 @@ export const TableNodeField: React.FC<TableNodeFieldProps> = React.memo(
         targetEdgeCount,
     }) => {
         const { relationships, readonly, highlightedCustomType, databaseType } =
-            useChartDB();
+            useSchemaFlow();
 
         const updateNodeInternals = useUpdateNodeInternals();
         const connection = useConnection();

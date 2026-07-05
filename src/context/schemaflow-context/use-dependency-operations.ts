@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
-import type { ChartDBContext } from './chartdb-context';
+import type { SchemaFlowContext } from './schemaflow-context';
 import type { StorageContext } from '../storage-context/storage-context';
 import type { RedoUndoStackContext } from '../history-context/redo-undo-stack-context';
 import type { DBDependency } from '@/lib/domain/db-dependency';
@@ -28,7 +28,7 @@ export function useDependencyOperations({
     setDependencies,
     setDiagramUpdatedAt,
 }: UseDependencyOperationsParams): Pick<
-    ChartDBContext,
+    SchemaFlowContext,
     | 'addDependency'
     | 'addDependencies'
     | 'createDependency'
@@ -37,7 +37,7 @@ export function useDependencyOperations({
     | 'removeDependencies'
     | 'updateDependency'
 > {
-    const addDependencies: ChartDBContext['addDependencies'] = useCallback(
+    const addDependencies: SchemaFlowContext['addDependencies'] = useCallback(
         async (
             dependencies: DBDependency[],
             options = { updateHistory: true }
@@ -78,13 +78,13 @@ export function useDependencyOperations({
         ]
     );
 
-    const addDependency: ChartDBContext['addDependency'] = useCallback(
+    const addDependency: SchemaFlowContext['addDependency'] = useCallback(
         async (dependency: DBDependency, options = { updateHistory: true }) =>
             addDependencies([dependency], options),
         [addDependencies]
     );
 
-    const createDependency: ChartDBContext['createDependency'] = useCallback(
+    const createDependency: SchemaFlowContext['createDependency'] = useCallback(
         async ({ tableId, dependentTableId }) => {
             const table = getTable(tableId);
             const dependentTable = getTable(dependentTableId);
@@ -105,13 +105,13 @@ export function useDependencyOperations({
         [addDependency, getTable]
     );
 
-    const getDependency: ChartDBContext['getDependency'] = useCallback(
+    const getDependency: SchemaFlowContext['getDependency'] = useCallback(
         (id: string) =>
             dependencies.find((dependency) => dependency.id === id) ?? null,
         [dependencies]
     );
 
-    const removeDependencies: ChartDBContext['removeDependencies'] =
+    const removeDependencies: SchemaFlowContext['removeDependencies'] =
         useCallback(
             async (ids: string[], options = { updateHistory: true }) => {
                 const prevDependencies = [
@@ -156,13 +156,13 @@ export function useDependencyOperations({
             ]
         );
 
-    const removeDependency: ChartDBContext['removeDependency'] = useCallback(
+    const removeDependency: SchemaFlowContext['removeDependency'] = useCallback(
         async (id: string, options = { updateHistory: true }) =>
             removeDependencies([id], options),
         [removeDependencies]
     );
 
-    const updateDependency: ChartDBContext['updateDependency'] = useCallback(
+    const updateDependency: SchemaFlowContext['updateDependency'] = useCallback(
         async (
             id: string,
             dependency: Partial<DBDependency>,

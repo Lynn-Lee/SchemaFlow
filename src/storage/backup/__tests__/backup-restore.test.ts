@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { DatabaseType } from '@/lib/domain/database-type';
 import type { Diagram } from '@/lib/domain/diagram';
 import {
-    CURRENT_CHARTDB_BACKUP_FORMAT_VERSION,
-    createChartDBBackup,
+    CURRENT_SCHEMAFLOW_BACKUP_FORMAT_VERSION,
+    createSchemaFlowBackup,
     parseBackupSummary,
-    parseChartDBBackup,
+    parseSchemaFlowBackup,
     restoreDiagramFromBackup,
 } from '@/storage/backup';
 
@@ -36,17 +36,17 @@ const createDiagram = (overrides: Partial<Diagram> = {}): Diagram => ({
     ...overrides,
 });
 
-describe('ChartDB backup restore format', () => {
+describe('SchemaFlow backup restore format', () => {
     it('exports a versioned backup with metadata and diagram count', () => {
-        const backup = createChartDBBackup({
+        const backup = createSchemaFlowBackup({
             diagrams: [createDiagram()],
             now: new Date('2026-07-01T12:00:00.000Z'),
             appVersion: '1.20.1-test',
         });
 
-        expect(backup.format).toBe('chartdb.backup');
+        expect(backup.format).toBe('schemaflow.backup');
         expect(backup.schemaVersion).toBe(
-            CURRENT_CHARTDB_BACKUP_FORMAT_VERSION
+            CURRENT_SCHEMAFLOW_BACKUP_FORMAT_VERSION
         );
         expect(backup.createdAt).toBe('2026-07-01T12:00:00.000Z');
         expect(backup.appVersion).toBe('1.20.1-test');
@@ -55,7 +55,7 @@ describe('ChartDB backup restore format', () => {
     });
 
     it('restores a new diagram from a valid backup', () => {
-        const backup = createChartDBBackup({
+        const backup = createSchemaFlowBackup({
             diagrams: [createDiagram()],
             now: new Date('2026-07-01T12:00:00.000Z'),
             appVersion: '1.20.1-test',
@@ -79,7 +79,7 @@ describe('ChartDB backup restore format', () => {
     });
 
     it('builds a restore preview summary without restoring diagrams', () => {
-        const backup = createChartDBBackup({
+        const backup = createSchemaFlowBackup({
             diagrams: [
                 createDiagram(),
                 createDiagram({
@@ -167,9 +167,9 @@ describe('ChartDB backup restore format', () => {
 
     it('rejects incompatible backup format before restore', () => {
         const parse = () =>
-            parseChartDBBackup(
+            parseSchemaFlowBackup(
                 JSON.stringify({
-                    format: 'chartdb.backup',
+                    format: 'schemaflow.backup',
                     schemaVersion: 999,
                     createdAt: '2026-07-01T12:00:00.000Z',
                     diagramCount: 0,
@@ -182,10 +182,10 @@ describe('ChartDB backup restore format', () => {
 
     it('rejects backup files whose diagram count does not match payload', () => {
         const parse = () =>
-            parseChartDBBackup(
+            parseSchemaFlowBackup(
                 JSON.stringify({
-                    format: 'chartdb.backup',
-                    schemaVersion: CURRENT_CHARTDB_BACKUP_FORMAT_VERSION,
+                    format: 'schemaflow.backup',
+                    schemaVersion: CURRENT_SCHEMAFLOW_BACKUP_FORMAT_VERSION,
                     createdAt: '2026-07-01T12:00:00.000Z',
                     diagramCount: 2,
                     diagrams: [createDiagram()],

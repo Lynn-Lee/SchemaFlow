@@ -1,10 +1,10 @@
-# **Contributing to ChartDB**
+# **Contributing to SchemaFlow**
 
-Thank you for your interest in contributing to ChartDB! We want to make your experience as easy as possible.
+Thank you for your interest in contributing to SchemaFlow! We want to make your experience as easy as possible.
 
 ## How to Contribute
 
-ChartDB's OSS Core is local-first: it must remain usable without accounts, cloud diagram storage, database passwords, or automatic uploads. Contributions should preserve that default unless a future Cloud/Team plan explicitly changes the scope.
+SchemaFlow's OSS Core is local-first: it must remain usable without accounts, cloud diagram storage, database passwords, or automatic uploads. Contributions should preserve that default unless a future Cloud/Team plan explicitly changes the scope.
 
 ### Submitting Pull Requests
 
@@ -20,14 +20,14 @@ To submit a pull request:
 
 ### Reporting Bugs
 
-If you find a bug, check [GitHub issues](https://github.com/Lynn-Lee/ChartDB/issues) to see if it is already reported. If not, use the bug report template and include:
+If you find a bug, check [GitHub issues](https://github.com/Lynn-Lee/SchemaFlow/issues) to see if it is already reported. If not, use the bug report template and include:
 
 - Clear reproduction steps.
-- Browser, OS, ChartDB version, and deployment mode.
+- Browser, OS, SchemaFlow version, and deployment mode.
 - A sanitized SQL, DBML, JSON backup, or Smart Query fixture when imported data is involved.
 - Console output or screenshots when they clarify the failure.
 
-For questions about using ChartDB, reach out via [Discord](https://discord.gg/QeFwyWSKwC). For feature requests, use the feature request template and describe the local-first impact.
+For questions about using SchemaFlow, reach out via [Discord](https://discord.gg/QeFwyWSKwC). For feature requests, use the feature request template and describe the local-first impact.
 
 ### Dialect Regressions
 
@@ -45,7 +45,7 @@ Maintainers should convert accepted dialect regressions into focused fixtures or
 
 Please do not open public issues for vulnerabilities. Use GitHub private vulnerability reporting:
 
-https://github.com/Lynn-Lee/ChartDB/security/advisories/new
+https://github.com/Lynn-Lee/SchemaFlow/security/advisories/new
 
 Security reports should include a private report summary, reproduction path, impacted version or deployment mode, and whether the issue affects IndexedDB data, imported schema content, Docker/Nginx runtime config, AI-assisted export, Markdown rendering, or generated SQL/DBML. Do not include active secrets, production database credentials, or private customer data.
 
@@ -53,13 +53,13 @@ Security reports should include a private report summary, reproduction path, imp
 
 To get started:
 
-1. Fork [the repository](https://github.com/Lynn-Lee/ChartDB/fork).
+1. Fork [the repository](https://github.com/Lynn-Lee/SchemaFlow/fork).
 2. Create a branch from `main`.
 3. If you’re new to GitHub pull requests, check out [this video series](https://egghead.io/courses/how-to-contribute-to-an-open-source-project-on-github).
 
 ### License
 
-By contributing, you agree that your work will be licensed under ChartDB's [license](https://github.com/Lynn-Lee/ChartDB/blob/main/LICENSE).
+By contributing, you agree that your work will be licensed under SchemaFlow's [license](https://github.com/Lynn-Lee/SchemaFlow/blob/main/LICENSE).
 
 ## Questions?
 

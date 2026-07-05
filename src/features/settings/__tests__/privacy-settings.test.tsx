@@ -49,8 +49,8 @@ vi.mock('react-router-dom', async () => {
 describe('PrivacySettings', () => {
     beforeEach(() => {
         clearBYOKSessionKey();
-        localStorage.removeItem('chartdb.ai.byok.key');
-        sessionStorage.removeItem('chartdb.ai.byok.key');
+        localStorage.removeItem('schemaflow.ai.byok.key');
+        sessionStorage.removeItem('schemaflow.ai.byok.key');
         aiExportMode = 'byok-session';
         aiGatewayEndpoint = '';
         setAIExportMode.mockClear();
@@ -66,14 +66,14 @@ describe('PrivacySettings', () => {
         await user.type(sessionKeyInput, 'sk-session-only');
 
         expect(getBYOKSessionKey()).toBe('sk-session-only');
-        expect(localStorage.getItem('chartdb.ai.byok.key')).toBeNull();
-        expect(sessionStorage.getItem('chartdb.ai.byok.key')).toBeNull();
+        expect(localStorage.getItem('schemaflow.ai.byok.key')).toBeNull();
+        expect(sessionStorage.getItem('schemaflow.ai.byok.key')).toBeNull();
 
         await user.clear(sessionKeyInput);
 
         expect(getBYOKSessionKey()).toBeUndefined();
-        expect(localStorage.getItem('chartdb.ai.byok.key')).toBeNull();
-        expect(sessionStorage.getItem('chartdb.ai.byok.key')).toBeNull();
+        expect(localStorage.getItem('schemaflow.ai.byok.key')).toBeNull();
+        expect(sessionStorage.getItem('schemaflow.ai.byok.key')).toBeNull();
     });
 
     it('rejects unsafe gateway endpoints before saving settings', async () => {

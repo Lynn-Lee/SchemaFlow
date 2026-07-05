@@ -5,7 +5,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ImportDatabase } from '../common/import-database/import-database';
 import type { DatabaseEdition } from '@/lib/domain/database-edition';
 import type { Diagram } from '@/lib/domain/diagram';
-import { useChartDB } from '@/hooks/use-chartdb';
+import { useSchemaFlow } from '@/hooks/use-schemaflow';
 import { useRedoUndoStack } from '@/hooks/use-redo-undo-stack';
 import { useTranslation } from 'react-i18next';
 import type { BaseDialogProps } from '../common/base-dialog-props';
@@ -42,7 +42,7 @@ export const ImportDatabaseDialog: React.FC<ImportDatabaseDialogProps> = ({
         updateDatabaseType,
         tables: existingTables,
         addCustomTypes,
-    } = useChartDB();
+    } = useSchemaFlow();
     const [scriptResult, setScriptResult] = useState('');
     const { resetRedoStack, resetUndoStack } = useRedoUndoStack();
     const { t } = useTranslation();

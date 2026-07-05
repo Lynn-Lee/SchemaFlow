@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { historyContext } from './history-context';
-import { useChartDB } from '@/hooks/use-chartdb';
+import { useSchemaFlow } from '@/hooks/use-schemaflow';
 import { useRedoUndoStack } from '@/hooks/use-redo-undo-stack';
 import type {
     RedoUndoAction,
@@ -73,7 +73,7 @@ export const HistoryProvider: React.FC<React.PropsWithChildren> = ({
         updateNote,
         currentDiagram,
         loadDiagramFromData,
-    } = useChartDB();
+    } = useSchemaFlow();
 
     const redoActionHandlers = useMemo(
         (): RedoUndoActionHandlers => ({

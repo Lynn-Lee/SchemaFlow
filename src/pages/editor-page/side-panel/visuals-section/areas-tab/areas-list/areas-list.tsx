@@ -15,14 +15,14 @@ import {
     SortableContext,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { useChartDB } from '@/hooks/use-chartdb.ts';
+import { useSchemaFlow } from '@/hooks/use-schemaflow.ts';
 
 export interface AreaListProps {
     areas: Area[];
 }
 
 export const AreaList: React.FC<AreaListProps> = ({ areas }) => {
-    const { updateArea } = useChartDB();
+    const { updateArea } = useSchemaFlow();
 
     const { openedAreaInSidebar } = useLayout();
     const lastSelectedArea = React.useRef<string | null>(null);

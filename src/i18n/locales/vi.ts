@@ -425,7 +425,7 @@ export const vi: LanguageTranslation = {
         smart_query_wizard: {
             title: 'Smart Query Wizard',
             description:
-                'ChartDB never asks for your database password. You copy a read-only metadata query, run it locally, then paste the JSON output here.',
+                'SchemaFlow never asks for your database password. You copy a read-only metadata query, run it locally, then paste the JSON output here.',
             steps: {
                 choose_database: {
                     title: 'Choose this database type',
@@ -435,7 +435,7 @@ export const vi: LanguageTranslation = {
                 copy_query: {
                     title: 'Copy the Smart Query',
                     description:
-                        'Run it in your own database client. No database password is required in ChartDB.',
+                        'Run it in your own database client. No database password is required in SchemaFlow.',
                 },
                 paste_json: {
                     title: 'Paste the JSON result',
@@ -445,7 +445,7 @@ export const vi: LanguageTranslation = {
                 preview: {
                     title: 'Preview tables, relationships, and warnings',
                     description:
-                        'ChartDB summarizes objects and dialect limitations before writing to the diagram.',
+                        'SchemaFlow summarizes objects and dialect limitations before writing to the diagram.',
                 },
                 confirm: {
                     title: 'Confirm import',
@@ -509,7 +509,7 @@ export const vi: LanguageTranslation = {
             error: {
                 title: 'Lỗi khi xuất sơ đồ',
                 description:
-                    'Có gì đó không ổn. Cần trợ giúp? support@chartdb.io',
+                    'Có gì đó không ổn. Cần trợ giúp? support@schemaflow.io',
             },
         },
 
@@ -521,7 +521,7 @@ export const vi: LanguageTranslation = {
             error: {
                 title: 'Lỗi khi nhập sơ đồ',
                 description:
-                    'Sơ đồ ở dạng JSON không hợp lệ. Vui lòng kiểm tra JSON và thử lại. Bạn cần trợ giúp? support@chartdb.io',
+                    'Sơ đồ ở dạng JSON không hợp lệ. Vui lòng kiểm tra JSON và thử lại. Bạn cần trợ giúp? support@schemaflow.io',
             },
         },
         import_dbml_dialog: {

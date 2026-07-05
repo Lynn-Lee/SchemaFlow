@@ -3,33 +3,33 @@ import { cloneDiagram } from '@/lib/clone';
 import { diagramSchema, type Diagram } from '@/lib/domain/diagram';
 import { generateDiagramId } from '@/lib/browser-utils';
 
-export const CHARTDB_BACKUP_FORMAT = 'chartdb.backup';
-export const CURRENT_CHARTDB_BACKUP_FORMAT_VERSION = 1;
+export const SCHEMAFLOW_BACKUP_FORMAT = 'schemaflow.backup';
+export const CURRENT_SCHEMAFLOW_BACKUP_FORMAT_VERSION = 1;
 
-export type ChartDBBackupV1 = {
-    format: typeof CHARTDB_BACKUP_FORMAT;
-    schemaVersion: typeof CURRENT_CHARTDB_BACKUP_FORMAT_VERSION;
+export type SchemaFlowBackupV1 = {
+    format: typeof SCHEMAFLOW_BACKUP_FORMAT;
+    schemaVersion: typeof CURRENT_SCHEMAFLOW_BACKUP_FORMAT_VERSION;
     createdAt: string;
-    source: 'chartdb-local';
+    source: 'schemaflow-local';
     appVersion?: string;
     diagramCount: number;
     diagrams: Diagram[];
 };
 
-export type ChartDBBackupDiagramSummary = {
+export type SchemaFlowBackupDiagramSummary = {
     name: string;
     tableCount: number;
     relationshipCount: number;
 };
 
-export type ChartDBBackupSummary = {
-    format: typeof CHARTDB_BACKUP_FORMAT;
-    schemaVersion: typeof CURRENT_CHARTDB_BACKUP_FORMAT_VERSION;
+export type SchemaFlowBackupSummary = {
+    format: typeof SCHEMAFLOW_BACKUP_FORMAT;
+    schemaVersion: typeof CURRENT_SCHEMAFLOW_BACKUP_FORMAT_VERSION;
     createdAt: string;
-    source: 'chartdb-local';
+    source: 'schemaflow-local';
     appVersion?: string;
     diagramCount: number;
-    diagrams: ChartDBBackupDiagramSummary[];
+    diagrams: SchemaFlowBackupDiagramSummary[];
 };
 
 type CreateBackupInput = {
@@ -63,7 +63,9 @@ const parseDiagram = (value: unknown): Diagram => {
     });
 };
 
-const parseDiagramSummary = (value: unknown): ChartDBBackupDiagramSummary => {
+const parseDiagramSummary = (
+    value: unknown
+): SchemaFlowBackupDiagramSummary => {
     if (!isRecord(value)) {
         throw new Error('Invalid backup diagram payload');
     }
@@ -78,32 +80,32 @@ const parseDiagramSummary = (value: unknown): ChartDBBackupDiagramSummary => {
 };
 
 const rawBackupSchema = z.object({
-    format: z.literal(CHARTDB_BACKUP_FORMAT),
+    format: z.literal(SCHEMAFLOW_BACKUP_FORMAT),
     schemaVersion: z.number(),
     createdAt: z.string().datetime(),
-    source: z.literal('chartdb-local').optional(),
+    source: z.literal('schemaflow-local').optional(),
     appVersion: z.string().optional(),
     diagramCount: z.number().int().nonnegative(),
     diagrams: z.array(z.unknown()),
 });
 
-export function createChartDBBackup({
+export function createSchemaFlowBackup({
     diagrams,
     now = new Date(),
     appVersion,
-}: CreateBackupInput): ChartDBBackupV1 {
+}: CreateBackupInput): SchemaFlowBackupV1 {
     return {
-        format: CHARTDB_BACKUP_FORMAT,
-        schemaVersion: CURRENT_CHARTDB_BACKUP_FORMAT_VERSION,
+        format: SCHEMAFLOW_BACKUP_FORMAT,
+        schemaVersion: CURRENT_SCHEMAFLOW_BACKUP_FORMAT_VERSION,
         createdAt: now.toISOString(),
-        source: 'chartdb-local',
+        source: 'schemaflow-local',
         appVersion,
         diagramCount: diagrams.length,
         diagrams: diagrams.map((diagram) => cloneDiagram(diagram).diagram),
     };
 }
 
-export function parseBackupSummary(json: string): ChartDBBackupSummary {
+export function parseBackupSummary(json: string): SchemaFlowBackupSummary {
     let parsed: unknown;
 
     try {
@@ -115,10 +117,10 @@ export function parseBackupSummary(json: string): ChartDBBackupSummary {
     const raw = rawBackupSchema.safeParse(parsed);
 
     if (!raw.success) {
-        throw new Error('Invalid ChartDB backup file');
+        throw new Error('Invalid SchemaFlow backup file');
     }
 
-    if (raw.data.schemaVersion !== CURRENT_CHARTDB_BACKUP_FORMAT_VERSION) {
+    if (raw.data.schemaVersion !== CURRENT_SCHEMAFLOW_BACKUP_FORMAT_VERSION) {
         throw new Error(
             `Unsupported backup schema version: ${raw.data.schemaVersion}`
         );
@@ -130,16 +132,16 @@ export function parseBackupSummary(json: string): ChartDBBackupSummary {
 
     return {
         format: raw.data.format,
-        schemaVersion: CURRENT_CHARTDB_BACKUP_FORMAT_VERSION,
+        schemaVersion: CURRENT_SCHEMAFLOW_BACKUP_FORMAT_VERSION,
         createdAt: raw.data.createdAt,
-        source: raw.data.source ?? 'chartdb-local',
+        source: raw.data.source ?? 'schemaflow-local',
         appVersion: raw.data.appVersion,
         diagramCount: raw.data.diagramCount,
         diagrams: raw.data.diagrams.map(parseDiagramSummary),
     };
 }
 
-export function parseChartDBBackup(json: string): ChartDBBackupV1 {
+export function parseSchemaFlowBackup(json: string): SchemaFlowBackupV1 {
     let parsed: unknown;
 
     try {
@@ -151,10 +153,10 @@ export function parseChartDBBackup(json: string): ChartDBBackupV1 {
     const raw = rawBackupSchema.safeParse(parsed);
 
     if (!raw.success) {
-        throw new Error('Invalid ChartDB backup file');
+        throw new Error('Invalid SchemaFlow backup file');
     }
 
-    if (raw.data.schemaVersion !== CURRENT_CHARTDB_BACKUP_FORMAT_VERSION) {
+    if (raw.data.schemaVersion !== CURRENT_SCHEMAFLOW_BACKUP_FORMAT_VERSION) {
         throw new Error(
             `Unsupported backup schema version: ${raw.data.schemaVersion}`
         );
@@ -166,9 +168,9 @@ export function parseChartDBBackup(json: string): ChartDBBackupV1 {
 
     return {
         format: raw.data.format,
-        schemaVersion: CURRENT_CHARTDB_BACKUP_FORMAT_VERSION,
+        schemaVersion: CURRENT_SCHEMAFLOW_BACKUP_FORMAT_VERSION,
         createdAt: raw.data.createdAt,
-        source: raw.data.source ?? 'chartdb-local',
+        source: raw.data.source ?? 'schemaflow-local',
         appVersion: raw.data.appVersion,
         diagramCount: raw.data.diagramCount,
         diagrams: raw.data.diagrams.map(parseDiagram),
@@ -180,7 +182,7 @@ export function restoreDiagramFromBackup({
     diagramIndex = 0,
     now = new Date(),
 }: {
-    backup: ChartDBBackupV1;
+    backup: SchemaFlowBackupV1;
     diagramIndex?: number;
     now?: Date;
 }): Diagram {

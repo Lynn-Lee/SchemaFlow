@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
-import type { ChartDBContext } from './chartdb-context';
+import type { SchemaFlowContext } from './schemaflow-context';
 import type { StorageContext } from '../storage-context/storage-context';
 import type { RedoUndoStackContext } from '../history-context/redo-undo-stack-context';
 import type { DBCheckConstraint } from '@/lib/domain/db-check-constraint';
@@ -56,7 +56,7 @@ export function useRelationshipConstraintOperations({
     setTables,
     tables,
 }: UseRelationshipConstraintOperationsParams): Pick<
-    ChartDBContext,
+    SchemaFlowContext,
     | 'addCheckConstraint'
     | 'createCheckConstraint'
     | 'removeCheckConstraint'
@@ -69,7 +69,7 @@ export function useRelationshipConstraintOperations({
     | 'removeRelationships'
     | 'updateRelationship'
 > {
-    const addCheckConstraint: ChartDBContext['addCheckConstraint'] =
+    const addCheckConstraint: SchemaFlowContext['addCheckConstraint'] =
         useCallback(
             async (
                 tableId: string,
@@ -147,7 +147,7 @@ export function useRelationshipConstraintOperations({
             ]
         );
 
-    const createCheckConstraint: ChartDBContext['createCheckConstraint'] =
+    const createCheckConstraint: SchemaFlowContext['createCheckConstraint'] =
         useCallback(
             async (tableId: string) => {
                 const constraint: DBCheckConstraint = {
@@ -163,7 +163,7 @@ export function useRelationshipConstraintOperations({
             [addCheckConstraint]
         );
 
-    const removeCheckConstraint: ChartDBContext['removeCheckConstraint'] =
+    const removeCheckConstraint: SchemaFlowContext['removeCheckConstraint'] =
         useCallback(
             async (
                 tableId: string,
@@ -246,7 +246,7 @@ export function useRelationshipConstraintOperations({
             ]
         );
 
-    const updateCheckConstraint: ChartDBContext['updateCheckConstraint'] =
+    const updateCheckConstraint: SchemaFlowContext['updateCheckConstraint'] =
         useCallback(
             async (
                 tableId: string,
@@ -335,7 +335,7 @@ export function useRelationshipConstraintOperations({
             ]
         );
 
-    const addRelationships: ChartDBContext['addRelationships'] = useCallback(
+    const addRelationships: SchemaFlowContext['addRelationships'] = useCallback(
         async (
             relationshipsToAdd: DBRelationship[],
             options = { updateHistory: true }
@@ -426,7 +426,7 @@ export function useRelationshipConstraintOperations({
         ]
     );
 
-    const addRelationship: ChartDBContext['addRelationship'] = useCallback(
+    const addRelationship: SchemaFlowContext['addRelationship'] = useCallback(
         async (
             relationship: DBRelationship,
             options = { updateHistory: true }
@@ -436,7 +436,7 @@ export function useRelationshipConstraintOperations({
         [addRelationships]
     );
 
-    const createRelationship: ChartDBContext['createRelationship'] =
+    const createRelationship: SchemaFlowContext['createRelationship'] =
         useCallback(
             async ({
                 sourceTableId,
@@ -477,14 +477,14 @@ export function useRelationshipConstraintOperations({
             [addRelationship, getTable]
         );
 
-    const getRelationship: ChartDBContext['getRelationship'] = useCallback(
+    const getRelationship: SchemaFlowContext['getRelationship'] = useCallback(
         (id: string) =>
             relationships.find((relationship) => relationship.id === id) ??
             null,
         [relationships]
     );
 
-    const removeRelationships: ChartDBContext['removeRelationships'] =
+    const removeRelationships: SchemaFlowContext['removeRelationships'] =
         useCallback(
             async (ids: string[], options = { updateHistory: true }) => {
                 const prevRelationships = [
@@ -565,7 +565,7 @@ export function useRelationshipConstraintOperations({
             ]
         );
 
-    const removeRelationship: ChartDBContext['removeRelationship'] =
+    const removeRelationship: SchemaFlowContext['removeRelationship'] =
         useCallback(
             async (id: string, options = { updateHistory: true }) => {
                 return removeRelationships([id], options);
@@ -573,7 +573,7 @@ export function useRelationshipConstraintOperations({
             [removeRelationships]
         );
 
-    const updateRelationship: ChartDBContext['updateRelationship'] =
+    const updateRelationship: SchemaFlowContext['updateRelationship'] =
         useCallback(
             async (
                 id: string,

@@ -61,13 +61,13 @@ jobs:
           load: true
           push: false
           platforms: linux/amd64
-          tags: chartdb-release-smoke:ci
+          tags: schemaflow-release-smoke:ci
 
       - name: Docker smoke run
         run: |
           set -euo pipefail
-          docker run --rm -d -p 8080:80 --name chartdb-release-smoke chartdb-release-smoke:ci
-          trap 'docker rm -f chartdb-release-smoke >/dev/null 2>&1 || true' EXIT
+          docker run --rm -d -p 8080:80 --name schemaflow-release-smoke schemaflow-release-smoke:ci
+          trap 'docker rm -f schemaflow-release-smoke >/dev/null 2>&1 || true' EXIT
 
           curl --fail --silent --show-error --head http://localhost:8080/
           curl --fail --silent --show-error --head http://localhost:8080/config.js

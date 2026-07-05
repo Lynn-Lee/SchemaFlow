@@ -1,5 +1,5 @@
 import type { DBTable } from '@/lib/domain/db-table';
-import type { ChartDBContext } from '../chartdb-context/chartdb-context';
+import type { SchemaFlowContext } from '../schemaflow-context/schemaflow-context';
 import type { DBField } from '@/lib/domain/db-field';
 import type { DBIndex } from '@/lib/domain/db-index';
 import type { DBCheckConstraint } from '@/lib/domain/db-check-constraint';
@@ -11,7 +11,7 @@ import type { Note } from '@/lib/domain/note';
 import type { CommandHistoryBatch } from '@/schema-core/commands';
 import type { Diagram } from '@/schema-core/model';
 
-type Action = keyof ChartDBContext;
+type Action = keyof SchemaFlowContext;
 
 type RedoUndoActionBase<T extends Action, RD, UD> = {
     action: T;

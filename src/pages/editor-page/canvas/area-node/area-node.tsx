@@ -8,7 +8,7 @@ import React, {
 import type { NodeProps, Node } from '@xyflow/react';
 import { NodeResizer } from '@xyflow/react';
 import type { Area } from '@/lib/domain/area';
-import { useChartDB } from '@/hooks/use-chartdb';
+import { useSchemaFlow } from '@/hooks/use-schemaflow';
 import { Input } from '@/components/input/input';
 import { useClickAway } from '@/hooks/use-click-away';
 import { useKeyPressEvent } from '@/hooks/use-key-press-event';
@@ -42,7 +42,7 @@ export type AreaNodeType = Node<
 
 export const AreaNode: React.FC<NodeProps<AreaNodeType>> = React.memo(
     ({ selected, dragging, data: { area } }) => {
-        const { updateArea, readonly } = useChartDB();
+        const { updateArea, readonly } = useSchemaFlow();
         const { t } = useTranslation();
         const [editMode, setEditMode] = useState(false);
         const [areaName, setAreaName] = useState(area.name);

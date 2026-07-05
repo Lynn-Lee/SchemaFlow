@@ -1,6 +1,6 @@
 import Dexie, { type EntityTable } from 'dexie';
 import type { Area } from '@/lib/domain/area';
-import type { ChartDBConfig } from '@/lib/domain/config';
+import type { SchemaFlowConfig } from '@/lib/domain/config';
 import type { DBCustomType } from '@/lib/domain/db-custom-type';
 import type { DBDependency } from '@/lib/domain/db-dependency';
 import type { DBRelationship } from '@/lib/domain/db-relationship';
@@ -9,16 +9,16 @@ import type { Diagram } from '@/lib/domain/diagram';
 import type { DiagramFilter } from '@/lib/domain/diagram-filter/diagram-filter';
 import type { Note } from '@/lib/domain/note';
 import {
-    CHARTDB_SCHEMA_VERSION,
-    CHARTDB_STORE_NAMES,
-    registerChartDBSchemaVersions,
+    SCHEMAFLOW_SCHEMA_VERSION,
+    SCHEMAFLOW_STORE_NAMES,
+    registerSchemaFlowSchemaVersions,
 } from './schema-versions';
 
-export { CHARTDB_SCHEMA_VERSION, CHARTDB_STORE_NAMES };
+export { SCHEMAFLOW_SCHEMA_VERSION, SCHEMAFLOW_STORE_NAMES };
 
-export const CHARTDB_DATABASE_NAME = 'ChartDB';
+export const SCHEMAFLOW_DATABASE_NAME = 'SchemaFlow';
 
-export type ChartDBDexie = Dexie & {
+export type SchemaFlowDexie = Dexie & {
     diagrams: EntityTable<Diagram, 'id'>;
     db_tables: EntityTable<DBTable & { diagramId: string }, 'id'>;
     db_relationships: EntityTable<DBRelationship & { diagramId: string }, 'id'>;
@@ -26,16 +26,16 @@ export type ChartDBDexie = Dexie & {
     areas: EntityTable<Area & { diagramId: string }, 'id'>;
     db_custom_types: EntityTable<DBCustomType & { diagramId: string }, 'id'>;
     notes: EntityTable<Note & { diagramId: string }, 'id'>;
-    config: EntityTable<ChartDBConfig & { id: number }, 'id'>;
+    config: EntityTable<SchemaFlowConfig & { id: number }, 'id'>;
     diagram_filters: EntityTable<
         DiagramFilter & { diagramId: string },
         'diagramId'
     >;
 };
 
-export const createChartDBDexie = (): ChartDBDexie => {
-    const db = registerChartDBSchemaVersions(
-        new Dexie(CHARTDB_DATABASE_NAME) as ChartDBDexie
+export const createSchemaFlowDexie = (): SchemaFlowDexie => {
+    const db = registerSchemaFlowSchemaVersions(
+        new Dexie(SCHEMAFLOW_DATABASE_NAME) as SchemaFlowDexie
     );
 
     db.on('ready', async () => {

@@ -12,9 +12,9 @@ const githubRepoOpenedKey = 'github_repo_opened';
 const starUsDialogLastOpenKey = 'star_us_dialog_last_open';
 const showMiniMapOnCanvasKey = 'show_minimap_on_canvas';
 const showDBViewsKey = 'show_db_views';
-const aiExportModeKey = 'chartdb.ai.mode';
-const aiGatewayEndpointKey = 'chartdb.ai.gateway.endpoint';
-const aiGatewayModelNameKey = 'chartdb.ai.gateway.model';
+const aiExportModeKey = 'schemaflow.ai.mode';
+const aiGatewayEndpointKey = 'schemaflow.ai.gateway.endpoint';
+const aiGatewayModelNameKey = 'schemaflow.ai.gateway.model';
 
 const safeGetItem = (key: string): string | null => {
     try {
@@ -34,7 +34,7 @@ const safeSetItem = (key: string, value: string) => {
 
 const canUseLocalStorage = () => {
     try {
-        const probeKey = 'chartdb.local_storage_probe';
+        const probeKey = 'schemaflow.local_storage_probe';
         localStorage.setItem(probeKey, '1');
         localStorage.removeItem(probeKey);
         return true;

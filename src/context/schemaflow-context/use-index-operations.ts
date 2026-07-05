@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
-import type { ChartDBContext } from './chartdb-context';
+import type { SchemaFlowContext } from './schemaflow-context';
 import type { StorageContext } from '../storage-context/storage-context';
 import type { RedoUndoStackContext } from '../history-context/redo-undo-stack-context';
 import type { DatabaseType } from '@/lib/domain/database-type';
@@ -49,10 +49,10 @@ export function useIndexOperations({
     setTables,
     tables,
 }: UseIndexOperationsParams): Pick<
-    ChartDBContext,
+    SchemaFlowContext,
     'addIndex' | 'createIndex' | 'getIndex' | 'removeIndex' | 'updateIndex'
 > {
-    const getIndex: ChartDBContext['getIndex'] = useCallback(
+    const getIndex: SchemaFlowContext['getIndex'] = useCallback(
         (tableId: string, indexId: string) => {
             const table = getTable(tableId);
             return table?.indexes.find((i) => i.id === indexId) ?? null;
@@ -60,7 +60,7 @@ export function useIndexOperations({
         [getTable]
     );
 
-    const addIndex: ChartDBContext['addIndex'] = useCallback(
+    const addIndex: SchemaFlowContext['addIndex'] = useCallback(
         async (
             tableId: string,
             index: DBIndex,
@@ -131,7 +131,7 @@ export function useIndexOperations({
         ]
     );
 
-    const removeIndex: ChartDBContext['removeIndex'] = useCallback(
+    const removeIndex: SchemaFlowContext['removeIndex'] = useCallback(
         async (
             tableId: string,
             indexId: string,
@@ -208,7 +208,7 @@ export function useIndexOperations({
         ]
     );
 
-    const createIndex: ChartDBContext['createIndex'] = useCallback(
+    const createIndex: SchemaFlowContext['createIndex'] = useCallback(
         async (tableId: string) => {
             const table = getTable(tableId);
             const index: DBIndex = {
@@ -226,7 +226,7 @@ export function useIndexOperations({
         [addIndex, getTable]
     );
 
-    const updateIndex: ChartDBContext['updateIndex'] = useCallback(
+    const updateIndex: SchemaFlowContext['updateIndex'] = useCallback(
         async (
             tableId: string,
             indexId: string,
