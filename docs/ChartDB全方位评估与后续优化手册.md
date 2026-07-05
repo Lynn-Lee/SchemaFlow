@@ -95,7 +95,7 @@ ChartDB 已完成 Phase 0 到 Phase 8 的首轮重构，共 42 个任务全部 `
 | M14 | React Router 路由无 `errorElement`：loader 抛错或路由级 chunk 加载失败时显示无样式默认错误页，无应用 header/重试入口 | 产品 | `src/router.tsx`（7 个路由均无 `errorElement`） |
 | M15 | Onboarding 选择的数据库类型在“导入现有数据库”路径中被丢弃：`CreateDiagramDialog` 打开时 `useEffect` 无条件重置为 `SELECT_DATABASE`/`GENERIC` | 产品 | `onboarding-dialog.tsx:159-160` → `create-diagram-dialog.tsx:96-109` |
 | M16 | 移动端无 canvas 响应式护栏：无媒体查询/`isMobile` 判断，也无“建议桌面使用”提示，触屏交互静默降级 | 产品 | `src/pages/editor-page/canvas/`、`use-is-lost-in-canvas.tsx`（仅处理平移越界，不处理视口尺寸） |
-| M17 | Self-hosted AI Gateway endpoint 无 URL 校验即写入 localStorage：未来功能上线前若不加白名单/协议校验，存在 SSRF 隐患（当前因功能未实现为死代码，非当下可利用漏洞，需预防性修复） | 安全 | `privacy-settings.tsx:83-90`、`local-config-provider.tsx:88-90,131-133`、`ai-mode.ts:78-87` |
+| M17 | 已修复：Self-hosted AI Gateway endpoint 增加 HTTPS 与主机校验，非法 endpoint 不再写入 localStorage，`buildAIExportRequest()` 也会二次拒绝 | 安全 | `privacy-settings.tsx`、`local-config-provider.tsx`、`ai-mode.ts` |
 | M18 | `templates-page.tsx` 整页文案未接入 i18n（标题、描述、Featured/All Templates/Tags 等均硬编码英文），范围比已知的 Smart Query 文案缺口更大 | 产品 | `src/pages/templates-page/templates-page.tsx` |
 
 ### 3.4 Low 问题
@@ -2281,7 +2281,7 @@ batch: 批次 S
 type: CODE
 priority: P2
 title: 为 self-hosted AI Gateway endpoint 增加协议与主机校验，阻断 SSRF 隐患
-status: queued
+status: done
 depends_on: []
 owner_lane: security
 branch: codex/chartdb-s-ai-gateway-url-validation
@@ -2306,6 +2306,14 @@ acceptance:
     - 非法 endpoint 无法保存
     - buildAIExportRequest 对非法 endpoint 也会拒绝（纵深防御）
     - 该校验为预防性修复，不改变当前"AI 客户端未启用"的既有行为
+completion:
+    - 2026-07-05：新增 `validateGatewayEndpoint()`，要求 self-hosted AI Gateway endpoint 为 HTTPS，并拒绝 `localhost`、`.local`、loopback、RFC1918 私网和 `169.254.169.254` 等地址。
+    - `buildAIExportRequest()` 在构造 self-hosted gateway 请求前执行同一校验，非法 endpoint 会抛出明确错误，作为未来真正接入 fetch 前的纵深防御。
+    - `PrivacySettings` 改为 draft 输入 + 失焦提交：非法 endpoint 会在输入框旁展示错误且不会写入配置；合法公网 HTTPS endpoint 才会保存。
+    - `LocalConfigProvider` 会丢弃既有非法存储值，并通过校验包装后的 setter 阻止后续无效值进入 localStorage。
+    - 红灯先确认缺少 `validateGatewayEndpoint`；绿灯后 `src/lib/ai/__tests__/ai-mode.test.ts` 和 `src/features/settings/__tests__/privacy-settings.test.tsx` 通过。
+next:
+    - 进入 `CHARTDB-P-014`：移动端 canvas 护栏提示；或进入 `CHARTDB-Q-006`：templates-page i18n。
 ```
 
 #### CHARTDB-Q-006：templates-page 接入 i18n
@@ -2728,6 +2736,6 @@ npm run test:ci
 | P-012 | Onboarding 数据库选择延续 | P | P3 | done | - |
 | P-013 | 存储错误处理 | P | P1 | done | - |
 | P-014 | 移动端 canvas 护栏提示 | P | P3 | queued | - |
-| S-004 | AI Gateway URL 校验 | S | P2 | queued | - |
+| S-004 | AI Gateway URL 校验 | S | P2 | done | - |
 | Q-006 | templates-page i18n | Q | P2 | queued | - |
 | Q-007 | export dialog 切换按钮 i18n | Q | P3 | queued | - |

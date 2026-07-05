@@ -33,6 +33,47 @@ interface BuildAIExportRequestOptions {
     confirmedSchemaTransfer: boolean;
 }
 
+const privateIpv4Ranges = [
+    /^10\./,
+    /^127\./,
+    /^169\.254\./,
+    /^192\.168\./,
+    /^172\.(1[6-9]|2\d|3[0-1])\./,
+];
+
+export const validateGatewayEndpoint = (endpoint: string) => {
+    const trimmedEndpoint = endpoint.trim();
+
+    if (trimmedEndpoint.length === 0) {
+        return 'Self-hosted Gateway endpoint is required';
+    }
+
+    let url: URL;
+    try {
+        url = new URL(trimmedEndpoint);
+    } catch {
+        return 'Self-hosted Gateway endpoint must be a public HTTPS endpoint';
+    }
+
+    const hostname = url.hostname.toLowerCase();
+    const isLocalhost = hostname === 'localhost' || hostname.endsWith('.local');
+    const isPrivateIpv4 = privateIpv4Ranges.some((range) =>
+        range.test(hostname)
+    );
+    const isLoopbackIpv6 = hostname === '[::1]' || hostname === '::1';
+
+    if (
+        url.protocol !== 'https:' ||
+        isLocalhost ||
+        isPrivateIpv4 ||
+        isLoopbackIpv6
+    ) {
+        return 'Self-hosted Gateway endpoint must be a public HTTPS endpoint';
+    }
+
+    return undefined;
+};
+
 let byokSessionKey: string | undefined;
 
 export const setBYOKSessionKey = (apiKey: string) => {
@@ -76,13 +117,14 @@ export const buildAIExportRequest = ({
         };
     }
 
-    if (!mode.endpoint) {
-        throw new Error('Self-hosted Gateway endpoint is required');
+    const endpointError = validateGatewayEndpoint(mode.endpoint);
+    if (endpointError) {
+        throw new Error(endpointError);
     }
 
     return {
         mode: 'self-hosted-gateway',
-        endpoint: mode.endpoint,
+        endpoint: mode.endpoint.trim(),
         modelName: mode.modelName,
         schemaSummary,
     };

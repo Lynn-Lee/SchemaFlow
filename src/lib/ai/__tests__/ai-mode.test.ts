@@ -4,6 +4,7 @@ import {
     clearBYOKSessionKey,
     getBYOKSessionKey,
     setBYOKSessionKey,
+    validateGatewayEndpoint,
     type AIExportMode,
 } from '../ai-mode';
 
@@ -84,5 +85,43 @@ describe('AI export mode gating', () => {
             modelName: 'qwen-local',
             schemaSummary,
         });
+    });
+
+    it('rejects unsafe self-hosted gateway endpoint URLs', () => {
+        expect(validateGatewayEndpoint('https://gateway.example.com/v1')).toBe(
+            undefined
+        );
+
+        for (const endpoint of [
+            'file:///etc/passwd',
+            'http://gateway.example.com/v1',
+            'https://localhost:8080/v1',
+            'https://127.0.0.1:8080/v1',
+            'https://10.0.0.2/v1',
+            'https://172.16.0.2/v1',
+            'https://192.168.1.10/v1',
+            'https://169.254.169.254/latest/meta-data',
+        ]) {
+            expect(validateGatewayEndpoint(endpoint)).toMatch(
+                /public HTTPS endpoint/
+            );
+        }
+    });
+
+    it('validates gateway endpoints before building a self-hosted request', () => {
+        const mode: AIExportMode = {
+            type: 'self-hosted-gateway',
+            endpoint: 'https://169.254.169.254/latest/meta-data',
+        };
+
+        expect(() =>
+            buildAIExportRequest({
+                mode,
+                schemaSummary,
+                confirmedSchemaTransfer: true,
+            })
+        ).toThrow(
+            'Self-hosted Gateway endpoint must be a public HTTPS endpoint'
+        );
     });
 });

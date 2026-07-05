@@ -16,7 +16,11 @@ import {
 import { useDialog } from '@/hooks/use-dialog';
 import { useLocalConfig } from '@/hooks/use-local-config';
 import { useStorage } from '@/hooks/use-storage';
-import { getBYOKSessionKey, setBYOKSessionKey } from '@/lib/ai/ai-mode';
+import {
+    getBYOKSessionKey,
+    setBYOKSessionKey,
+    validateGatewayEndpoint,
+} from '@/lib/ai/ai-mode';
 import {
     parseBackupSummary,
     parseChartDBBackup,
@@ -81,6 +85,16 @@ export const PrivacySettings: React.FC = () => {
     const [byokSessionKey, setByokSessionKey] = React.useState(
         () => getBYOKSessionKey() ?? ''
     );
+    const [gatewayEndpointDraft, setGatewayEndpointDraft] =
+        React.useState(aiGatewayEndpoint);
+    const [gatewayEndpointError, setGatewayEndpointError] = React.useState<
+        string | undefined
+    >();
+
+    React.useEffect(() => {
+        setGatewayEndpointDraft(aiGatewayEndpoint);
+        setGatewayEndpointError(undefined);
+    }, [aiGatewayEndpoint]);
 
     const handleBYOKSessionKeyChange = React.useCallback(
         (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -90,6 +104,39 @@ export const PrivacySettings: React.FC = () => {
         },
         []
     );
+
+    const handleGatewayEndpointChange = React.useCallback(
+        (event: React.ChangeEvent<HTMLInputElement>) => {
+            const nextEndpoint = event.target.value;
+            setGatewayEndpointDraft(nextEndpoint);
+
+            if (nextEndpoint.trim().length === 0) {
+                setGatewayEndpointError(undefined);
+                return;
+            }
+
+            setGatewayEndpointError(validateGatewayEndpoint(nextEndpoint));
+        },
+        []
+    );
+
+    const handleGatewayEndpointBlur = React.useCallback(() => {
+        const trimmedEndpoint = gatewayEndpointDraft.trim();
+
+        if (trimmedEndpoint.length === 0) {
+            setGatewayEndpointError(undefined);
+            setAIGatewayEndpoint('');
+            return;
+        }
+
+        const validationError = validateGatewayEndpoint(trimmedEndpoint);
+        setGatewayEndpointError(validationError);
+
+        if (!validationError) {
+            setGatewayEndpointDraft(trimmedEndpoint);
+            setAIGatewayEndpoint(trimmedEndpoint);
+        }
+    }, [gatewayEndpointDraft, setAIGatewayEndpoint]);
 
     const handleClearLocalDiagrams = React.useCallback(async () => {
         setClearStatus('clearing');
@@ -262,12 +309,27 @@ export const PrivacySettings: React.FC = () => {
                             </span>
                             <input
                                 className="h-9 rounded-md border border-input bg-background px-3 text-sm"
-                                value={aiGatewayEndpoint}
-                                onChange={(event) =>
-                                    setAIGatewayEndpoint(event.target.value)
+                                value={gatewayEndpointDraft}
+                                onChange={handleGatewayEndpointChange}
+                                onBlur={handleGatewayEndpointBlur}
+                                aria-invalid={
+                                    gatewayEndpointError ? true : undefined
+                                }
+                                aria-describedby={
+                                    gatewayEndpointError
+                                        ? 'gateway-endpoint-error'
+                                        : undefined
                                 }
                                 placeholder="https://gateway.example.com/v1"
                             />
+                            {gatewayEndpointError ? (
+                                <span
+                                    id="gateway-endpoint-error"
+                                    className="text-xs text-destructive"
+                                >
+                                    {gatewayEndpointError}
+                                </span>
+                            ) : null}
                         </label>
                         <label className="grid gap-1 text-sm">
                             <span className="font-medium">Model name</span>

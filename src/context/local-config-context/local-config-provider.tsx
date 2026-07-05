@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import type { LocalAIExportMode, ScrollAction } from './local-config-context';
 import { LocalConfigContext } from './local-config-context';
 import type { Theme } from '../theme-context/theme-context';
+import { validateGatewayEndpoint } from '@/lib/ai/ai-mode';
 
 const themeKey = 'theme';
 const scrollActionKey = 'scroll_action';
@@ -85,11 +86,27 @@ export const LocalConfigProvider: React.FC<React.PropsWithChildren> = ({
     const [aiExportMode, setAIExportMode] = React.useState<LocalAIExportMode>(
         (safeGetItem(aiExportModeKey) as LocalAIExportMode) || 'disabled'
     );
-    const [aiGatewayEndpoint, setAIGatewayEndpoint] = React.useState(
-        safeGetItem(aiGatewayEndpointKey) || ''
-    );
+    const [aiGatewayEndpoint, setAIGatewayEndpoint] = React.useState(() => {
+        const storedEndpoint = safeGetItem(aiGatewayEndpointKey) || '';
+        return validateGatewayEndpoint(storedEndpoint)
+            ? ''
+            : storedEndpoint.trim();
+    });
     const [aiGatewayModelName, setAIGatewayModelName] = React.useState(
         safeGetItem(aiGatewayModelNameKey) || ''
+    );
+
+    const setValidatedAIGatewayEndpoint = React.useCallback(
+        (endpoint: string) => {
+            const trimmedEndpoint = endpoint.trim();
+            if (
+                trimmedEndpoint.length === 0 ||
+                !validateGatewayEndpoint(trimmedEndpoint)
+            ) {
+                setAIGatewayEndpoint(trimmedEndpoint);
+            }
+        },
+        []
     );
 
     useEffect(() => {
@@ -159,7 +176,7 @@ export const LocalConfigProvider: React.FC<React.PropsWithChildren> = ({
                 aiExportMode,
                 setAIExportMode,
                 aiGatewayEndpoint,
-                setAIGatewayEndpoint,
+                setAIGatewayEndpoint: setValidatedAIGatewayEndpoint,
                 aiGatewayModelName,
                 setAIGatewayModelName,
             }}
