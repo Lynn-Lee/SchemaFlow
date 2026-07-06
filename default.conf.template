@@ -1,0 +1,37 @@
+server {
+    listen       80;
+    listen  [::]:80;
+
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; upgrade-insecure-requests" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
+
+    location / {
+        root   /usr/share/nginx/html;
+        index  index.html index.htm;
+	    try_files  $uri $uri/ /index.html;
+    }
+
+    location /config.js {
+        default_type application/javascript;
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; upgrade-insecure-requests" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
+        add_header Cache-Control "no-store" always;
+        return 200 "window.env = {
+            OPENAI_API_ENDPOINT: \"$OPENAI_API_ENDPOINT\",
+            LLM_MODEL_NAME: \"$LLM_MODEL_NAME\",
+            HIDE_SCHEMAFLOW_CLOUD: \"$HIDE_SCHEMAFLOW_CLOUD\",
+            DISABLE_ANALYTICS: \"$DISABLE_ANALYTICS\"
+        };";
+    }
+
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
+}

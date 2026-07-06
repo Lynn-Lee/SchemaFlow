@@ -1,0 +1,810 @@
+import type { LanguageMetadata, LanguageTranslation } from '../types';
+
+export const ja: LanguageTranslation = {
+    translation: {
+        editor_sidebar: {
+            new_diagram: '新規',
+            browse: '開く',
+            tables: 'テーブル',
+            refs: '参照',
+            dependencies: '依存関係',
+            custom_types: 'カスタムタイプ',
+            visuals: 'ビジュアル',
+            docs: 'Docs',
+            settings: 'Settings',
+        },
+        menu: {
+            actions: {
+                actions: 'アクション',
+                new: '新規...',
+                browse: 'すべてのデータベース...',
+                save: '保存',
+                import: 'データベースをインポート',
+                export_sql: 'SQLをエクスポート',
+                export_as: '形式を指定してエクスポート',
+                delete_diagram: '削除',
+            },
+            edit: {
+                edit: '編集',
+                undo: '元に戻す',
+                redo: 'やり直し',
+                clear: 'クリア',
+            },
+            view: {
+                view: '表示',
+                show_sidebar: 'サイドバーを表示',
+                hide_sidebar: 'サイドバーを非表示',
+                hide_cardinality: 'カーディナリティを非表示',
+                show_cardinality: 'カーディナリティを表示',
+                hide_field_attributes: 'フィールド属性を非表示',
+                show_field_attributes: 'フィールド属性を表示',
+                zoom_on_scroll: 'スクロールでズーム',
+                show_views: 'データベースビュー',
+                theme: 'テーマ',
+                show_dependencies: 'Show Dependencies',
+                hide_dependencies: 'Hide Dependencies',
+                show_minimap: 'Show Mini Map',
+                hide_minimap: 'Hide Mini Map',
+            },
+            backup: {
+                backup: 'バックアップ',
+                export_diagram: 'ダイアグラムをエクスポート',
+                restore_diagram: 'ダイアグラムを復元',
+            },
+            help: {
+                help: 'ヘルプ',
+                docs_website: 'ドキュメント',
+            },
+        },
+
+        delete_diagram_alert: {
+            title: 'ダイアグラムを削除',
+            description:
+                'この操作は元に戻せません。これによりダイアグラムが永久に削除されます。',
+            cancel: 'キャンセル',
+            delete: '削除',
+        },
+
+        clear_diagram_alert: {
+            title: 'ダイアグラムをクリア',
+            description:
+                'この操作は元に戻せません。これによりダイアグラム内のすべてのデータが永久に削除されます。',
+            cancel: 'キャンセル',
+            clear: 'クリア',
+        },
+
+        reorder_diagram_alert: {
+            title: 'ダイアグラムを自動配置',
+            description:
+                'この操作によりダイアグラム内のすべてのテーブルが再配置されます。続行しますか？',
+            reorder: '自動配置',
+            cancel: 'キャンセル',
+        },
+
+        copy_to_clipboard_toast: {
+            unsupported: {
+                title: 'コピー失敗',
+                description: 'クリップボードがサポートされていません',
+            },
+            failed: {
+                title: 'コピー失敗',
+                description:
+                    '何かがうまくいきませんでした。もう一度お試しください。',
+            },
+        },
+
+        theme: {
+            system: 'システム',
+            light: 'ライト',
+            dark: 'ダーク',
+        },
+
+        zoom: {
+            on: 'オン',
+            off: 'オフ',
+        },
+
+        last_saved: '最後に保存された',
+        saved: '保存されました',
+        loading_diagram: 'ダイアグラムを読み込み中...',
+        deselect_all: 'すべての選択を解除',
+        select_all: 'すべてを選択',
+        clear: 'クリア',
+        show_more: 'さらに表示',
+        show_less: '表示を減らす',
+        copy_to_clipboard: 'Copy to Clipboard',
+        copied: 'Copied!',
+
+        side_panel: {
+            view_all_options: 'すべてのオプションを表示...',
+            tables_section: {
+                tables: 'テーブル',
+                add_table: 'テーブルを追加',
+                add_view: 'ビューを追加',
+                filter: 'フィルタ',
+                collapse: 'すべて折りたたむ',
+                clear: 'Clear Filter',
+                no_results: 'No tables found matching your filter.',
+                show_list: 'Show Table List',
+                show_dbml: 'Show DBML Editor',
+                all_hidden: 'すべてのテーブルが非表示です',
+                show_all: 'すべて表示',
+
+                table: {
+                    fields: 'フィールド',
+                    nullable: 'NULL可能?',
+                    primary_key: '主キー',
+                    indexes: 'インデックス',
+                    check_constraints: 'チェック制約',
+                    comments: 'コメント',
+                    no_comments: 'コメントがありません',
+                    add_field: 'フィールドを追加',
+                    add_index: 'インデックスを追加',
+                    add_check: 'チェックを追加',
+                    index_select_fields: 'フィールドを選択',
+                    no_types_found: 'タイプが見つかりません',
+                    field_name: '名前',
+                    field_type: 'タイプ',
+                    field_actions: {
+                        title: 'フィールド属性',
+                        unique: 'ユニーク',
+                        auto_increment: 'オートインクリメント',
+                        comments: 'コメント',
+                        no_comments: 'コメントがありません',
+                        delete_field: 'フィールドを削除',
+                        default_value: 'Default Value',
+                        no_default: 'No default',
+                        character_length: 'Max Length',
+                        precision: '精度',
+                        scale: '小数点以下桁数',
+                    },
+                    index_actions: {
+                        title: 'インデックス属性',
+                        name: '名前',
+                        unique: 'ユニーク',
+                        index_type: 'インデックスタイプ',
+                        delete_index: 'インデックスを削除',
+                    },
+                    check_constraint_actions: {
+                        title: 'チェック制約',
+                        expression: '式',
+                        delete: 'チェック制約を削除',
+                    },
+                    table_actions: {
+                        title: 'テーブル操作',
+                        change_schema: 'スキーマを変更',
+                        add_field: 'フィールドを追加',
+                        add_index: 'インデックスを追加',
+                        duplicate_table: 'Duplicate Table',
+                        delete_table: 'テーブルを削除',
+                    },
+                },
+                empty_state: {
+                    title: 'テーブルがありません',
+                    description: 'テーブルを作成して開始してください',
+                },
+            },
+            refs_section: {
+                refs: '参照',
+                filter: 'フィルタ',
+                collapse: 'すべて折りたたむ',
+                add_relationship: 'リレーションシップを追加',
+                relationships: 'リレーションシップ',
+                dependencies: '依存関係',
+                relationship: {
+                    relationship: 'リレーションシップ',
+                    primary: '主テーブル',
+                    foreign: '関連テーブル',
+                    cardinality: 'カーディナリティ',
+                    delete_relationship: '削除',
+                    switch_tables: 'テーブルを入れ替え',
+                    relationship_actions: {
+                        title: '操作',
+                        delete_relationship: '削除',
+                    },
+                },
+                dependency: {
+                    dependency: '依存関係',
+                    table: 'テーブル',
+                    dependent_table: '依存ビュー',
+                    delete_dependency: '削除',
+                    dependency_actions: {
+                        title: '操作',
+                        delete_dependency: '削除',
+                    },
+                },
+                empty_state: {
+                    title: 'リレーションシップがありません',
+                    description:
+                        '開始するためにリレーションシップを作成してください',
+                },
+            },
+
+            areas_section: {
+                areas: 'エリア',
+                add_area: 'エリアを追加',
+                filter: 'フィルタ',
+                clear: 'フィルタをクリア',
+                no_results: 'フィルタに一致するエリアが見つかりません。',
+
+                area: {
+                    area_actions: {
+                        title: 'エリア操作',
+                        edit_name: '名前を編集',
+                        delete_area: 'エリアを削除',
+                    },
+                },
+                empty_state: {
+                    title: 'エリアがありません',
+                    description: 'エリアを作成して開始してください',
+                },
+            },
+
+            visuals_section: {
+                visuals: 'ビジュアル',
+                tabs: {
+                    areas: 'エリア',
+                    notes: 'ノート',
+                },
+            },
+
+            notes_section: {
+                filter: 'フィルター',
+                add_note: 'ノートを追加',
+                no_results: 'ノートが見つかりません',
+                clear: 'フィルターをクリア',
+                empty_state: {
+                    title: 'ノートがありません',
+                    description:
+                        'キャンバス上にテキスト注釈を追加するためのノートを作成',
+                },
+                note: {
+                    empty_note: '空のノート',
+                    note_actions: {
+                        title: 'ノートアクション',
+                        edit_content: 'コンテンツを編集',
+                        delete_note: 'ノートを削除',
+                    },
+                },
+            },
+
+            custom_types_section: {
+                custom_types: 'カスタム型',
+                filter: 'フィルタ',
+                clear: 'フィルタをクリア',
+                no_results: 'フィルタに一致するカスタム型が見つかりません。',
+                new_type: '新しい型',
+                empty_state: {
+                    title: 'カスタム型がありません',
+                    description:
+                        'データベースで利用可能になると、カスタム型がここに表示されます',
+                },
+                custom_type: {
+                    kind: '種類',
+                    enum_values: '列挙値',
+                    composite_fields: 'フィールド',
+                    no_fields: 'フィールドが定義されていません',
+                    no_values: '列挙値が定義されていません',
+                    field_name_placeholder: 'フィールド名',
+                    field_type_placeholder: '型を選択',
+                    add_field: 'フィールドを追加',
+                    no_fields_tooltip:
+                        'このカスタム型にはフィールドが定義されていません',
+                    custom_type_actions: {
+                        title: '操作',
+                        highlight_fields: 'フィールドをハイライト',
+                        delete_custom_type: '削除',
+                        clear_field_highlight: 'ハイライトを解除',
+                    },
+                    delete_custom_type: '型を削除',
+                },
+            },
+        },
+
+        toolbar: {
+            zoom_in: 'ズームイン',
+            zoom_out: 'ズームアウト',
+            save: '保存',
+            show_all: 'すべて表示',
+            undo: '元に戻す',
+            redo: 'やり直し',
+            reorder_diagram: 'ダイアグラムを自動配置',
+            highlight_overlapping_tables: 'Highlight Overlapping Tables',
+            clear_custom_type_highlight: 'Clear highlight for "{{typeName}}"',
+            custom_type_highlight_tooltip:
+                '「{{typeName}}」をハイライト中 - クリックで解除',
+            filter: 'テーブルをフィルタ',
+        },
+
+        new_diagram_dialog: {
+            database_selection: {
+                title: 'データベースは何ですか？',
+                description: '各データベースには独自の機能と能力があります。',
+                transactional: 'Transactional',
+                analytical: 'Analytical',
+                more_databases: 'More Databases',
+                primary_databases: 'Primary Databases',
+                check_examples_long: '例を確認',
+                check_examples_short: '例',
+            },
+
+            import_database: {
+                title: 'データベースをインポート',
+                database_edition: 'データベースエディション:',
+                step_1: 'このスクリプトをデータベースで実行してください:',
+                step_2: 'ここにスクリプトの結果を貼り付けてください →',
+                script_results_placeholder: 'ここにスクリプトの結果...',
+                ssms_instructions: {
+                    button_text: 'SSMSの手順',
+                    title: '手順',
+                    step_1: 'ツール > オプション > クエリ結果 > SQL Serverに移動します。',
+                    step_2: '「グリッドへの結果」を使用している場合、XML以外のデータの最大取得文字数を変更してください（9999999に設定）。',
+                },
+                instructions_link: 'Need help? Watch how',
+                check_script_result: 'Check Script Result',
+            },
+
+            cancel: 'キャンセル',
+            back: '戻る',
+            import_from_file: 'Import from File',
+            empty_diagram: '空のデータベース',
+            continue: '続行',
+            import: 'インポート',
+        },
+
+        open_diagram_dialog: {
+            title: 'データベースを開く',
+            description: '以下のリストからダイアグラムを選択してください。',
+            table_columns: {
+                name: '名前',
+                created_at: '作成日',
+                last_modified: '最終更新日',
+                tables_count: 'テーブル数',
+            },
+            cancel: 'キャンセル',
+            open: '開く',
+            new_database: '新しいデータベース',
+            load_error: {
+                title: 'Could not load local diagrams',
+                description:
+                    'Local diagrams could not be read. Check browser storage permissions or create a new database.',
+                retry: 'Retry loading diagrams',
+            },
+
+            diagram_actions: {
+                open: '開く',
+                duplicate: '複製',
+                delete: '削除',
+            },
+        },
+
+        export_sql_dialog: {
+            title: 'SQLをエクスポート',
+            description:
+                'ダイアグラムスキーマを{{databaseType}}スクリプトにエクスポート',
+            close: '閉じる',
+            mode: {
+                deterministic: 'Deterministic',
+                ai: 'AI',
+            },
+            loading: {
+                text: 'AIが{{databaseType}}のSQLを生成中...',
+                description: 'これには最大30秒かかります。',
+            },
+            error: {
+                message:
+                    'SQLスクリプトの生成中にエラーが発生しました。後でもう一度試すか、<0>お問い合わせください</0>。',
+                description:
+                    'OPENAI_TOKENを自由に使用して、マニュアルを<0>こちら</0>で確認してください。',
+            },
+        },
+
+        create_relationship_dialog: {
+            title: 'リレーションシップを作成',
+            primary_table: '主テーブル',
+            primary_field: '主フィールド',
+            referenced_table: '参照テーブル',
+            referenced_field: '参照フィールド',
+            primary_table_placeholder: 'テーブルを選択',
+            primary_field_placeholder: 'フィールドを選択',
+            referenced_table_placeholder: 'テーブルを選択',
+            referenced_field_placeholder: 'フィールドを選択',
+            no_tables_found: 'テーブルが見つかりません',
+            no_fields_found: 'フィールドが見つかりません',
+            create: '作成',
+            cancel: 'キャンセル',
+        },
+
+        import_database_dialog: {
+            title: '現在のダイアグラムにインポート',
+            override_alert: {
+                title: 'データベースをインポート',
+                content: {
+                    alert: 'このダイアグラムをインポートすると、既存のテーブルおよびリレーションシップに影響を与えます。',
+                    new_tables:
+                        '<bold>{{newTablesNumber}}</bold> 新しいテーブルが追加されます。',
+                    new_relationships:
+                        '<bold>{{newRelationshipsNumber}}</bold> 新しいリレーションシップが作成されます。',
+                    tables_override:
+                        '<bold>{{tablesOverrideNumber}}</bold> テーブルが上書きされます。',
+                    proceed: '続行しますか？',
+                },
+                import: 'インポート',
+                cancel: 'キャンセル',
+            },
+        },
+
+        smart_query_wizard: {
+            title: 'Smart Query Wizard',
+            description:
+                'SchemaFlow never asks for your database password. You copy a read-only metadata query, run it locally, then paste the JSON output here.',
+            steps: {
+                choose_database: {
+                    title: 'Choose this database type',
+                    description:
+                        'The query is generated for the selected database and client.',
+                },
+                copy_query: {
+                    title: 'Copy the Smart Query',
+                    description:
+                        'Run it in your own database client. No database password is required in SchemaFlow.',
+                },
+                paste_json: {
+                    title: 'Paste the JSON result',
+                    description:
+                        'Only paste the metadata JSON returned by the query, not a connection string or secret.',
+                },
+                preview: {
+                    title: 'Preview tables, relationships, and warnings',
+                    description:
+                        'SchemaFlow summarizes objects and dialect limitations before writing to the diagram.',
+                },
+                confirm: {
+                    title: 'Confirm import',
+                    description:
+                        'Nothing is added to IndexedDB until you confirm the preview.',
+                },
+            },
+        },
+
+        export_image_dialog: {
+            title: '画像をエクスポート',
+            description: 'エクスポートの倍率を選択してください:',
+            scale_1x: '1x (低画質)',
+            scale_2x: '2x (通常画質)',
+            scale_4x: '4x (最高画質)',
+            cancel: 'キャンセル',
+            export: 'エクスポート',
+            advanced_options: 'Advanced Options',
+            pattern: 'Include background pattern',
+            pattern_description: 'Add subtle grid pattern to background.',
+            transparent: 'Transparent background',
+            transparent_description: 'Remove background color from image.',
+        },
+
+        new_table_schema_dialog: {
+            title: 'スキーマを選択',
+            description:
+                '現在、複数のスキーマが表示されています。新しいテーブル用に1つを選択してください。',
+            cancel: 'キャンセル',
+            confirm: '確認',
+        },
+
+        update_table_schema_dialog: {
+            title: 'スキーマを変更',
+            description: 'テーブル「{{tableName}}」のスキーマを更新',
+            cancel: 'キャンセル',
+            confirm: '変更',
+        },
+
+        create_table_schema_dialog: {
+            title: '新しいスキーマを作成',
+            description:
+                'スキーマがまだ存在しません。テーブルを整理するために最初のスキーマを作成してください。',
+            create: '作成',
+            cancel: 'キャンセル',
+        },
+
+        star_us_dialog: {
+            title: '改善をサポートしてください！',
+            description:
+                'GitHubでスターを付けていただけますか？ クリックするだけです！',
+            close: '今はしない',
+            confirm: 'もちろん！',
+        },
+        export_diagram_dialog: {
+            title: 'Export Diagram',
+            description: 'Choose the format for export:',
+            format_json: 'JSON',
+            cancel: 'Cancel',
+            export: 'Export',
+            error: {
+                title: 'Error exporting diagram',
+                description:
+                    'Something went wrong. Need help? https://github.com/Lynn-Lee/SchemaFlow/issues',
+            },
+        },
+        import_diagram_dialog: {
+            title: 'Import Diagram',
+            description: 'Paste the diagram JSON below:',
+            cancel: 'Cancel',
+            import: 'Import',
+            error: {
+                title: 'Error importing diagram',
+                description:
+                    'The diagram JSON is invalid. Please check the JSON and try again. Need help? https://github.com/Lynn-Lee/SchemaFlow/issues',
+            },
+        },
+        import_dbml_dialog: {
+            example_title: 'Import Example DBML',
+            title: 'Import DBML',
+            description: 'Import a database schema from DBML format.',
+            import: 'Import',
+            cancel: 'Cancel',
+            skip_and_empty: 'Skip & Empty',
+            show_example: 'Show Example',
+            error: {
+                title: 'Error',
+                description: 'Failed to parse DBML. Please check the syntax.',
+            },
+        },
+        relationship_type: {
+            one_to_one: '1対1',
+            one_to_many: '1対多',
+            many_to_one: '多対1',
+            many_to_many: '多対多',
+        },
+
+        canvas_context_menu: {
+            new_table: '新しいテーブル',
+            new_view: '新しいビュー',
+            new_relationship: '新しいリレーションシップ',
+            new_area: '新しいエリア',
+            new_note: '新しいメモ',
+        },
+
+        table_node_context_menu: {
+            edit_table: 'テーブルを編集',
+            duplicate_table: 'Duplicate Table',
+            delete_table: 'テーブルを削除',
+            add_relationship: 'Add Relationship',
+            move_to_area: 'エリアに移動',
+            no_area: 'エリアなし',
+        },
+
+        templates_page: {
+            heading_featured: 'Featured database schema templates',
+            heading_tagged: 'Database schema templates for {{tag}}',
+            heading_all: 'Database schema templates',
+            breadcrumb: 'Templates',
+            detail_subtitle: 'Database schema diagram',
+            detail_meta_title:
+                'Database schema diagram for {{name}} | SchemaFlow',
+            description:
+                'Discover a collection of real-world database schema diagrams, featuring example applications and popular open-source projects.',
+            description_tagged:
+                'Discover a collection of real-world database schema diagrams for {{tag}}, featuring example applications and popular open-source projects.',
+            navigation: {
+                featured: 'Featured',
+                all_templates: 'All Templates',
+                tags: 'Tags',
+            },
+        },
+
+        examples_page: {
+            meta_title: 'SchemaFlow - Example Database Diagrams & Schemas',
+            heading: 'Examples',
+            description:
+                'A collection of examples to help you get started with SchemaFlow.',
+            prompt: 'Click on one',
+            items: {
+                '1': {
+                    name: 'Employees schema',
+                    description:
+                        'A schema for database of employees, departments, and salaries.',
+                },
+                '2': {
+                    name: 'Bike stores schema',
+                    description:
+                        'A schema for database of bike stores, brands, categories, and customers.',
+                },
+                '3': {
+                    name: 'DVD Rental schema',
+                    description:
+                        'A schema for database of a DVD rental store, including customers, films, actors, staff, and stores.',
+                },
+            },
+        },
+
+        canvas: {
+            all_tables_hidden: 'すべてのテーブルが非表示です',
+            show_all_tables: 'すべて表示',
+            mobile_notice: {
+                title: 'Mobile editing is limited',
+                description:
+                    'For reliable canvas editing, use a desktop browser. You can continue on this device.',
+                dismiss: 'Dismiss mobile canvas notice',
+            },
+        },
+
+        canvas_filter: {
+            title: 'テーブルをフィルター',
+            search_placeholder: 'テーブルを検索...',
+            group_by_schema: 'スキーマでグループ化',
+            group_by_area: 'エリアでグループ化',
+            no_tables_found: 'テーブルが見つかりません',
+            empty_diagram_description: 'テーブルを作成して開始',
+            no_tables_description: '検索またはフィルターを調整してください',
+            clear_filter: 'フィルターをクリア',
+        },
+
+        snap_to_grid_tooltip: 'Snap to Grid (Hold {{key}})',
+
+        tool_tips: {
+            double_click_to_edit: 'ダブルクリックして編集',
+        },
+
+        language_select: {
+            change_language: '言語',
+            screen_reader_change_language: 'Change language',
+            experimental: 'experimental',
+        },
+
+        import_preview: {
+            ready: 'Import preview ready',
+            confidence: 'Confidence: {{confidence}}',
+            tables: '{{count}} tables',
+            relationships: '{{count}} relationships',
+            custom_types: '{{count}} custom types',
+            warnings: '{{count}} warnings',
+            skipped: '{{objectType}}{{name}} was skipped: {{reason}}',
+            errors: {
+                no_importable_objects:
+                    'Preview found no importable tables, relationships, or custom types. Check the pasted Smart Query JSON or the selected database dialect.',
+                cancelled: 'Import preview cancelled.',
+                parse_default: 'Unable to parse the import input.',
+                parse_failed:
+                    'Preview failed: {{message}}. Check the Smart Query JSON, SQL syntax, or dialect limitations before trying again.',
+                message: '{{message}}',
+            },
+        },
+
+        on: 'オン',
+        off: 'オフ',
+
+        settings: {
+            dialog: {
+                title: 'Settings',
+                description:
+                    'Manage local editor preferences, AI export mode, and browser-stored diagram data.',
+            },
+            display: {
+                heading: 'Display',
+                description: 'Keep editor preferences in this browser.',
+                theme: 'Theme',
+                theme_system: 'System',
+                theme_light: 'Light',
+                theme_dark: 'Dark',
+                language: 'Language',
+                show_minimap: 'Show mini map',
+                show_field_attributes: 'Show field attributes',
+                scroll_action: 'Canvas scroll action',
+                scroll_action_pan: 'Pan canvas',
+                scroll_action_zoom: 'Zoom canvas',
+            },
+            privacy: {
+                session_only_title: 'Session-only settings',
+                session_only_description:
+                    'Browser settings are unavailable. Changes work for this session only.',
+                ai_mode_heading: 'AI mode',
+                ai_mode_description:
+                    'Control whether SQL export can use AI assistance.',
+                ai_export_mode_label: 'AI-assisted export mode',
+                ai_export_mode_disabled: 'Disabled',
+                ai_export_mode_byok: 'BYOK session',
+                ai_export_mode_gateway: 'Self-hosted gateway',
+                byok_alert_title: 'Session-only BYOK',
+                byok_alert_line_1: 'Paste the API key only when exporting SQL.',
+                byok_alert_line_2:
+                    'BYOK keys are session-only and are never saved.',
+                byok_never_saved:
+                    'BYOK keys are session-only and are never saved.',
+                byok_session_key_label: 'Session API key',
+                byok_session_key_hint:
+                    'Stored in memory only. Refreshing the page clears this key.',
+                gateway_endpoint_label: 'Gateway endpoint',
+                gateway_model_label: 'Model name',
+                gateway_model_placeholder: 'Optional',
+                data_management_heading: 'Data management',
+                data_management_description:
+                    'SchemaFlow stores diagrams in this browser with IndexedDB and localStorage. No account or cloud workspace is required.',
+                export_backup_button: 'Export diagram backup',
+                restore_backup_button: 'Restore from backup',
+                backup_file_label: 'Backup file',
+                clear_local_diagrams_button: 'Clear local diagrams',
+                reading_backup_title: 'Reading backup',
+                reading_backup_description:
+                    'SchemaFlow is building a restore preview.',
+                backup_restored_title: 'Backup restored',
+                backup_restored_description:
+                    'The selected backup has been restored as local diagram data.',
+                restore_failed_title: 'Could not restore backup',
+                restore_failed_default: 'Backup file could not be restored.',
+                preview_failed_default: 'Backup file could not be previewed.',
+                read_failed_default: 'Backup file could not be read.',
+                cleared_title: 'Local diagrams cleared',
+                cleared_description: 'All local diagrams have been deleted.',
+                clear_failed_title: 'Could not clear local diagrams',
+                clear_failed_default: 'Local diagrams could not be deleted.',
+                clear_dialog_title: 'Delete all local diagrams?',
+                clear_dialog_description:
+                    'This deletes every diagram stored in this browser, including tables, relationships, notes, areas, custom types, and filters. Export a backup first if you need to keep a copy.',
+                cancel: 'Cancel',
+                deleting: 'Deleting...',
+                delete_local_diagrams: 'Delete local diagrams',
+                restore_dialog_title: 'Restore backup preview?',
+                restore_dialog_description:
+                    'Review the diagrams in this backup before restoring them into local browser storage.',
+                diagram_singular: '{{count}} diagram in this backup.',
+                diagram_plural: '{{count}} diagrams in this backup.',
+                table_singular: '{{count}} table',
+                table_plural: '{{count}} tables',
+                relationship_singular: '{{count}} relationship',
+                relationship_plural: '{{count}} relationships',
+                restoring: 'Restoring...',
+                restore_backup_action: 'Restore backup',
+            },
+            keyboard: {
+                heading: 'Keyboard shortcuts',
+                description:
+                    'Core editor paths remain available without pointer-only controls.',
+                undo: 'Undo diagram change',
+                redo: 'Redo diagram change',
+                command_actions: 'Open command actions',
+                zoom_canvas: 'Zoom canvas',
+                zoom_canvas_keys: 'Mouse wheel or toolbar controls',
+            },
+        },
+
+        onboarding: {
+            title: 'Start a SchemaFlow diagram',
+            description:
+                'Pick the database first, then choose whether to import, start blank, or explore templates.',
+            database_heading: 'Database',
+            start_option_heading: 'Start option',
+            start_options: {
+                import: {
+                    title: 'Import existing database',
+                    description:
+                        'Start from SQL, DBML, or metadata and review it before saving.',
+                },
+                blank: {
+                    title: 'New blank diagram',
+                    description:
+                        'Create an empty local diagram for manual modeling.',
+                },
+                template: {
+                    title: 'Browse templates',
+                    description:
+                        'Open a realistic example and clone it into your workspace.',
+                },
+            },
+            no_database_selected: 'No database selected',
+            selected_label: 'Selected: {{label}}',
+            choose_database_error:
+                'Choose a database before creating or importing a diagram.',
+            choose_start_option_error: 'Choose how you want to start.',
+            create_failed_error:
+                'SchemaFlow could not create the diagram. Nothing was saved; try again.',
+            import_json_backup: 'Import JSON backup',
+            continue: 'Continue',
+            creating: 'Creating...',
+        },
+    },
+};
+
+export const jaMetadata: LanguageMetadata = {
+    name: 'Japanese',
+    nativeName: '日本語',
+    code: 'ja',
+};

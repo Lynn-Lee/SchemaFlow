@@ -1,0 +1,274 @@
+import React, { useMemo } from 'react';
+import {
+    Sidebar,
+    SidebarContent,
+    SidebarFooter,
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarHeader,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+} from '@/components/sidebar/sidebar';
+import {
+    BookOpen,
+    Group,
+    FileType,
+    Plus,
+    FolderOpen,
+    CodeXml,
+    Settings,
+} from 'lucide-react';
+import { Table, Workflow } from 'lucide-react';
+import { useLayout } from '@/hooks/use-layout';
+import { useTranslation } from 'react-i18next';
+import { useBreakpoint } from '@/hooks/use-breakpoint';
+import SchemaFlowLogo from '@/assets/logo-light.png';
+import SchemaFlowDarkLogo from '@/assets/logo-dark.png';
+import { useTheme } from '@/hooks/use-theme';
+import { useSchemaFlow } from '@/hooks/use-schemaflow';
+import { supportsCustomTypes } from '@/lib/domain/database-capabilities';
+import { useDialog } from '@/hooks/use-dialog';
+import { Separator } from '@/components/separator/separator';
+import { safeOpenUrl } from '@/lib/browser-utils';
+
+export interface SidebarItem {
+    title: string;
+    icon: React.FC;
+    onClick: () => void;
+    active: boolean;
+    badge?: string;
+}
+
+export interface EditorSidebarProps {}
+
+export const EditorSidebar: React.FC<EditorSidebarProps> = () => {
+    const {
+        selectSidebarSection,
+        selectedSidebarSection,
+        showSidePanel,
+        selectVisualsTab,
+    } = useLayout();
+    const { t } = useTranslation();
+    const { isMd: isDesktop } = useBreakpoint('md');
+    const { effectiveTheme } = useTheme();
+    const { databaseType } = useSchemaFlow();
+    const {
+        openCreateDiagramDialog,
+        openOpenDiagramDialog,
+        openSettingsDialog,
+    } = useDialog();
+
+    const diagramItems: SidebarItem[] = useMemo(
+        () => [
+            {
+                title: t('editor_sidebar.new_diagram'),
+                icon: Plus,
+                onClick: () => {
+                    openCreateDiagramDialog();
+                },
+                active: false,
+            },
+            {
+                title: t('editor_sidebar.browse'),
+                icon: FolderOpen,
+                onClick: () => {
+                    openOpenDiagramDialog();
+                },
+                active: false,
+            },
+        ],
+        [t, openCreateDiagramDialog, openOpenDiagramDialog]
+    );
+
+    const baseItems: SidebarItem[] = useMemo(
+        () => [
+            {
+                title: t('editor_sidebar.tables'),
+                icon: Table,
+                onClick: () => {
+                    showSidePanel();
+                    selectSidebarSection('tables');
+                },
+                active: selectedSidebarSection === 'tables',
+            },
+            {
+                title: 'DBML',
+                icon: CodeXml,
+                onClick: () => {
+                    showSidePanel();
+                    selectSidebarSection('dbml');
+                },
+                active: selectedSidebarSection === 'dbml',
+            },
+            {
+                title: t('editor_sidebar.refs'),
+                icon: Workflow,
+                onClick: () => {
+                    showSidePanel();
+                    selectSidebarSection('refs');
+                },
+                active: selectedSidebarSection === 'refs',
+            },
+            ...(supportsCustomTypes(databaseType)
+                ? [
+                      {
+                          title: t('editor_sidebar.custom_types'),
+                          icon: FileType,
+                          onClick: () => {
+                              showSidePanel();
+                              selectSidebarSection('customTypes');
+                          },
+                          active: selectedSidebarSection === 'customTypes',
+                      },
+                  ]
+                : []),
+            {
+                title: t('editor_sidebar.visuals'),
+                icon: Group,
+                onClick: () => {
+                    showSidePanel();
+                    selectSidebarSection('visuals');
+                    selectVisualsTab('areas');
+                },
+                active: selectedSidebarSection === 'visuals',
+            },
+        ],
+        [
+            selectSidebarSection,
+            selectedSidebarSection,
+            t,
+            showSidePanel,
+            databaseType,
+            selectVisualsTab,
+        ]
+    );
+
+    const footerItems: SidebarItem[] = useMemo(
+        () => [
+            {
+                title: t('editor_sidebar.docs'),
+                icon: BookOpen,
+                onClick: () =>
+                    safeOpenUrl('https://github.com/Lynn-Lee/SchemaFlow'),
+                active: false,
+            },
+            {
+                title: t('editor_sidebar.settings'),
+                icon: Settings,
+                onClick: () => openSettingsDialog(),
+                active: false,
+            },
+        ],
+        [openSettingsDialog, t]
+    );
+
+    return (
+        <Sidebar
+            side="left"
+            collapsible="icon-extended"
+            variant="sidebar"
+            className="relative h-full"
+        >
+            {!isDesktop ? (
+                <SidebarHeader>
+                    <a
+                        href="https://github.com/Lynn-Lee/SchemaFlow"
+                        className="cursor-pointer"
+                        rel="noreferrer"
+                    >
+                        <img
+                            src={
+                                effectiveTheme === 'light'
+                                    ? SchemaFlowLogo
+                                    : SchemaFlowDarkLogo
+                            }
+                            alt="schemaFlow"
+                            className="h-4 max-w-fit"
+                        />
+                    </a>
+                </SidebarHeader>
+            ) : null}
+            <SidebarContent>
+                <SidebarGroup>
+                    {/* <SidebarGroupLabel /> */}
+                    <SidebarGroupContent>
+                        <SidebarMenu>
+                            {diagramItems.map((item) => (
+                                <SidebarMenuItem key={item.title}>
+                                    <SidebarMenuButton
+                                        className="justify-center space-y-0.5 !px-0 hover:bg-gray-200 data-[active=true]:bg-gray-100 data-[active=true]:text-pink-600 data-[active=true]:hover:bg-pink-100 dark:hover:bg-gray-800 dark:data-[active=true]:bg-gray-900 dark:data-[active=true]:text-pink-400 dark:data-[active=true]:hover:bg-pink-950"
+                                        isActive={item.active}
+                                        asChild
+                                    >
+                                        <button onClick={item.onClick}>
+                                            <item.icon />
+                                            <span>
+                                                {item.title
+                                                    .split(' ')
+                                                    .map((word, index) => (
+                                                        <div key={index}>
+                                                            {word}
+                                                        </div>
+                                                    ))}
+                                            </span>
+                                        </button>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            ))}
+                        </SidebarMenu>
+                        <Separator className="my-2" />
+                        <SidebarMenu>
+                            {baseItems.map((item) => (
+                                <SidebarMenuItem key={item.title}>
+                                    <SidebarMenuButton
+                                        className="justify-center space-y-0.5 !px-0 hover:bg-gray-200 data-[active=true]:bg-gray-100 data-[active=true]:text-pink-600 data-[active=true]:hover:bg-pink-100 dark:hover:bg-gray-800 dark:data-[active=true]:bg-gray-900 dark:data-[active=true]:text-pink-400 dark:data-[active=true]:hover:bg-pink-950"
+                                        isActive={item.active}
+                                        asChild
+                                    >
+                                        <button onClick={item.onClick}>
+                                            <item.icon />
+                                            <span>
+                                                {item.title
+                                                    .split(' ')
+                                                    .map((word, index) => (
+                                                        <div key={index}>
+                                                            {word}
+                                                        </div>
+                                                    ))}
+                                            </span>
+                                        </button>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            ))}
+                        </SidebarMenu>
+                    </SidebarGroupContent>
+                </SidebarGroup>
+            </SidebarContent>
+
+            <SidebarFooter>
+                <SidebarMenu>
+                    {footerItems.map((item) => (
+                        <SidebarMenuItem key={item.title}>
+                            {item.badge && (
+                                <span className="absolute -right-1 -top-1 rounded-full bg-pink-500 px-[3px] py-px text-[8px] font-semibold text-white">
+                                    {item.badge}
+                                </span>
+                            )}
+                            <SidebarMenuButton
+                                className="justify-center space-y-0.5 !px-0 hover:bg-gray-200 data-[active=true]:bg-gray-100 data-[active=true]:text-pink-600 data-[active=true]:hover:bg-pink-100 dark:hover:bg-gray-800 dark:data-[active=true]:bg-gray-900 dark:data-[active=true]:text-pink-400 dark:data-[active=true]:hover:bg-pink-950"
+                                isActive={item.active}
+                                asChild
+                            >
+                                <button onClick={item.onClick}>
+                                    <item.icon />
+                                    <span>{item.title}</span>
+                                </button>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    ))}
+                </SidebarMenu>
+            </SidebarFooter>
+        </Sidebar>
+    );
+};

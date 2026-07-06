@@ -1,0 +1,71 @@
+name: Bug report
+description: Report a reproducible SchemaFlow bug.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a SchemaFlow bug. Please remove secrets, credentials, hostnames, and private schema names before sharing examples.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened, and what did you expect instead?
+      placeholder: SchemaFlow did X, but I expected Y.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: Provide the smallest sequence that reproduces the bug.
+      placeholder: |
+        1. Open SchemaFlow...
+        2. Import...
+        3. Click...
+    validations:
+      required: true
+  - type: dropdown
+    id: database
+    attributes:
+      label: Database type
+      options:
+        - PostgreSQL
+        - MySQL
+        - MariaDB
+        - SQLite
+        - SQL Server
+        - Oracle
+        - ClickHouse
+        - DBML
+        - Not database-specific
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: schemaflow-version
+    attributes:
+      label: SchemaFlow version or commit
+      placeholder: v1.20.1 or commit SHA
+    validations:
+      required: true
+  - type: textarea
+    id: fixture
+    attributes:
+      label: Minimal fixture
+      description: Add a sanitized SQL, DBML, JSON backup, or Smart Query output sample when the bug depends on imported data.
+      render: text
+  - type: textarea
+    id: browser
+    attributes:
+      label: Browser and environment
+      placeholder: Chrome 126, macOS 15, Docker image, local dev, etc.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Console output or screenshots
+      description: Paste relevant console errors or attach screenshots. Do not include secrets.
+      render: text

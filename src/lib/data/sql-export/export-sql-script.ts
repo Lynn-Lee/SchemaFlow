@@ -1,0 +1,877 @@
+import type { Diagram } from '../../domain/diagram';
+import { DatabaseType } from '@/lib/domain/database-type';
+import type { DBTable } from '@/lib/domain/db-table';
+import { dataTypeMap, type DataType } from '../data-types/data-types';
+import { exportMSSQL } from './export-per-type/mssql';
+import { exportPostgreSQL } from './export-per-type/postgresql';
+import { exportSQLite } from './export-per-type/sqlite';
+import { exportMySQL } from './export-per-type/mysql';
+import {
+    exportPostgreSQLToMySQL,
+    exportPostgreSQLToMSSQL,
+} from './cross-dialect';
+import { escapeSQLComment } from './export-per-type/common';
+import {
+    databaseTypesWithCommentSupport,
+    supportsCustomTypes,
+    supportsCheckConstraints,
+} from '@/lib/domain/database-capabilities';
+import { buildAIExportRequest, type AIExportMode } from '@/lib/ai/ai-mode';
+
+// Function to normalize over-escaped default values
+// Handles cases like '''value'' which should be 'value'
+const normalizeQuotedDefault = (value: string): string => {
+    // Check for over-escaped patterns: '''value'', ''value'', etc.
+    // These happen when a quoted string gets re-quoted during import/export cycles
+    const overEscapedMatch = value.match(/^('{2,})(.*?)('{1,})$/);
+    if (overEscapedMatch) {
+        const [, leadingQuotes, innerValue, trailingQuotes] = overEscapedMatch;
+        // If we have more than one leading/trailing quote, it's over-escaped
+        if (leadingQuotes.length > 1 || trailingQuotes.length > 1) {
+            // Extract the actual value and re-quote properly
+            // First, unescape any doubled quotes in the inner value
+            const unescaped = innerValue.replace(/''/g, "'");
+            // Return properly quoted string
+            return `'${unescaped.replace(/'/g, "''")}'`;
+        }
+    }
+    return value;
+};
+
+// Function to format default values with proper quoting
+const formatDefaultValue = (value: string): string => {
+    const trimmed = value.trim();
+
+    // SQL keywords and function-like keywords that don't need quotes
+    const keywords = [
+        'TRUE',
+        'FALSE',
+        'NULL',
+        'CURRENT_TIMESTAMP',
+        'CURRENT_DATE',
+        'CURRENT_TIME',
+        'NOW',
+        'GETDATE',
+        'NEWID',
+        'UUID',
+    ];
+    if (keywords.includes(trimmed.toUpperCase())) {
+        return trimmed;
+    }
+
+    // Function calls (contain parentheses) don't need quotes
+    if (trimmed.includes('(') && trimmed.includes(')')) {
+        return trimmed;
+    }
+
+    // Numbers don't need quotes
+    if (/^-?\d+(\.\d+)?$/.test(trimmed)) {
+        return trimmed;
+    }
+
+    // Already quoted strings - normalize and return
+    if (
+        (trimmed.startsWith("'") && trimmed.endsWith("'")) ||
+        (trimmed.startsWith('"') && trimmed.endsWith('"'))
+    ) {
+        // Normalize over-escaped quotes (e.g., '''value'' -> 'value')
+        return normalizeQuotedDefault(trimmed);
+    }
+
+    // Check if it's a simple identifier (alphanumeric, no spaces) that might be a currency or enum
+    // These typically don't have spaces and are short (< 10 chars)
+    if (/^[A-Z][A-Z0-9_]*$/i.test(trimmed) && trimmed.length <= 10) {
+        return trimmed; // Treat as unquoted identifier (e.g., EUR, USD)
+    }
+
+    // Everything else needs to be quoted and escaped
+    return `'${trimmed.replace(/'/g, "''")}'`;
+};
+
+// Function to simplify verbose data type names
+const simplifyDataType = (typeName: string): string => {
+    const typeMap: Record<string, string> = {};
+
+    return typeMap[typeName.toLowerCase()] || typeName;
+};
+
+// Helper function to properly quote table/schema names with special characters
+const getQuotedTableName = (
+    table: DBTable,
+    isDBMLFlow: boolean = false
+): string => {
+    // Check if a name is already quoted
+    const isAlreadyQuoted = (name: string) => {
+        return (
+            (name.startsWith('"') && name.endsWith('"')) ||
+            (name.startsWith('`') && name.endsWith('`')) ||
+            (name.startsWith('[') && name.endsWith(']'))
+        );
+    };
+
+    // Only add quotes if needed and not already quoted
+    const quoteIfNeeded = (name: string) => {
+        if (isAlreadyQuoted(name)) {
+            return name;
+        }
+        const needsQuoting = /[^a-zA-Z0-9_]/.test(name) || isDBMLFlow;
+        return needsQuoting ? `"${name}"` : name;
+    };
+
+    if (table.schema) {
+        const quotedSchema = quoteIfNeeded(table.schema);
+        const quotedTable = quoteIfNeeded(table.name);
+        return `${quotedSchema}.${quotedTable}`;
+    } else {
+        return quoteIfNeeded(table.name);
+    }
+};
+
+const getQuotedFieldName = (
+    fieldName: string,
+    isDBMLFlow: boolean = false
+): string => {
+    // Check if a name is already quoted
+    const isAlreadyQuoted = (name: string) => {
+        return (
+            (name.startsWith('"') && name.endsWith('"')) ||
+            (name.startsWith('`') && name.endsWith('`')) ||
+            (name.startsWith('[') && name.endsWith(']'))
+        );
+    };
+
+    if (isAlreadyQuoted(fieldName)) {
+        return fieldName;
+    }
+
+    // For DBML flow, always quote field names
+    // Otherwise, only quote if it contains special characters
+    const needsQuoting = /[^a-zA-Z0-9_]/.test(fieldName) || isDBMLFlow;
+    return needsQuoting ? `"${fieldName}"` : fieldName;
+};
+
+const postgreSQLFallbackTargets = [
+    DatabaseType.ORACLE,
+    DatabaseType.CLICKHOUSE,
+    DatabaseType.COCKROACHDB,
+];
+
+const postgreSQLFallbackTargetLabels: Record<DatabaseType, string> = {
+    [DatabaseType.POSTGRESQL]: 'PostgreSQL',
+    [DatabaseType.MYSQL]: 'MySQL',
+    [DatabaseType.SQL_SERVER]: 'SQL Server',
+    [DatabaseType.MARIADB]: 'MariaDB',
+    [DatabaseType.SQLITE]: 'SQLite',
+    [DatabaseType.GENERIC]: 'Generic',
+    [DatabaseType.COCKROACHDB]: 'CockroachDB',
+    [DatabaseType.ORACLE]: 'Oracle',
+    [DatabaseType.CLICKHOUSE]: 'ClickHouse',
+};
+
+const isPostgreSQLFallbackTarget = (databaseType: DatabaseType): boolean =>
+    postgreSQLFallbackTargets.includes(databaseType);
+
+const createPostgreSQLFallbackWarning = (
+    databaseType: DatabaseType
+): string => {
+    const databaseName = postgreSQLFallbackTargetLabels[databaseType];
+
+    return [
+        `-- WARNING: ${databaseName} SQL export is not fully supported by deterministic export.`,
+        '-- Code: export.unsupported_dialect_fallback; Severity: warning.',
+        '-- Risk level: medium; generated SQL uses PostgreSQL fallback formatting.',
+        '',
+    ].join('\n');
+};
+
+export const exportBaseSQL = ({
+    diagram,
+    targetDatabaseType,
+    isDBMLFlow = false,
+    onlyRelationships = false,
+    skipFKGeneration = false,
+}: {
+    diagram: Diagram;
+    targetDatabaseType: DatabaseType;
+    isDBMLFlow?: boolean;
+    onlyRelationships?: boolean;
+    skipFKGeneration?: boolean;
+}): string => {
+    const { tables, relationships } = diagram;
+
+    if (!tables || tables.length === 0) {
+        return '';
+    }
+
+    const fallbackWarning =
+        !isDBMLFlow && isPostgreSQLFallbackTarget(targetDatabaseType)
+            ? createPostgreSQLFallbackWarning(targetDatabaseType)
+            : '';
+
+    if (!isDBMLFlow && diagram.databaseType === targetDatabaseType) {
+        switch (diagram.databaseType) {
+            case DatabaseType.SQL_SERVER:
+                return exportMSSQL({ diagram, onlyRelationships });
+            case DatabaseType.POSTGRESQL:
+                return exportPostgreSQL({ diagram, onlyRelationships });
+            case DatabaseType.SQLITE:
+                return exportSQLite({ diagram, onlyRelationships });
+            case DatabaseType.MYSQL:
+            case DatabaseType.MARIADB:
+                return exportMySQL({ diagram, onlyRelationships });
+            default:
+                return `${fallbackWarning}${exportPostgreSQL({ diagram, onlyRelationships })}`;
+        }
+    }
+
+    // Deterministic cross-dialect exports (PostgreSQL to MySQL/SQL Server)
+    // These do not use LLM and provide consistent, predictable output
+    if (!isDBMLFlow && diagram.databaseType === DatabaseType.POSTGRESQL) {
+        if (
+            targetDatabaseType === DatabaseType.MYSQL ||
+            targetDatabaseType === DatabaseType.MARIADB
+        ) {
+            return exportPostgreSQLToMySQL({ diagram, onlyRelationships });
+        }
+        if (targetDatabaseType === DatabaseType.SQL_SERVER) {
+            return exportPostgreSQLToMSSQL({ diagram, onlyRelationships });
+        }
+    }
+
+    // Filter out the tables that are views
+    const nonViewTables = tables.filter((table) => !table.isView);
+
+    // Align the data types based on foreign key relationships
+    alignForeignKeyDataTypes(diagram);
+
+    // Initialize the SQL script string
+    let sqlScript = '';
+
+    // First create the CREATE SCHEMA statements for all the found schemas based on tables
+    // Skip schema creation for DBML flow as DBML doesn't support CREATE SCHEMA syntax
+    if (!isDBMLFlow) {
+        const schemas = new Set<string>();
+        tables.forEach((table) => {
+            if (table.schema) {
+                schemas.add(table.schema);
+            }
+        });
+
+        // Add CREATE SCHEMA statements if any schemas exist
+        schemas.forEach((schema) => {
+            sqlScript += `CREATE SCHEMA IF NOT EXISTS "${schema}";\n`;
+        });
+        if (schemas.size > 0) sqlScript += '\n'; // Add newline only if schemas were added
+    }
+
+    // Add CREATE TYPE statements for ENUMs and COMPOSITE types from diagram.customTypes
+    if (diagram.customTypes && diagram.customTypes.length > 0) {
+        diagram.customTypes.forEach((customType) => {
+            const typeNameWithSchema = customType.schema
+                ? `${customType.schema}.${customType.name}`
+                : customType.name;
+
+            if (
+                customType.kind === 'enum' &&
+                customType.values &&
+                customType.values.length > 0
+            ) {
+                // For PostgreSQL, generate CREATE TYPE ... AS ENUM
+                // For other DBs, this might need adjustment or be omitted if not supported directly
+                // or if we rely on the DBML generator to create Enums separately (as currently done)
+                // For now, let's assume PostgreSQL-style for demonstration if isDBMLFlow is false.
+                // If isDBMLFlow is true, we let TableDBML.tsx handle Enum syntax directly.
+                if (supportsCustomTypes(targetDatabaseType) && !isDBMLFlow) {
+                    const enumValues = customType.values
+                        .map((v) => `'${v.replace(/'/g, "''")}'`)
+                        .join(', ');
+                    sqlScript += `CREATE TYPE ${typeNameWithSchema} AS ENUM (${enumValues});\n`;
+                }
+            } else if (
+                customType.kind === 'composite' &&
+                customType.fields &&
+                customType.fields.length > 0
+            ) {
+                // For PostgreSQL, generate CREATE TYPE ... AS (...)
+                // This is crucial for composite types to be recognized by the DBML importer
+                if (supportsCustomTypes(targetDatabaseType) || isDBMLFlow) {
+                    // Assume other DBs might not support this or DBML flow needs it
+                    const compositeFields = customType.fields
+                        .map((f) => `${f.field} ${simplifyDataType(f.type)}`)
+                        .join(',\n    ');
+                    sqlScript += `CREATE TYPE ${typeNameWithSchema} AS (\n    ${compositeFields}\n);\n`;
+                }
+            }
+        });
+        if (
+            diagram.customTypes.some(
+                (ct) =>
+                    (ct.kind === 'enum' &&
+                        ct.values &&
+                        ct.values.length > 0 &&
+                        supportsCustomTypes(targetDatabaseType) &&
+                        !isDBMLFlow) ||
+                    (ct.kind === 'composite' &&
+                        ct.fields &&
+                        ct.fields.length > 0 &&
+                        (supportsCustomTypes(targetDatabaseType) || isDBMLFlow))
+            )
+        ) {
+            sqlScript += '\n';
+        }
+    }
+
+    // Add CREATE SEQUENCE statements
+    const sequences = new Set<string>();
+
+    tables.forEach((table) => {
+        table.fields.forEach((field) => {
+            if (field.default) {
+                // Match nextval('schema.sequence_name') or nextval('sequence_name')
+                const match = field.default.match(
+                    /nextval\('([^']+)'(?:::[^)]+)?\)/
+                );
+                if (match) {
+                    sequences.add(match[1]);
+                }
+            }
+        });
+    });
+
+    sequences.forEach((sequence) => {
+        sqlScript += `CREATE SEQUENCE IF NOT EXISTS ${sequence};\n`;
+    });
+    if (sequences.size > 0) {
+        sqlScript += '\n';
+    }
+
+    // Loop through each non-view table to generate the SQL statements
+    nonViewTables.forEach((table) => {
+        const tableName = getQuotedTableName(table, isDBMLFlow);
+        sqlScript += `CREATE TABLE ${tableName} (\n`;
+
+        // Check for composite primary keys
+        const primaryKeyFields = table.fields.filter(
+            (field) => field.primaryKey
+        );
+        const hasCompositePrimaryKey = primaryKeyFields.length > 1;
+
+        table.fields.forEach((field, index) => {
+            let typeName = simplifyDataType(field.type.name);
+
+            // Handle ENUM type
+            // If we are generating SQL for DBML flow, and we ALREADY generated CREATE TYPE for enums (e.g., for PG),
+            // then we should use the enum type name. Otherwise, map to text.
+            // However, the current TableDBML.tsx generates its own Enum blocks, so for DBML flow,
+            // converting to TEXT here might still be the safest bet to avoid conflicts if SQL enums aren't perfectly parsed.
+            // Let's adjust: if it's a known custom enum type, use its name for PG, otherwise TEXT.
+            const customEnumType = diagram.customTypes?.find(
+                (ct) =>
+                    ct.name === field.type.name &&
+                    ct.kind === 'enum' &&
+                    (ct.schema ? ct.schema === table.schema : true)
+            );
+
+            if (
+                customEnumType &&
+                supportsCustomTypes(targetDatabaseType) &&
+                !isDBMLFlow
+            ) {
+                typeName = customEnumType.schema
+                    ? `${customEnumType.schema}.${customEnumType.name}`
+                    : customEnumType.name;
+            } else if (typeName.toLowerCase() === 'enum') {
+                // Fallback for non-PG or if custom type not found, or for DBML flow if not handled by CREATE TYPE above
+                typeName = 'text';
+            }
+
+            // Check if the field type is a known composite custom type
+            const customCompositeType = diagram.customTypes?.find(
+                (ct) =>
+                    ct.name === field.type.name &&
+                    ct.kind === 'composite' &&
+                    (ct.schema ? ct.schema === table.schema : true)
+            );
+
+            if (customCompositeType) {
+                typeName = customCompositeType.schema
+                    ? `${customCompositeType.schema}.${customCompositeType.name}`
+                    : customCompositeType.name;
+            } else if (typeName.toLowerCase() === 'user-defined') {
+                // If it's 'user-defined' but not a known composite, fallback to TEXT
+                typeName = 'text';
+            }
+
+            // Temp fix for 'array' to be text[]
+            if (typeName.toLowerCase() === 'array') {
+                typeName = 'text[]';
+            }
+
+            // Handle special types
+            if (
+                typeName.toLowerCase() === 'char' &&
+                !field.characterMaximumLength
+            ) {
+                // Default char without length to char(1)
+                typeName = 'char';
+            }
+
+            const quotedFieldName = getQuotedFieldName(field.name, isDBMLFlow);
+
+            // Quote multi-word type names for DBML flow to prevent @dbml/core parser issues
+            const quotedTypeName =
+                isDBMLFlow && typeName.includes(' ')
+                    ? `"${typeName}"`
+                    : typeName;
+
+            sqlScript += `  ${quotedFieldName} ${quotedTypeName}`;
+
+            // Add size for character types
+            if (
+                field.characterMaximumLength &&
+                parseInt(field.characterMaximumLength) > 0 &&
+                field.type.name.toLowerCase() !== 'decimal'
+            ) {
+                sqlScript += `(${field.characterMaximumLength})`;
+            } else if (field.type.name.toLowerCase().includes('varchar')) {
+                // Keep varchar sizing, but don't apply to TEXT (previously enum)
+                sqlScript += `(500)`;
+            } else if (
+                typeName.toLowerCase() === 'char' &&
+                !field.characterMaximumLength
+            ) {
+                // Default char without explicit length to char(1) for compatibility
+                sqlScript += `(1)`;
+            }
+
+            // Add precision and scale for numeric types only
+            const precisionAndScaleTypes = dataTypeMap[targetDatabaseType]
+                .filter(
+                    (t) =>
+                        t.fieldAttributes?.precision && t.fieldAttributes?.scale
+                )
+                .map((t) => t.name);
+
+            const isNumericType = precisionAndScaleTypes.some(
+                (t) =>
+                    field.type.name.toLowerCase().includes(t) ||
+                    typeName.toLowerCase().includes(t)
+            );
+
+            if (isNumericType) {
+                if (field.precision && field.scale) {
+                    sqlScript += `(${field.precision}, ${field.scale})`;
+                } else if (field.precision) {
+                    sqlScript += `(${field.precision})`;
+                }
+            }
+
+            // Add array suffix if field is an array (after type size and precision)
+            if (field.isArray) {
+                sqlScript += '[]';
+            }
+
+            // Handle NOT NULL constraint
+            if (!field.nullable) {
+                sqlScript += ' NOT NULL';
+            }
+
+            // Handle UNIQUE value
+            if (!field.primaryKey && field.unique) {
+                sqlScript += ` UNIQUE`;
+            }
+
+            // Handle AUTO INCREMENT
+            if (field.increment) {
+                if (isDBMLFlow) {
+                    // For DBML flow, generate proper database-specific syntax
+                    if (
+                        targetDatabaseType === DatabaseType.MYSQL ||
+                        targetDatabaseType === DatabaseType.MARIADB
+                    ) {
+                        sqlScript += ` AUTO_INCREMENT`;
+                    } else if (targetDatabaseType === DatabaseType.SQL_SERVER) {
+                        sqlScript += ` IDENTITY(1,1)`;
+                    } else if (targetDatabaseType === DatabaseType.SQLITE) {
+                        // SQLite AUTOINCREMENT only works with INTEGER PRIMARY KEY
+                        // Will be handled when PRIMARY KEY is added
+                    }
+                    // PostgreSQL/CockroachDB: increment attribute added by restoreIncrementAttribute in DBML export
+                } else {
+                    // For non-DBML flow, add as a comment for AI to process
+                    sqlScript += ` /* AUTO_INCREMENT */`;
+                }
+            }
+
+            // Handle DEFAULT value
+            if (field.default && !field.increment) {
+                // Temp remove default user-define value when it have it
+                let fieldDefault = field.default;
+
+                // Skip invalid default values for DBML export
+                if (
+                    fieldDefault === 'has default' ||
+                    fieldDefault === 'DEFAULT has default'
+                ) {
+                    // Skip this default value as it's invalid SQL
+                } else {
+                    // Remove the type cast part after :: if it exists
+                    if (fieldDefault.includes('::')) {
+                        const endedWithParentheses = fieldDefault.endsWith(')');
+                        fieldDefault = fieldDefault.split('::')[0];
+
+                        if (
+                            (fieldDefault.startsWith('(') &&
+                                !fieldDefault.endsWith(')')) ||
+                            endedWithParentheses
+                        ) {
+                            fieldDefault += ')';
+                        }
+                    }
+
+                    if (fieldDefault === `('now')`) {
+                        fieldDefault = `now()`;
+                    }
+
+                    // Fix CURRENT_DATE() for PostgreSQL in DBML flow - PostgreSQL uses CURRENT_DATE without parentheses
+                    if (
+                        isDBMLFlow &&
+                        targetDatabaseType === DatabaseType.POSTGRESQL
+                    ) {
+                        if (fieldDefault.toUpperCase() === 'CURRENT_DATE()') {
+                            fieldDefault = 'CURRENT_DATE';
+                        }
+                    }
+
+                    // Format default value with proper quoting
+                    const formattedDefault = formatDefaultValue(fieldDefault);
+                    sqlScript += ` DEFAULT ${formattedDefault}`;
+                }
+            }
+
+            // Handle PRIMARY KEY constraint - add inline for single PK fields
+            // Never use named constraints to avoid duplicate constraint name issues
+            if (field.primaryKey && !hasCompositePrimaryKey) {
+                sqlScript += ' PRIMARY KEY';
+
+                // For SQLite with DBML flow, add AUTOINCREMENT after PRIMARY KEY
+                if (
+                    isDBMLFlow &&
+                    field.increment &&
+                    targetDatabaseType === DatabaseType.SQLITE &&
+                    (typeName.toLowerCase() === 'integer' ||
+                        typeName.toLowerCase() === 'int')
+                ) {
+                    sqlScript += ' AUTOINCREMENT';
+                }
+            }
+
+            // Add a comma after each field except the last one (or before composite PK constraint)
+            if (index < table.fields.length - 1 || hasCompositePrimaryKey) {
+                sqlScript += ',\n';
+            }
+        });
+
+        // Add primary key constraint for composite PKs only (single PKs are inline)
+        // Never use named constraints to avoid duplicate constraint name issues
+        if (hasCompositePrimaryKey) {
+            const pkFieldNames = primaryKeyFields
+                .map((f) => getQuotedFieldName(f.name, isDBMLFlow))
+                .join(', ');
+            sqlScript += `\n  PRIMARY KEY (${pkFieldNames})`;
+        }
+
+        // Add CHECK constraints (only for databases that support them, filter out empty)
+        const dbSupportsChecks = supportsCheckConstraints(targetDatabaseType);
+        const validCheckConstraints = (table.checkConstraints ?? []).filter(
+            (c) => c.expression && c.expression.trim()
+        );
+        if (validCheckConstraints.length > 0 && dbSupportsChecks) {
+            validCheckConstraints.forEach((checkConstraint, idx) => {
+                // Add comma if needed (after fields or composite PK constraint)
+                if (
+                    idx === 0 &&
+                    (table.fields.length > 0 || hasCompositePrimaryKey)
+                ) {
+                    sqlScript += ',';
+                } else if (idx > 0) {
+                    sqlScript += ',';
+                }
+                sqlScript += `\n  CHECK (${checkConstraint.expression})`;
+            });
+        }
+
+        sqlScript += '\n);\n';
+
+        // Add table comment (only for databases that support COMMENT ON syntax)
+        const supportsCommentOn =
+            databaseTypesWithCommentSupport.includes(targetDatabaseType);
+
+        if (table.comments && supportsCommentOn) {
+            sqlScript += `COMMENT ON TABLE ${tableName} IS '${escapeSQLComment(table.comments)}';\n`;
+        }
+
+        table.fields.forEach((field) => {
+            // Add column comment (only for databases that support COMMENT ON syntax)
+            if (field.comments && supportsCommentOn) {
+                const quotedFieldName = getQuotedFieldName(
+                    field.name,
+                    isDBMLFlow
+                );
+                sqlScript += `COMMENT ON COLUMN ${tableName}.${quotedFieldName} IS '${escapeSQLComment(field.comments)}';\n`;
+            }
+        });
+
+        // Generate SQL for indexes - collect, then sort by the full CREATE INDEX statement
+        const indexStatements: string[] = [];
+
+        table.indexes.forEach((index) => {
+            // Skip the primary key index (it's already handled as a constraint)
+            if (index.isPrimaryKey) {
+                return;
+            }
+
+            // Get the fields for this index
+            const indexFields = index.fieldIds
+                .map((fieldId) => table.fields.find((f) => f.id === fieldId))
+                .filter(
+                    (field): field is NonNullable<typeof field> =>
+                        field !== undefined
+                );
+
+            // Skip if this index exactly matches the primary key fields
+            // This prevents creating redundant indexes for composite primary keys
+            if (
+                primaryKeyFields.length > 0 &&
+                primaryKeyFields.length === indexFields.length &&
+                primaryKeyFields.every((pk) =>
+                    indexFields.some((field) => field.id === pk.id)
+                )
+            ) {
+                return; // Skip this index as it's redundant with the primary key
+            }
+
+            const fieldNames = indexFields
+                .map((field) => getQuotedFieldName(field.name, isDBMLFlow))
+                .join(', ');
+
+            if (fieldNames) {
+                const rawIndexName =
+                    table.schema && !isDBMLFlow
+                        ? `${table.schema}_${index.name}`
+                        : index.name;
+                // Quote index name if it contains special characters
+                // For DBML flow, also quote if contains special characters
+                const needsQuoting = /[^a-zA-Z0-9_]/.test(rawIndexName);
+                const indexName = needsQuoting
+                    ? `"${rawIndexName}"`
+                    : rawIndexName;
+                indexStatements.push(
+                    `CREATE ${index.unique ? 'UNIQUE ' : ''}INDEX ${indexName} ON ${tableName} (${fieldNames});`
+                );
+            }
+        });
+
+        // Sort index statements alphabetically for consistent, deterministic output
+        indexStatements.sort((a, b) => a.localeCompare(b));
+        sqlScript += indexStatements.join('\n');
+        if (indexStatements.length > 0) {
+            sqlScript += '\n';
+        }
+    });
+
+    // Skip FK generation when requested (e.g., for DBML export which generates Refs directly)
+    if (!skipFKGeneration) {
+        if (nonViewTables.length > 0 && (relationships?.length ?? 0) > 0) {
+            sqlScript += '\n';
+        }
+
+        // Handle relationships (foreign keys)
+        relationships?.forEach((relationship) => {
+            const sourceTable = nonViewTables.find(
+                (table) => table.id === relationship.sourceTableId
+            );
+            const targetTable = nonViewTables.find(
+                (table) => table.id === relationship.targetTableId
+            );
+
+            const sourceTableField = sourceTable?.fields.find(
+                (field) => field.id === relationship.sourceFieldId
+            );
+            const targetTableField = targetTable?.fields.find(
+                (field) => field.id === relationship.targetFieldId
+            );
+
+            if (
+                sourceTable &&
+                targetTable &&
+                sourceTableField &&
+                targetTableField
+            ) {
+                // Determine which table should have the foreign key based on cardinality
+                // - FK goes on the "many" side when cardinalities differ
+                // - FK goes on target when cardinalities are the same (one:one, many:many)
+                // - Many-to-many needs a junction table, skip for SQL export
+                let fkTable, fkField, refTable, refField;
+
+                if (
+                    relationship.sourceCardinality === 'many' &&
+                    relationship.targetCardinality === 'many'
+                ) {
+                    // Many-to-many relationships need a junction table, skip
+                    return;
+                } else if (
+                    relationship.sourceCardinality === 'many' &&
+                    relationship.targetCardinality === 'one'
+                ) {
+                    // FK goes on source table (the many side)
+                    fkTable = sourceTable;
+                    fkField = sourceTableField;
+                    refTable = targetTable;
+                    refField = targetTableField;
+                } else {
+                    // All other cases: FK goes on target table
+                    // - one:one (same cardinality → target)
+                    // - one:many (target is many side → target)
+                    fkTable = targetTable;
+                    fkField = targetTableField;
+                    refTable = sourceTable;
+                    refField = sourceTableField;
+                }
+
+                const fkTableName = getQuotedTableName(fkTable, isDBMLFlow);
+                const refTableName = getQuotedTableName(refTable, isDBMLFlow);
+                const quotedFkFieldName = getQuotedFieldName(
+                    fkField.name,
+                    isDBMLFlow
+                );
+                const quotedRefFieldName = getQuotedFieldName(
+                    refField.name,
+                    isDBMLFlow
+                );
+
+                sqlScript += `ALTER TABLE ${fkTableName} ADD CONSTRAINT ${relationship.name} FOREIGN KEY (${quotedFkFieldName}) REFERENCES ${refTableName} (${quotedRefFieldName});\n`;
+            }
+        });
+    }
+
+    return `${fallbackWarning}${sqlScript}`;
+};
+
+const hasDeterministicCrossDialectExport = (
+    sourceDatabaseType: DatabaseType,
+    targetDatabaseType: DatabaseType
+) =>
+    sourceDatabaseType === DatabaseType.POSTGRESQL &&
+    [
+        DatabaseType.MYSQL,
+        DatabaseType.MARIADB,
+        DatabaseType.SQL_SERVER,
+    ].includes(targetDatabaseType);
+
+export const exportSQL = async (
+    diagram: Diagram,
+    databaseType: DatabaseType,
+    options?: {
+        stream: boolean;
+        onResultStream: (text: string) => void;
+        signal?: AbortSignal;
+        aiMode?: AIExportMode;
+        confirmedSchemaTransfer?: boolean;
+    }
+): Promise<string> => {
+    const sqlScript = exportBaseSQL({
+        diagram,
+        targetDatabaseType: databaseType,
+    });
+
+    if (
+        databaseType === diagram.databaseType ||
+        hasDeterministicCrossDialectExport(diagram.databaseType, databaseType)
+    ) {
+        return sqlScript;
+    }
+
+    buildAIExportRequest({
+        mode: options?.aiMode ?? 'disabled',
+        confirmedSchemaTransfer: options?.confirmedSchemaTransfer ?? false,
+        schemaSummary: {
+            tableCount: diagram.tables?.length ?? 0,
+            fieldCount:
+                diagram.tables?.reduce(
+                    (count, table) => count + (table.fields?.length ?? 0),
+                    0
+                ) ?? 0,
+            relationshipCount: diagram.relationships?.length ?? 0,
+        },
+    });
+
+    throw new Error('AI-assisted SQL generation client is not enabled.');
+};
+
+function getMySQLDataTypeSize(type: DataType) {
+    return (
+        {
+            tinyint: 1,
+            smallint: 2,
+            mediumint: 3,
+            integer: 4,
+            bigint: 8,
+            float: 4,
+            double: 8,
+            decimal: 16,
+            numeric: 16,
+            // Add other relevant data types if needed
+        }[type.name.toLowerCase()] || 0
+    );
+}
+
+function alignForeignKeyDataTypes(diagram: Diagram) {
+    const { tables, relationships } = diagram;
+
+    if (
+        !tables ||
+        tables.length === 0 ||
+        !relationships ||
+        relationships.length === 0
+    ) {
+        return;
+    }
+
+    // Convert tables to a map for quick lookup
+    const tableMap = new Map<string, DBTable>();
+    tables.forEach((table) => {
+        tableMap.set(table.id, table);
+    });
+
+    // Iterate through each relationship to update the child table column data types
+    relationships.forEach((relationship) => {
+        const { sourceTableId, sourceFieldId, targetTableId, targetFieldId } =
+            relationship;
+
+        const sourceTable = tableMap.get(sourceTableId);
+        const targetTable = tableMap.get(targetTableId);
+
+        if (sourceTable && targetTable) {
+            const sourceField = sourceTable.fields.find(
+                (field: { id: string }) => field.id === sourceFieldId
+            );
+            const targetField = targetTable.fields.find(
+                (field: { id: string }) => field.id === targetFieldId
+            );
+
+            if (sourceField && targetField) {
+                const sourceSize = getMySQLDataTypeSize(sourceField.type);
+                const targetSize = getMySQLDataTypeSize(targetField.type);
+
+                if (sourceSize > targetSize) {
+                    // Adjust the child field data type to the larger data type
+                    targetField.type = sourceField.type;
+                } else if (targetSize > sourceSize) {
+                    // Adjust the child field data type to the larger data type
+                    sourceField.type = targetField.type;
+                }
+            }
+        }
+    });
+}

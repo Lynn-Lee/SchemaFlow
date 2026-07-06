@@ -1,0 +1,497 @@
+import React, {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
+import type { addEdge, OnEdgesChange } from '@xyflow/react';
+import {
+    useEdgesState,
+    useNodesState,
+    useReactFlow,
+    useKeyPress,
+    useUpdateNodeInternals,
+} from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+import equal from 'fast-deep-equal';
+import { useSchemaFlow } from '@/hooks/use-schemaflow';
+import { useToast } from '@/components/toast/use-toast';
+import { useLayout } from '@/hooks/use-layout';
+import { useBreakpoint } from '@/hooks/use-breakpoint';
+import { useTheme } from '@/hooks/use-theme';
+import type { DBTable } from '@/lib/domain/db-table';
+import { useLocalConfig } from '@/hooks/use-local-config';
+import type { SchemaFlowEvent } from '@/context/schemaflow-context/schemaflow-context';
+import { getOperatingSystem } from '@/lib/browser-utils';
+import { useCanvas } from '@/hooks/use-canvas';
+import { useIsLostInCanvas } from './hooks/use-is-lost-in-canvas';
+import { useDiagramFilter } from '@/context/diagram-filter-context/use-diagram-filter';
+import { useDiff } from '@/context/diff-context/use-diff';
+import { useClickAway } from '@/hooks/use-click-away';
+import {
+    initialEdges,
+    tableToTableNode,
+    type EdgeType,
+    type NodeType,
+} from './canvas-model';
+import {
+    buildCanvasEdgesWithFloatingEdge,
+    buildCanvasNodesWithCursor,
+} from './canvas-floating-edge';
+import { buildCanvasEventUpdate } from './canvas-schemaflow-events';
+import { CanvasControls } from './canvas-controls';
+import { CanvasFilterLayer } from './canvas-filter-layer';
+import { CanvasFlow } from './canvas-flow';
+import { useCanvasPointerActions } from './canvas-pointer-actions';
+import { buildCanvasNodes } from './canvas-nodes';
+import { buildCanvasEdgeChangeSet } from './canvas-edge-changes';
+import { buildCanvasConnectAction } from './canvas-connect';
+import { useCanvasNodeChangeHandler } from './canvas-node-change-handler';
+import { useCanvasKeyboardHandler } from './canvas-keyboard-handler';
+import { useCanvasSelectionSync } from './canvas-selection-sync';
+import { CanvasViewport } from './canvas-viewport';
+import { useCanvasParentAreaSync } from './canvas-parent-area-sync';
+import { useCanvasEdgeRefresh } from './canvas-edge-refresh';
+import { useCanvasFilterViewportSync } from './canvas-filter-viewport-sync';
+import { useCanvasInitialFit } from './canvas-initial-fit';
+import { useCanvasRelationshipTargetHighlight } from './canvas-relationship-target-highlight';
+import {
+    buildCanvasVisibilityState,
+    pulseOverlappingTablesHighlight,
+} from './canvas-visibility-state';
+import { useCanvasOverlapChangeHandler } from './canvas-overlap-change-handler';
+import { useCanvasFilterHotkey } from './canvas-filter-hotkey';
+
+export type { EdgeType, NodeType } from './canvas-model';
+
+type AddEdgeParams = Parameters<typeof addEdge<EdgeType>>[0];
+
+export interface CanvasProps {
+    initialTables: DBTable[];
+}
+
+export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
+    const { getEdge, getInternalNode, getNode, screenToFlowPosition } =
+        useReactFlow();
+    const updateNodeInternals = useUpdateNodeInternals();
+    const [selectedTableIds, setSelectedTableIds] = useState<string[]>([]);
+    const [selectedRelationshipIds, setSelectedRelationshipIds] = useState<
+        string[]
+    >([]);
+    const { toast } = useToast();
+    const { isLostInCanvas } = useIsLostInCanvas();
+    const {
+        tables,
+        areas,
+        notes,
+        relationships,
+        createRelationship,
+        createDependency,
+        updateTablesState,
+        removeRelationships,
+        removeDependencies,
+        getField,
+        databaseType,
+        events,
+        dependencies,
+        readonly,
+        removeArea,
+        updateArea,
+        removeNote,
+        updateNote,
+        highlightedCustomType,
+        highlightCustomTypeId,
+    } = useSchemaFlow();
+    const { showSidePanel } = useLayout();
+    const { effectiveTheme } = useTheme();
+    const { scrollAction, showDBViews, showMiniMapOnCanvas } = useLocalConfig();
+    const { isMd: isDesktop } = useBreakpoint('md');
+    const [highlightOverlappingTables, setHighlightOverlappingTables] =
+        useState(false);
+    const {
+        fitView,
+        setOverlapGraph,
+        overlapGraph,
+        showFilter,
+        setShowFilter,
+        setEditTableModeTable,
+        tempFloatingEdge,
+        endFloatingEdgeCreation,
+        hoveringTableId,
+        hideCreateRelationshipNode,
+        closeRelationshipPopover,
+        events: canvasEvents,
+    } = useCanvas();
+    const {
+        filter,
+        loading: filterLoading,
+        hasActiveFilter,
+        resetFilter,
+    } = useDiagramFilter();
+    const { checkIfNewTable } = useDiff();
+
+    const shouldForceShowTable = useCallback(
+        (tableId: string) => {
+            return checkIfNewTable({ tableId });
+        },
+        [checkIfNewTable]
+    );
+
+    const [nodes, setNodes, onNodesChange] = useNodesState<NodeType>(
+        initialTables.map((table) =>
+            tableToTableNode(table, {
+                filter,
+                databaseType,
+                filterLoading,
+                showDBViews,
+                forceShow: shouldForceShowTable(table.id),
+                isRelationshipCreatingTarget: false,
+            })
+        )
+    );
+    const [edges, setEdges, onEdgesChange] =
+        useEdgesState<EdgeType>(initialEdges);
+
+    const [snapToGridEnabled, setSnapToGridEnabled] = useState(false);
+
+    const [cursorPosition, setCursorPosition] = useState<{
+        x: number;
+        y: number;
+    } | null>(null);
+
+    useCanvasInitialFit({
+        initialTables,
+        nodes,
+        filter,
+        databaseType,
+        filterLoading,
+        showDBViews,
+        shouldForceShowTable,
+        fitView,
+    });
+
+    useCanvasEdgeRefresh({
+        tables,
+        relationships,
+        dependencies,
+        showDBViews,
+        updateNodeInternals,
+        setEdges,
+    });
+
+    useCanvasSelectionSync({
+        nodes,
+        edges,
+        selectedTableIds,
+        selectedRelationshipIds,
+        setSelectedTableIds,
+        setSelectedRelationshipIds,
+        setEdges,
+    });
+
+    useEffect(() => {
+        setNodes((prevNodes) => {
+            const newNodes = buildCanvasNodes({
+                tables,
+                areas,
+                notes,
+                previousNodes: prevNodes,
+                relationships,
+                overlapGraph,
+                filter,
+                databaseType,
+                filterLoading,
+                showDBViews,
+                shouldForceShowTable,
+                highlightOverlappingTables,
+                highlightedCustomType,
+            });
+
+            // Check if nodes actually changed
+            if (equal(prevNodes, newNodes)) {
+                return prevNodes;
+            }
+
+            return newNodes;
+        });
+    }, [
+        tables,
+        areas,
+        notes,
+        setNodes,
+        filter,
+        databaseType,
+        overlapGraph,
+        highlightOverlappingTables,
+        highlightedCustomType,
+        filterLoading,
+        showDBViews,
+        shouldForceShowTable,
+        relationships,
+    ]);
+
+    useCanvasRelationshipTargetHighlight({
+        sourceNodeId: tempFloatingEdge?.sourceNodeId,
+        setNodes,
+    });
+
+    useCanvasFilterViewportSync({
+        tables,
+        filter,
+        databaseType,
+        showDBViews,
+        setOverlapGraph,
+        fitView,
+    });
+
+    useCanvasParentAreaSync({
+        nodes,
+        updateTablesState,
+    });
+
+    const onConnectHandler = useCallback(
+        async (params: AddEdgeParams) => {
+            const action = buildCanvasConnectAction({
+                params,
+                databaseType,
+                getField,
+            });
+
+            if (action.type === 'create-dependency') {
+                createDependency(action);
+            } else if (action.type === 'incompatible-fields') {
+                toast({
+                    title: 'Field types are not compatible',
+                    variant: 'destructive',
+                    description:
+                        'Relationships can only be created between compatible field types',
+                });
+            } else if (action.type === 'create-relationship') {
+                createRelationship(action);
+            }
+        },
+        [createRelationship, createDependency, getField, toast, databaseType]
+    );
+
+    const onEdgesChangeHandler: OnEdgesChange<EdgeType> = useCallback(
+        (changes) => {
+            const {
+                changesToApply,
+                relationshipIdsToRemove,
+                dependencyIdsToRemove,
+            } = buildCanvasEdgeChangeSet({
+                changes,
+                readonly: !!readonly,
+                getEdge: (id) => getEdge(id) as EdgeType | undefined,
+            });
+
+            if (relationshipIdsToRemove.length > 0) {
+                removeRelationships(relationshipIdsToRemove);
+            }
+
+            if (dependencyIdsToRemove.length > 0) {
+                removeDependencies(dependencyIdsToRemove);
+            }
+
+            return onEdgesChange(changesToApply);
+        },
+        [
+            getEdge,
+            onEdgesChange,
+            removeRelationships,
+            removeDependencies,
+            readonly,
+        ]
+    );
+
+    const updateOverlappingGraphOnChangesDebounced =
+        useCanvasOverlapChangeHandler({
+            nodes,
+            overlapGraph,
+            setOverlapGraph,
+            getNode: (id) => getNode(id) as NodeType | undefined,
+        });
+
+    const onNodesChangeHandler = useCanvasNodeChangeHandler({
+        readonly: !!readonly,
+        tables,
+        areas,
+        getNode: (id) => getNode(id) as NodeType | undefined,
+        onNodesChange,
+        updateTablesState,
+        updateOverlappingGraphOnChanges:
+            updateOverlappingGraphOnChangesDebounced,
+        updateArea,
+        removeArea,
+        updateNote,
+        removeNote,
+    });
+
+    const onCanvasKeyDownHandler = useCanvasKeyboardHandler({
+        nodes,
+        readonly: !!readonly,
+        onNodesChange: onNodesChangeHandler,
+    });
+
+    const eventConsumer = useCallback(
+        (event: SchemaFlowEvent) => {
+            const update = buildCanvasEventUpdate({
+                event,
+                overlapGraph,
+                nodes,
+                getNode,
+                filter,
+                databaseType,
+                showDBViews,
+            });
+
+            setOverlapGraph(update.overlapGraph);
+
+            if (update.measuredNodeUpdate) {
+                setTimeout(() => {
+                    setNodes((prevNodes) =>
+                        prevNodes.map((node) =>
+                            node.id === update.measuredNodeUpdate?.id
+                                ? {
+                                      ...node,
+                                      measured:
+                                          update.measuredNodeUpdate.measured,
+                                  }
+                                : node
+                        )
+                    );
+                }, 0);
+            }
+        },
+        [
+            overlapGraph,
+            setOverlapGraph,
+            getNode,
+            nodes,
+            filter,
+            setNodes,
+            databaseType,
+            showDBViews,
+        ]
+    );
+
+    events.useSubscription(eventConsumer);
+
+    const isLoadingDOM =
+        tables.length > 0 ? !getInternalNode(tables[0].id) : false;
+
+    const { hasOverlappingTables, allTablesHiddenByFilter } = useMemo(
+        () =>
+            buildCanvasVisibilityState({
+                overlapGraph,
+                hasActiveFilter,
+                tables,
+                filter,
+                databaseType,
+                filterLoading,
+            }),
+        [
+            overlapGraph,
+            hasActiveFilter,
+            tables,
+            filter,
+            databaseType,
+            filterLoading,
+        ]
+    );
+
+    const pulseOverlappingTables = useCallback(() => {
+        pulseOverlappingTablesHighlight({ setHighlightOverlappingTables });
+    }, []);
+
+    const containerRef = useRef<HTMLDivElement>(null);
+    const exitEditTableMode = useCallback(
+        () => setEditTableModeTable(null),
+        [setEditTableModeTable]
+    );
+    useClickAway(containerRef, exitEditTableMode);
+    useClickAway(containerRef, hideCreateRelationshipNode);
+
+    const shiftPressed = useKeyPress('Shift');
+    const operatingSystem = getOperatingSystem();
+
+    useCanvasFilterHotkey({ operatingSystem, setShowFilter });
+
+    const { handleMouseMove, onPaneClickHandler } = useCanvasPointerActions({
+        tempFloatingEdge,
+        endFloatingEdgeCreation,
+        setCursorPosition,
+        hideCreateRelationshipNode,
+        exitEditTableMode,
+        closeRelationshipPopover,
+        screenToFlowPosition,
+        canvasEvents,
+    });
+
+    // Add temporary invisible node at cursor position and edge
+    const nodesWithCursor = useMemo(() => {
+        return buildCanvasNodesWithCursor({
+            nodes,
+            tempFloatingEdge,
+            cursorPosition,
+        });
+    }, [nodes, tempFloatingEdge, cursorPosition]);
+
+    const edgesWithFloating = useMemo(() => {
+        return buildCanvasEdgesWithFloatingEdge({
+            edges,
+            tempFloatingEdge,
+            cursorPosition,
+            hoveringTableId,
+        });
+    }, [edges, tempFloatingEdge, cursorPosition, hoveringTableId]);
+
+    return (
+        <CanvasViewport
+            containerRef={containerRef}
+            onMouseMove={handleMouseMove}
+            onKeyDown={onCanvasKeyDownHandler}
+        >
+            <CanvasFlow
+                colorMode={effectiveTheme}
+                nodes={nodesWithCursor}
+                edges={edgesWithFloating}
+                onNodesChange={onNodesChangeHandler}
+                onEdgesChange={onEdgesChangeHandler}
+                onConnect={onConnectHandler}
+                panOnScroll={scrollAction === 'pan'}
+                snapToGrid={shiftPressed || snapToGridEnabled}
+                onPaneClick={onPaneClickHandler}
+                shiftPressed={shiftPressed}
+            >
+                <CanvasControls
+                    readonly={readonly}
+                    isDesktop={isDesktop}
+                    isLoadingDOM={isLoadingDOM}
+                    isLostInCanvas={isLostInCanvas}
+                    showMiniMapOnCanvas={showMiniMapOnCanvas}
+                    snapToGridEnabled={snapToGridEnabled}
+                    shiftPressed={shiftPressed}
+                    operatingSystem={operatingSystem}
+                    hasOverlappingTables={hasOverlappingTables}
+                    highlightedCustomType={highlightedCustomType}
+                    onToggleSnapToGrid={() =>
+                        setSnapToGridEnabled((prev) => !prev)
+                    }
+                    onClearCustomTypeHighlight={() =>
+                        highlightCustomTypeId(undefined)
+                    }
+                    onPulseOverlappingTables={pulseOverlappingTables}
+                    showSidePanel={showSidePanel}
+                />
+                <CanvasFilterLayer
+                    allTablesHiddenByFilter={allTablesHiddenByFilter}
+                    showFilter={showFilter}
+                    onResetFilter={resetFilter}
+                    onCloseFilter={() => setShowFilter(false)}
+                />
+            </CanvasFlow>
+        </CanvasViewport>
+    );
+};

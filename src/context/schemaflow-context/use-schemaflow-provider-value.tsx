@@ -1,0 +1,642 @@
+import { useCallback, useMemo, useState } from 'react';
+import type { DBTable } from '@/lib/domain/db-table';
+import { generateId } from '@/lib/utils';
+import type { SchemaFlowContext, SchemaFlowEvent } from './schemaflow-context';
+import { useDependencyOperations } from './use-dependency-operations';
+import { useIndexOperations } from './use-index-operations';
+import { useRelationshipConstraintOperations } from './use-relationship-constraint-operations';
+import { useTableFieldOperations } from './use-table-field-operations';
+import { useVisualOperations } from './use-visual-operations';
+import { DatabaseType } from '@/lib/domain/database-type';
+import type { DBRelationship } from '@/lib/domain/db-relationship';
+import { useStorage } from '@/hooks/use-storage';
+import { useRedoUndoStack } from '@/hooks/use-redo-undo-stack';
+import { CURRENT_DIAGRAM_VERSION, type Diagram } from '@/lib/domain/diagram';
+import type { DatabaseEdition } from '@/lib/domain/database-edition';
+import type { DBSchema } from '@/lib/domain/db-schema';
+import {
+    databasesWithSchemas,
+    schemaNameToSchemaId,
+} from '@/lib/domain/db-schema';
+import { defaultSchemas } from '@/lib/data/default-schemas';
+import { useEventEmitter } from 'ahooks';
+import type { DBDependency } from '@/lib/domain/db-dependency';
+import type { Area } from '@/lib/domain/area';
+import type { Note } from '@/lib/domain/note';
+import { storageInitialValue } from '../storage-context/storage-context';
+import { useDiff } from '../diff-context/use-diff';
+import type { DiffCalculatedEvent } from '../diff-context/diff-context';
+import type { DBCustomType } from '@/lib/domain/db-custom-type';
+import {
+    applyDiagramCommand,
+    createCommandHistoryBatch,
+    createCommandHistoryEntry,
+    createMergeDiagramDiffCommand,
+    createReplaceDiagramCommand,
+} from '@/schema-core/commands';
+
+export interface SchemaFlowProviderValueProps {
+    diagram?: Diagram;
+    readonly?: boolean;
+}
+
+export const useSchemaFlowProviderValue = ({
+    diagram,
+    readonly: readonlyProp,
+}: SchemaFlowProviderValueProps): SchemaFlowContext => {
+    const { hasDiff } = useDiff();
+    const storageDB = useStorage();
+    const events = useEventEmitter<SchemaFlowEvent>();
+    const { addUndoAction, resetRedoStack, resetUndoStack } =
+        useRedoUndoStack();
+
+    const [diagramId, setDiagramId] = useState('');
+    const [diagramName, setDiagramName] = useState('');
+    const [diagramCreatedAt, setDiagramCreatedAt] = useState<Date>(new Date());
+    const [diagramUpdatedAt, setDiagramUpdatedAt] = useState<Date>(new Date());
+    const [databaseType, setDatabaseType] = useState<DatabaseType>(
+        DatabaseType.GENERIC
+    );
+    const [databaseEdition, setDatabaseEdition] = useState<
+        DatabaseEdition | undefined
+    >();
+    const [tables, setTables] = useState<DBTable[]>(diagram?.tables ?? []);
+    const [relationships, setRelationships] = useState<DBRelationship[]>(
+        diagram?.relationships ?? []
+    );
+    const [dependencies, setDependencies] = useState<DBDependency[]>(
+        diagram?.dependencies ?? []
+    );
+    const [areas, setAreas] = useState<Area[]>(diagram?.areas ?? []);
+    const [customTypes, setCustomTypes] = useState<DBCustomType[]>(
+        diagram?.customTypes ?? []
+    );
+    const [notes, setNotes] = useState<Note[]>(diagram?.notes ?? []);
+
+    const { events: diffEvents } = useDiff();
+
+    const [highlightedCustomTypeId, setHighlightedCustomTypeId] =
+        useState<string>();
+
+    const defaultSchemaName = useMemo(
+        () => defaultSchemas[databaseType],
+        [databaseType]
+    );
+
+    const readonly = useMemo(
+        () => readonlyProp ?? hasDiff ?? false,
+        [readonlyProp, hasDiff]
+    );
+
+    const schemas = useMemo(
+        () =>
+            databasesWithSchemas.includes(databaseType)
+                ? [
+                      ...new Set(
+                          tables
+                              .map((table) => table.schema)
+                              .filter((schema) => !!schema) as string[]
+                      ),
+                  ]
+                      .sort((a, b) => {
+                          if (a === defaultSchemaName) return -1;
+                          if (b === defaultSchemaName) return 1;
+                          return a.localeCompare(b);
+                      })
+                      .map(
+                          (schema): DBSchema => ({
+                              id: schemaNameToSchemaId(schema),
+                              name: schema,
+                              tableCount: tables.filter(
+                                  (table) => table.schema === schema
+                              ).length,
+                          })
+                      )
+                : [],
+        [tables, defaultSchemaName, databaseType]
+    );
+
+    const db = useMemo(
+        () => (readonly ? storageInitialValue : storageDB),
+        [storageDB, readonly]
+    );
+    const commandContext = useMemo(
+        () => ({
+            now: () => new Date(),
+            generateId,
+        }),
+        []
+    );
+
+    const currentDiagram: Diagram = useMemo(
+        () => ({
+            id: diagramId,
+            version: CURRENT_DIAGRAM_VERSION,
+            name: diagramName,
+            createdAt: diagramCreatedAt,
+            updatedAt: diagramUpdatedAt,
+            databaseType,
+            databaseEdition,
+            tables,
+            relationships,
+            dependencies,
+            areas,
+            customTypes,
+            notes,
+        }),
+        [
+            diagramId,
+            diagramName,
+            databaseType,
+            databaseEdition,
+            tables,
+            relationships,
+            dependencies,
+            areas,
+            customTypes,
+            notes,
+            diagramCreatedAt,
+            diagramUpdatedAt,
+        ]
+    );
+
+    const applyDiagramState = useCallback((nextDiagram: Diagram) => {
+        setDiagramId(nextDiagram.id);
+        setDiagramName(nextDiagram.name);
+        setDatabaseType(nextDiagram.databaseType);
+        setDatabaseEdition(nextDiagram.databaseEdition);
+        setTables(nextDiagram.tables ?? []);
+        setRelationships(nextDiagram.relationships ?? []);
+        setDependencies(nextDiagram.dependencies ?? []);
+        setAreas(nextDiagram.areas ?? []);
+        setCustomTypes(nextDiagram.customTypes ?? []);
+        setDiagramCreatedAt(nextDiagram.createdAt);
+        setDiagramUpdatedAt(nextDiagram.updatedAt);
+        setHighlightedCustomTypeId(undefined);
+        setNotes(nextDiagram.notes ?? []);
+    }, []);
+
+    const diffCalculatedHandler = useCallback(
+        (event: DiffCalculatedEvent) => {
+            const { tablesToAdd, fieldsToAdd, relationshipsToAdd, areasToAdd } =
+                event.data;
+            const command = createMergeDiagramDiffCommand({
+                context: commandContext,
+                additions: {
+                    tables: tablesToAdd,
+                    fieldsByTableId: fieldsToAdd,
+                    relationships: relationshipsToAdd,
+                    areas: areasToAdd,
+                },
+            });
+            const result = applyDiagramCommand({
+                command,
+                context: commandContext,
+                state: { diagram: currentDiagram },
+            });
+
+            if (result.status !== 'success') {
+                return;
+            }
+
+            applyDiagramState(result.state.diagram);
+            addUndoAction({
+                action: 'loadDiagramFromData',
+                redoData: { diagram: result.state.diagram },
+                undoData: { diagram: currentDiagram },
+                commandHistory: createCommandHistoryBatch([
+                    createCommandHistoryEntry({ redoCommand: command, result }),
+                ]),
+            });
+            resetRedoStack();
+        },
+        [
+            addUndoAction,
+            applyDiagramState,
+            commandContext,
+            currentDiagram,
+            resetRedoStack,
+        ]
+    );
+
+    diffEvents.useSubscription(diffCalculatedHandler);
+
+    const clearDiagramData: SchemaFlowContext['clearDiagramData'] =
+        useCallback(async () => {
+            const updatedAt = new Date();
+            setTables([]);
+            setRelationships([]);
+            setDependencies([]);
+            setAreas([]);
+            setCustomTypes([]);
+            setNotes([]);
+            setDiagramUpdatedAt(updatedAt);
+
+            resetRedoStack();
+            resetUndoStack();
+
+            await Promise.all([
+                db.updateDiagram({ id: diagramId, attributes: { updatedAt } }),
+                db.deleteDiagramTables(diagramId),
+                db.deleteDiagramRelationships(diagramId),
+                db.deleteDiagramDependencies(diagramId),
+                db.deleteDiagramAreas(diagramId),
+                db.deleteDiagramCustomTypes(diagramId),
+                db.deleteDiagramNotes(diagramId),
+            ]);
+        }, [db, diagramId, resetRedoStack, resetUndoStack]);
+
+    const deleteDiagram: SchemaFlowContext['deleteDiagram'] =
+        useCallback(async () => {
+            setDiagramId('');
+            setDiagramName('');
+            setDatabaseType(DatabaseType.GENERIC);
+            setDatabaseEdition(undefined);
+            setTables([]);
+            setRelationships([]);
+            setDependencies([]);
+            setAreas([]);
+            setCustomTypes([]);
+            setNotes([]);
+            resetRedoStack();
+            resetUndoStack();
+
+            await Promise.all([
+                db.deleteDiagramTables(diagramId),
+                db.deleteDiagramRelationships(diagramId),
+                db.deleteDiagram(diagramId),
+                db.deleteDiagramDependencies(diagramId),
+                db.deleteDiagramAreas(diagramId),
+                db.deleteDiagramCustomTypes(diagramId),
+                db.deleteDiagramNotes(diagramId),
+            ]);
+        }, [db, diagramId, resetRedoStack, resetUndoStack]);
+
+    const updateDiagramUpdatedAt: SchemaFlowContext['updateDiagramUpdatedAt'] =
+        useCallback(async () => {
+            const updatedAt = new Date();
+            setDiagramUpdatedAt(updatedAt);
+            await db.updateDiagram({
+                id: diagramId,
+                attributes: { updatedAt },
+            });
+        }, [db, diagramId, setDiagramUpdatedAt]);
+
+    const updateDatabaseType: SchemaFlowContext['updateDatabaseType'] =
+        useCallback(
+            async (databaseType) => {
+                setDatabaseType(databaseType);
+                await db.updateDiagram({
+                    id: diagramId,
+                    attributes: {
+                        databaseType,
+                    },
+                });
+            },
+            [db, diagramId, setDatabaseType]
+        );
+
+    const updateDatabaseEdition: SchemaFlowContext['updateDatabaseEdition'] =
+        useCallback(
+            async (databaseEdition) => {
+                setDatabaseEdition(databaseEdition);
+                await db.updateDiagram({
+                    id: diagramId,
+                    attributes: {
+                        databaseEdition,
+                    },
+                });
+            },
+            [db, diagramId, setDatabaseEdition]
+        );
+
+    const updateDiagramId: SchemaFlowContext['updateDiagramId'] = useCallback(
+        async (id) => {
+            const prevId = diagramId;
+            setDiagramId(id);
+            await db.updateDiagram({ id: prevId, attributes: { id } });
+        },
+        [db, diagramId, setDiagramId]
+    );
+
+    const updateDiagramName: SchemaFlowContext['updateDiagramName'] =
+        useCallback(
+            async (name, options = { updateHistory: true }) => {
+                const prevName = diagramName;
+                setDiagramName(name);
+                const updatedAt = new Date();
+                setDiagramUpdatedAt(updatedAt);
+                await db.updateDiagram({
+                    id: diagramId,
+                    attributes: { name, updatedAt },
+                });
+
+                if (options.updateHistory) {
+                    addUndoAction({
+                        action: 'updateDiagramName',
+                        redoData: { name },
+                        undoData: { name: prevName },
+                    });
+                    resetRedoStack();
+                }
+            },
+            [
+                db,
+                diagramId,
+                setDiagramName,
+                addUndoAction,
+                diagramName,
+                resetRedoStack,
+            ]
+        );
+
+    const {
+        addField,
+        addTable,
+        addTables,
+        createField,
+        createTable,
+        getField,
+        getTable,
+        removeField,
+        removeTable,
+        removeTables,
+        updateField,
+        updateTable,
+        updateTablesState,
+    } = useTableFieldOperations({
+        addUndoAction,
+        commandContext,
+        databaseType,
+        db,
+        dependencies,
+        diagramId,
+        events,
+        notes,
+        relationships,
+        resetRedoStack,
+        setDependencies,
+        setDiagramUpdatedAt,
+        setRelationships,
+        setTables,
+        tables,
+    });
+
+    const { addIndex, createIndex, getIndex, removeIndex, updateIndex } =
+        useIndexOperations({
+            addUndoAction,
+            commandContext,
+            databaseType,
+            db,
+            diagramId,
+            getTable,
+            relationships,
+            resetRedoStack,
+            setDiagramUpdatedAt,
+            setTables,
+            tables,
+        });
+
+    const {
+        addCheckConstraint,
+        createCheckConstraint,
+        removeCheckConstraint,
+        updateCheckConstraint,
+        addRelationship,
+        addRelationships,
+        createRelationship,
+        getRelationship,
+        removeRelationship,
+        removeRelationships,
+        updateRelationship,
+    } = useRelationshipConstraintOperations({
+        addUndoAction,
+        commandContext,
+        databaseType,
+        db,
+        diagramId,
+        getTable,
+        relationships,
+        resetRedoStack,
+        setDiagramUpdatedAt,
+        setRelationships,
+        setTables,
+        tables,
+    });
+
+    const {
+        addDependency,
+        addDependencies,
+        createDependency,
+        getDependency,
+        removeDependency,
+        removeDependencies,
+        updateDependency,
+    } = useDependencyOperations({
+        addUndoAction,
+        db,
+        dependencies,
+        diagramId,
+        getTable,
+        resetRedoStack,
+        setDependencies,
+        setDiagramUpdatedAt,
+    });
+
+    const {
+        addArea,
+        addAreas,
+        createArea,
+        getArea,
+        removeArea,
+        removeAreas,
+        updateArea,
+        addNote,
+        addNotes,
+        createNote,
+        getNote,
+        removeNote,
+        removeNotes,
+        updateNote,
+        addCustomType,
+        addCustomTypes,
+        createCustomType,
+        getCustomType,
+        highlightCustomTypeId,
+        highlightedCustomType,
+        removeCustomType,
+        removeCustomTypes,
+        updateCustomType,
+    } = useVisualOperations({
+        addUndoAction,
+        areas,
+        commandContext,
+        customTypes,
+        databaseType,
+        db,
+        diagramId,
+        highlightedCustomTypeId,
+        notes,
+        resetRedoStack,
+        setAreas,
+        setCustomTypes,
+        setDiagramUpdatedAt,
+        setHighlightedCustomTypeId,
+        setNotes,
+        tables,
+    });
+
+    const loadDiagramFromData: SchemaFlowContext['loadDiagramFromData'] =
+        useCallback(
+            (diagram, options) => {
+                const command = createReplaceDiagramCommand({
+                    context: commandContext,
+                    diagram,
+                });
+                const result = applyDiagramCommand({
+                    command,
+                    context: commandContext,
+                    state: { diagram: currentDiagram },
+                });
+
+                if (result.status !== 'success') {
+                    return;
+                }
+
+                applyDiagramState(result.state.diagram);
+
+                if (options?.emitEvent ?? true) {
+                    events.emit({ action: 'load_diagram', data: { diagram } });
+                }
+
+                if (options?.resetHistory ?? true) {
+                    resetRedoStack();
+                    resetUndoStack();
+                }
+            },
+            [
+                applyDiagramState,
+                commandContext,
+                currentDiagram,
+                events,
+                resetRedoStack,
+                resetUndoStack,
+            ]
+        );
+
+    const updateDiagramData: SchemaFlowContext['updateDiagramData'] =
+        useCallback(
+            async (diagram, options) => {
+                const st = options?.forceUpdateStorage ? storageDB : db;
+                await st.deleteDiagram(diagram.id);
+                await st.addDiagram({ diagram });
+                loadDiagramFromData(diagram);
+            },
+            [db, storageDB, loadDiagramFromData]
+        );
+
+    const loadDiagram: SchemaFlowContext['loadDiagram'] = useCallback(
+        async (diagramId: string) => {
+            const diagram = await storageDB.getDiagram(diagramId, {
+                includeRelationships: true,
+                includeTables: true,
+                includeDependencies: true,
+                includeAreas: true,
+                includeCustomTypes: true,
+                includeNotes: true,
+            });
+
+            if (diagram) {
+                loadDiagramFromData(diagram);
+            }
+
+            return diagram;
+        },
+        [storageDB, loadDiagramFromData]
+    );
+
+    return {
+        diagramId,
+        diagramName,
+        databaseType,
+        tables,
+        relationships,
+        dependencies,
+        areas,
+        notes,
+        currentDiagram,
+        schemas,
+        events,
+        readonly,
+        updateDiagramData,
+        updateDiagramId,
+        updateDiagramName,
+        loadDiagram,
+        loadDiagramFromData,
+        updateDatabaseType,
+        updateDatabaseEdition,
+        clearDiagramData,
+        deleteDiagram,
+        updateDiagramUpdatedAt,
+        createTable,
+        addTable,
+        addTables,
+        getTable,
+        removeTable,
+        removeTables,
+        updateTable,
+        updateTablesState,
+        updateField,
+        removeField,
+        createField,
+        addField,
+        addIndex,
+        createIndex,
+        removeIndex,
+        getField,
+        getIndex,
+        updateIndex,
+        createCheckConstraint,
+        addCheckConstraint,
+        removeCheckConstraint,
+        updateCheckConstraint,
+        addRelationship,
+        addRelationships,
+        createRelationship,
+        getRelationship,
+        removeRelationship,
+        removeRelationships,
+        updateRelationship,
+        addDependency,
+        addDependencies,
+        createDependency,
+        getDependency,
+        removeDependency,
+        removeDependencies,
+        updateDependency,
+        createArea,
+        addArea,
+        addAreas,
+        getArea,
+        removeArea,
+        removeAreas,
+        updateArea,
+        customTypes,
+        createCustomType,
+        addCustomType,
+        addCustomTypes,
+        getCustomType,
+        removeCustomType,
+        removeCustomTypes,
+        updateCustomType,
+        highlightCustomTypeId,
+        highlightedCustomType,
+        createNote,
+        addNote,
+        addNotes,
+        getNote,
+        removeNote,
+        removeNotes,
+        updateNote,
+    };
+};

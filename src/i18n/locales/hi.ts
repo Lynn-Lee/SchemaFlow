@@ -1,0 +1,812 @@
+import type { LanguageMetadata, LanguageTranslation } from '../types';
+
+export const hi: LanguageTranslation = {
+    translation: {
+        editor_sidebar: {
+            new_diagram: 'नया',
+            browse: 'खोलें',
+            tables: 'टेबल',
+            refs: 'रेफ्स',
+            dependencies: 'निर्भरताएं',
+            custom_types: 'कस्टम टाइप',
+            visuals: 'Visuals',
+            docs: 'Docs',
+            settings: 'Settings',
+        },
+        menu: {
+            actions: {
+                actions: 'कार्य',
+                new: 'नया...',
+                browse: 'सभी डेटाबेस...',
+                save: 'सहेजें',
+                import: 'डेटाबेस आयात करें',
+                export_sql: 'SQL निर्यात करें',
+                export_as: 'के रूप में निर्यात करें',
+                delete_diagram: 'हटाएँ',
+            },
+            edit: {
+                edit: 'संपादित करें',
+                undo: 'पूर्ववत करें',
+                redo: 'पुनः करें',
+                clear: 'साफ़ करें',
+            },
+            view: {
+                view: 'देखें',
+                show_sidebar: 'साइडबार दिखाएँ',
+                hide_sidebar: 'साइडबार छिपाएँ',
+                hide_cardinality: 'कार्डिनैलिटी छिपाएँ',
+                show_cardinality: 'कार्डिनैलिटी दिखाएँ',
+                hide_field_attributes: 'फ़ील्ड विशेषताएँ छिपाएँ',
+                show_field_attributes: 'फ़ील्ड विशेषताएँ दिखाएँ',
+                zoom_on_scroll: 'स्क्रॉल पर ज़ूम',
+                show_views: 'डेटाबेस व्यू',
+                theme: 'थीम',
+                show_dependencies: 'निर्भरता दिखाएँ',
+                hide_dependencies: 'निर्भरता छिपाएँ',
+                show_minimap: 'Show Mini Map',
+                hide_minimap: 'Hide Mini Map',
+            },
+            backup: {
+                backup: 'बैकअप',
+                export_diagram: 'आरेख निर्यात करें',
+                restore_diagram: 'आरेख पुनर्स्थापित करें',
+            },
+            help: {
+                help: 'मदद',
+                docs_website: 'દસ્તાવેજીકરણ',
+            },
+        },
+
+        delete_diagram_alert: {
+            title: 'आरेख हटाएँ',
+            description:
+                'यह क्रिया पूर्ववत नहीं की जा सकती। यह आरेख स्थायी रूप से हटा दिया जाएगा।',
+            cancel: 'रद्द करें',
+            delete: 'हटाएँ',
+        },
+
+        clear_diagram_alert: {
+            title: 'आरेख साफ़ करें',
+            description:
+                'यह क्रिया पूर्ववत नहीं की जा सकती। यह आरेख में सभी डेटा को स्थायी रूप से हटा देगी।',
+            cancel: 'रद्द करें',
+            clear: 'साफ़ करें',
+        },
+
+        reorder_diagram_alert: {
+            title: 'आरेख स्वचालित व्यवस्थित करें',
+            description:
+                'यह क्रिया आरेख में सभी तालिकाओं को पुनः व्यवस्थित कर देगी। क्या आप जारी रखना चाहते हैं?',
+            reorder: 'स्वचालित व्यवस्थित करें',
+            cancel: 'रद्द करें',
+        },
+
+        copy_to_clipboard_toast: {
+            unsupported: {
+                title: 'कॉपी असफल',
+                description: 'क्लिपबोर्ड समर्थित नहीं है',
+            },
+            failed: {
+                title: 'कॉपी असफल',
+                description: 'कुछ गलत हो गया। कृपया पुनः प्रयास करें।',
+            },
+        },
+
+        theme: {
+            system: 'सिस्टम',
+            light: 'हल्का',
+            dark: 'गहरा',
+        },
+
+        zoom: {
+            on: 'चालू',
+            off: 'बंद',
+        },
+
+        last_saved: 'अंतिम सहेजा गया',
+        saved: 'सहेजा गया',
+        loading_diagram: 'आरेख लोड हो रहा है...',
+        deselect_all: 'सभी को अचयनित करें',
+        select_all: 'सभी को चुनें',
+        clear: 'साफ़ करें',
+        show_more: 'अधिक दिखाएँ',
+        show_less: 'कम दिखाएँ',
+        copy_to_clipboard: 'Copy to Clipboard',
+        copied: 'Copied!',
+
+        side_panel: {
+            view_all_options: 'सभी विकल्प देखें...',
+            tables_section: {
+                tables: 'तालिकाएँ',
+                add_table: 'तालिका जोड़ें',
+                add_view: 'व्यू जोड़ें',
+                filter: 'फ़िल्टर',
+                collapse: 'सभी को संक्षिप्त करें',
+                clear: 'Clear Filter',
+                no_results: 'No tables found matching your filter.',
+                show_list: 'Show Table List',
+                show_dbml: 'Show DBML Editor',
+                all_hidden: 'सभी तालिकाएँ छिपी हुई हैं',
+                show_all: 'सभी दिखाएं',
+
+                table: {
+                    fields: 'फ़ील्ड्स',
+                    nullable: 'Nullable?',
+                    primary_key: 'प्राथमिक कुंजी',
+                    indexes: 'सूचकांक',
+                    check_constraints: 'जाँच प्रतिबंध',
+                    comments: 'टिप्पणियाँ',
+                    no_comments: 'कोई टिप्पणी नहीं',
+                    add_field: 'फ़ील्ड जोड़ें',
+                    add_index: 'सूचकांक जोड़ें',
+                    add_check: 'जाँच जोड़ें',
+                    index_select_fields: 'फ़ील्ड्स चुनें',
+                    no_types_found: 'कोई प्रकार नहीं मिला',
+                    field_name: 'नाम',
+                    field_type: 'प्रकार',
+                    field_actions: {
+                        title: 'फ़ील्ड विशेषताएँ',
+                        unique: 'अद्वितीय',
+                        auto_increment: 'ऑटो इंक्रीमेंट',
+                        comments: 'टिप्पणियाँ',
+                        no_comments: 'कोई टिप्पणी नहीं',
+                        delete_field: 'फ़ील्ड हटाएँ',
+                        default_value: 'Default Value',
+                        no_default: 'No default',
+                        character_length: 'Max Length',
+                        precision: 'Precision',
+                        scale: 'Scale',
+                    },
+                    index_actions: {
+                        title: 'सूचकांक विशेषताएँ',
+                        name: 'नाम',
+                        unique: 'अद्वितीय',
+                        index_type: 'इंडेक्स प्रकार',
+                        delete_index: 'सूचकांक हटाएँ',
+                    },
+                    check_constraint_actions: {
+                        title: 'जाँच प्रतिबंध',
+                        expression: 'अभिव्यक्ति',
+                        delete: 'प्रतिबंध हटाएं',
+                    },
+                    table_actions: {
+                        title: 'तालिका क्रियाएँ',
+                        change_schema: 'स्कीमा बदलें',
+                        add_field: 'फ़ील्ड जोड़ें',
+                        add_index: 'सूचकांक जोड़ें',
+                        duplicate_table: 'Duplicate Table',
+                        delete_table: 'तालिका हटाएँ',
+                    },
+                },
+                empty_state: {
+                    title: 'कोई तालिकाएँ नहीं',
+                    description: 'शुरू करने के लिए एक तालिका बनाएँ',
+                },
+            },
+            refs_section: {
+                refs: 'रेफ्स',
+                filter: 'फ़िल्टर',
+                collapse: 'सभी को संक्षिप्त करें',
+                add_relationship: 'संबंध जोड़ें',
+                relationships: 'संबंध',
+                dependencies: 'निर्भरताएँ',
+                relationship: {
+                    relationship: 'संबंध',
+                    primary: 'प्राथमिक तालिका',
+                    foreign: 'संबंधित तालिका',
+                    cardinality: 'कार्डिनैलिटी',
+                    delete_relationship: 'हटाएँ',
+                    switch_tables: 'टेबल बदलें',
+                    relationship_actions: {
+                        title: 'क्रियाएँ',
+                        delete_relationship: 'हटाएँ',
+                    },
+                },
+                dependency: {
+                    dependency: 'निर्भरता',
+                    table: 'तालिका',
+                    dependent_table: 'आश्रित दृश्य',
+                    delete_dependency: 'हटाएँ',
+                    dependency_actions: {
+                        title: 'क्रियाएँ',
+                        delete_dependency: 'हटाएँ',
+                    },
+                },
+                empty_state: {
+                    title: 'कोई संबंध नहीं',
+                    description: 'शुरू करने के लिए एक संबंध बनाएँ',
+                },
+            },
+
+            areas_section: {
+                areas: 'क्षेत्र',
+                add_area: 'क्षेत्र जोड़ें',
+                filter: 'फ़िल्टर',
+                clear: 'फ़िल्टर साफ़ करें',
+                no_results:
+                    'आपके फ़िल्टर से मेल खाने वाला कोई क्षेत्र नहीं मिला।',
+
+                area: {
+                    area_actions: {
+                        title: 'क्षेत्र क्रियाएं',
+                        edit_name: 'नाम संपादित करें',
+                        delete_area: 'क्षेत्र हटाएं',
+                    },
+                },
+                empty_state: {
+                    title: 'कोई क्षेत्र नहीं',
+                    description: 'शुरू करने के लिए एक क्षेत्र बनाएं',
+                },
+            },
+
+            visuals_section: {
+                visuals: 'Visuals',
+                tabs: {
+                    areas: 'क्षेत्र',
+                    notes: 'नोट्स',
+                },
+            },
+
+            notes_section: {
+                filter: 'फ़िल्टर',
+                add_note: 'नोट जोड़ें',
+                no_results: 'कोई नोट नहीं मिला',
+                clear: 'फ़िल्टर साफ़ करें',
+                empty_state: {
+                    title: 'कोई नोट नहीं',
+                    description:
+                        'कैनवास पर टेक्स्ट एनोटेशन जोड़ने के लिए एक नोट बनाएं',
+                },
+                note: {
+                    empty_note: 'खाली नोट',
+                    note_actions: {
+                        title: 'नोट क्रियाएं',
+                        edit_content: 'सामग्री संपादित करें',
+                        delete_note: 'नोट हटाएं',
+                    },
+                },
+            },
+
+            custom_types_section: {
+                custom_types: 'कस्टम प्रकार',
+                filter: 'फ़िल्टर',
+                clear: 'फ़िल्टर साफ़ करें',
+                no_results:
+                    'आपके फ़िल्टर से मेल खाने वाला कोई कस्टम प्रकार नहीं मिला।',
+                new_type: 'नया प्रकार',
+                empty_state: {
+                    title: 'कोई कस्टम प्रकार नहीं',
+                    description:
+                        'जब आपके डेटाबेस में उपलब्ध होंगे तो कस्टम प्रकार यहाँ दिखाई देंगे',
+                },
+                custom_type: {
+                    kind: 'प्रकार',
+                    enum_values: 'Enum मान',
+                    composite_fields: 'फ़ील्ड',
+                    no_fields: 'कोई फ़ील्ड परिभाषित नहीं',
+                    no_values: 'कोई enum मान परिभाषित नहीं',
+                    field_name_placeholder: 'फ़ील्ड का नाम',
+                    field_type_placeholder: 'प्रकार चुनें',
+                    add_field: 'फ़ील्ड जोड़ें',
+                    no_fields_tooltip:
+                        'इस कस्टम प्रकार के लिए कोई फ़ील्ड परिभाषित नहीं',
+                    custom_type_actions: {
+                        title: 'क्रियाएं',
+                        highlight_fields: 'फ़ील्ड हाइलाइट करें',
+                        delete_custom_type: 'हटाएं',
+                        clear_field_highlight: 'हाइलाइट हटाएं',
+                    },
+                    delete_custom_type: 'प्रकार हटाएं',
+                },
+            },
+        },
+
+        toolbar: {
+            zoom_in: 'ज़ूम इन',
+            zoom_out: 'ज़ूम आउट',
+            save: 'सहेजें',
+            show_all: 'सभी दिखाएँ',
+            undo: 'पूर्ववत करें',
+            redo: 'पुनः करें',
+            reorder_diagram: 'आरेख स्वचालित व्यवस्थित करें',
+            clear_custom_type_highlight: 'Clear highlight for "{{typeName}}"',
+            custom_type_highlight_tooltip:
+                'Highlighting "{{typeName}}" - Click to clear',
+            highlight_overlapping_tables: 'ओवरलैपिंग तालिकाओं को हाइलाइट करें',
+            filter: 'टेबल फ़िल्टर करें',
+        },
+
+        new_diagram_dialog: {
+            database_selection: {
+                title: 'आपका डेटाबेस क्या है?',
+                description:
+                    'प्रत्येक डेटाबेस की अपनी अनूठी विशेषताएँ और क्षमताएँ होती हैं।',
+                transactional: 'Transactional',
+                analytical: 'Analytical',
+                more_databases: 'More Databases',
+                primary_databases: 'Primary Databases',
+                check_examples_long: 'उदाहरण देखें',
+                check_examples_short: 'उदाहरण',
+            },
+
+            import_database: {
+                title: 'अपना डेटाबेस आयात करें',
+                database_edition: 'डेटाबेस संस्करण:',
+                step_1: 'अपने डेटाबेस में यह स्क्रिप्ट चलाएँ:',
+                step_2: 'यहाँ स्क्रिप्ट का परिणाम पेस्ट करें →',
+                script_results_placeholder: 'स्क्रिप्ट के परिणाम यहाँ...',
+                ssms_instructions: {
+                    button_text: 'SSMS निर्देश',
+                    title: 'निर्देश',
+                    step_1: 'टूल्स > ऑप्शंस > क्वेरी परिणाम > SQL सर्वर पर जाएँ।',
+                    step_2: 'यदि आप "ग्रिड में परिणाम" का उपयोग कर रहे हैं, तो Non-XML डेटा के लिए अधिकतम वर्ण प्राप्ति (9999999 पर सेट करें)।',
+                },
+                instructions_link: 'मदद चाहिए? देखें कैसे',
+                check_script_result: 'Check Script Result',
+            },
+
+            cancel: 'रद्द करें',
+            back: 'वापस',
+            import_from_file: 'Import from File',
+            empty_diagram: 'खाली डेटाबेस',
+            continue: 'जारी रखें',
+            import: 'आयात करें',
+        },
+
+        open_diagram_dialog: {
+            title: 'डेटाबेस खोलें',
+            description: 'नीचे दी गई सूची से एक आरेख चुनें।',
+            table_columns: {
+                name: 'नाम',
+                created_at: 'निर्माण तिथि',
+                last_modified: 'अंतिम संशोधन',
+                tables_count: 'तालिकाएँ',
+            },
+            cancel: 'रद्द करें',
+            open: 'खोलें',
+            new_database: 'नया डेटाबेस',
+            load_error: {
+                title: 'Could not load local diagrams',
+                description:
+                    'Local diagrams could not be read. Check browser storage permissions or create a new database.',
+                retry: 'Retry loading diagrams',
+            },
+
+            diagram_actions: {
+                open: 'खोलें',
+                duplicate: 'डुप्लिकेट',
+                delete: 'हटाएं',
+            },
+        },
+
+        export_sql_dialog: {
+            title: 'SQL निर्यात करें',
+            description:
+                '{{databaseType}} स्क्रिप्ट के लिए आपका आरेख स्कीमा निर्यात करें',
+            close: 'बंद करें',
+            mode: {
+                deterministic: 'Deterministic',
+                ai: 'AI',
+            },
+            loading: {
+                text: '{{databaseType}} के लिए AI SQL बना रहा है...',
+                description: 'इसमें 30 सेकंड तक का समय लग सकता है।',
+            },
+            error: {
+                message:
+                    'SQL स्क्रिप्ट उत्पन्न करने में त्रुटि। कृपया बाद में पुनः प्रयास करें या <0>हमसे संपर्क करें</0>।',
+                description:
+                    'अपने OPENAI_TOKEN का उपयोग करने के लिए स्वतंत्र महसूस करें, मैनुअल <0>यहाँ देखें</0>।',
+            },
+        },
+
+        create_relationship_dialog: {
+            title: 'संबंध बनाएँ',
+            primary_table: 'प्राथमिक तालिका',
+            primary_field: 'प्राथमिक फ़ील्ड',
+            referenced_table: 'संदर्भित तालिका',
+            referenced_field: 'संदर्भित फ़ील्ड',
+            primary_table_placeholder: 'तालिका चुनें',
+            primary_field_placeholder: 'फ़ील्ड चुनें',
+            referenced_table_placeholder: 'तालिका चुनें',
+            referenced_field_placeholder: 'फ़ील्ड चुनें',
+            no_tables_found: 'कोई तालिकाएँ नहीं मिलीं',
+            no_fields_found: 'कोई फ़ील्ड्स नहीं मिलीं',
+            create: 'बनाएँ',
+            cancel: 'रद्द करें',
+        },
+
+        import_database_dialog: {
+            title: 'वर्तमान आरेख में आयात करें',
+            override_alert: {
+                title: 'डेटाबेस आयात करें',
+                content: {
+                    alert: 'इस आरेख को आयात करने से मौजूदा तालिकाओं और संबंधों पर प्रभाव पड़ेगा।',
+                    new_tables:
+                        '<bold>{{newTablesNumber}}</bold> नई तालिकाएँ जोड़ी जाएँगी।',
+                    new_relationships:
+                        '<bold>{{newRelationshipsNumber}}</bold> नए संबंध बनाए जाएँगे।',
+                    tables_override:
+                        '<bold>{{tablesOverrideNumber}}</bold> तालिकाएँ अधिलेखित की जाएँगी।',
+                    proceed: 'क्या आप जारी रखना चाहते हैं?',
+                },
+                import: 'आयात करें',
+                cancel: 'रद्द करें',
+            },
+        },
+
+        smart_query_wizard: {
+            title: 'Smart Query Wizard',
+            description:
+                'SchemaFlow never asks for your database password. You copy a read-only metadata query, run it locally, then paste the JSON output here.',
+            steps: {
+                choose_database: {
+                    title: 'Choose this database type',
+                    description:
+                        'The query is generated for the selected database and client.',
+                },
+                copy_query: {
+                    title: 'Copy the Smart Query',
+                    description:
+                        'Run it in your own database client. No database password is required in SchemaFlow.',
+                },
+                paste_json: {
+                    title: 'Paste the JSON result',
+                    description:
+                        'Only paste the metadata JSON returned by the query, not a connection string or secret.',
+                },
+                preview: {
+                    title: 'Preview tables, relationships, and warnings',
+                    description:
+                        'SchemaFlow summarizes objects and dialect limitations before writing to the diagram.',
+                },
+                confirm: {
+                    title: 'Confirm import',
+                    description:
+                        'Nothing is added to IndexedDB until you confirm the preview.',
+                },
+            },
+        },
+
+        export_image_dialog: {
+            title: 'छवि निर्यात करें',
+            description: 'निर्यात के लिए स्केल फ़ैक्टर चुनें:',
+            scale_1x: '1x (निम्न गुणवत्ता)',
+            scale_2x: '2x (सामान्य गुणवत्ता)',
+            scale_4x: '4x (सर्वोत्तम गुणवत्ता)',
+            cancel: 'रद्द करें',
+            export: 'निर्यात करें',
+            advanced_options: 'Advanced Options',
+            pattern: 'Include background pattern',
+            pattern_description: 'Add subtle grid pattern to background.',
+            transparent: 'Transparent background',
+            transparent_description: 'Remove background color from image.',
+        },
+
+        new_table_schema_dialog: {
+            title: 'स्कीमा चुनें',
+            description:
+                'वर्तमान में कई स्कीमा प्रदर्शित हैं। नई तालिका के लिए एक चुनें।',
+            cancel: 'रद्द करें',
+            confirm: 'पुष्टि करें',
+        },
+
+        update_table_schema_dialog: {
+            title: 'स्कीमा बदलें',
+            description: 'तालिका "{{tableName}}" का स्कीमा अपडेट करें',
+            cancel: 'रद्द करें',
+            confirm: 'बदलें',
+        },
+
+        create_table_schema_dialog: {
+            title: 'नया स्कीमा बनाएं',
+            description:
+                'अभी तक कोई स्कीमा मौजूद नहीं है। अपनी तालिकाओं को व्यवस्थित करने के लिए अपना पहला स्कीमा बनाएं।',
+            create: 'बनाएं',
+            cancel: 'रद्द करें',
+        },
+
+        star_us_dialog: {
+            title: 'हमें सुधारने में मदद करें!',
+            description:
+                'क्या आप हमें GitHub पर स्टार देना चाहेंगे? यह बस एक क्लिक की दूरी पर है!',
+            close: 'अभी नहीं',
+            confirm: 'बिलकुल!',
+        },
+        export_diagram_dialog: {
+            title: 'Export Diagram',
+            description: 'Choose the format for export:',
+            format_json: 'JSON',
+            cancel: 'Cancel',
+            export: 'Export',
+            error: {
+                title: 'Error exporting diagram',
+                description:
+                    'Something went wrong. Need help? https://github.com/Lynn-Lee/SchemaFlow/issues',
+            },
+        },
+        import_diagram_dialog: {
+            title: 'Import Diagram',
+            description: 'Paste the diagram JSON below:',
+            cancel: 'Cancel',
+            import: 'Import',
+            error: {
+                title: 'Error importing diagram',
+                description:
+                    'The diagram JSON is invalid. Please check the JSON and try again. Need help? https://github.com/Lynn-Lee/SchemaFlow/issues',
+            },
+        },
+        import_dbml_dialog: {
+            example_title: 'Import Example DBML',
+            title: 'Import DBML',
+            description: 'Import a database schema from DBML format.',
+            import: 'Import',
+            cancel: 'Cancel',
+            skip_and_empty: 'Skip & Empty',
+            show_example: 'Show Example',
+            error: {
+                title: 'Error',
+                description: 'Failed to parse DBML. Please check the syntax.',
+            },
+        },
+        relationship_type: {
+            one_to_one: 'एक से एक',
+            one_to_many: 'एक से कई',
+            many_to_one: 'कई से एक',
+            many_to_many: 'कई से कई',
+        },
+
+        canvas_context_menu: {
+            new_table: 'नई तालिका',
+            new_view: 'नया व्यू',
+            new_relationship: 'नया संबंध',
+            new_area: 'नया क्षेत्र',
+            new_note: 'नया नोट',
+        },
+
+        table_node_context_menu: {
+            edit_table: 'तालिका संपादित करें',
+            duplicate_table: 'Duplicate Table',
+            delete_table: 'तालिका हटाएँ',
+            add_relationship: 'Add Relationship',
+            move_to_area: 'क्षेत्र में ले जाएं',
+            no_area: 'कोई क्षेत्र नहीं',
+        },
+
+        templates_page: {
+            heading_featured: 'Featured database schema templates',
+            heading_tagged: 'Database schema templates for {{tag}}',
+            heading_all: 'Database schema templates',
+            breadcrumb: 'Templates',
+            detail_subtitle: 'Database schema diagram',
+            detail_meta_title:
+                'Database schema diagram for {{name}} | SchemaFlow',
+            description:
+                'Discover a collection of real-world database schema diagrams, featuring example applications and popular open-source projects.',
+            description_tagged:
+                'Discover a collection of real-world database schema diagrams for {{tag}}, featuring example applications and popular open-source projects.',
+            navigation: {
+                featured: 'Featured',
+                all_templates: 'All Templates',
+                tags: 'Tags',
+            },
+        },
+
+        examples_page: {
+            meta_title: 'SchemaFlow - Example Database Diagrams & Schemas',
+            heading: 'Examples',
+            description:
+                'A collection of examples to help you get started with SchemaFlow.',
+            prompt: 'Click on one',
+            items: {
+                '1': {
+                    name: 'Employees schema',
+                    description:
+                        'A schema for database of employees, departments, and salaries.',
+                },
+                '2': {
+                    name: 'Bike stores schema',
+                    description:
+                        'A schema for database of bike stores, brands, categories, and customers.',
+                },
+                '3': {
+                    name: 'DVD Rental schema',
+                    description:
+                        'A schema for database of a DVD rental store, including customers, films, actors, staff, and stores.',
+                },
+            },
+        },
+
+        canvas: {
+            all_tables_hidden: 'सभी तालिकाएँ छिपी हुई हैं',
+            show_all_tables: 'सभी दिखाएं',
+            mobile_notice: {
+                title: 'Mobile editing is limited',
+                description:
+                    'For reliable canvas editing, use a desktop browser. You can continue on this device.',
+                dismiss: 'Dismiss mobile canvas notice',
+            },
+        },
+
+        canvas_filter: {
+            title: 'तालिकाएँ फ़िल्टर करें',
+            search_placeholder: 'तालिकाएँ खोजें...',
+            group_by_schema: 'स्कीमा के अनुसार समूहित करें',
+            group_by_area: 'क्षेत्र के अनुसार समूहित करें',
+            no_tables_found: 'कोई तालिका नहीं मिली',
+            empty_diagram_description: 'शुरू करने के लिए एक तालिका बनाएं',
+            no_tables_description:
+                'अपनी खोज या फ़िल्टर समायोजित करने का प्रयास करें',
+            clear_filter: 'फ़िल्टर साफ़ करें',
+        },
+
+        snap_to_grid_tooltip: 'Snap to Grid (Hold {{key}})',
+
+        tool_tips: {
+            double_click_to_edit: 'संपादित करने के लिए डबल-क्लिक करें',
+        },
+
+        language_select: {
+            change_language: 'भाषा बदलें',
+            screen_reader_change_language: 'Change language',
+            experimental: 'experimental',
+        },
+
+        import_preview: {
+            ready: 'Import preview ready',
+            confidence: 'Confidence: {{confidence}}',
+            tables: '{{count}} tables',
+            relationships: '{{count}} relationships',
+            custom_types: '{{count}} custom types',
+            warnings: '{{count}} warnings',
+            skipped: '{{objectType}}{{name}} was skipped: {{reason}}',
+            errors: {
+                no_importable_objects:
+                    'Preview found no importable tables, relationships, or custom types. Check the pasted Smart Query JSON or the selected database dialect.',
+                cancelled: 'Import preview cancelled.',
+                parse_default: 'Unable to parse the import input.',
+                parse_failed:
+                    'Preview failed: {{message}}. Check the Smart Query JSON, SQL syntax, or dialect limitations before trying again.',
+                message: '{{message}}',
+            },
+        },
+
+        on: 'चालू',
+        off: 'बंद',
+
+        settings: {
+            dialog: {
+                title: 'Settings',
+                description:
+                    'Manage local editor preferences, AI export mode, and browser-stored diagram data.',
+            },
+            display: {
+                heading: 'Display',
+                description: 'Keep editor preferences in this browser.',
+                theme: 'Theme',
+                theme_system: 'System',
+                theme_light: 'Light',
+                theme_dark: 'Dark',
+                language: 'Language',
+                show_minimap: 'Show mini map',
+                show_field_attributes: 'Show field attributes',
+                scroll_action: 'Canvas scroll action',
+                scroll_action_pan: 'Pan canvas',
+                scroll_action_zoom: 'Zoom canvas',
+            },
+            privacy: {
+                session_only_title: 'Session-only settings',
+                session_only_description:
+                    'Browser settings are unavailable. Changes work for this session only.',
+                ai_mode_heading: 'AI mode',
+                ai_mode_description:
+                    'Control whether SQL export can use AI assistance.',
+                ai_export_mode_label: 'AI-assisted export mode',
+                ai_export_mode_disabled: 'Disabled',
+                ai_export_mode_byok: 'BYOK session',
+                ai_export_mode_gateway: 'Self-hosted gateway',
+                byok_alert_title: 'Session-only BYOK',
+                byok_alert_line_1: 'Paste the API key only when exporting SQL.',
+                byok_alert_line_2:
+                    'BYOK keys are session-only and are never saved.',
+                byok_never_saved:
+                    'BYOK keys are session-only and are never saved.',
+                byok_session_key_label: 'Session API key',
+                byok_session_key_hint:
+                    'Stored in memory only. Refreshing the page clears this key.',
+                gateway_endpoint_label: 'Gateway endpoint',
+                gateway_model_label: 'Model name',
+                gateway_model_placeholder: 'Optional',
+                data_management_heading: 'Data management',
+                data_management_description:
+                    'SchemaFlow stores diagrams in this browser with IndexedDB and localStorage. No account or cloud workspace is required.',
+                export_backup_button: 'Export diagram backup',
+                restore_backup_button: 'Restore from backup',
+                backup_file_label: 'Backup file',
+                clear_local_diagrams_button: 'Clear local diagrams',
+                reading_backup_title: 'Reading backup',
+                reading_backup_description:
+                    'SchemaFlow is building a restore preview.',
+                backup_restored_title: 'Backup restored',
+                backup_restored_description:
+                    'The selected backup has been restored as local diagram data.',
+                restore_failed_title: 'Could not restore backup',
+                restore_failed_default: 'Backup file could not be restored.',
+                preview_failed_default: 'Backup file could not be previewed.',
+                read_failed_default: 'Backup file could not be read.',
+                cleared_title: 'Local diagrams cleared',
+                cleared_description: 'All local diagrams have been deleted.',
+                clear_failed_title: 'Could not clear local diagrams',
+                clear_failed_default: 'Local diagrams could not be deleted.',
+                clear_dialog_title: 'Delete all local diagrams?',
+                clear_dialog_description:
+                    'This deletes every diagram stored in this browser, including tables, relationships, notes, areas, custom types, and filters. Export a backup first if you need to keep a copy.',
+                cancel: 'Cancel',
+                deleting: 'Deleting...',
+                delete_local_diagrams: 'Delete local diagrams',
+                restore_dialog_title: 'Restore backup preview?',
+                restore_dialog_description:
+                    'Review the diagrams in this backup before restoring them into local browser storage.',
+                diagram_singular: '{{count}} diagram in this backup.',
+                diagram_plural: '{{count}} diagrams in this backup.',
+                table_singular: '{{count}} table',
+                table_plural: '{{count}} tables',
+                relationship_singular: '{{count}} relationship',
+                relationship_plural: '{{count}} relationships',
+                restoring: 'Restoring...',
+                restore_backup_action: 'Restore backup',
+            },
+            keyboard: {
+                heading: 'Keyboard shortcuts',
+                description:
+                    'Core editor paths remain available without pointer-only controls.',
+                undo: 'Undo diagram change',
+                redo: 'Redo diagram change',
+                command_actions: 'Open command actions',
+                zoom_canvas: 'Zoom canvas',
+                zoom_canvas_keys: 'Mouse wheel or toolbar controls',
+            },
+        },
+
+        onboarding: {
+            title: 'Start a SchemaFlow diagram',
+            description:
+                'Pick the database first, then choose whether to import, start blank, or explore templates.',
+            database_heading: 'Database',
+            start_option_heading: 'Start option',
+            start_options: {
+                import: {
+                    title: 'Import existing database',
+                    description:
+                        'Start from SQL, DBML, or metadata and review it before saving.',
+                },
+                blank: {
+                    title: 'New blank diagram',
+                    description:
+                        'Create an empty local diagram for manual modeling.',
+                },
+                template: {
+                    title: 'Browse templates',
+                    description:
+                        'Open a realistic example and clone it into your workspace.',
+                },
+            },
+            no_database_selected: 'No database selected',
+            selected_label: 'Selected: {{label}}',
+            choose_database_error:
+                'Choose a database before creating or importing a diagram.',
+            choose_start_option_error: 'Choose how you want to start.',
+            create_failed_error:
+                'SchemaFlow could not create the diagram. Nothing was saved; try again.',
+            import_json_backup: 'Import JSON backup',
+            continue: 'Continue',
+            creating: 'Creating...',
+        },
+    },
+};
+
+export const hiMetadata: LanguageMetadata = {
+    name: 'Hindi',
+    nativeName: 'हिन्दी',
+    code: 'hi',
+};

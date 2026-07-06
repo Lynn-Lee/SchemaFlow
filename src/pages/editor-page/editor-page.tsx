@@ -1,0 +1,187 @@
+import React, { Suspense, useEffect } from 'react';
+import { useSchemaFlow } from '@/hooks/use-schemaflow';
+import { useDialog } from '@/hooks/use-dialog';
+import { Toaster } from '@/components/toast/toaster';
+import { useBreakpoint } from '@/hooks/use-breakpoint';
+import { useLocalConfig } from '@/hooks/use-local-config';
+import { FullScreenLoaderProvider } from '@/context/full-screen-spinner-context/full-screen-spinner-provider';
+import { LayoutProvider } from '@/context/layout-context/layout-provider';
+import { LocalConfigProvider } from '@/context/local-config-context/local-config-provider';
+import { StorageProvider } from '@/context/storage-context/storage-provider';
+import { ConfigProvider } from '@/context/config-context/config-provider';
+import { RedoUndoStackProvider } from '@/context/history-context/redo-undo-stack-provider';
+import { SchemaFlowProvider } from '@/context/schemaflow-context/schemaflow-provider';
+import { HistoryProvider } from '@/context/history-context/history-provider';
+import { ThemeProvider } from '@/context/theme-context/theme-provider';
+import { ReactFlowProvider } from '@xyflow/react';
+import { ExportImageProvider } from '@/context/export-image-context/export-image-provider';
+import { DialogProvider } from '@/context/dialog-context/dialog-provider';
+import { KeyboardShortcutsProvider } from '@/context/keyboard-shortcuts-context/keyboard-shortcuts-provider';
+import { Spinner } from '@/components/spinner/spinner';
+import { Helmet } from 'react-helmet-async';
+import { AlertProvider } from '@/context/alert-context/alert-provider';
+import { CanvasProvider } from '@/context/canvas-context/canvas-provider';
+import { HIDE_SCHEMAFLOW_CLOUD } from '@/lib/env';
+import { useDiagramLoader } from './use-diagram-loader';
+import { DiffProvider } from '@/context/diff-context/diff-provider';
+import { TopNavbarMock } from './top-navbar/top-navbar-mock';
+import { DiagramFilterProvider } from '@/context/diagram-filter-context/diagram-filter-provider';
+import { OnboardingDialog } from '@/features/onboarding/onboarding-dialog';
+import { Button } from '@/components/button/button';
+
+const OPEN_STAR_US_AFTER_SECONDS = 30;
+const SHOW_STAR_US_AGAIN_AFTER_DAYS = 1;
+
+export const EditorDesktopLayoutLazy = React.lazy(
+    () => import('./editor-desktop-layout')
+);
+
+export const EditorMobileLayoutLazy = React.lazy(
+    () => import('./editor-mobile-layout')
+);
+
+const EditorPageComponent: React.FC = () => {
+    const { diagramName, currentDiagram } = useSchemaFlow();
+    const { openStarUsDialog } = useDialog();
+    const { isMd: isDesktop } = useBreakpoint('md');
+    const { starUsDialogLastOpen, setStarUsDialogLastOpen, githubRepoOpened } =
+        useLocalConfig();
+    const {
+        initialDiagram,
+        loadError,
+        retryLoadDiagram,
+        showOnboarding,
+        setShowOnboarding,
+    } = useDiagramLoader();
+
+    useEffect(() => {
+        if (HIDE_SCHEMAFLOW_CLOUD) {
+            return;
+        }
+
+        if (!currentDiagram?.id || githubRepoOpened) {
+            return;
+        }
+
+        if (
+            new Date().getTime() - starUsDialogLastOpen >
+            1000 * 60 * 60 * 24 * SHOW_STAR_US_AGAIN_AFTER_DAYS
+        ) {
+            const lastOpen = new Date().getTime();
+            setStarUsDialogLastOpen(lastOpen);
+            setTimeout(openStarUsDialog, OPEN_STAR_US_AFTER_SECONDS * 1000);
+        }
+    }, [
+        currentDiagram?.id,
+        githubRepoOpened,
+        openStarUsDialog,
+        setStarUsDialogLastOpen,
+        starUsDialogLastOpen,
+    ]);
+
+    return (
+        <>
+            <Helmet>
+                <title>
+                    {diagramName
+                        ? `SchemaFlow - ${diagramName} Diagram | Visualize Database Schemas`
+                        : 'SchemaFlow - Create & Visualize Database Schema Diagrams'}
+                </title>
+            </Helmet>
+            <section
+                className={`bg-background ${isDesktop ? 'h-screen w-screen' : 'h-dvh w-dvw'} flex select-none flex-col overflow-x-hidden`}
+            >
+                {loadError ? (
+                    <>
+                        <TopNavbarMock />
+                        <div
+                            role="alert"
+                            className="flex flex-1 items-center justify-center px-6 text-center"
+                        >
+                            <div className="max-w-md space-y-4">
+                                <h1 className="text-xl font-semibold">
+                                    Diagram could not be loaded
+                                </h1>
+                                <p className="text-sm text-muted-foreground">
+                                    {loadError}
+                                </p>
+                                <Button
+                                    type="button"
+                                    onClick={retryLoadDiagram}
+                                >
+                                    Retry loading diagram
+                                </Button>
+                            </div>
+                        </div>
+                    </>
+                ) : (
+                    <Suspense
+                        fallback={
+                            <>
+                                <TopNavbarMock />
+                                <div className="flex flex-1 items-center justify-center">
+                                    <Spinner
+                                        size={isDesktop ? 'large' : 'medium'}
+                                    />
+                                </div>
+                            </>
+                        }
+                    >
+                        {isDesktop ? (
+                            <EditorDesktopLayoutLazy
+                                initialDiagram={initialDiagram}
+                            />
+                        ) : (
+                            <EditorMobileLayoutLazy
+                                initialDiagram={initialDiagram}
+                            />
+                        )}
+                    </Suspense>
+                )}
+            </section>
+            <OnboardingDialog
+                open={showOnboarding}
+                onClose={() => setShowOnboarding(false)}
+            />
+            <Toaster />
+        </>
+    );
+};
+
+export const EditorPage: React.FC = () => (
+    <LocalConfigProvider>
+        <ThemeProvider>
+            <FullScreenLoaderProvider>
+                <LayoutProvider>
+                    <StorageProvider>
+                        <ConfigProvider>
+                            <RedoUndoStackProvider>
+                                <DiffProvider>
+                                    <SchemaFlowProvider>
+                                        <DiagramFilterProvider>
+                                            <HistoryProvider>
+                                                <ReactFlowProvider>
+                                                    <CanvasProvider>
+                                                        <ExportImageProvider>
+                                                            <AlertProvider>
+                                                                <DialogProvider>
+                                                                    <KeyboardShortcutsProvider>
+                                                                        <EditorPageComponent />
+                                                                    </KeyboardShortcutsProvider>
+                                                                </DialogProvider>
+                                                            </AlertProvider>
+                                                        </ExportImageProvider>
+                                                    </CanvasProvider>
+                                                </ReactFlowProvider>
+                                            </HistoryProvider>
+                                        </DiagramFilterProvider>
+                                    </SchemaFlowProvider>
+                                </DiffProvider>
+                            </RedoUndoStackProvider>
+                        </ConfigProvider>
+                    </StorageProvider>
+                </LayoutProvider>
+            </FullScreenLoaderProvider>
+        </ThemeProvider>
+    </LocalConfigProvider>
+);
