@@ -7,6 +7,7 @@ import {
     Upload,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/button/button';
 import {
     Dialog,
@@ -47,28 +48,26 @@ const DATABASE_OPTIONS = [
 
 const START_OPTIONS: Array<{
     id: StartOption;
-    title: string;
-    description: string;
+    titleKey: string;
+    descriptionKey: string;
     icon: React.ComponentType<{ className?: string }>;
 }> = [
     {
         id: 'import',
-        title: 'Import existing database',
-        description:
-            'Start from SQL, DBML, or metadata and review it before saving.',
+        titleKey: 'onboarding.start_options.import.title',
+        descriptionKey: 'onboarding.start_options.import.description',
         icon: Upload,
     },
     {
         id: 'blank',
-        title: 'New blank diagram',
-        description: 'Create an empty local diagram for manual modeling.',
+        titleKey: 'onboarding.start_options.blank.title',
+        descriptionKey: 'onboarding.start_options.blank.description',
         icon: Plus,
     },
     {
         id: 'template',
-        title: 'Browse templates',
-        description:
-            'Open a realistic example and clone it into your workspace.',
+        titleKey: 'onboarding.start_options.template.title',
+        descriptionKey: 'onboarding.start_options.template.description',
         icon: LayoutTemplate,
     },
 ];
@@ -77,6 +76,7 @@ export const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
     open,
     onClose,
 }) => {
+    const { t } = useTranslation();
     const [databaseType, setDatabaseType] = useState<DatabaseType>();
     const [startOption, setStartOption] = useState<StartOption>();
     const [message, setMessage] = useState('');
@@ -90,15 +90,13 @@ export const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
         () =>
             databaseType
                 ? databaseTypeToLabelMap[databaseType]
-                : 'No database selected',
-        [databaseType]
+                : t('onboarding.no_database_selected'),
+        [databaseType, t]
     );
 
     const createBlankDiagram = useCallback(async () => {
         if (!databaseType) {
-            setMessage(
-                'Choose a database before creating or importing a diagram.'
-            );
+            setMessage(t('onboarding.choose_database_error'));
             return;
         }
 
@@ -119,9 +117,7 @@ export const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
             navigate(`/diagrams/${diagram.id}`);
         } catch {
             await deleteDiagram(diagram.id);
-            setMessage(
-                'SchemaFlow could not create the diagram. Nothing was saved; try again.'
-            );
+            setMessage(t('onboarding.create_failed_error'));
         } finally {
             setIsCreating(false);
         }
@@ -131,12 +127,13 @@ export const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
         deleteDiagram,
         navigate,
         onClose,
+        t,
         updateConfig,
     ]);
 
     const continueOnboarding = useCallback(async () => {
         if (!startOption) {
-            setMessage('Choose how you want to start.');
+            setMessage(t('onboarding.choose_start_option_error'));
             return;
         }
 
@@ -147,9 +144,7 @@ export const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
         }
 
         if (!databaseType) {
-            setMessage(
-                'Choose a database before creating or importing a diagram.'
-            );
+            setMessage(t('onboarding.choose_database_error'));
             return;
         }
 
@@ -170,6 +165,7 @@ export const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
         onClose,
         openCreateDiagramDialog,
         startOption,
+        t,
     ]);
 
     return (
@@ -180,10 +176,9 @@ export const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
                 onEscapeKeyDown={(event) => event.preventDefault()}
             >
                 <DialogHeader>
-                    <DialogTitle>Start a SchemaFlow diagram</DialogTitle>
+                    <DialogTitle>{t('onboarding.title')}</DialogTitle>
                     <DialogDescription>
-                        Pick the database first, then choose whether to import,
-                        start blank, or explore templates.
+                        {t('onboarding.description')}
                     </DialogDescription>
                 </DialogHeader>
                 <DialogInternalContent className="max-h-[calc(100dvh-11rem)] pr-1">
@@ -195,7 +190,7 @@ export const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
                                     id="onboarding-database-title"
                                     className="text-sm font-semibold"
                                 >
-                                    Database
+                                    {t('onboarding.database_heading')}
                                 </h2>
                             </div>
                             <div
@@ -238,7 +233,7 @@ export const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
                                     id="onboarding-start-title"
                                     className="text-sm font-semibold"
                                 >
-                                    Start option
+                                    {t('onboarding.start_option_heading')}
                                 </h2>
                             </div>
                             <div className="grid gap-2">
@@ -261,10 +256,10 @@ export const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
                                             <Icon className="mt-0.5 size-5 shrink-0 text-sky-600" />
                                             <span className="min-w-0">
                                                 <span className="block text-sm font-semibold">
-                                                    {option.title}
+                                                    {t(option.titleKey)}
                                                 </span>
                                                 <span className="mt-1 block text-xs leading-5 text-muted-foreground">
-                                                    {option.description}
+                                                    {t(option.descriptionKey)}
                                                 </span>
                                             </span>
                                         </button>
@@ -274,7 +269,9 @@ export const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
                         </section>
                     </div>
                     <div className="mt-3 rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
-                        Selected: {selectedDatabaseLabel}
+                        {t('onboarding.selected_label', {
+                            label: selectedDatabaseLabel,
+                        })}
                     </div>
                     {message ? (
                         <div
@@ -294,14 +291,16 @@ export const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
                             openImportDiagramDialog({});
                         }}
                     >
-                        Import JSON backup
+                        {t('onboarding.import_json_backup')}
                     </Button>
                     <Button
                         type="button"
                         onClick={continueOnboarding}
                         disabled={isCreating}
                     >
-                        {isCreating ? 'Creating...' : 'Continue'}
+                        {isCreating
+                            ? t('onboarding.creating')
+                            : t('onboarding.continue')}
                     </Button>
                 </DialogFooter>
             </DialogContent>

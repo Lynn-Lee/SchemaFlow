@@ -10,6 +10,8 @@ export const zh_CN: LanguageTranslation = {
             dependencies: '依赖关系',
             custom_types: '自定义类型',
             visuals: '视觉效果',
+            docs: '文档',
+            settings: '设置',
         },
         menu: {
             actions: {
@@ -685,6 +687,38 @@ export const zh_CN: LanguageTranslation = {
                 zoom_canvas: '缩放画布',
                 zoom_canvas_keys: '鼠标滚轮或工具栏控件',
             },
+        },
+
+        onboarding: {
+            title: '开始一个 SchemaFlow 图表',
+            description:
+                '先选择数据库，再选择导入、新建空白图表，还是浏览模板。',
+            database_heading: '数据库',
+            start_option_heading: '启动方式',
+            start_options: {
+                import: {
+                    title: '导入现有数据库',
+                    description:
+                        '从 SQL、DBML 或元数据开始，保存前可以先预览。',
+                },
+                blank: {
+                    title: '新建空白图表',
+                    description: '创建一个空白的本地图表，手动建模。',
+                },
+                template: {
+                    title: '浏览模板',
+                    description: '打开一个真实示例，克隆到你的工作区。',
+                },
+            },
+            no_database_selected: '未选择数据库',
+            selected_label: '已选择：{{label}}',
+            choose_database_error: '新建或导入图表前，请先选择数据库。',
+            choose_start_option_error: '请先选择启动方式。',
+            create_failed_error:
+                'SchemaFlow 未能创建图表，没有任何内容被保存，请重试。',
+            import_json_backup: '导入 JSON 备份',
+            continue: '下一步',
+            creating: '正在创建...',
         },
     },
 };

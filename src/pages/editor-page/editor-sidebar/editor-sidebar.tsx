@@ -164,7 +164,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = () => {
                 active: false,
             },
             {
-                title: 'Docs',
+                title: t('editor_sidebar.docs'),
                 icon: BookOpen,
                 onClick: () =>
                     safeOpenUrl(
@@ -173,13 +173,13 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = () => {
                 active: false,
             },
             {
-                title: 'Settings',
+                title: t('editor_sidebar.settings'),
                 icon: Settings,
                 onClick: () => openSettingsDialog(),
                 active: false,
             },
         ],
-        [openSettingsDialog]
+        [openSettingsDialog, t]
     );
 
     return (

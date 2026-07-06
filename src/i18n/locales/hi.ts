@@ -10,6 +10,8 @@ export const hi: LanguageTranslation = {
             dependencies: 'निर्भरताएं',
             custom_types: 'कस्टम टाइप',
             visuals: 'Visuals',
+            docs: 'Docs',
+            settings: 'Settings',
         },
         menu: {
             actions: {
@@ -705,6 +707,41 @@ export const hi: LanguageTranslation = {
                 zoom_canvas: 'Zoom canvas',
                 zoom_canvas_keys: 'Mouse wheel or toolbar controls',
             },
+        },
+
+        onboarding: {
+            title: 'Start a SchemaFlow diagram',
+            description:
+                'Pick the database first, then choose whether to import, start blank, or explore templates.',
+            database_heading: 'Database',
+            start_option_heading: 'Start option',
+            start_options: {
+                import: {
+                    title: 'Import existing database',
+                    description:
+                        'Start from SQL, DBML, or metadata and review it before saving.',
+                },
+                blank: {
+                    title: 'New blank diagram',
+                    description:
+                        'Create an empty local diagram for manual modeling.',
+                },
+                template: {
+                    title: 'Browse templates',
+                    description:
+                        'Open a realistic example and clone it into your workspace.',
+                },
+            },
+            no_database_selected: 'No database selected',
+            selected_label: 'Selected: {{label}}',
+            choose_database_error:
+                'Choose a database before creating or importing a diagram.',
+            choose_start_option_error: 'Choose how you want to start.',
+            create_failed_error:
+                'SchemaFlow could not create the diagram. Nothing was saved; try again.',
+            import_json_backup: 'Import JSON backup',
+            continue: 'Continue',
+            creating: 'Creating...',
         },
     },
 };
