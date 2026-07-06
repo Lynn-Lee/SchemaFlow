@@ -11,7 +11,7 @@ describe('i18n lazy loading', () => {
         );
 
         for (const language of languages) {
-            if (language.code === 'en') continue;
+            if (language.code === 'zh_CN') continue;
 
             expect(source).not.toContain(`from './locales/${language.code}'`);
         }

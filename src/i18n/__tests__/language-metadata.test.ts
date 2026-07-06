@@ -24,7 +24,6 @@ describe('language metadata', () => {
             'tr',
             'uk',
             'vi',
-            'zh_CN',
             'zh_TW',
         ]);
 

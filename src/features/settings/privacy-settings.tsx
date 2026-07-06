@@ -1,6 +1,7 @@
 import React from 'react';
 import { AlertTriangle, Database, KeyRound, Upload } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/button/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/alert/alert';
 import {
@@ -16,6 +17,7 @@ import {
 import { useDialog } from '@/hooks/use-dialog';
 import { useLocalConfig } from '@/hooks/use-local-config';
 import { useStorage } from '@/hooks/use-storage';
+import { i18n } from '@/i18n/i18n';
 import {
     getBYOKSessionKey,
     setBYOKSessionKey,
@@ -47,14 +49,15 @@ const readFileAsText = (file: File): Promise<string> =>
                 return;
             }
 
-            reject(new Error('Backup file could not be read.'));
+            reject(new Error(i18n.t('settings.privacy.read_failed_default')));
         };
         reader.onerror = () =>
-            reject(new Error('Backup file could not be read.'));
+            reject(new Error(i18n.t('settings.privacy.read_failed_default')));
         reader.readAsText(file);
     });
 
 export const PrivacySettings: React.FC = () => {
+    const { t } = useTranslation();
     const {
         localStorageAvailable,
         aiExportMode,
@@ -151,10 +154,10 @@ export const PrivacySettings: React.FC = () => {
             setClearError(
                 error instanceof Error
                     ? error.message
-                    : 'Local diagrams could not be deleted.'
+                    : t('settings.privacy.clear_failed_default')
             );
         }
-    }, [clearAllDiagrams]);
+    }, [clearAllDiagrams, t]);
 
     const handleRestoreBackupFileChange = React.useCallback(
         async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -180,11 +183,11 @@ export const PrivacySettings: React.FC = () => {
                 setRestoreError(
                     error instanceof Error
                         ? error.message
-                        : 'Backup file could not be previewed.'
+                        : t('settings.privacy.preview_failed_default')
                 );
             }
         },
-        []
+        [t]
     );
 
     const handleRestoreBackup = React.useCallback(async () => {
@@ -220,20 +223,21 @@ export const PrivacySettings: React.FC = () => {
             setRestoreError(
                 error instanceof Error
                     ? error.message
-                    : 'Backup file could not be restored.'
+                    : t('settings.privacy.restore_failed_default')
             );
         }
-    }, [addDiagram, navigate, restoreJson]);
+    }, [addDiagram, navigate, restoreJson, t]);
 
     return (
         <section className="grid gap-5" aria-labelledby="privacy-settings">
             {!localStorageAvailable ? (
                 <Alert>
                     <AlertTriangle className="size-4" />
-                    <AlertTitle>Session-only settings</AlertTitle>
+                    <AlertTitle>
+                        {t('settings.privacy.session_only_title')}
+                    </AlertTitle>
                     <AlertDescription>
-                        Browser settings are unavailable. Changes work for this
-                        session only.
+                        {t('settings.privacy.session_only_description')}
                     </AlertDescription>
                 </Alert>
             ) : null}
@@ -241,14 +245,16 @@ export const PrivacySettings: React.FC = () => {
             <div className="grid gap-3">
                 <div>
                     <h3 id="privacy-settings" className="text-sm font-semibold">
-                        AI mode
+                        {t('settings.privacy.ai_mode_heading')}
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                        Control whether SQL export can use AI assistance.
+                        {t('settings.privacy.ai_mode_description')}
                     </p>
                 </div>
                 <label className="grid gap-1 text-sm">
-                    <span className="font-medium">AI-assisted export mode</span>
+                    <span className="font-medium">
+                        {t('settings.privacy.ai_export_mode_label')}
+                    </span>
                     <select
                         className="h-9 rounded-md border border-input bg-background px-3 text-sm"
                         value={aiExportMode}
@@ -258,10 +264,14 @@ export const PrivacySettings: React.FC = () => {
                             )
                         }
                     >
-                        <option value="disabled">Disabled</option>
-                        <option value="byok-session">BYOK session</option>
+                        <option value="disabled">
+                            {t('settings.privacy.ai_export_mode_disabled')}
+                        </option>
+                        <option value="byok-session">
+                            {t('settings.privacy.ai_export_mode_byok')}
+                        </option>
                         <option value="self-hosted-gateway">
-                            Self-hosted gateway
+                            {t('settings.privacy.ai_export_mode_gateway')}
                         </option>
                     </select>
                 </label>
@@ -269,19 +279,18 @@ export const PrivacySettings: React.FC = () => {
                     <div className="grid gap-3 rounded-md border border-border p-3">
                         <Alert>
                             <KeyRound className="size-4" />
-                            <AlertTitle>Session-only BYOK</AlertTitle>
+                            <AlertTitle>
+                                {t('settings.privacy.byok_alert_title')}
+                            </AlertTitle>
                             <AlertDescription>
-                                <p>
-                                    Paste the API key only when exporting SQL.
-                                </p>
-                                <p>
-                                    BYOK keys are session-only and are never
-                                    saved.
-                                </p>
+                                <p>{t('settings.privacy.byok_alert_line_1')}</p>
+                                <p>{t('settings.privacy.byok_alert_line_2')}</p>
                             </AlertDescription>
                         </Alert>
                         <label className="grid gap-1 text-sm">
-                            <span className="font-medium">Session API key</span>
+                            <span className="font-medium">
+                                {t('settings.privacy.byok_session_key_label')}
+                            </span>
                             <input
                                 className="h-9 rounded-md border border-input bg-background px-3 text-sm"
                                 type="password"
@@ -291,21 +300,20 @@ export const PrivacySettings: React.FC = () => {
                                 placeholder="sk-..."
                             />
                             <span className="text-xs text-muted-foreground">
-                                Stored in memory only. Refreshing the page
-                                clears this key.
+                                {t('settings.privacy.byok_session_key_hint')}
                             </span>
                         </label>
                     </div>
                 ) : (
                     <p className="text-sm text-muted-foreground">
-                        BYOK keys are session-only and are never saved.
+                        {t('settings.privacy.byok_never_saved')}
                     </p>
                 )}
                 {aiExportMode === 'self-hosted-gateway' ? (
                     <div className="grid gap-3 rounded-md border border-border p-3">
                         <label className="grid gap-1 text-sm">
                             <span className="font-medium">
-                                Gateway endpoint
+                                {t('settings.privacy.gateway_endpoint_label')}
                             </span>
                             <input
                                 className="h-9 rounded-md border border-input bg-background px-3 text-sm"
@@ -332,14 +340,18 @@ export const PrivacySettings: React.FC = () => {
                             ) : null}
                         </label>
                         <label className="grid gap-1 text-sm">
-                            <span className="font-medium">Model name</span>
+                            <span className="font-medium">
+                                {t('settings.privacy.gateway_model_label')}
+                            </span>
                             <input
                                 className="h-9 rounded-md border border-input bg-background px-3 text-sm"
                                 value={aiGatewayModelName}
                                 onChange={(event) =>
                                     setAIGatewayModelName(event.target.value)
                                 }
-                                placeholder="Optional"
+                                placeholder={t(
+                                    'settings.privacy.gateway_model_placeholder'
+                                )}
                             />
                         </label>
                     </div>
@@ -348,11 +360,11 @@ export const PrivacySettings: React.FC = () => {
 
             <div className="grid gap-3">
                 <div>
-                    <h3 className="text-sm font-semibold">Data management</h3>
+                    <h3 className="text-sm font-semibold">
+                        {t('settings.privacy.data_management_heading')}
+                    </h3>
                     <p className="text-sm text-muted-foreground">
-                        SchemaFlow stores diagrams in this browser with
-                        IndexedDB and localStorage. No account or cloud
-                        workspace is required.
+                        {t('settings.privacy.data_management_description')}
                     </p>
                 </div>
                 <div className="grid gap-2 rounded-md border border-border p-3 sm:grid-cols-3">
@@ -362,7 +374,7 @@ export const PrivacySettings: React.FC = () => {
                         onClick={() => openExportDiagramDialog({})}
                     >
                         <Database className="mr-2 size-4" />
-                        Export diagram backup
+                        {t('settings.privacy.export_backup_button')}
                     </Button>
                     <Button
                         type="button"
@@ -370,7 +382,7 @@ export const PrivacySettings: React.FC = () => {
                         onClick={() => restoreFileInputRef.current?.click()}
                     >
                         <Upload className="mr-2 size-4" />
-                        Restore from backup
+                        {t('settings.privacy.restore_backup_button')}
                     </Button>
                     <input
                         ref={restoreFileInputRef}
@@ -378,7 +390,7 @@ export const PrivacySettings: React.FC = () => {
                         className="sr-only"
                         type="file"
                         accept=".json,application/json"
-                        aria-label="Backup file"
+                        aria-label={t('settings.privacy.backup_file_label')}
                         onChange={handleRestoreBackupFileChange}
                     />
                     <Button
@@ -387,54 +399,63 @@ export const PrivacySettings: React.FC = () => {
                         disabled={clearStatus === 'clearing'}
                         onClick={() => setClearDialogOpen(true)}
                     >
-                        Clear local diagrams
+                        {t('settings.privacy.clear_local_diagrams_button')}
                     </Button>
                 </div>
                 {restoreStatus === 'reading' ? (
                     <Alert>
                         <Upload className="size-4" />
-                        <AlertTitle>Reading backup</AlertTitle>
+                        <AlertTitle>
+                            {t('settings.privacy.reading_backup_title')}
+                        </AlertTitle>
                         <AlertDescription>
-                            SchemaFlow is building a restore preview.
+                            {t('settings.privacy.reading_backup_description')}
                         </AlertDescription>
                     </Alert>
                 ) : null}
                 {restoreStatus === 'success' ? (
                     <Alert>
                         <Database className="size-4" />
-                        <AlertTitle>Backup restored</AlertTitle>
+                        <AlertTitle>
+                            {t('settings.privacy.backup_restored_title')}
+                        </AlertTitle>
                         <AlertDescription>
-                            The selected backup has been restored as local
-                            diagram data.
+                            {t('settings.privacy.backup_restored_description')}
                         </AlertDescription>
                     </Alert>
                 ) : null}
                 {restoreStatus === 'error' ? (
                     <Alert variant="destructive">
                         <AlertTriangle className="size-4" />
-                        <AlertTitle>Could not restore backup</AlertTitle>
+                        <AlertTitle>
+                            {t('settings.privacy.restore_failed_title')}
+                        </AlertTitle>
                         <AlertDescription>
                             {restoreError ??
-                                'Backup file could not be restored.'}
+                                t('settings.privacy.restore_failed_default')}
                         </AlertDescription>
                     </Alert>
                 ) : null}
                 {clearStatus === 'success' ? (
                     <Alert>
                         <Database className="size-4" />
-                        <AlertTitle>Local diagrams cleared</AlertTitle>
+                        <AlertTitle>
+                            {t('settings.privacy.cleared_title')}
+                        </AlertTitle>
                         <AlertDescription>
-                            All local diagrams have been deleted.
+                            {t('settings.privacy.cleared_description')}
                         </AlertDescription>
                     </Alert>
                 ) : null}
                 {clearStatus === 'error' ? (
                     <Alert variant="destructive">
                         <AlertTriangle className="size-4" />
-                        <AlertTitle>Could not clear local diagrams</AlertTitle>
+                        <AlertTitle>
+                            {t('settings.privacy.clear_failed_title')}
+                        </AlertTitle>
                         <AlertDescription>
                             {clearError ??
-                                'Local diagrams could not be deleted.'}
+                                t('settings.privacy.clear_failed_default')}
                         </AlertDescription>
                     </Alert>
                 ) : null}
@@ -445,20 +466,17 @@ export const PrivacySettings: React.FC = () => {
                     <AlertDialogContent>
                         <AlertDialogHeader>
                             <AlertDialogTitle>
-                                Delete all local diagrams?
+                                {t('settings.privacy.clear_dialog_title')}
                             </AlertDialogTitle>
                             <AlertDialogDescription>
-                                This deletes every diagram stored in this
-                                browser, including tables, relationships, notes,
-                                areas, custom types, and filters. Export a
-                                backup first if you need to keep a copy.
+                                {t('settings.privacy.clear_dialog_description')}
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                             <AlertDialogCancel
                                 disabled={clearStatus === 'clearing'}
                             >
-                                Cancel
+                                {t('settings.privacy.cancel')}
                             </AlertDialogCancel>
                             <AlertDialogAction
                                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
@@ -469,8 +487,10 @@ export const PrivacySettings: React.FC = () => {
                                 }}
                             >
                                 {clearStatus === 'clearing'
-                                    ? 'Deleting...'
-                                    : 'Delete local diagrams'}
+                                    ? t('settings.privacy.deleting')
+                                    : t(
+                                          'settings.privacy.delete_local_diagrams'
+                                      )}
                             </AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>
@@ -482,21 +502,23 @@ export const PrivacySettings: React.FC = () => {
                     <AlertDialogContent>
                         <AlertDialogHeader>
                             <AlertDialogTitle>
-                                Restore backup preview?
+                                {t('settings.privacy.restore_dialog_title')}
                             </AlertDialogTitle>
                             <AlertDialogDescription>
-                                Review the diagrams in this backup before
-                                restoring them into local browser storage.
+                                {t(
+                                    'settings.privacy.restore_dialog_description'
+                                )}
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         {restoreSummary ? (
                             <div className="grid gap-3 text-sm">
                                 <p className="text-muted-foreground">
-                                    {restoreSummary.diagramCount}{' '}
-                                    {restoreSummary.diagramCount === 1
-                                        ? 'diagram'
-                                        : 'diagrams'}{' '}
-                                    in this backup.
+                                    {t(
+                                        restoreSummary.diagramCount === 1
+                                            ? 'settings.privacy.diagram_singular'
+                                            : 'settings.privacy.diagram_plural',
+                                        { count: restoreSummary.diagramCount }
+                                    )}
                                 </p>
                                 <ul className="grid max-h-48 gap-2 overflow-auto rounded-md border border-border p-3">
                                     {restoreSummary.diagrams.map(
@@ -509,18 +531,22 @@ export const PrivacySettings: React.FC = () => {
                                                     {diagram.name}
                                                 </span>
                                                 <span className="text-xs text-muted-foreground">
-                                                    {`${diagram.tableCount} ${
+                                                    {`${t(
                                                         diagram.tableCount === 1
-                                                            ? 'table'
-                                                            : 'tables'
-                                                    } · ${
-                                                        diagram.relationshipCount
-                                                    } ${
+                                                            ? 'settings.privacy.table_singular'
+                                                            : 'settings.privacy.table_plural',
+                                                        {
+                                                            count: diagram.tableCount,
+                                                        }
+                                                    )} · ${t(
                                                         diagram.relationshipCount ===
-                                                        1
-                                                            ? 'relationship'
-                                                            : 'relationships'
-                                                    }`}
+                                                            1
+                                                            ? 'settings.privacy.relationship_singular'
+                                                            : 'settings.privacy.relationship_plural',
+                                                        {
+                                                            count: diagram.relationshipCount,
+                                                        }
+                                                    )}`}
                                                 </span>
                                             </li>
                                         )
@@ -532,7 +558,7 @@ export const PrivacySettings: React.FC = () => {
                             <AlertDialogCancel
                                 disabled={restoreStatus === 'restoring'}
                             >
-                                Cancel
+                                {t('settings.privacy.cancel')}
                             </AlertDialogCancel>
                             <AlertDialogAction
                                 disabled={restoreStatus === 'restoring'}
@@ -542,8 +568,10 @@ export const PrivacySettings: React.FC = () => {
                                 }}
                             >
                                 {restoreStatus === 'restoring'
-                                    ? 'Restoring...'
-                                    : 'Restore backup'}
+                                    ? t('settings.privacy.restoring')
+                                    : t(
+                                          'settings.privacy.restore_backup_action'
+                                      )}
                             </AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>

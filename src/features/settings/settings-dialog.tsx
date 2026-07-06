@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import type { BaseDialogProps } from '@/dialogs/common/base-dialog-props';
 import {
     Dialog,
@@ -15,6 +16,7 @@ import { KeyboardShortcutsSettings } from './keyboard-shortcuts-settings';
 export interface SettingsDialogProps extends BaseDialogProps {}
 
 export const SettingsDialog: React.FC<SettingsDialogProps> = ({ dialog }) => {
+    const { t } = useTranslation();
     const { closeSettingsDialog } = useDialog();
 
     return (
@@ -31,10 +33,9 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ dialog }) => {
                 showClose
             >
                 <DialogHeader className="border-b border-border px-6 py-5">
-                    <DialogTitle>Settings</DialogTitle>
+                    <DialogTitle>{t('settings.dialog.title')}</DialogTitle>
                     <DialogDescription>
-                        Manage local editor preferences, AI export mode, and
-                        browser-stored diagram data.
+                        {t('settings.dialog.description')}
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-6 overflow-y-auto px-6 py-5 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">

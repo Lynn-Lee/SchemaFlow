@@ -610,6 +610,100 @@ export const ja: LanguageTranslation = {
 
         on: 'オン',
         off: 'オフ',
+
+        settings: {
+            dialog: {
+                title: 'Settings',
+                description:
+                    'Manage local editor preferences, AI export mode, and browser-stored diagram data.',
+            },
+            display: {
+                heading: 'Display',
+                description: 'Keep editor preferences in this browser.',
+                theme: 'Theme',
+                theme_system: 'System',
+                theme_light: 'Light',
+                theme_dark: 'Dark',
+                language: 'Language',
+                show_minimap: 'Show mini map',
+                show_field_attributes: 'Show field attributes',
+                scroll_action: 'Canvas scroll action',
+                scroll_action_pan: 'Pan canvas',
+                scroll_action_zoom: 'Zoom canvas',
+            },
+            privacy: {
+                session_only_title: 'Session-only settings',
+                session_only_description:
+                    'Browser settings are unavailable. Changes work for this session only.',
+                ai_mode_heading: 'AI mode',
+                ai_mode_description:
+                    'Control whether SQL export can use AI assistance.',
+                ai_export_mode_label: 'AI-assisted export mode',
+                ai_export_mode_disabled: 'Disabled',
+                ai_export_mode_byok: 'BYOK session',
+                ai_export_mode_gateway: 'Self-hosted gateway',
+                byok_alert_title: 'Session-only BYOK',
+                byok_alert_line_1: 'Paste the API key only when exporting SQL.',
+                byok_alert_line_2:
+                    'BYOK keys are session-only and are never saved.',
+                byok_never_saved:
+                    'BYOK keys are session-only and are never saved.',
+                byok_session_key_label: 'Session API key',
+                byok_session_key_hint:
+                    'Stored in memory only. Refreshing the page clears this key.',
+                gateway_endpoint_label: 'Gateway endpoint',
+                gateway_model_label: 'Model name',
+                gateway_model_placeholder: 'Optional',
+                data_management_heading: 'Data management',
+                data_management_description:
+                    'SchemaFlow stores diagrams in this browser with IndexedDB and localStorage. No account or cloud workspace is required.',
+                export_backup_button: 'Export diagram backup',
+                restore_backup_button: 'Restore from backup',
+                backup_file_label: 'Backup file',
+                clear_local_diagrams_button: 'Clear local diagrams',
+                reading_backup_title: 'Reading backup',
+                reading_backup_description:
+                    'SchemaFlow is building a restore preview.',
+                backup_restored_title: 'Backup restored',
+                backup_restored_description:
+                    'The selected backup has been restored as local diagram data.',
+                restore_failed_title: 'Could not restore backup',
+                restore_failed_default: 'Backup file could not be restored.',
+                preview_failed_default: 'Backup file could not be previewed.',
+                read_failed_default: 'Backup file could not be read.',
+                cleared_title: 'Local diagrams cleared',
+                cleared_description: 'All local diagrams have been deleted.',
+                clear_failed_title: 'Could not clear local diagrams',
+                clear_failed_default: 'Local diagrams could not be deleted.',
+                clear_dialog_title: 'Delete all local diagrams?',
+                clear_dialog_description:
+                    'This deletes every diagram stored in this browser, including tables, relationships, notes, areas, custom types, and filters. Export a backup first if you need to keep a copy.',
+                cancel: 'Cancel',
+                deleting: 'Deleting...',
+                delete_local_diagrams: 'Delete local diagrams',
+                restore_dialog_title: 'Restore backup preview?',
+                restore_dialog_description:
+                    'Review the diagrams in this backup before restoring them into local browser storage.',
+                diagram_singular: '{{count}} diagram in this backup.',
+                diagram_plural: '{{count}} diagrams in this backup.',
+                table_singular: '{{count}} table',
+                table_plural: '{{count}} tables',
+                relationship_singular: '{{count}} relationship',
+                relationship_plural: '{{count}} relationships',
+                restoring: 'Restoring...',
+                restore_backup_action: 'Restore backup',
+            },
+            keyboard: {
+                heading: 'Keyboard shortcuts',
+                description:
+                    'Core editor paths remain available without pointer-only controls.',
+                undo: 'Undo diagram change',
+                redo: 'Redo diagram change',
+                command_actions: 'Open command actions',
+                zoom_canvas: 'Zoom canvas',
+                zoom_canvas_keys: 'Mouse wheel or toolbar controls',
+            },
+        },
     },
 };
 

@@ -1,8 +1,10 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocalConfig } from '@/hooks/use-local-config';
 import { languages, i18n } from '@/i18n/i18n';
 
 export const DisplaySettings: React.FC = () => {
+    const { t } = useTranslation();
     const {
         theme,
         setTheme,
@@ -13,20 +15,22 @@ export const DisplaySettings: React.FC = () => {
         scrollAction,
         setScrollAction,
     } = useLocalConfig();
-    const language = i18n.resolvedLanguage ?? i18n.language ?? 'en';
+    const language = i18n.resolvedLanguage ?? i18n.language ?? 'zh_CN';
 
     return (
         <section className="grid gap-4" aria-labelledby="display-settings">
             <div>
                 <h3 id="display-settings" className="text-sm font-semibold">
-                    Display
+                    {t('settings.display.heading')}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                    Keep editor preferences in this browser.
+                    {t('settings.display.description')}
                 </p>
             </div>
             <label className="grid gap-1 text-sm">
-                <span className="font-medium">Theme</span>
+                <span className="font-medium">
+                    {t('settings.display.theme')}
+                </span>
                 <select
                     className="h-9 rounded-md border border-input bg-background px-3 text-sm"
                     value={theme}
@@ -34,13 +38,21 @@ export const DisplaySettings: React.FC = () => {
                         setTheme(event.target.value as typeof theme)
                     }
                 >
-                    <option value="system">System</option>
-                    <option value="light">Light</option>
-                    <option value="dark">Dark</option>
+                    <option value="system">
+                        {t('settings.display.theme_system')}
+                    </option>
+                    <option value="light">
+                        {t('settings.display.theme_light')}
+                    </option>
+                    <option value="dark">
+                        {t('settings.display.theme_dark')}
+                    </option>
                 </select>
             </label>
             <label className="grid gap-1 text-sm">
-                <span className="font-medium">Language</span>
+                <span className="font-medium">
+                    {t('settings.display.language')}
+                </span>
                 <select
                     className="h-9 rounded-md border border-input bg-background px-3 text-sm"
                     value={language}
@@ -56,7 +68,9 @@ export const DisplaySettings: React.FC = () => {
                 </select>
             </label>
             <label className="flex items-center justify-between gap-3 text-sm">
-                <span className="font-medium">Show mini map</span>
+                <span className="font-medium">
+                    {t('settings.display.show_minimap')}
+                </span>
                 <input
                     type="checkbox"
                     checked={showMiniMapOnCanvas}
@@ -66,7 +80,9 @@ export const DisplaySettings: React.FC = () => {
                 />
             </label>
             <label className="flex items-center justify-between gap-3 text-sm">
-                <span className="font-medium">Show field attributes</span>
+                <span className="font-medium">
+                    {t('settings.display.show_field_attributes')}
+                </span>
                 <input
                     type="checkbox"
                     checked={showFieldAttributes}
@@ -76,7 +92,9 @@ export const DisplaySettings: React.FC = () => {
                 />
             </label>
             <label className="grid gap-1 text-sm">
-                <span className="font-medium">Canvas scroll action</span>
+                <span className="font-medium">
+                    {t('settings.display.scroll_action')}
+                </span>
                 <select
                     className="h-9 rounded-md border border-input bg-background px-3 text-sm"
                     value={scrollAction}
@@ -86,8 +104,12 @@ export const DisplaySettings: React.FC = () => {
                         )
                     }
                 >
-                    <option value="pan">Pan canvas</option>
-                    <option value="zoom">Zoom canvas</option>
+                    <option value="pan">
+                        {t('settings.display.scroll_action_pan')}
+                    </option>
+                    <option value="zoom">
+                        {t('settings.display.scroll_action_zoom')}
+                    </option>
                 </select>
             </label>
         </section>

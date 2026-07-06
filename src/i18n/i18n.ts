@@ -3,9 +3,9 @@ import type { BackendModule, ReadCallback } from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { initReactI18next } from 'react-i18next';
 import type { LanguageMetadata, LanguageTranslation } from './types';
-import { en } from './locales/en';
+import { zh_CN } from './locales/zh_CN';
 
-const fallbackLanguageCode = 'en';
+const fallbackLanguageCode = 'zh_CN';
 
 const experimentalLanguageCodes = new Set([
     'ar',
@@ -26,7 +26,6 @@ const experimentalLanguageCodes = new Set([
     'tr',
     'uk',
     'vi',
-    'zh_CN',
     'zh_TW',
 ]);
 
@@ -74,6 +73,7 @@ const localeLoaders: Record<string, () => Promise<LanguageTranslation>> = {
     ar: () => import('./locales/ar').then((module) => module.ar),
     bn: () => import('./locales/bn').then((module) => module.bn),
     de: () => import('./locales/de').then((module) => module.de),
+    en: () => import('./locales/en').then((module) => module.en),
     es: () => import('./locales/es').then((module) => module.es),
     fr: () => import('./locales/fr').then((module) => module.fr),
     gu: () => import('./locales/gu').then((module) => module.gu),
@@ -90,7 +90,6 @@ const localeLoaders: Record<string, () => Promise<LanguageTranslation>> = {
     tr: () => import('./locales/tr').then((module) => module.tr),
     uk: () => import('./locales/uk').then((module) => module.uk),
     vi: () => import('./locales/vi').then((module) => module.vi),
-    zh_CN: () => import('./locales/zh_CN').then((module) => module.zh_CN),
     zh_TW: () => import('./locales/zh_TW').then((module) => module.zh_TW),
 };
 
@@ -104,7 +103,7 @@ const lazyLocaleBackend: BackendModule = {
         }
 
         if (language === fallbackLanguageCode) {
-            callback(null, en.translation);
+            callback(null, zh_CN.translation);
             return;
         }
 
@@ -133,7 +132,7 @@ i18n.use(lazyLocaleBackend)
     .use(initReactI18next)
     .init({
         resources: {
-            en,
+            zh_CN,
         },
         partialBundledLanguages: true,
         supportedLngs: languages.map((language) => language.code),
@@ -143,6 +142,14 @@ i18n.use(lazyLocaleBackend)
             escapeValue: false,
         },
         fallbackLng: fallbackLanguageCode,
+        // Only an explicit choice (query string or a previously saved
+        // preference) overrides the default. Browser/OS language
+        // ('navigator', 'htmlTag') is intentionally excluded so every
+        // first-time visitor sees Chinese regardless of locale.
+        detection: {
+            order: ['querystring', 'localStorage'],
+            caches: ['localStorage'],
+        },
         debug: false,
     });
 
