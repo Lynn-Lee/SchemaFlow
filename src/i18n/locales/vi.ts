@@ -509,7 +509,7 @@ export const vi: LanguageTranslation = {
             error: {
                 title: 'Lỗi khi xuất sơ đồ',
                 description:
-                    'Có gì đó không ổn. Cần trợ giúp? support@schemaflow.io',
+                    'Có gì đó không ổn. Cần trợ giúp? https://github.com/Lynn-Lee/SchemaFlow/issues',
             },
         },
 
@@ -521,7 +521,7 @@ export const vi: LanguageTranslation = {
             error: {
                 title: 'Lỗi khi nhập sơ đồ',
                 description:
-                    'Sơ đồ ở dạng JSON không hợp lệ. Vui lòng kiểm tra JSON và thử lại. Bạn cần trợ giúp? support@schemaflow.io',
+                    'Sơ đồ ở dạng JSON không hợp lệ. Vui lòng kiểm tra JSON và thử lại. Bạn cần trợ giúp? https://github.com/Lynn-Lee/SchemaFlow/issues',
             },
         },
         import_dbml_dialog: {

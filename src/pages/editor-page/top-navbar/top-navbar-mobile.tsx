@@ -36,7 +36,7 @@ export const TopNavbarMobile: React.FC<TopNavbarMobileProps> = () => {
                             <MenuIcon className="size-5" />
                         </Button>
                         <a
-                            href="https://schemaflow.io"
+                            href="https://github.com/Lynn-Lee/SchemaFlow"
                             className="cursor-pointer"
                             rel="noreferrer"
                         >

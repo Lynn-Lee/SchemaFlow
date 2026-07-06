@@ -6,8 +6,8 @@ import {
 } from './domain/diagram';
 import { generateDiagramId } from './browser-utils';
 import {
-    SCHEMAFLOW_BACKUP_FORMAT,
     createSchemaFlowBackup,
+    isSupportedSchemaFlowBackupFormat,
     parseSchemaFlowBackup,
     restoreDiagramFromBackup,
 } from '@/storage/backup';
@@ -83,7 +83,7 @@ export const diagramFromJSONInput = (json: string): Diagram => {
         typeof loadedDiagram === 'object' &&
         loadedDiagram !== null &&
         'format' in loadedDiagram &&
-        loadedDiagram.format === SCHEMAFLOW_BACKUP_FORMAT
+        isSupportedSchemaFlowBackupFormat(loadedDiagram.format)
     ) {
         return restoreDiagramFromBackup({
             backup: parseSchemaFlowBackup(json),

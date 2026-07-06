@@ -102,7 +102,7 @@ export const Menu: React.FC<MenuProps> = () => {
     }, [openExportImageDialog]);
 
     const openSchemaFlowDocs = useCallback(() => {
-        safeOpenUrl('https://docs.schemaflow.io');
+        safeOpenUrl('https://github.com/Lynn-Lee/SchemaFlow/tree/main/docs');
     }, []);
 
     const openJoinDiscord = useCallback(() => {

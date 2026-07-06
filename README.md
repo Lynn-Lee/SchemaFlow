@@ -1,9 +1,9 @@
 <h1 align="center">
-  <a href="https://schemaflow.io#gh-light-mode-only">
-    <img src="https://github.com/schemaflow/schemaflow/blob/main/src/assets/logo-light.png" width="400" height="70" alt="SchemaFlow">
+  <a href="https://github.com/Lynn-Lee/SchemaFlow#gh-light-mode-only">
+    <img src="https://github.com/Lynn-Lee/SchemaFlow/blob/main/src/assets/logo-light.png" width="400" height="70" alt="SchemaFlow">
   </a>
-  <a href="https://schemaflow.io##gh-dark-mode-only">
-    <img src="https://github.com/schemaflow/schemaflow/blob/main/src/assets/logo-dark.png" width="400" height="70" alt="SchemaFlow">
+  <a href="https://github.com/Lynn-Lee/SchemaFlow##gh-dark-mode-only">
+    <img src="https://github.com/Lynn-Lee/SchemaFlow/blob/main/src/assets/logo-dark.png" width="400" height="70" alt="SchemaFlow">
   </a>
   <br>
 </h1>
@@ -15,16 +15,16 @@
 
 <h3 align="center">
   <a href="https://discord.gg/QeFwyWSKwC">Community</a>  &bull;
-  <a href="https://www.schemaflow.io?ref=github_readme">Website</a>  &bull;
-  <a href="https://schemaflow.io/templates?ref=github_readme">Examples</a>  &bull;
-  <a href="https://app.schemaflow.io?ref=github_readme">Demo</a>
+  <a href="https://github.com/Lynn-Lee/SchemaFlow?ref=github_readme">Website</a>  &bull;
+  <a href="https://github.com/Lynn-Lee/SchemaFlow/tree/main/src/templates-data/templates">Examples</a>  &bull;
+  <a href="https://github.com/Lynn-Lee/SchemaFlow?ref=github_readme">Demo</a>
 </h3>
 
 <h4 align="center">
-  <a href="https://github.com/schemaflow/schemaflow?tab=AGPL-3.0-1-ov-file#readme">
-    <img src="https://img.shields.io/github/license/schemaflow/schemaflow?color=blue" alt="SchemaFlow is released under the AGPL license." />
+  <a href="https://github.com/Lynn-Lee/SchemaFlow?tab=AGPL-3.0-1-ov-file#readme">
+    <img src="https://img.shields.io/github/license/Lynn-Lee/SchemaFlow?color=blue" alt="SchemaFlow is released under the AGPL license." />
   </a>
-  <a href="https://github.com/schemaflow/schemaflow/blob/main/CONTRIBUTING.md">
+  <a href="https://github.com/Lynn-Lee/SchemaFlow/blob/main/CONTRIBUTING.md">
     <img src="https://img.shields.io/badge/PRs-Welcome-brightgreen" alt="PRs welcome!" />
   </a>
   <a href="https://discord.gg/QeFwyWSKwC">
@@ -73,7 +73,7 @@ SchemaFlow is currently in Public Beta. Star and watch this repository to get no
 
 ## Getting Started
 
-Use the [cloud version](https://app.schemaflow.io?ref=github_readme_2) or deploy locally:
+Use the [cloud version](https://github.com/Lynn-Lee/SchemaFlow?ref=github_readme_2) or deploy locally:
 
 ### How To Use
 
@@ -151,7 +151,7 @@ VITE_LLM_MODEL_NAME=Qwen/Qwen2.5-32B-Instruct-AWQ
 
 ## Try it on our website
 
-1. Go to [SchemaFlow.io](https://schemaflow.io?ref=github_readme_2)
+1. Go to [SchemaFlow.io](https://github.com/Lynn-Lee/SchemaFlow?ref=github_readme_2)
 2. Click "Go to app"
 3. Choose the database that you are using.
 4. Take the magic query and run it in your database.
@@ -161,7 +161,7 @@ VITE_LLM_MODEL_NAME=Qwen/Qwen2.5-32B-Instruct-AWQ
 ## 💚 Community & Support
 
 - [Discord](https://discord.gg/QeFwyWSKwC) (For live discussion with the community and the SchemaFlow team)
-- [GitHub Issues](https://github.com/schemaflow/schemaflow/issues) (For any bugs and errors you encounter using SchemaFlow)
+- [GitHub Issues](https://github.com/Lynn-Lee/SchemaFlow/issues) (For any bugs and errors you encounter using SchemaFlow)
 - [Twitter](https://x.com/intent/follow?screen_name=jonathanfishner) (Get news fast)
 
 ## Contributing

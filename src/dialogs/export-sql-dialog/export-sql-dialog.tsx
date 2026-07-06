@@ -204,7 +204,7 @@ export const ExportSQLDialog: React.FC<ExportSQLDialogProps> = ({
                             components={[
                                 <a
                                     key={0}
-                                    href="mailto:support@schemaflow.io"
+                                    href="https://github.com/Lynn-Lee/SchemaFlow/issues"
                                     target="_blank"
                                     className="text-pink-600 hover:underline"
                                     rel="noreferrer"
@@ -218,7 +218,7 @@ export const ExportSQLDialog: React.FC<ExportSQLDialogProps> = ({
                             components={[
                                 <a
                                     key={0}
-                                    href="https://github.com/schemaflow/schemaflow"
+                                    href="https://github.com/Lynn-Lee/SchemaFlow/issues"
                                     target="_blank"
                                     rel="noreferrer"
                                     className="text-pink-600 hover:underline"

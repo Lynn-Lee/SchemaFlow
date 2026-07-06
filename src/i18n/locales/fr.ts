@@ -512,7 +512,7 @@ export const fr: LanguageTranslation = {
             error: {
                 title: "Erreur lors de l'exportation du diagramme",
                 description:
-                    "Une erreur s'est produite. Besoin d'aide ? support@schemaflow.io",
+                    "Une erreur s'est produite. Besoin d'aide ? https://github.com/Lynn-Lee/SchemaFlow/issues",
             },
         },
         import_diagram_dialog: {
@@ -523,7 +523,7 @@ export const fr: LanguageTranslation = {
             error: {
                 title: "Erreur lors de l'exportation du diagramme",
                 description:
-                    "Le diagramme JSON n'est pas valide. Veuillez vérifier le JSON et réessayer. Besoin d'aide ? support@schemaflow.io",
+                    "Le diagramme JSON n'est pas valide. Veuillez vérifier le JSON et réessayer. Besoin d'aide ? https://github.com/Lynn-Lee/SchemaFlow/issues",
             },
         },
         import_dbml_dialog: {

@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
+    LEGACY_CHARTDB_DATABASE_NAME,
     SCHEMAFLOW_DATABASE_NAME,
     SCHEMAFLOW_SCHEMA_VERSION,
     SCHEMAFLOW_STORE_NAMES,
     createSchemaFlowDexie,
+    migrateLegacyChartDBStores,
 } from '../schemaflow-dexie';
 
 describe('SchemaFlow Dexie database definition', () => {
@@ -36,5 +38,33 @@ describe('SchemaFlow Dexie database definition', () => {
             'diagram_filters',
             'notes',
         ]);
+    });
+
+    it('copies rows from a legacy ChartDB database into an empty SchemaFlow database', async () => {
+        const legacyRows = [{ id: 'diagram-1', name: 'Legacy diagram' }];
+        const copiedRows: unknown[] = [];
+
+        const legacyDb = {
+            table: () => ({
+                toArray: async () => legacyRows,
+            }),
+        };
+        const schemaFlowDb = {
+            table: () => ({
+                count: async () => 0,
+                bulkPut: async (rows: unknown[]) => {
+                    copiedRows.push(...rows);
+                },
+            }),
+        };
+
+        await migrateLegacyChartDBStores({
+            legacyDb,
+            schemaFlowDb,
+            storeNames: ['diagrams'],
+        });
+
+        expect(LEGACY_CHARTDB_DATABASE_NAME).toBe('ChartDB');
+        expect(copiedRows).toEqual(legacyRows);
     });
 });

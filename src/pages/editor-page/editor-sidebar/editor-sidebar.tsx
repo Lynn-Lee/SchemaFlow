@@ -166,7 +166,10 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = () => {
             {
                 title: 'Docs',
                 icon: BookOpen,
-                onClick: () => safeOpenUrl('https://docs.schemaflow.io'),
+                onClick: () =>
+                    safeOpenUrl(
+                        'https://github.com/Lynn-Lee/SchemaFlow/tree/main/docs'
+                    ),
                 active: false,
             },
             {
@@ -189,7 +192,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = () => {
             {!isDesktop ? (
                 <SidebarHeader>
                     <a
-                        href="https://schemaflow.io"
+                        href="https://github.com/Lynn-Lee/SchemaFlow"
                         className="cursor-pointer"
                         rel="noreferrer"
                     >

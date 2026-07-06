@@ -15,6 +15,9 @@ const showDBViewsKey = 'show_db_views';
 const aiExportModeKey = 'schemaflow.ai.mode';
 const aiGatewayEndpointKey = 'schemaflow.ai.gateway.endpoint';
 const aiGatewayModelNameKey = 'schemaflow.ai.gateway.model';
+const legacyAIExportModeKey = 'chartdb.ai.mode';
+const legacyAIGatewayEndpointKey = 'chartdb.ai.gateway.endpoint';
+const legacyAIGatewayModelNameKey = 'chartdb.ai.gateway.model';
 
 const safeGetItem = (key: string): string | null => {
     try {
@@ -30,6 +33,18 @@ const safeSetItem = (key: string, value: string) => {
     } catch {
         // Settings still work in memory for this session.
     }
+};
+
+const safeGetMigratedItem = (key: string, legacyKey: string): string | null => {
+    const value = safeGetItem(key);
+    if (value !== null) return value;
+
+    const legacyValue = safeGetItem(legacyKey);
+    if (legacyValue !== null) {
+        safeSetItem(key, legacyValue);
+    }
+
+    return legacyValue;
 };
 
 const canUseLocalStorage = () => {
@@ -84,16 +99,26 @@ export const LocalConfigProvider: React.FC<React.PropsWithChildren> = ({
         );
 
     const [aiExportMode, setAIExportMode] = React.useState<LocalAIExportMode>(
-        (safeGetItem(aiExportModeKey) as LocalAIExportMode) || 'disabled'
+        (safeGetMigratedItem(
+            aiExportModeKey,
+            legacyAIExportModeKey
+        ) as LocalAIExportMode) || 'disabled'
     );
     const [aiGatewayEndpoint, setAIGatewayEndpoint] = React.useState(() => {
-        const storedEndpoint = safeGetItem(aiGatewayEndpointKey) || '';
+        const storedEndpoint =
+            safeGetMigratedItem(
+                aiGatewayEndpointKey,
+                legacyAIGatewayEndpointKey
+            ) || '';
         return validateGatewayEndpoint(storedEndpoint)
             ? ''
             : storedEndpoint.trim();
     });
     const [aiGatewayModelName, setAIGatewayModelName] = React.useState(
-        safeGetItem(aiGatewayModelNameKey) || ''
+        safeGetMigratedItem(
+            aiGatewayModelNameKey,
+            legacyAIGatewayModelNameKey
+        ) || ''
     );
 
     const setValidatedAIGatewayEndpoint = React.useCallback(

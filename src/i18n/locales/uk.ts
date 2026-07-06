@@ -511,7 +511,7 @@ export const uk: LanguageTranslation = {
             error: {
                 title: 'Помилка експорут діаграми',
                 description:
-                    'Щось пішло не так. Потрібна допомога? support@schemaflow.io',
+                    'Щось пішло не так. Потрібна допомога? https://github.com/Lynn-Lee/SchemaFlow/issues',
             },
         },
         import_diagram_dialog: {
@@ -522,7 +522,7 @@ export const uk: LanguageTranslation = {
             error: {
                 title: 'Помилка імпорту діаграми',
                 description:
-                    'JSON діаграми є неправильним. Будь ласка, перевірте JSON і спробуйте ще раз. Потрібна допомога? support@schemaflow.io',
+                    'JSON діаграми є неправильним. Будь ласка, перевірте JSON і спробуйте ще раз. Потрібна допомога? https://github.com/Lynn-Lee/SchemaFlow/issues',
             },
         },
         import_dbml_dialog: {

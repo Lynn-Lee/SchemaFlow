@@ -27,4 +27,16 @@ describe('browser API key exposure guardrails', () => {
         expect(sqlExport).not.toContain(aiSdkImport);
         expect(sqlExport).not.toContain(openAISdkPackage);
     });
+
+    it('keeps legacy ChartDB cloud-hide env vars as compatibility fallbacks only', () => {
+        const dockerfile = readProjectFile('Dockerfile');
+        const entrypoint = readProjectFile('entrypoint.sh');
+        const nginxConfig = readProjectFile('default.conf.template');
+        const envModule = readProjectFile('src/lib/env.ts');
+
+        expect(dockerfile).toContain('ARG VITE_HIDE_CHARTDB_CLOUD');
+        expect(entrypoint).toContain('HIDE_CHARTDB_CLOUD');
+        expect(nginxConfig).toContain('HIDE_SCHEMAFLOW_CLOUD');
+        expect(envModule).toContain('VITE_HIDE_CHARTDB_CLOUD');
+    });
 });

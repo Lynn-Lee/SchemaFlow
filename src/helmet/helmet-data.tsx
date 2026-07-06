@@ -18,9 +18,12 @@ export const HelmetData: React.FC = () => (
         />
         <meta
             property="og:image"
-            content="https://app.schemaflow.io/schemaflow.png"
+            content="https://github.com/Lynn-Lee/SchemaFlow/raw/main/public/schemaflow.png"
         />
-        <meta property="og:url" content="https://app.schemaflow.io" />
+        <meta
+            property="og:url"
+            content="https://github.com/Lynn-Lee/SchemaFlow"
+        />
         <meta name="twitter:card" content="summary_large_image" />
         <meta
             name="twitter:title"
@@ -32,7 +35,7 @@ export const HelmetData: React.FC = () => (
         />
         <meta
             name="twitter:image"
-            content="https://github.com/schemaflow/schemaflow/raw/main/public/schemaflow.png"
+            content="https://github.com/Lynn-Lee/SchemaFlow/raw/main/public/schemaflow.png"
         />
         <title>SchemaFlow - Database schema diagrams visualizer</title>
     </Helmet>

@@ -167,6 +167,19 @@ describe('CanvasControls', () => {
         ).not.toBeInTheDocument();
     });
 
+    it('keeps the mobile canvas notice hidden for legacy ChartDB dismissals', () => {
+        localStorage.setItem('chartdb.mobileCanvasNoticeDismissed', 'true');
+
+        renderControls({ isDesktop: false });
+
+        expect(
+            screen.queryByText('canvas.mobile_notice.title')
+        ).not.toBeInTheDocument();
+        expect(
+            localStorage.getItem('schemaflow.mobileCanvasNoticeDismissed')
+        ).toBe('true');
+    });
+
     it('does not show the mobile canvas notice on desktop viewports', () => {
         renderControls({ isDesktop: true });
 

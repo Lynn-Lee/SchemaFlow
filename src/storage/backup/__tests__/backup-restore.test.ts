@@ -194,4 +194,21 @@ describe('SchemaFlow backup restore format', () => {
 
         expect(parse).toThrow(/diagram count/i);
     });
+
+    it('accepts legacy ChartDB backup files during the rename transition', () => {
+        const backup = parseSchemaFlowBackup(
+            JSON.stringify({
+                format: 'chartdb.backup',
+                schemaVersion: CURRENT_SCHEMAFLOW_BACKUP_FORMAT_VERSION,
+                createdAt: '2026-07-01T12:00:00.000Z',
+                source: 'chartdb-local',
+                diagramCount: 1,
+                diagrams: [createDiagram()],
+            })
+        );
+
+        expect(backup.format).toBe('schemaflow.backup');
+        expect(backup.source).toBe('schemaflow-local');
+        expect(backup.diagrams).toHaveLength(1);
+    });
 });

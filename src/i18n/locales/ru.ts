@@ -514,7 +514,7 @@ export const ru: LanguageTranslation = {
             error: {
                 title: 'Ошибка экспортирования диаграммы',
                 description:
-                    'Что-то пошло не так. Если вам нужна помощь, напишите нам: support@schemaflow.io',
+                    'Что-то пошло не так. Если вам нужна помощь, напишите нам: https://github.com/Lynn-Lee/SchemaFlow/issues',
             },
         },
         import_diagram_dialog: {
@@ -525,7 +525,7 @@ export const ru: LanguageTranslation = {
             error: {
                 title: 'Ошибка при импорте диаграммы',
                 description:
-                    'Код JSON диаграммы некорректен. Проверьте, пожалуйста, код и попробуйте снова. Проблема не решается? Напишите нам: support@schemaflow.io',
+                    'Код JSON диаграммы некорректен. Проверьте, пожалуйста, код и попробуйте снова. Проблема не решается? Напишите нам: https://github.com/Lynn-Lee/SchemaFlow/issues',
             },
         },
         import_dbml_dialog: {

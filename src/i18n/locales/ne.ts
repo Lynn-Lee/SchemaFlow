@@ -512,7 +512,7 @@ export const ne: LanguageTranslation = {
             error: {
                 title: 'Error exporting diagram',
                 description:
-                    'Something went wrong. Need help? support@schemaflow.io',
+                    'Something went wrong. Need help? https://github.com/Lynn-Lee/SchemaFlow/issues',
             },
         },
 
@@ -524,7 +524,7 @@ export const ne: LanguageTranslation = {
             error: {
                 title: 'डायाग्राम आयात गर्दा समस्या आयो',
                 description:
-                    'डायाग्राम JSON अमान्य छ। कृपया JSON जाँच गर्नुहोस् र पुन: प्रयास गर्नुहोस्। मद्दत चाहिन्छ? support@schemaflow.io मा सम्पर्क गर्नुहोस्',
+                    'डायाग्राम JSON अमान्य छ। कृपया JSON जाँच गर्नुहोस् र पुन: प्रयास गर्नुहोस्। मद्दत चाहिन्छ? https://github.com/Lynn-Lee/SchemaFlow/issues मा सम्पर्क गर्नुहोस्',
             },
         },
         import_dbml_dialog: {

@@ -30,7 +30,7 @@ export const StarUsDialog: React.FC<StarUsDialogProps> = ({ dialog }) => {
 
     const handleConfirm = useCallback(() => {
         setGithubRepoOpened(true);
-        safeOpenUrl('https://github.com/schemaflow/schemaflow');
+        safeOpenUrl('https://github.com/Lynn-Lee/SchemaFlow');
     }, [setGithubRepoOpened]);
 
     return (

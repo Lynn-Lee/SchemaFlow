@@ -66,14 +66,14 @@ describe('NoteNode markdown safety', () => {
 
     it('keeps safe links and blocks dangerous link protocols', () => {
         renderNote(`
-[safe](https://schemaflow.io)
+[safe](https://github.com/Lynn-Lee/SchemaFlow)
 [email](mailto:security@example.com)
 [bad](javascript:alert(1))
 `);
 
         expect(screen.getByRole('link', { name: 'safe' })).toHaveAttribute(
             'href',
-            'https://schemaflow.io'
+            'https://github.com/Lynn-Lee/SchemaFlow'
         );
         expect(screen.getByRole('link', { name: 'email' })).toHaveAttribute(
             'href',

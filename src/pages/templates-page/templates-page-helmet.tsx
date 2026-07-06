@@ -8,7 +8,7 @@ export interface TemplatesPageHelmetProps {
     isFeatured: boolean;
 }
 
-const SCHEMAFLOW_HOST_URL = 'https://schemaflow.io';
+const SCHEMAFLOW_HOST_URL = 'https://github.com/Lynn-Lee/SchemaFlow';
 export const TemplatesPageHelmet: React.FC<TemplatesPageHelmetProps> = ({
     tag,
     isFeatured,
@@ -21,15 +21,8 @@ export const TemplatesPageHelmet: React.FC<TemplatesPageHelmetProps> = ({
     );
 
     const canonicalUrl = useMemo(() => {
-        let suffix = '/templates';
-        if (formattedUrlTag) {
-            suffix += `/tags/${formattedUrlTag}`;
-        } else if (isFeatured) {
-            suffix += '/featured';
-        }
-
-        return `${SCHEMAFLOW_HOST_URL}${suffix}`;
-    }, [isFeatured, formattedUrlTag]);
+        return SCHEMAFLOW_HOST_URL;
+    }, []);
 
     const needCanonical =
         HOST_URL !== SCHEMAFLOW_HOST_URL ||

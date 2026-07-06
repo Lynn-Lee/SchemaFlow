@@ -498,7 +498,7 @@ export const zh_CN: LanguageTranslation = {
             error: {
                 title: 'Error exporting diagram',
                 description:
-                    'Something went wrong. Need help? support@schemaflow.io',
+                    'Something went wrong. Need help? https://github.com/Lynn-Lee/SchemaFlow/issues',
             },
         },
 
@@ -510,7 +510,7 @@ export const zh_CN: LanguageTranslation = {
             error: {
                 title: '导入关系图时出错',
                 description:
-                    '关系图 JSON 无效，请检查 JSON 后重试。需要帮助？ 联系 support@schemaflow.io',
+                    '关系图 JSON 无效，请检查 JSON 后重试。需要帮助？ 联系 https://github.com/Lynn-Lee/SchemaFlow/issues',
             },
         },
         import_dbml_dialog: {

@@ -510,7 +510,7 @@ export const gu: LanguageTranslation = {
             error: {
                 title: 'ડાયાગ્રામ નિકાસમાં ભૂલ',
                 description:
-                    'કશુક તો ખોટું થયું. મદદ જોઈએ? support@schemaflow.io પર સંપર્ક કરો.',
+                    'કશુક તો ખોટું થયું. મદદ જોઈએ? https://github.com/Lynn-Lee/SchemaFlow/issues પર સંપર્ક કરો.',
             },
         },
 
@@ -522,7 +522,7 @@ export const gu: LanguageTranslation = {
             error: {
                 title: 'ડાયાગ્રામ આયાતમાં ભૂલ',
                 description:
-                    'ડાયાગ્રામ JSON અમાન્ય છે. કૃપા કરીને JSON તપાસો અને ફરી પ્રયાસ કરો. મદદ જોઈએ? support@schemaflow.io પર સંપર્ક કરો.',
+                    'ડાયાગ્રામ JSON અમાન્ય છે. કૃપા કરીને JSON તપાસો અને ફરી પ્રયાસ કરો. મદદ જોઈએ? https://github.com/Lynn-Lee/SchemaFlow/issues પર સંપર્ક કરો.',
             },
         },
         import_dbml_dialog: {

@@ -512,7 +512,7 @@ export const hr: LanguageTranslation = {
             error: {
                 title: 'Greška pri izvozu dijagrama',
                 description:
-                    'Nešto je pošlo po zlu. Trebate pomoć? support@schemaflow.io',
+                    'Nešto je pošlo po zlu. Trebate pomoć? https://github.com/Lynn-Lee/SchemaFlow/issues',
             },
         },
 
@@ -524,7 +524,7 @@ export const hr: LanguageTranslation = {
             error: {
                 title: 'Greška pri uvozu dijagrama',
                 description:
-                    'JSON dijagrama je nevažeći. Molimo provjerite JSON i pokušajte ponovno. Trebate pomoć? support@schemaflow.io',
+                    'JSON dijagrama je nevažeći. Molimo provjerite JSON i pokušajte ponovno. Trebate pomoć? https://github.com/Lynn-Lee/SchemaFlow/issues',
             },
         },
 

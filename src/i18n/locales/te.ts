@@ -510,7 +510,7 @@ export const te: LanguageTranslation = {
             error: {
                 title: 'Error exporting diagram',
                 description:
-                    'Something went wrong. Need help? support@schemaflow.io',
+                    'Something went wrong. Need help? https://github.com/Lynn-Lee/SchemaFlow/issues',
             },
         },
 
@@ -522,7 +522,7 @@ export const te: LanguageTranslation = {
             error: {
                 title: 'Error importing diagram',
                 description:
-                    'The diagram JSON is invalid. Please check the JSON and try again. Need help? support@schemaflow.io',
+                    'The diagram JSON is invalid. Please check the JSON and try again. Need help? https://github.com/Lynn-Lee/SchemaFlow/issues',
             },
         },
         import_dbml_dialog: {

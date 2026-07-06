@@ -39,4 +39,27 @@ describe('diagramFromJSONInput', () => {
             }, expected ${CURRENT_DIAGRAM_VERSION}`
         );
     });
+
+    it('restores legacy ChartDB backup envelopes after the SchemaFlow rename', () => {
+        const diagram = diagramFromJSONInput(
+            JSON.stringify({
+                format: 'chartdb.backup',
+                schemaVersion: 1,
+                createdAt: '2026-07-01T12:00:00.000Z',
+                source: 'chartdb-local',
+                diagramCount: 1,
+                diagrams: [
+                    JSON.parse(
+                        createLegacyDiagramJson({
+                            createdAt: '2026-07-01T12:00:00.000Z',
+                            updatedAt: '2026-07-01T12:00:00.000Z',
+                        })
+                    ),
+                ],
+            })
+        );
+
+        expect(diagram.name).toBe('Legacy diagram');
+        expect(diagram.id).not.toBe('legacy-diagram');
+    });
 });

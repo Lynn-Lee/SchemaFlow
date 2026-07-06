@@ -4,13 +4,16 @@ import { diagramSchema, type Diagram } from '@/lib/domain/diagram';
 import { generateDiagramId } from '@/lib/browser-utils';
 
 export const SCHEMAFLOW_BACKUP_FORMAT = 'schemaflow.backup';
+export const LEGACY_CHARTDB_BACKUP_FORMAT = 'chartdb.backup';
+export const SCHEMAFLOW_BACKUP_SOURCE = 'schemaflow-local';
+export const LEGACY_CHARTDB_BACKUP_SOURCE = 'chartdb-local';
 export const CURRENT_SCHEMAFLOW_BACKUP_FORMAT_VERSION = 1;
 
 export type SchemaFlowBackupV1 = {
     format: typeof SCHEMAFLOW_BACKUP_FORMAT;
     schemaVersion: typeof CURRENT_SCHEMAFLOW_BACKUP_FORMAT_VERSION;
     createdAt: string;
-    source: 'schemaflow-local';
+    source: typeof SCHEMAFLOW_BACKUP_SOURCE;
     appVersion?: string;
     diagramCount: number;
     diagrams: Diagram[];
@@ -26,7 +29,7 @@ export type SchemaFlowBackupSummary = {
     format: typeof SCHEMAFLOW_BACKUP_FORMAT;
     schemaVersion: typeof CURRENT_SCHEMAFLOW_BACKUP_FORMAT_VERSION;
     createdAt: string;
-    source: 'schemaflow-local';
+    source: typeof SCHEMAFLOW_BACKUP_SOURCE;
     appVersion?: string;
     diagramCount: number;
     diagrams: SchemaFlowBackupDiagramSummary[];
@@ -80,14 +83,26 @@ const parseDiagramSummary = (
 };
 
 const rawBackupSchema = z.object({
-    format: z.literal(SCHEMAFLOW_BACKUP_FORMAT),
+    format: z.union([
+        z.literal(SCHEMAFLOW_BACKUP_FORMAT),
+        z.literal(LEGACY_CHARTDB_BACKUP_FORMAT),
+    ]),
     schemaVersion: z.number(),
     createdAt: z.string().datetime(),
-    source: z.literal('schemaflow-local').optional(),
+    source: z
+        .union([
+            z.literal(SCHEMAFLOW_BACKUP_SOURCE),
+            z.literal(LEGACY_CHARTDB_BACKUP_SOURCE),
+        ])
+        .optional(),
     appVersion: z.string().optional(),
     diagramCount: z.number().int().nonnegative(),
     diagrams: z.array(z.unknown()),
 });
+
+export const isSupportedSchemaFlowBackupFormat = (format: unknown) =>
+    format === SCHEMAFLOW_BACKUP_FORMAT ||
+    format === LEGACY_CHARTDB_BACKUP_FORMAT;
 
 export function createSchemaFlowBackup({
     diagrams,
@@ -98,7 +113,7 @@ export function createSchemaFlowBackup({
         format: SCHEMAFLOW_BACKUP_FORMAT,
         schemaVersion: CURRENT_SCHEMAFLOW_BACKUP_FORMAT_VERSION,
         createdAt: now.toISOString(),
-        source: 'schemaflow-local',
+        source: SCHEMAFLOW_BACKUP_SOURCE,
         appVersion,
         diagramCount: diagrams.length,
         diagrams: diagrams.map((diagram) => cloneDiagram(diagram).diagram),
@@ -131,10 +146,10 @@ export function parseBackupSummary(json: string): SchemaFlowBackupSummary {
     }
 
     return {
-        format: raw.data.format,
+        format: SCHEMAFLOW_BACKUP_FORMAT,
         schemaVersion: CURRENT_SCHEMAFLOW_BACKUP_FORMAT_VERSION,
         createdAt: raw.data.createdAt,
-        source: raw.data.source ?? 'schemaflow-local',
+        source: SCHEMAFLOW_BACKUP_SOURCE,
         appVersion: raw.data.appVersion,
         diagramCount: raw.data.diagramCount,
         diagrams: raw.data.diagrams.map(parseDiagramSummary),
@@ -167,10 +182,10 @@ export function parseSchemaFlowBackup(json: string): SchemaFlowBackupV1 {
     }
 
     return {
-        format: raw.data.format,
+        format: SCHEMAFLOW_BACKUP_FORMAT,
         schemaVersion: CURRENT_SCHEMAFLOW_BACKUP_FORMAT_VERSION,
         createdAt: raw.data.createdAt,
-        source: raw.data.source ?? 'schemaflow-local',
+        source: SCHEMAFLOW_BACKUP_SOURCE,
         appVersion: raw.data.appVersion,
         diagramCount: raw.data.diagramCount,
         diagrams: raw.data.diagrams.map(parseDiagram),

@@ -66,10 +66,11 @@ const TemplatePageComponent: React.FC = () => {
             <Helmet>
                 {template ? (
                     <>
-                        {HOST_URL !== 'https://schemaflow.io' ? (
+                        {HOST_URL !==
+                        'https://github.com/Lynn-Lee/SchemaFlow' ? (
                             <link
                                 rel="canonical"
-                                href={`https://schemaflow.io/templates/${templateSlug}`}
+                                href="https://github.com/Lynn-Lee/SchemaFlow"
                             />
                         ) : null}
                         <title>
@@ -126,7 +127,7 @@ const TemplatePageComponent: React.FC = () => {
                     <div className="flex flex-1 justify-start gap-x-3">
                         <div className="flex items-center font-primary">
                             <a
-                                href="https://schemaflow.io"
+                                href="https://github.com/Lynn-Lee/SchemaFlow"
                                 className="cursor-pointer"
                                 rel="noreferrer"
                             >

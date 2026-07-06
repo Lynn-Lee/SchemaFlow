@@ -28,7 +28,7 @@ jobs:
           remote-organization-name: 'schemaflow'
           remote-repository-name: 'cla-signatures'
           path-to-signatures: 'signatures/version1/cla.json'
-          path-to-document: 'https://github.com/schemaflow/schemaflow/blob/main/CLA.md'
+          path-to-document: 'https://github.com/Lynn-Lee/SchemaFlow/blob/main/CLA.md'
           # branch should not be protected
           branch: 'main'
           allowlist: 

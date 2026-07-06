@@ -505,7 +505,7 @@ export const ar: LanguageTranslation = {
             error: {
                 title: 'حدث خطأ أثناء التصدير',
                 description:
-                    'support@schemaflow.io حدث خطأ ما. هل تحتاج إلى مساعدة؟',
+                    'https://github.com/Lynn-Lee/SchemaFlow/issues حدث خطأ ما. هل تحتاج إلى مساعدة؟',
             },
         },
         import_diagram_dialog: {
@@ -516,7 +516,7 @@ export const ar: LanguageTranslation = {
             error: {
                 title: 'حدث خطأ أثناء الاستيراد',
                 description:
-                    'support@schemaflow.io و المحاولة مرة اخرى. هل تحتاج إلى المساعدة؟ JSON غير صالح. يرجى التحقق من JSON الرسم البياني',
+                    'https://github.com/Lynn-Lee/SchemaFlow/issues و المحاولة مرة اخرى. هل تحتاج إلى المساعدة؟ JSON غير صالح. يرجى التحقق من JSON الرسم البياني',
             },
         },
         import_dbml_dialog: {

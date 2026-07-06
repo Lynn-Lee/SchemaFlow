@@ -44,7 +44,7 @@ const TemplatesPageComponent: React.FC = () => {
                     <div className="flex flex-1 justify-start gap-x-3">
                         <div className="flex items-center font-primary">
                             <a
-                                href="https://schemaflow.io"
+                                href="https://github.com/Lynn-Lee/SchemaFlow"
                                 className="cursor-pointer"
                                 rel="noreferrer"
                             >

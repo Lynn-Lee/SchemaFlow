@@ -510,7 +510,7 @@ export const id_ID: LanguageTranslation = {
             error: {
                 title: 'Error ekspor diagram',
                 description:
-                    'Sesuatu yang salah. Butuh bantuan? support@schemaflow.io',
+                    'Sesuatu yang salah. Butuh bantuan? https://github.com/Lynn-Lee/SchemaFlow/issues',
             },
         },
 
@@ -522,7 +522,7 @@ export const id_ID: LanguageTranslation = {
             error: {
                 title: 'Error impor diagram',
                 description:
-                    'Diagram JSON tidak valid. Silakan cek JSON dan coba lagi. Butuh bantuan? support@schemaflow.io',
+                    'Diagram JSON tidak valid. Silakan cek JSON dan coba lagi. Butuh bantuan? https://github.com/Lynn-Lee/SchemaFlow/issues',
             },
         },
         import_dbml_dialog: {

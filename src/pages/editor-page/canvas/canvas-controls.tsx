@@ -33,12 +33,26 @@ type CanvasControlsProps = {
 
 const MOBILE_CANVAS_NOTICE_DISMISSED_KEY =
     'schemaflow.mobileCanvasNoticeDismissed';
+const LEGACY_MOBILE_CANVAS_NOTICE_DISMISSED_KEY =
+    'chartdb.mobileCanvasNoticeDismissed';
 
 const getMobileCanvasNoticeDismissed = () => {
     try {
-        return (
+        if (
             localStorage.getItem(MOBILE_CANVAS_NOTICE_DISMISSED_KEY) === 'true'
-        );
+        ) {
+            return true;
+        }
+
+        if (
+            localStorage.getItem(LEGACY_MOBILE_CANVAS_NOTICE_DISMISSED_KEY) ===
+            'true'
+        ) {
+            localStorage.setItem(MOBILE_CANVAS_NOTICE_DISMISSED_KEY, 'true');
+            return true;
+        }
+
+        return false;
     } catch {
         return false;
     }
