@@ -11,43 +11,34 @@ import { ThemeProvider } from '@/context/theme-context/theme-provider';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import { useStorage } from '@/hooks/use-storage';
-import type { Diagram } from '@/lib/domain/diagram';
 import { useTranslation } from 'react-i18next';
+import { createExampleDiagram } from './examples-data/create-example-diagram';
 
 const ExamplesPageComponent: React.FC = () => {
     const { effectiveTheme } = useTheme();
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const { addDiagram, deleteDiagram } = useStorage();
+    const { addDiagram } = useStorage();
     const [loadingExampleId, setLoadingExampleId] = React.useState<string>();
     const utilizeExample = useCallback(
         async ({ example }: { example: Example }) => {
             if (loadingExampleId) {
                 return;
             }
+
             setLoadingExampleId(example.id);
-            const { diagram } = example;
-            const { id } = diagram;
 
-            await deleteDiagram(id);
+            try {
+                const diagramToAdd = createExampleDiagram({ example });
 
-            const now = new Date();
-            const diagramToAdd: Diagram = {
-                ...diagram,
-                createdAt: now,
-                updatedAt: now,
-            };
-
-            await addDiagram({ diagram: diagramToAdd });
-            navigate(`/diagrams/${id}`);
+                await addDiagram({ diagram: diagramToAdd });
+                navigate(`/diagrams/${diagramToAdd.id}`);
+            } catch (error) {
+                console.error('Failed to load example diagram', error);
+                setLoadingExampleId(undefined);
+            }
         },
-        [
-            addDiagram,
-            navigate,
-            deleteDiagram,
-            loadingExampleId,
-            setLoadingExampleId,
-        ]
+        [addDiagram, navigate, loadingExampleId, setLoadingExampleId]
     );
 
     return (

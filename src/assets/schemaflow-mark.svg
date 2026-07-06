@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="789" viewBox="0 0 1280 789" role="img" aria-labelledby="title desc">
+  <title id="title">SchemaFlow mark</title>
+  <desc id="desc">A compact schema diagram mark with connected table nodes.</desc>
+  <g transform="translate(260 52) scale(4.2)">
+    <rect x="4" y="0" width="58" height="48" rx="13" fill="#22C7A9"/>
+    <rect x="118" y="0" width="58" height="48" rx="13" fill="#5D8DEF"/>
+    <rect x="4" y="116" width="58" height="48" rx="13" fill="#F8C94B"/>
+    <rect x="118" y="116" width="58" height="48" rx="13" fill="#F45D63"/>
+    <rect x="64" y="58" width="58" height="48" rx="13" fill="#27BFA6"/>
+
+    <g opacity="0.82" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round">
+      <path d="M18 17H48"/>
+      <path d="M18 31H38"/>
+      <path d="M132 17H162"/>
+      <path d="M132 31H152"/>
+      <path d="M78 75H108"/>
+      <path d="M78 89H98"/>
+      <path d="M18 133H48"/>
+      <path d="M18 147H38"/>
+      <path d="M132 133H162"/>
+      <path d="M132 147H152"/>
+    </g>
+
+    <path
+      d="M62 24H122C143 24 154 36 154 54V61C154 79 143 90 122 90H92C72 90 62 101 62 119V140"
+      fill="none"
+      stroke="#2563EB"
+      stroke-width="14"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <path
+      d="M62 140H118"
+      fill="none"
+      stroke="#2563EB"
+      stroke-width="14"
+      stroke-linecap="round"
+    />
+  </g>
+</svg>

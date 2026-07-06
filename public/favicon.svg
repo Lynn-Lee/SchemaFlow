@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">SchemaFlow favicon</title>
+  <desc id="desc">A compact schema diagram mark with connected table nodes.</desc>
+  <rect x="16" y="22" width="76" height="58" rx="17" fill="#22C7A9"/>
+  <rect x="164" y="22" width="76" height="58" rx="17" fill="#5D8DEF"/>
+  <rect x="16" y="176" width="76" height="58" rx="17" fill="#F8C94B"/>
+  <rect x="164" y="176" width="76" height="58" rx="17" fill="#F45D63"/>
+  <rect x="90" y="99" width="76" height="58" rx="17" fill="#27BFA6"/>
+  <g opacity="0.82" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round">
+    <path d="M34 44H72"/>
+    <path d="M34 61H60"/>
+    <path d="M182 44H220"/>
+    <path d="M182 61H208"/>
+    <path d="M108 121H146"/>
+    <path d="M108 138H134"/>
+    <path d="M34 198H72"/>
+    <path d="M34 215H60"/>
+    <path d="M182 198H220"/>
+    <path d="M182 215H208"/>
+  </g>
+  <path
+    d="M92 51H165C194 51 208 67 208 91V101C208 125 194 140 165 140H127C100 140 92 156 92 180V203"
+    fill="none"
+    stroke="#2563EB"
+    stroke-width="20"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path
+    d="M92 203H164"
+    fill="none"
+    stroke="#2563EB"
+    stroke-width="20"
+    stroke-linecap="round"
+  />
+</svg>
