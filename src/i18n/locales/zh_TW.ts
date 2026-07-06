@@ -54,7 +54,6 @@ export const zh_TW: LanguageTranslation = {
             help: {
                 help: '幫助',
                 docs_website: '文件',
-                join_discord: '加入 Discord',
             },
         },
 
@@ -354,6 +353,12 @@ export const zh_TW: LanguageTranslation = {
             cancel: '取消',
             open: '開啟',
             new_database: '新建資料庫',
+            load_error: {
+                title: 'Could not load local diagrams',
+                description:
+                    'Local diagrams could not be read. Check browser storage permissions or create a new database.',
+                retry: 'Retry loading diagrams',
+            },
 
             diagram_actions: {
                 open: '開啟',

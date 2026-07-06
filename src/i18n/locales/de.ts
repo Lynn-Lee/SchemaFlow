@@ -54,7 +54,6 @@ export const de: LanguageTranslation = {
             help: {
                 help: 'Hilfe',
                 docs_website: 'Dokumentation',
-                join_discord: 'Auf Discord beitreten',
             },
         },
 
@@ -364,6 +363,12 @@ export const de: LanguageTranslation = {
             cancel: 'Abbrechen',
             open: 'Öffnen',
             new_database: 'Neue Datenbank',
+            load_error: {
+                title: 'Could not load local diagrams',
+                description:
+                    'Local diagrams could not be read. Check browser storage permissions or create a new database.',
+                retry: 'Retry loading diagrams',
+            },
 
             diagram_actions: {
                 open: 'Öffnen',

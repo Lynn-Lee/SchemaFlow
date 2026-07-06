@@ -54,7 +54,6 @@ export const en = {
             help: {
                 help: 'Help',
                 docs_website: 'Docs',
-                join_discord: 'Join us on Discord',
             },
         },
 
@@ -359,6 +358,12 @@ export const en = {
             cancel: 'Cancel',
             open: 'Open',
             new_database: 'New Database',
+            load_error: {
+                title: 'Could not load local diagrams',
+                description:
+                    'Local diagrams could not be read. Check browser storage permissions or create a new database.',
+                retry: 'Retry loading diagrams',
+            },
 
             diagram_actions: {
                 open: 'Open',

@@ -54,7 +54,6 @@ export const ja: LanguageTranslation = {
             help: {
                 help: 'ヘルプ',
                 docs_website: 'ドキュメント',
-                join_discord: 'Discordに参加',
             },
         },
 
@@ -361,6 +360,12 @@ export const ja: LanguageTranslation = {
             cancel: 'キャンセル',
             open: '開く',
             new_database: '新しいデータベース',
+            load_error: {
+                title: 'Could not load local diagrams',
+                description:
+                    'Local diagrams could not be read. Check browser storage permissions or create a new database.',
+                retry: 'Retry loading diagrams',
+            },
 
             diagram_actions: {
                 open: '開く',

@@ -54,7 +54,6 @@ export const hr: LanguageTranslation = {
             help: {
                 help: 'Pomoć',
                 docs_website: 'Dokumentacija',
-                join_discord: 'Pridružite nam se na Discordu',
             },
         },
 
@@ -363,6 +362,12 @@ export const hr: LanguageTranslation = {
             cancel: 'Odustani',
             open: 'Otvori',
             new_database: 'Nova baza podataka',
+            load_error: {
+                title: 'Could not load local diagrams',
+                description:
+                    'Local diagrams could not be read. Check browser storage permissions or create a new database.',
+                retry: 'Retry loading diagrams',
+            },
 
             diagram_actions: {
                 open: 'Otvori',

@@ -54,7 +54,6 @@ export const ko_KR: LanguageTranslation = {
             help: {
                 help: '도움말',
                 docs_website: '선적 서류 비치',
-                join_discord: 'Discord 가입',
             },
         },
 
@@ -361,6 +360,12 @@ export const ko_KR: LanguageTranslation = {
             cancel: '취소',
             open: '열기',
             new_database: '새 데이터베이스',
+            load_error: {
+                title: 'Could not load local diagrams',
+                description:
+                    'Local diagrams could not be read. Check browser storage permissions or create a new database.',
+                retry: 'Retry loading diagrams',
+            },
 
             diagram_actions: {
                 open: '열기',

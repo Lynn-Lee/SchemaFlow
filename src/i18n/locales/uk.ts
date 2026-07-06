@@ -54,7 +54,6 @@ export const uk: LanguageTranslation = {
             help: {
                 help: 'Довідка',
                 docs_website: 'Документація',
-                join_discord: 'Приєднуйтесь до нас в Діскорд',
             },
         },
 
@@ -363,6 +362,12 @@ export const uk: LanguageTranslation = {
             cancel: 'Скасувати',
             open: 'Відкрити',
             new_database: 'Нова база даних',
+            load_error: {
+                title: 'Could not load local diagrams',
+                description:
+                    'Local diagrams could not be read. Check browser storage permissions or create a new database.',
+                retry: 'Retry loading diagrams',
+            },
 
             diagram_actions: {
                 open: 'Відкрити',

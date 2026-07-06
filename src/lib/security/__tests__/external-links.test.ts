@@ -28,6 +28,11 @@ describe('SchemaFlow external links', () => {
             'https://github.com/schemaflow/schemaflow'
         );
         expect(publishedUi).not.toContain('support@schemaflow.io');
+        expect(publishedUi).not.toContain(
+            'https://github.com/Lynn-Lee/SchemaFlow/tree/main/docs'
+        );
+        expect(publishedUi).not.toContain('https://discord.gg/');
+        expect(publishedUi).not.toContain('https://x.com/intent/follow');
         expect(publishedUi).toContain('https://github.com/Lynn-Lee/SchemaFlow');
     });
 });

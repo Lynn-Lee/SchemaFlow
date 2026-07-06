@@ -54,7 +54,6 @@ export const id_ID: LanguageTranslation = {
             help: {
                 help: 'Bantuan',
                 docs_website: 'Dokumentasi',
-                join_discord: 'Bergabunglah di Discord kami',
             },
         },
 
@@ -361,6 +360,12 @@ export const id_ID: LanguageTranslation = {
             cancel: 'Batal',
             open: 'Buka',
             new_database: 'Database Baru',
+            load_error: {
+                title: 'Could not load local diagrams',
+                description:
+                    'Local diagrams could not be read. Check browser storage permissions or create a new database.',
+                retry: 'Retry loading diagrams',
+            },
 
             diagram_actions: {
                 open: 'Buka',

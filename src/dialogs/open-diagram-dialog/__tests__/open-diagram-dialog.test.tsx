@@ -5,34 +5,37 @@ import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { OpenDiagramDialog } from '../open-diagram-dialog';
 
-const listDiagrams = vi.fn();
-const closeOpenDiagramDialog = vi.fn();
-const openCreateDiagramDialog = vi.fn();
-const updateConfig = vi.fn();
-const navigate = vi.fn();
+const mocks = vi.hoisted(() => ({
+    listDiagrams: vi.fn(),
+    closeOpenDiagramDialog: vi.fn(),
+    openCreateDiagramDialog: vi.fn(),
+    updateConfig: vi.fn(),
+    navigate: vi.fn(),
+    t: vi.fn((key: string) => key),
+}));
 
 vi.mock('@/hooks/use-storage', () => ({
     useStorage: () => ({
-        listDiagrams,
+        listDiagrams: mocks.listDiagrams,
     }),
 }));
 
 vi.mock('@/hooks/use-dialog', () => ({
     useDialog: () => ({
-        closeOpenDiagramDialog,
-        openCreateDiagramDialog,
+        closeOpenDiagramDialog: mocks.closeOpenDiagramDialog,
+        openCreateDiagramDialog: mocks.openCreateDiagramDialog,
     }),
 }));
 
 vi.mock('@/hooks/use-config', () => ({
     useConfig: () => ({
-        updateConfig,
+        updateConfig: mocks.updateConfig,
     }),
 }));
 
 vi.mock('react-i18next', () => ({
     useTranslation: () => ({
-        t: (key: string) => key,
+        t: mocks.t,
     }),
 }));
 
@@ -41,7 +44,7 @@ vi.mock('react-router-dom', async () => {
 
     return {
         ...actual,
-        useNavigate: () => navigate,
+        useNavigate: () => mocks.navigate,
     };
 });
 
@@ -54,28 +57,35 @@ const renderOpenDiagramDialog = () =>
 
 describe('OpenDiagramDialog', () => {
     beforeEach(() => {
-        vi.clearAllMocks();
+        vi.resetAllMocks();
+        mocks.t.mockImplementation((key: string) => key);
     });
 
     it('shows a retryable error state when local diagram storage cannot be read', async () => {
-        listDiagrams.mockRejectedValueOnce(new Error('IndexedDB blocked'));
+        mocks.listDiagrams.mockRejectedValue(new Error('IndexedDB blocked'));
 
         renderOpenDiagramDialog();
 
         expect(
-            await screen.findByRole('alert', {
-                name: 'Could not load local diagrams',
-            })
+            await screen.findByText('open_diagram_dialog.load_error.title')
         ).toBeInTheDocument();
-        expect(screen.getByText('IndexedDB blocked')).toBeInTheDocument();
+        expect(screen.getByRole('alert')).toBeInTheDocument();
+        expect(
+            screen.getByText('open_diagram_dialog.load_error.description')
+        ).toBeInTheDocument();
 
-        listDiagrams.mockResolvedValueOnce([]);
+        const callsBeforeRetry = mocks.listDiagrams.mock.calls.length;
+        mocks.listDiagrams.mockResolvedValueOnce([]);
         await userEvent.click(
-            screen.getByRole('button', { name: 'Retry loading diagrams' })
+            screen.getByRole('button', {
+                name: 'open_diagram_dialog.load_error.retry',
+            })
         );
 
         await waitFor(() => {
-            expect(listDiagrams).toHaveBeenCalledTimes(2);
+            expect(mocks.listDiagrams.mock.calls.length).toBeGreaterThan(
+                callsBeforeRetry
+            );
         });
     });
 });

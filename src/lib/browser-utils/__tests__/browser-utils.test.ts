@@ -38,10 +38,10 @@ describe('safeOpenUrl', () => {
     it('opens external links in a new tab without opener access', () => {
         const open = vi.spyOn(window, 'open').mockImplementation(() => null);
 
-        safeOpenUrl('https://github.com/Lynn-Lee/SchemaFlow/tree/main/docs');
+        safeOpenUrl('https://github.com/Lynn-Lee/SchemaFlow');
 
         expect(open).toHaveBeenCalledWith(
-            'https://github.com/Lynn-Lee/SchemaFlow/tree/main/docs',
+            'https://github.com/Lynn-Lee/SchemaFlow',
             '_blank',
             'noopener,noreferrer'
         );

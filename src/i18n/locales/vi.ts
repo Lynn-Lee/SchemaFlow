@@ -54,7 +54,6 @@ export const vi: LanguageTranslation = {
             help: {
                 help: 'Trợ giúp',
                 docs_website: 'Tài liệu',
-                join_discord: 'Tham gia Discord',
             },
         },
 
@@ -361,6 +360,12 @@ export const vi: LanguageTranslation = {
             cancel: 'Hủy',
             open: 'Mở',
             new_database: 'Cơ sở dữ liệu mới',
+            load_error: {
+                title: 'Could not load local diagrams',
+                description:
+                    'Local diagrams could not be read. Check browser storage permissions or create a new database.',
+                retry: 'Retry loading diagrams',
+            },
 
             diagram_actions: {
                 open: 'Mở',

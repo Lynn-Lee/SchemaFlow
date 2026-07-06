@@ -55,7 +55,6 @@ export const gu: LanguageTranslation = {
             help: {
                 help: 'મદદ',
                 docs_website: 'દસ્તાવેજીકરણ',
-                join_discord: 'અમારા Discordમાં જોડાઓ',
             },
         },
 
@@ -360,6 +359,12 @@ export const gu: LanguageTranslation = {
             cancel: 'રદ કરો',
             open: 'ખોલો',
             new_database: 'નવું ડેટાબેસ',
+            load_error: {
+                title: 'Could not load local diagrams',
+                description:
+                    'Local diagrams could not be read. Check browser storage permissions or create a new database.',
+                retry: 'Retry loading diagrams',
+            },
 
             diagram_actions: {
                 open: 'ખોલો',

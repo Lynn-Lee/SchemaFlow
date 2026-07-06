@@ -54,7 +54,6 @@ export const zh_CN: LanguageTranslation = {
             help: {
                 help: '帮助',
                 docs_website: '文档',
-                join_discord: '在 Discord 上加入我们',
             },
         },
 
@@ -354,6 +353,12 @@ export const zh_CN: LanguageTranslation = {
             cancel: '取消',
             open: '打开',
             new_database: '新建数据库',
+            load_error: {
+                title: '无法加载本地图表',
+                description:
+                    '无法读取本地图表。请检查浏览器存储权限，或新建一个数据库后继续。',
+                retry: '重新加载图表',
+            },
 
             diagram_actions: {
                 open: '打开',

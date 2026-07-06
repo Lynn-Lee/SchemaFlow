@@ -55,7 +55,6 @@ export const bn: LanguageTranslation = {
             help: {
                 help: 'সাহায্য',
                 docs_website: 'ডকুমেন্টেশন',
-                join_discord: 'আমাদের Discord-এ যোগ দিন',
             },
         },
 
@@ -364,6 +363,12 @@ export const bn: LanguageTranslation = {
             cancel: 'বাতিল করুন',
             open: 'খুলুন',
             new_database: 'নতুন ডেটাবেস',
+            load_error: {
+                title: 'Could not load local diagrams',
+                description:
+                    'Local diagrams could not be read. Check browser storage permissions or create a new database.',
+                retry: 'Retry loading diagrams',
+            },
 
             diagram_actions: {
                 open: 'খুলুন',

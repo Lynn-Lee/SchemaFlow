@@ -54,7 +54,6 @@ export const ne: LanguageTranslation = {
             help: {
                 help: 'मद्दत',
                 docs_website: 'कागजात',
-                join_discord: 'डिस्कोर्डमा सामिल हुनुहोस्',
             },
         },
 
@@ -363,6 +362,12 @@ export const ne: LanguageTranslation = {
             cancel: 'रद्द गर्नुहोस्',
             open: 'खोल्नुहोस्',
             new_database: 'नयाँ डाटाबेस',
+            load_error: {
+                title: 'Could not load local diagrams',
+                description:
+                    'Local diagrams could not be read. Check browser storage permissions or create a new database.',
+                retry: 'Retry loading diagrams',
+            },
 
             diagram_actions: {
                 open: 'खोल्नुहोस्',

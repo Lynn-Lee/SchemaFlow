@@ -17,9 +17,7 @@ import {
     Plus,
     FolderOpen,
     CodeXml,
-    MessageCircle,
     Settings,
-    AtSign,
 } from 'lucide-react';
 import { Table, Workflow } from 'lucide-react';
 import { useLayout } from '@/hooks/use-layout';
@@ -149,27 +147,10 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = () => {
     const footerItems: SidebarItem[] = useMemo(
         () => [
             {
-                title: 'Discord',
-                icon: MessageCircle,
-                onClick: () => safeOpenUrl('https://discord.gg/QeFwyWSKwC'),
-                active: false,
-            },
-            {
-                title: 'Twitter',
-                icon: AtSign,
-                onClick: () =>
-                    safeOpenUrl(
-                        'https://x.com/intent/follow?screen_name=jonathanfishner'
-                    ),
-                active: false,
-            },
-            {
                 title: t('editor_sidebar.docs'),
                 icon: BookOpen,
                 onClick: () =>
-                    safeOpenUrl(
-                        'https://github.com/Lynn-Lee/SchemaFlow/tree/main/docs'
-                    ),
+                    safeOpenUrl('https://github.com/Lynn-Lee/SchemaFlow'),
                 active: false,
             },
             {

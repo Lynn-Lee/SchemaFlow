@@ -54,7 +54,6 @@ export const tr: LanguageTranslation = {
             help: {
                 help: 'Yardım',
                 docs_website: 'Belgeleme',
-                join_discord: "Discord'a Katıl",
             },
         },
 
@@ -354,6 +353,12 @@ export const tr: LanguageTranslation = {
             cancel: 'İptal',
             open: 'Aç',
             new_database: 'Yeni Veritabanı',
+            load_error: {
+                title: 'Could not load local diagrams',
+                description:
+                    'Local diagrams could not be read. Check browser storage permissions or create a new database.',
+                retry: 'Retry loading diagrams',
+            },
 
             diagram_actions: {
                 open: 'Aç',

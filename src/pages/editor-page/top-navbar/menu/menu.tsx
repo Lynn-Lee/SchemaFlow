@@ -102,11 +102,7 @@ export const Menu: React.FC<MenuProps> = () => {
     }, [openExportImageDialog]);
 
     const openSchemaFlowDocs = useCallback(() => {
-        safeOpenUrl('https://github.com/Lynn-Lee/SchemaFlow/tree/main/docs');
-    }, []);
-
-    const openJoinDiscord = useCallback(() => {
-        safeOpenUrl('https://discord.gg/QeFwyWSKwC');
+        safeOpenUrl('https://github.com/Lynn-Lee/SchemaFlow');
     }, []);
 
     const exportSQL = useCallback(
@@ -492,9 +488,6 @@ export const Menu: React.FC<MenuProps> = () => {
                 <MenubarContent>
                     <MenubarItem onClick={openSchemaFlowDocs}>
                         {t('menu.help.docs_website')}
-                    </MenubarItem>
-                    <MenubarItem onClick={openJoinDiscord}>
-                        {t('menu.help.join_discord')}
                     </MenubarItem>
                 </MenubarContent>
             </MenubarMenu>

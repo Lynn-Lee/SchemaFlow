@@ -54,7 +54,6 @@ export const te: LanguageTranslation = {
             help: {
                 help: 'సహాయం',
                 docs_website: 'డాక్యుమెంటేషన్',
-                join_discord: 'డిస్కార్డ్‌లో మా నుంచి చేరండి',
             },
         },
 
@@ -360,6 +359,12 @@ export const te: LanguageTranslation = {
             cancel: 'రద్దు',
             open: 'తెరవు',
             new_database: 'కొత్త డేటాబేస్',
+            load_error: {
+                title: 'Could not load local diagrams',
+                description:
+                    'Local diagrams could not be read. Check browser storage permissions or create a new database.',
+                retry: 'Retry loading diagrams',
+            },
 
             diagram_actions: {
                 open: 'తెరవు',

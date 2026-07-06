@@ -54,7 +54,6 @@ export const ar: LanguageTranslation = {
             help: {
                 help: 'مساعدة',
                 docs_website: 'الوثائق',
-                join_discord: 'انضم إلينا على Discord',
             },
         },
 
@@ -358,6 +357,12 @@ export const ar: LanguageTranslation = {
             cancel: 'إلغاء',
             open: 'فتح',
             new_database: 'قاعدة بيانات جديدة',
+            load_error: {
+                title: 'Could not load local diagrams',
+                description:
+                    'Local diagrams could not be read. Check browser storage permissions or create a new database.',
+                retry: 'Retry loading diagrams',
+            },
 
             diagram_actions: {
                 open: 'فتح',

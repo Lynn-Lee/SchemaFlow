@@ -57,15 +57,11 @@ export const OpenDiagramDialog: React.FC<OpenDiagramDialogProps> = ({
                     (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
                 )
             );
-        } catch (error) {
+        } catch {
             setDiagrams([]);
-            setLoadError(
-                error instanceof Error
-                    ? error.message
-                    : 'Local diagrams could not be read.'
-            );
+            setLoadError(t('open_diagram_dialog.load_error.description'));
         }
-    }, [listDiagrams]);
+    }, [listDiagrams, t]);
 
     useEffect(() => {
         if (!dialog.open) {
@@ -158,17 +154,19 @@ export const OpenDiagramDialog: React.FC<OpenDiagramDialogProps> = ({
                         {loadError ? (
                             <div
                                 role="alert"
-                                aria-label="Could not load local diagrams"
+                                aria-label={t(
+                                    'open_diagram_dialog.load_error.title'
+                                )}
                                 className="max-w-md space-y-3 text-center"
                             >
                                 <h3 className="text-base font-semibold">
-                                    Could not load local diagrams
+                                    {t('open_diagram_dialog.load_error.title')}
                                 </h3>
                                 <p className="text-sm text-muted-foreground">
                                     {loadError}
                                 </p>
                                 <Button type="button" onClick={fetchDiagrams}>
-                                    Retry loading diagrams
+                                    {t('open_diagram_dialog.load_error.retry')}
                                 </Button>
                             </div>
                         ) : (
