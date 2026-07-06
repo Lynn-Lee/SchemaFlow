@@ -1,182 +1,177 @@
-<h1 align="center">
-  <a href="https://github.com/Lynn-Lee/SchemaFlow#gh-light-mode-only">
-    <img src="https://github.com/Lynn-Lee/SchemaFlow/blob/main/src/assets/logo-light.png" width="400" height="70" alt="SchemaFlow">
-  </a>
-  <a href="https://github.com/Lynn-Lee/SchemaFlow##gh-dark-mode-only">
-    <img src="https://github.com/Lynn-Lee/SchemaFlow/blob/main/src/assets/logo-dark.png" width="400" height="70" alt="SchemaFlow">
-  </a>
-  <br>
-</h1>
+<div align="center">
+  <img width="400" height="70" alt="SchemaFlow logo" src="./src/assets/logo-light.png">
+  <h1>SchemaFlow</h1>
+</div>
+
+<h3 align="center">本地优先、无需账号、无需数据库密码的数据库结构可视化与 SQL 导出工具。</h3>
 
 <p align="center">
-  <b>Open-source database diagrams editor</b> <br />
-  <b>No installations • No Database password required.</b> <br />
+  <img width="760" style="border-radius:5px;" alt="SchemaFlow 产品截图" src="./public/schemaflow.png">
 </p>
 
-<h3 align="center">
-  <a href="https://discord.gg/QeFwyWSKwC">Community</a>  &bull;
-  <a href="https://github.com/Lynn-Lee/SchemaFlow?ref=github_readme">Website</a>  &bull;
-  <a href="https://github.com/Lynn-Lee/SchemaFlow/tree/main/src/templates-data/templates">Examples</a>  &bull;
-  <a href="https://github.com/Lynn-Lee/SchemaFlow?ref=github_readme">Demo</a>
-</h3>
+SchemaFlow 是一个运行在浏览器中的数据库 schema 可视化编辑器。你可以通过 Smart Query、SQL、DBML、JSON 或内置模板快速生成可编辑的数据库关系图，也可以在画布中继续调整表、字段、索引、关系、区域和备注，并导出 SQL、DBML、JSON、图片或本地备份文件。核心建模、保存、导入和导出能力默认在本地完成，不需要注册账号，也不要求填写数据库密码。
 
-<h4 align="center">
-  <a href="https://github.com/Lynn-Lee/SchemaFlow?tab=AGPL-3.0-1-ov-file#readme">
-    <img src="https://img.shields.io/github/license/Lynn-Lee/SchemaFlow?color=blue" alt="SchemaFlow is released under the AGPL license." />
-  </a>
-  <a href="https://github.com/Lynn-Lee/SchemaFlow/blob/main/CONTRIBUTING.md">
-    <img src="https://img.shields.io/badge/PRs-Welcome-brightgreen" alt="PRs welcome!" />
-  </a>
-  <a href="https://discord.gg/QeFwyWSKwC">
-    <img src="https://img.shields.io/discord/1277047413705670678?color=5865F2&label=Discord&logo=discord&logoColor=white" alt="Discord community channel" />
-  </a>
-  <a href="https://x.com/intent/follow?screen_name=jonathanfishner">
-    <img src="https://img.shields.io/twitter/follow/jonathanfishner?style=social"/>
-  </a>
+## 项目来源与致谢
 
-</h4>
+SchemaFlow 是基于 ChartDB 开源项目优化重构后的项目。我们在 ChartDB 原项目优秀的浏览器端数据库结构可视化、Smart Query 导入、多数据库支持和 SQL / DBML 导入导出能力基础上，围绕 SchemaFlow 品牌化、默认中文体验、本地优先数据边界、浏览器端密钥安全、AI 辅助导出默认关闭、旧 ChartDB 本地数据兼容迁移、Schema Core 与 Command 架构、Dexie / IndexedDB 存储抽象、备份恢复格式、导入导出能力矩阵、可访问性、测试门禁、Docker / Nginx 自托管安全配置和发布治理做了系统整理与增强。
 
----
+感谢 ChartDB 原项目作者与贡献者提供的开源基础。SchemaFlow 的持续演进建立在这份开放工作的价值之上，并继续遵守原项目采用的 AGPL-3.0 开源许可证。
 
-<p align="center">
-  <img width='700px' src="./public/schemaflow.png">
-</p>
+## 核心功能
 
-### 🎉 SchemaFlow
+- **Smart Query 导入**：根据所选数据库生成只读查询，用户在自己的数据库环境执行后，将结果粘贴到 SchemaFlow 中生成图表。
+- **SQL / DBML 导入**：支持从 SQL DDL 或 DBML 文本导入数据库结构，并在导入前预览表、关系、索引、自定义类型和 warning。
+- **可视化建模**：在画布中查看和编辑表、字段、关系、索引、check constraint、区域和备注。
+- **多数据库支持**：覆盖 PostgreSQL、MySQL、SQL Server、MariaDB、SQLite、CockroachDB、ClickHouse 和 DBML 等场景。
+- **SQL / DBML 导出**：可将当前 diagram 导出为目标数据库方言 SQL 或 DBML。
+- **跨方言辅助导出**：在可支持路径上提供跨数据库 SQL 导出；风险较高或暂不支持的语法会通过 warning 标记。
+- **本地保存与恢复**：diagram 默认保存到浏览器 IndexedDB，支持打开本地图表、导出备份和从备份恢复。
+- **旧数据兼容**：保留旧 ChartDB IndexedDB、localStorage key、backup envelope 和环境变量的兼容读取路径，避免老用户数据丢失。
+- **模板浏览**：内置真实项目 schema 示例，方便快速查看常见数据库结构。
+- **默认中文界面**：首次访问默认使用简体中文，用户仍可主动切换其他语言。
+- **可选 AI 辅助导出**：浏览器构建默认关闭 AI 能力；需要时可通过 session-only BYOK 或自托管 Gateway 明确启用。
 
-SchemaFlow is a powerful, web-based database diagramming editor.
-Instantly visualize your database schema with a single **"Smart Query."** Customize diagrams, export SQL scripts, and access all features—no account required. Experience seamless database design here.
+## 隐私与数据边界
 
-**What it does**:
+SchemaFlow 的默认模式是本地优先：
 
-- **Instant Schema Import**
-  Run a single query to instantly retrieve your database schema as JSON. This makes it incredibly fast to visualize your database schema, whether for documentation, team discussions, or simply understanding your data better.
+- 不登录也可以创建、导入、编辑、保存和导出 diagram。
+- diagram 数据默认保存在当前浏览器的 IndexedDB。
+- Smart Query 由用户在自己的数据库环境中执行，SchemaFlow 不需要数据库连接串或数据库密码。
+- SQL、DBML、JSON 和 backup 文件默认在浏览器内解析、校验和导出。
+- 浏览器构建不得持久化长期模型供应商 API key。
+- AI 辅助导出默认关闭，用户明确启用前不会发送 schema 内容。
+- Docker / Nginx 运行时配置只允许注入非敏感 endpoint、model name、feature flag 等信息。
 
-- **AI-Powered Export for Easy Migration**
-  Our AI-driven export feature allows you to generate the DDL script in the dialect of your choice. Whether you're migrating from MySQL to PostgreSQL or from SQLite to MariaDB, SchemaFlow simplifies the process by providing the necessary scripts tailored to your target database.
-- **Interactive Editing**
-  Fine-tune your database schema using our intuitive editor. Easily make adjustments or annotations to better visualize complex structures.
+## 支持格式
 
-### Status
+| 类型 | 支持内容 |
+| --- | --- |
+| 导入 | Smart Query JSON、SQL DDL、DBML、SchemaFlow backup、旧 ChartDB backup |
+| SQL 导出 | PostgreSQL、MySQL、SQL Server、MariaDB、SQLite、CockroachDB、ClickHouse 等已支持方言 |
+| 结构导出 | DBML、JSON、本地 backup |
+| 图像导出 | PNG、SVG 等浏览器端导出格式 |
+| 兼容数据 | 旧 ChartDB IndexedDB、旧 `chartdb.backup`、旧 `chartdb.ai.*` 本地配置 |
 
-SchemaFlow is currently in Public Beta. Star and watch this repository to get notified of updates.
+## 技术栈
 
-### Supported Databases
+- React 18
+- Vite
+- TypeScript
+- Radix UI
+- Tailwind CSS
+- XYFlow
+- Dexie / IndexedDB
+- i18next
+- Monaco Editor
+- DBML parser
+- Vitest
+- Docker / Nginx
 
-- ✅ PostgreSQL (<img src="./src/assets/postgresql_logo_2.png" width="15"/> + <img src="./src/assets/supabase.png" alt="Supabase" width="15"/> + <img src="./src/assets/timescale.png" alt="Timescale" width="15"/> )
-- ✅ MySQL
-- ✅ SQL Server
-- ✅ MariaDB
-- ✅ SQLite (<img src="./src/assets/sqlite_logo_2.png" width="15"/> + <img src="./src/assets/cloudflare_d1.png" alt="Cloudflare D1" width="15"/> Cloudflare D1)
-- ✅ CockroachDB
-- ✅ ClickHouse
+## 本地开发
 
-## Getting Started
+环境要求：
 
-Use the [cloud version](https://github.com/Lynn-Lee/SchemaFlow?ref=github_readme_2) or deploy locally:
+- Node.js 24 或兼容版本
+- npm
 
-### How To Use
+安装依赖并启动开发服务：
 
 ```bash
 npm install
 npm run dev
 ```
 
-### Build
+默认开发地址由 Vite 输出，通常是：
+
+```text
+http://localhost:5173
+```
+
+## 常用命令
 
 ```bash
-npm install
+# 启动开发服务
+npm run dev
+
+# ESLint 检查
+npm run lint
+
+# 运行测试
+npm run test
+
+# CI 测试模式
+npm run test:ci
+
+# 生产构建
 npm run build
+
+# 本地预览构建产物
+npm run preview
 ```
 
-AI-assisted export is disabled by default in the browser build. Do not pass
-model provider secrets into `npm run build`; use deterministic SQL export unless
-you have configured a session-only BYOK flow or a self-hosted gateway.
+## Docker 运行
 
-### Documentation
-
-SchemaFlow 的默认模式是本地优先、无账号、无数据库密码：Smart Query 由用户在自己的数据库环境中执行，diagram 数据默认保存在浏览器 IndexedDB，不会自动上传到远端服务。
-
-- [架构说明](docs/架构说明.md)：当前 React、schema-core、storage、dialects、workers 和发布边界。
-- [部署与安全配置](docs/部署与安全配置.md)：Docker/Nginx 自托管、安全响应头、CSP 和非敏感运行时配置。
-- [安全模型与 AI 边界](docs/安全模型与AI边界.md)：Disabled、BYOK Session 和 Self-hosted Gateway 的密钥与隐私规则。
-- [备份恢复格式](docs/备份恢复格式.md)：`schemaflow.backup` 文件格式、导出和恢复约束。
-- [方言能力矩阵](docs/方言能力矩阵.md)：SQL/DBML import/export 的当前支持、降级和 warning 规则。
-- [导入导出接口约定](docs/导入导出接口约定.md)：import preview、dialect result 和 deterministic export contract。
-- [测试策略](docs/测试策略.md)：本地门禁、CI、发布 smoke 和高风险回归测试范围。
-
-### Run the Docker Container
+使用已发布镜像：
 
 ```bash
-docker run -p 8080:80 ghcr.io/schemaflow/schemaflow:latest
+docker run -p 8080:80 ghcr.io/lynn-lee/schemaflow:<version>
 ```
 
-#### Build and Run locally
+本地构建并运行：
 
 ```bash
 docker build -t schemaflow .
 docker run -p 8080:80 schemaflow
 ```
 
-#### Using Custom Inference Server
+访问：
+
+```text
+http://localhost:8080
+```
+
+## 可选 AI Gateway 配置
+
+SchemaFlow 不依赖 AI 即可使用 deterministic SQL / DBML 导入导出。若需要接入自托管推理服务，可以使用非敏感运行时配置：
 
 ```bash
-# Build
 docker build \
   --build-arg VITE_OPENAI_API_ENDPOINT=<YOUR_ENDPOINT> \
   --build-arg VITE_LLM_MODEL_NAME=<YOUR_MODEL_NAME> \
   -t schemaflow .
 
-# Run
 docker run \
   -e OPENAI_API_ENDPOINT=<YOUR_ENDPOINT> \
   -e LLM_MODEL_NAME=<YOUR_MODEL_NAME> \
   -p 8080:80 schemaflow
 ```
 
-> **Privacy Note:** SchemaFlow includes privacy-focused analytics via Fathom Analytics. You can disable this by adding `-e DISABLE_ANALYTICS=true` to the run command or `--build-arg VITE_DISABLE_ANALYTICS=true` when building.
+`OPENAI_API_ENDPOINT` 和 `LLM_MODEL_NAME` 只是非敏感提示信息，不应把长期 API key、生产数据库凭据或私有 schema 内容写入构建产物、镜像或仓库。
 
-> **Note:** `OPENAI_API_ENDPOINT` and `LLM_MODEL_NAME` are non-sensitive runtime
-> hints for self-hosted gateway deployments. Browser builds must not receive or
-> persist long-lived model provider API keys.
+## 项目结构
 
-Open your browser and navigate to `http://localhost:8080`.
-
-Example configuration for a local vLLM server:
-
-```bash
-VITE_OPENAI_API_ENDPOINT=http://localhost:8000/v1
-VITE_LLM_MODEL_NAME=Qwen/Qwen2.5-32B-Instruct-AWQ
+```text
+src/
+  components/        通用 UI 组件
+  context/           编辑器、配置、历史、导入导出等状态上下文
+  dialogs/           导入、导出、打开图表和建模弹窗
+  dialects/          方言能力、导入器和导出器边界
+  features/          设置、导入预览、onboarding 等功能模块
+  hooks/             编辑器和应用级 React hooks
+  i18n/              多语言资源
+  lib/               数据模型、SQL/DBML 导入导出、安全与工具函数
+  pages/             编辑器、模板和示例页面
+  schema-core/       Schema model 与 command 架构
+  storage/           Dexie 数据库、repository、backup 和 transaction 服务
+  templates-data/    内置示例 schema
+  workers/           导入预览等耗时任务 worker
 ```
 
-## Try it on our website
+## 贡献
 
-1. Go to [SchemaFlow.io](https://github.com/Lynn-Lee/SchemaFlow?ref=github_readme_2)
-2. Click "Go to app"
-3. Choose the database that you are using.
-4. Take the magic query and run it in your database.
-5. Copy and paste the resulting JSON set into SchemaFlow.
-6. Enjoy Viewing & Editing!
+贡献前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)。安全相关问题请参考 [SECURITY.md](SECURITY.md)，不要在公开 issue 中披露可利用细节。
 
-## 💚 Community & Support
+## 许可证
 
-- [Discord](https://discord.gg/QeFwyWSKwC) (For live discussion with the community and the SchemaFlow team)
-- [GitHub Issues](https://github.com/Lynn-Lee/SchemaFlow/issues) (For any bugs and errors you encounter using SchemaFlow)
-- [Twitter](https://x.com/intent/follow?screen_name=jonathanfishner) (Get news fast)
-
-## Contributing
-
-We welcome community contributions, big or small, and are here to guide you along
-the way. Message us in the [SchemaFlow Community Discord](https://discord.gg/QeFwyWSKwC).
-
-For more information on how to contribute, please see our
-[Contributing Guide](/CONTRIBUTING.md).
-
-This project is released with a [Contributor Code of Conduct](/CODE_OF_CONDUCT.md).
-By participating in this project, you agree to follow its terms.
-
-Thank you for helping us make SchemaFlow better for everyone :heart:.
-
-## License
-
-SchemaFlow is licensed under the [GNU Affero General Public License v3.0](LICENSE)
+本项目使用 [GNU Affero General Public License v3.0](LICENSE)。
