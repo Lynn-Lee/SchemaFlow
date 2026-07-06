@@ -318,6 +318,10 @@ export const en = {
                 title: 'What is your Database?',
                 description:
                     'Each database has its own unique features and capabilities.',
+                transactional: 'Transactional',
+                analytical: 'Analytical',
+                more_databases: 'More Databases',
+                primary_databases: 'Primary Databases',
                 check_examples_long: 'Check Examples',
                 check_examples_short: 'Examples',
             },
@@ -580,6 +584,31 @@ export const en = {
                 featured: 'Featured',
                 all_templates: 'All Templates',
                 tags: 'Tags',
+            },
+        },
+
+        examples_page: {
+            meta_title: 'SchemaFlow - Example Database Diagrams & Schemas',
+            heading: 'Examples',
+            description:
+                'A collection of examples to help you get started with SchemaFlow.',
+            prompt: 'Click on one',
+            items: {
+                '1': {
+                    name: 'Employees schema',
+                    description:
+                        'A schema for database of employees, departments, and salaries.',
+                },
+                '2': {
+                    name: 'Bike stores schema',
+                    description:
+                        'A schema for database of bike stores, brands, categories, and customers.',
+                },
+                '3': {
+                    name: 'DVD Rental schema',
+                    description:
+                        'A schema for database of a DVD rental store, including customers, films, actors, staff, and stores.',
+                },
             },
         },
 

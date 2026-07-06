@@ -15,6 +15,7 @@ import {
 } from '@/components/tooltip/tooltip';
 import { useTheme } from '@/hooks/use-theme';
 import { Spinner } from '@/components/spinner/spinner';
+import { useTranslation } from 'react-i18next';
 
 export interface ExampleCardProps {
     example: Example;
@@ -28,7 +29,14 @@ export const ExampleCard: React.FC<ExampleCardProps> = ({
     loading,
 }) => {
     const { effectiveTheme } = useTheme();
+    const { t } = useTranslation();
     const color = useRef(randomColor());
+    const name = t(`examples_page.items.${example.id}.name`, {
+        defaultValue: example.name,
+    });
+    const description = t(`examples_page.items.${example.id}.description`, {
+        defaultValue: example.description,
+    });
 
     return (
         <div
@@ -62,7 +70,7 @@ export const ExampleCard: React.FC<ExampleCardProps> = ({
                         </TooltipContent>
                     </Tooltip>
                     <Label className="cursor-pointer text-base font-bold">
-                        {example.name}
+                        {name}
                     </Label>
                 </div>
                 <div className="flex flex-row">
@@ -85,11 +93,11 @@ export const ExampleCard: React.FC<ExampleCardProps> = ({
                             ? example.imageDark
                             : example.image
                     }
-                    alt={example.name}
+                    alt={name}
                     className="w-fit object-cover"
                 />
             </div>
-            <div className="flex p-2 text-base">{example.description}</div>
+            <div className="flex p-2 text-base">{description}</div>
         </div>
     );
 };

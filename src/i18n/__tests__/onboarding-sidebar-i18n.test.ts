@@ -32,4 +32,19 @@ describe('onboarding dialog and editor sidebar i18n', () => {
             en.translation.editor_sidebar.settings
         );
     });
+
+    it('defines new diagram database selection labels in Simplified Chinese', () => {
+        expect(
+            zh_CN.translation.new_diagram_dialog.database_selection
+                .transactional
+        ).not.toBe(
+            en.translation.new_diagram_dialog.database_selection.transactional
+        );
+        expect(
+            zh_CN.translation.new_diagram_dialog.database_selection
+                .more_databases
+        ).not.toBe(
+            en.translation.new_diagram_dialog.database_selection.more_databases
+        );
+    });
 });

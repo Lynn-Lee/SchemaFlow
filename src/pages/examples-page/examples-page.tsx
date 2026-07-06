@@ -12,9 +12,11 @@ import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import { useStorage } from '@/hooks/use-storage';
 import type { Diagram } from '@/lib/domain/diagram';
+import { useTranslation } from 'react-i18next';
 
 const ExamplesPageComponent: React.FC = () => {
     const { effectiveTheme } = useTheme();
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const { addDiagram, deleteDiagram } = useStorage();
     const [loadingExampleId, setLoadingExampleId] = React.useState<string>();
@@ -51,7 +53,7 @@ const ExamplesPageComponent: React.FC = () => {
     return (
         <>
             <Helmet>
-                <title>SchemaFlow - Example Database Diagrams & Schemas</title>
+                <title>{t('examples_page.meta_title')}</title>
             </Helmet>
             <section className="flex w-screen flex-col bg-background">
                 <nav className="flex h-12 flex-row items-center justify-between border-b px-4">
@@ -79,14 +81,13 @@ const ExamplesPageComponent: React.FC = () => {
                 </nav>
                 <div className="flex flex-col px-3 pt-3 text-center md:px-28 md:text-left">
                     <h1 className="font-primary text-2xl font-bold">
-                        Examples
+                        {t('examples_page.heading')}
                     </h1>
                     <h2 className="mt-1 font-primary text-base text-muted-foreground">
-                        A collection of examples to help you get started with
-                        SchemaFlow.
+                        {t('examples_page.description')}
                     </h2>
                     <h2 className="mt-1 text-base font-semibold">
-                        Click on one 😀
+                        {t('examples_page.prompt')}
                     </h2>
                     <div className="mt-6 grid grid-flow-row grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {examples.map((example) => (

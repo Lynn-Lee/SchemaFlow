@@ -313,6 +313,10 @@ export const zh_CN: LanguageTranslation = {
             database_selection: {
                 title: '您是哪种数据库？',
                 description: '每种数据库都有其特性和功能。',
+                transactional: '事务型',
+                analytical: '分析型',
+                more_databases: '更多数据库',
+                primary_databases: '常用数据库',
                 check_examples_long: '查看样例',
                 check_examples_short: '样例',
             },
@@ -568,6 +572,30 @@ export const zh_CN: LanguageTranslation = {
                 featured: '精选',
                 all_templates: '全部模板',
                 tags: '标签',
+            },
+        },
+
+        examples_page: {
+            meta_title: 'SchemaFlow - 样例数据库关系图与 Schema',
+            heading: '样例数据库',
+            description: '这里提供几组样例，帮助你快速了解 SchemaFlow。',
+            prompt: '选择一个样例开始',
+            items: {
+                '1': {
+                    name: '员工数据库 Schema',
+                    description:
+                        '包含员工、部门、部门经理和薪资结构的数据库样例。',
+                },
+                '2': {
+                    name: '自行车商店 Schema',
+                    description:
+                        '包含品牌、分类、门店、客户和订单结构的数据库样例。',
+                },
+                '3': {
+                    name: 'DVD 租赁 Schema',
+                    description:
+                        '包含客户、影片、演员、员工、库存和门店结构的数据库样例。',
+                },
             },
         },
 

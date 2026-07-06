@@ -11,6 +11,7 @@ import {
     TabsList,
     TabsTrigger,
 } from '@/components/tabs/tabs';
+import { useTranslation } from 'react-i18next';
 export interface SelectDatabaseContentProps {
     databaseType: DatabaseType;
     setDatabaseType: React.Dispatch<React.SetStateAction<DatabaseType>>;
@@ -40,6 +41,7 @@ export const SelectDatabaseContent: React.FC<SelectDatabaseContentProps> = ({
     setDatabaseType,
     onContinue,
 }) => {
+    const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<'transactional' | 'analytical'>(
         'transactional'
     );
@@ -116,14 +118,18 @@ export const SelectDatabaseContent: React.FC<SelectDatabaseContentProps> = ({
                                 <div className="flex h-8 w-full cursor-pointer flex-row items-center justify-center gap-2 py-3 text-center md:h-12">
                                     <ChevronDown className="mr-2 size-3.5" />
                                     <span className="text-xs">
-                                        More Databases
+                                        {t(
+                                            'new_diagram_dialog.database_selection.more_databases'
+                                        )}
                                     </span>
                                 </div>
                             ) : (
                                 <div className="flex h-8 w-full cursor-pointer flex-row items-center justify-center gap-2 py-3 text-center md:h-12">
                                     <ChevronUp className="mr-2 size-3.5" />
                                     <span className="text-xs">
-                                        Primary Databases
+                                        {t(
+                                            'new_diagram_dialog.database_selection.primary_databases'
+                                        )}
                                     </span>
                                 </div>
                             )}
@@ -142,6 +148,7 @@ export const SelectDatabaseContent: React.FC<SelectDatabaseContentProps> = ({
             setDatabaseType,
             toggleRow,
             currentRow,
+            t,
         ]
     );
 
@@ -158,13 +165,15 @@ export const SelectDatabaseContent: React.FC<SelectDatabaseContentProps> = ({
                         value="transactional"
                         className="gap-1.5 rounded-lg px-3 py-1 text-sm font-medium transition-all data-[state=active]:bg-sky-600 data-[state=active]:text-white data-[state=inactive]:text-muted-foreground data-[state=active]:shadow-sm data-[state=inactive]:hover:bg-muted/50 data-[state=inactive]:hover:text-foreground dark:data-[state=active]:bg-sky-500"
                     >
-                        Transactional
+                        {t(
+                            'new_diagram_dialog.database_selection.transactional'
+                        )}
                     </TabsTrigger>
                     <TabsTrigger
                         value="analytical"
                         className="gap-1.5 rounded-lg px-3 py-1 text-sm font-medium transition-all data-[state=active]:bg-sky-600 data-[state=active]:text-white data-[state=inactive]:text-muted-foreground data-[state=active]:shadow-sm data-[state=inactive]:hover:bg-muted/50 data-[state=inactive]:hover:text-foreground dark:data-[state=active]:bg-sky-500"
                     >
-                        Analytical
+                        {t('new_diagram_dialog.database_selection.analytical')}
                     </TabsTrigger>
                 </TabsList>
                 <TabsContent
