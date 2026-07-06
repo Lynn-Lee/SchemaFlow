@@ -564,6 +564,9 @@ export const zh_CN: LanguageTranslation = {
             heading_featured: '精选数据库 schema 模板',
             heading_tagged: '{{tag}} 数据库 schema 模板',
             heading_all: '数据库 schema 模板',
+            breadcrumb: '模板',
+            detail_subtitle: '数据库 schema 关系图',
+            detail_meta_title: '{{name}} 数据库 schema 关系图 | SchemaFlow',
             description:
                 '浏览真实世界的数据库 schema 图集合，涵盖示例应用和热门开源项目。',
             description_tagged:
@@ -629,6 +632,27 @@ export const zh_CN: LanguageTranslation = {
 
         language_select: {
             change_language: '语言',
+            screen_reader_change_language: '切换语言',
+            experimental: '实验性',
+        },
+
+        import_preview: {
+            ready: '导入预览已生成',
+            confidence: '置信度：{{confidence}}',
+            tables: '{{count}} 个表',
+            relationships: '{{count}} 个关系',
+            custom_types: '{{count}} 个自定义类型',
+            warnings: '{{count}} 条警告',
+            skipped: '已跳过 {{objectType}}{{name}}：{{reason}}',
+            errors: {
+                no_importable_objects:
+                    '预览中没有可导入的表、关系或自定义类型。请检查粘贴的 Smart Query JSON 或所选数据库方言。',
+                cancelled: '导入预览已取消。',
+                parse_default: '无法解析导入内容。',
+                parse_failed:
+                    '预览失败：{{message}}。请检查 Smart Query JSON、SQL 语法或方言限制后重试。',
+                message: '{{message}}',
+            },
         },
 
         on: '开启',

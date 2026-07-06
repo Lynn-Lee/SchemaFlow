@@ -8,6 +8,7 @@ import { zh_CN } from '../locales/zh_CN';
 const ALLOWED_IDENTICAL_PATHS = new Set([
     'export_sql_dialog.mode.ai',
     'export_diagram_dialog.format_json',
+    'import_preview.errors.message',
 ]);
 
 type Tree = { [key: string]: Tree | string };

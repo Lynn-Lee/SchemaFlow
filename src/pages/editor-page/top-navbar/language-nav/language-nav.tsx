@@ -31,7 +31,7 @@ export const LanguageNav: React.FC<LanguageNavProps> = () => {
         value: lang.code,
         description:
             lang.status === 'experimental'
-                ? `(${lang.name}, experimental)`
+                ? `(${lang.name}, ${t('language_select.experimental')})`
                 : `(${lang.name})`,
     }));
 
@@ -64,7 +64,11 @@ export const LanguageNav: React.FC<LanguageNavProps> = () => {
                             )}
                         >
                             <Globe className="size-3.5 md:size-4" />
-                            <span className="sr-only">Change language</span>
+                            <span className="sr-only">
+                                {t(
+                                    'language_select.screen_reader_change_language'
+                                )}
+                            </span>
                         </div>
                     </DropdownMenuTrigger>
                 </TooltipTrigger>

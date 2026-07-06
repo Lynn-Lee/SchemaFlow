@@ -7,6 +7,16 @@ import { zh_CN } from './locales/zh_CN';
 
 const fallbackLanguageCode = 'zh_CN';
 
+const toHtmlLang = (language: string): string => language.replace('_', '-');
+
+const syncDocumentLanguage = (language?: string): void => {
+    if (typeof document === 'undefined' || !language) {
+        return;
+    }
+
+    document.documentElement.lang = toHtmlLang(language);
+};
+
 const experimentalLanguageCodes = new Set([
     'ar',
     'bn',
@@ -152,5 +162,8 @@ i18n.use(lazyLocaleBackend)
         },
         debug: false,
     });
+
+i18n.on('languageChanged', syncDocumentLanguage);
+syncDocumentLanguage(i18n.resolvedLanguage ?? i18n.language);
 
 export { i18n };

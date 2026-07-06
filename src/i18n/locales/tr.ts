@@ -561,6 +561,10 @@ export const tr: LanguageTranslation = {
             heading_featured: 'Featured database schema templates',
             heading_tagged: 'Database schema templates for {{tag}}',
             heading_all: 'Database schema templates',
+            breadcrumb: 'Templates',
+            detail_subtitle: 'Database schema diagram',
+            detail_meta_title:
+                'Database schema diagram for {{name}} | SchemaFlow',
             description:
                 'Discover a collection of real-world database schema diagrams, featuring example applications and popular open-source projects.',
             description_tagged:
@@ -628,6 +632,27 @@ export const tr: LanguageTranslation = {
 
         language_select: {
             change_language: 'Dil',
+            screen_reader_change_language: 'Change language',
+            experimental: 'experimental',
+        },
+
+        import_preview: {
+            ready: 'Import preview ready',
+            confidence: 'Confidence: {{confidence}}',
+            tables: '{{count}} tables',
+            relationships: '{{count}} relationships',
+            custom_types: '{{count}} custom types',
+            warnings: '{{count}} warnings',
+            skipped: '{{objectType}}{{name}} was skipped: {{reason}}',
+            errors: {
+                no_importable_objects:
+                    'Preview found no importable tables, relationships, or custom types. Check the pasted Smart Query JSON or the selected database dialect.',
+                cancelled: 'Import preview cancelled.',
+                parse_default: 'Unable to parse the import input.',
+                parse_failed:
+                    'Preview failed: {{message}}. Check the Smart Query JSON, SQL syntax, or dialect limitations before trying again.',
+                message: '{{message}}',
+            },
         },
 
         on: 'Açık',

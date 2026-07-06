@@ -2,6 +2,7 @@ import React from 'react';
 import { AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { ScrollArea } from '@/components/scroll-area/scroll-area';
 import type { ImportPreviewSummary } from './import-preview';
+import { useTranslation } from 'react-i18next';
 
 interface ImportPreviewPanelProps {
     preview: ImportPreviewSummary;
@@ -10,20 +11,42 @@ interface ImportPreviewPanelProps {
 export const ImportPreviewPanel: React.FC<ImportPreviewPanelProps> = ({
     preview,
 }) => {
+    const { t } = useTranslation();
+
     return (
         <div className="mt-2 rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
             <div className="flex items-start gap-2">
                 <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-green-600 dark:text-green-400" />
                 <div className="min-w-0 flex-1">
-                    <div className="font-medium">Import preview ready</div>
+                    <div className="font-medium">
+                        {t('import_preview.ready')}
+                    </div>
                     <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs">
-                        <span>Confidence: {preview.confidence}</span>
-                        <span>{preview.counts.tables} tables</span>
                         <span>
-                            {preview.counts.relationships} relationships
+                            {t('import_preview.confidence', {
+                                confidence: preview.confidence,
+                            })}
                         </span>
-                        <span>{preview.counts.customTypes} custom types</span>
-                        <span>{preview.counts.warnings} warnings</span>
+                        <span>
+                            {t('import_preview.tables', {
+                                count: preview.counts.tables,
+                            })}
+                        </span>
+                        <span>
+                            {t('import_preview.relationships', {
+                                count: preview.counts.relationships,
+                            })}
+                        </span>
+                        <span>
+                            {t('import_preview.custom_types', {
+                                count: preview.counts.customTypes,
+                            })}
+                        </span>
+                        <span>
+                            {t('import_preview.warnings', {
+                                count: preview.counts.warnings,
+                            })}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -68,11 +91,13 @@ export const ImportPreviewPanel: React.FC<ImportPreviewPanelProps> = ({
                                     >
                                         <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
                                         <span>
-                                            {object.objectType}
-                                            {object.name
-                                                ? ` "${object.name}"`
-                                                : ''}{' '}
-                                            was skipped: {object.reason}
+                                            {t('import_preview.skipped', {
+                                                objectType: object.objectType,
+                                                name: object.name
+                                                    ? ` "${object.name}"`
+                                                    : '',
+                                                reason: object.reason,
+                                            })}
                                         </span>
                                     </div>
                                 ))}

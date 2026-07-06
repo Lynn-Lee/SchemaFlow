@@ -29,4 +29,12 @@ describe('i18n default language', () => {
 
         expect(zhCN?.status).toBe('stable');
     });
+
+    it('keeps the document language in sync with explicit language changes', async () => {
+        await i18n.changeLanguage('en');
+        expect(document.documentElement.lang).toBe('en');
+
+        await i18n.changeLanguage('zh_CN');
+        expect(document.documentElement.lang).toBe('zh-CN');
+    });
 });

@@ -33,6 +33,7 @@ import { SchemaFlowProvider } from '@/context/schemaflow-context/schemaflow-prov
 import { Helmet } from 'react-helmet-async';
 import { APP_URL, HOST_URL } from '@/lib/env';
 import { Link } from '@/components/link/link';
+import { useTranslation } from 'react-i18next';
 
 export interface TemplatePageLoaderData {
     template: Template | undefined;
@@ -40,6 +41,7 @@ export interface TemplatePageLoaderData {
 
 const TemplatePageComponent: React.FC = () => {
     const { templateSlug } = useParams<{ templateSlug: string }>();
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const data = useLoaderData() as TemplatePageLoaderData;
 
@@ -74,7 +76,9 @@ const TemplatePageComponent: React.FC = () => {
                             />
                         ) : null}
                         <title>
-                            {`Database schema diagram for - ${template.name} | SchemaFlow`}
+                            {t('templates_page.detail_meta_title', {
+                                name: template.name,
+                            })}
                         </title>
                         <meta
                             name="description"
@@ -82,7 +86,9 @@ const TemplatePageComponent: React.FC = () => {
                         />
                         <meta
                             property="og:title"
-                            content={`Database schema diagram for - ${template.name} | SchemaFlow`}
+                            content={t('templates_page.detail_meta_title', {
+                                name: template.name,
+                            })}
                         />
                         <meta
                             property="og:url"
@@ -160,7 +166,7 @@ const TemplatePageComponent: React.FC = () => {
                             <BreadcrumbList>
                                 <BreadcrumbItem>
                                     <BreadcrumbLink href={`/templates`}>
-                                        Templates
+                                        {t('templates_page.breadcrumb')}
                                     </BreadcrumbLink>
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator />
@@ -178,7 +184,7 @@ const TemplatePageComponent: React.FC = () => {
                                 <h1 className="flex flex-col font-primary text-2xl font-bold">
                                     {template?.name}
                                     <span className="text-sm font-normal text-muted-foreground">
-                                        Database schema diagram
+                                        {t('templates_page.detail_subtitle')}
                                     </span>
                                 </h1>
                                 <h2 className="mt-3">

@@ -249,7 +249,7 @@ export const CreateDiagramDialog: React.FC<CreateDiagramDialogProps> = ({
 
                 if (!preview.preview.hasImportableObjects) {
                     setImportError(
-                        'Preview found no importable tables, relationships, or custom types. Check the pasted Smart Query JSON or the selected database dialect.'
+                        t('import_preview.errors.no_importable_objects')
                     );
                     return;
                 }
@@ -276,15 +276,15 @@ export const CreateDiagramDialog: React.FC<CreateDiagramDialogProps> = ({
             });
         } catch (error) {
             if (previewAbortControllerRef.current?.signal.aborted) {
-                setImportError('Import preview cancelled.');
+                setImportError(t('import_preview.errors.cancelled'));
                 return;
             }
             const message =
                 error instanceof Error
                     ? error.message
-                    : 'Unable to parse the import input.';
+                    : t('import_preview.errors.parse_default');
             setImportError(
-                `Preview failed: ${message}. Check the Smart Query JSON, SQL syntax, or dialect limitations before trying again.`
+                t('import_preview.errors.parse_failed', { message })
             );
         } finally {
             previewAbortControllerRef.current = null;
@@ -299,6 +299,7 @@ export const CreateDiagramDialog: React.FC<CreateDiagramDialogProps> = ({
         databaseEdition,
         parsedMetadata,
         importNewDiagram,
+        t,
     ]);
 
     const setScriptResultAndResetPreview = useCallback<
